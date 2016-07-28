@@ -1,8 +1,15 @@
 # Clusters
 
-Cluster package analysis
+*Warning*: This package is under development!
+
+Python package wrapping up the ongoing cluster analysis of the french LSST/DESC group. For more info, see the two following github repos:
+
+- https://github.com/lsst-france/LSST_notebooks
+- https://github.com/DarkEnergyScienceCollaboration/ReprocessingTaskForce
 
 ## Installation
+
+
 
 To install a release version:
 
@@ -11,10 +18,10 @@ pip install http://github.com/nicolaschotard/Cluster/archive/v0.1.tar.gz
 ```
 
 Release versions are listed
-[here](http://github.com/nicolaschotard/Cluster/releases). `Clusters`
+[here](http://github.com/nicolaschotard/Clusters/releases). `Clusters`
 has for now (too) many dependencies:
 
-- The lsststack ! (see [here](https://developer.lsst.io/build-ci/lsstsw.html))
+- The lsst DM stack! (see [here](https://developer.lsst.io/build-ci/lsstsw.html))
 - Python 2.7
 - numpy
 - matplotlib
@@ -31,19 +38,19 @@ to run in the right order.
 Get the input data and put them in a nice format.
 
 ```
-clusters_data config.json output.pkl
+clusters_data config.yaml output.pkl
 ```
 
 Get the photometric redshift using LEPHARE
 
 ```
-clusters_zphot config.json input.pkl output.pkl
+clusters_zphot config.yaml input.pkl output.pkl
 ```
 
 Exctract background galaxies from the whole sample (remove the red sequence)
 
 ```
-clusters_background config.json input.pkl output.pkl
+clusters_background config.yaml input.pkl output.pkl
 ```
 
 Etc.
@@ -54,7 +61,7 @@ optional arguments, e.g., `cubefit --help`.
 Input format
 ------------
 
-All the scripts will take the same input JSON file. Keys are
+All the scripts will take the same input YAML file. Keys are
 case-sensitive. Additional keys are simply ignored. Each script will
 aslo have a set of option that you can use.
 

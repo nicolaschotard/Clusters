@@ -3,6 +3,9 @@ From http://argonaut.skymaps.info/usage#function-call
 """
 
 import json, requests
+import pylab as P
+import numpy as N
+import seaborn
 
 def query(lon, lat, coordsys='gal', mode='full'):
     '''
@@ -78,3 +81,25 @@ def from_sdss_albd_TO_megacam_albd(sdss):
 def from_ebv_sfd_TO_megacam_albd(ebv):
     """Return A(lbd) for the 6 Megacam filters: u, g, r, i, z"""
     return from_sdss_albd_TO_megacam_albd(from_ebv_sfd_TO_sdss_albd(ebv))
+
+def plots(ra, dec, ebv, albd, title=None, filters=None):
+
+    fig = P.figure()
+    ax = fig.add_subplot(111, xlabel='RA (deg)', ylabel='DEC (deg)')
+    scat = ax.scatter(ra, dec, c=ebv, cmap=(P.cm.jet))
+    cb = fig.colorbar(scat)
+    cb.set_label('E(B-V)')
+    if title is not None:
+        ax.set_title(title)
+
+    if filters is None:
+        filters = albd.keys()
+    fig = P.figure()
+    ax = fig.add_subplot(111, xlabel='A(lbd)', ylabel='#')
+    for f in filters:
+        ax.hist(albd[f], histtype='step', lw=2, label='<%s>=%.2f' % (f, N.mean(albd[f])))
+    if title is not None:
+        ax.set_title(title)
+    ax.legend(loc='best')
+
+    P.show()
