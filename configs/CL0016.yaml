@@ -1,0 +1,9 @@
+{
+    "cluster": "CL0016",
+    "ra": 4.6375,
+    "dec": 16.4369,
+    "redshift": 0.5410,
+    "filters": "ugriz",
+    "butler": "/sps/lsst/dev/lsstprod/clusters/CL0016+16/output/coadd_dir",
+    "patches": ['3,3', '4,3', '3,4', '4,4']
+}

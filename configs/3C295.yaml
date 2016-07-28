@@ -1,0 +1,9 @@
+{
+    "cluster": "3C295",
+    "ra": 212.8355,
+    "dec": 52.20277,
+    "redshift": 0.4641,
+    "filters": "ugriz",
+    "butler": "/sps/lsst/dev/nchotard/clusters/3C295/output/coadd_dir",
+    "patches": ["6,5", "6,6", "7,5", "7,6"]
+}
