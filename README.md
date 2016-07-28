@@ -1,6 +1,6 @@
 # Clusters
 
-*Warning*: This package is under development!
+***Warning***: This package is under development!
 
 Python package wrapping up the ongoing cluster analysis of the french LSST/DESC group. For more info, see the two following github repos:
 
@@ -9,7 +9,12 @@ Python package wrapping up the ongoing cluster analysis of the french LSST/DESC 
 
 ## Installation
 
+To install (use --prefix to install it locally)
 
+```
+git clone https://github.com/nicolaschotard/Clusters.git
+pip install Clusters/
+```
 
 To install a release version:
 
@@ -18,8 +23,9 @@ pip install http://github.com/nicolaschotard/Cluster/archive/v0.1.tar.gz
 ```
 
 Release versions are listed
-[here](http://github.com/nicolaschotard/Clusters/releases). `Clusters`
-has for now (too) many dependencies:
+[here](http://github.com/nicolaschotard/Clusters/releases).
+
+`Clusters` has for now (too) many dependencies:
 
 - The lsst DM stack! (see [here](https://developer.lsst.io/build-ci/lsstsw.html))
 - Python 2.7
@@ -35,11 +41,19 @@ Usage
 `Clusters` consists of several command-line executables that you have
 to run in the right order.
 
-Get the input data and put them in a nice format.
+Get the input data and dump them in a pickle file (will change soon).
 
 ```
 clusters_data config.yaml output.pkl
 ```
+
+Correct the data for Milky Way extinction (output.pkl is the output of the previous step)
+
+```
+clusters_extinction.py config.yaml output.pkl --plot
+```
+
+**Next parts will come soon**
 
 Get the photometric redshift using LEPHARE
 
