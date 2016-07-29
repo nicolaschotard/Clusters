@@ -82,7 +82,7 @@ class LEPHARO:
         self.data_dict = {v: a for v, a in zip(self.variables, self.data_array)}
         self.nsources = len(self.data_dict['Z_BEST'])
 
-    def hist(self, param, min=None, max=None, nbins=None, xlabel=None, title=None, zclust=None):
+    def hist(self, param, min=None, max=None, nbins=None, xlabel=None, title=None, zclust=None, figname=""):
         pval = self.data_dict[param]
         filt = N.array([1]*len(pval), dtype='bool')
         if min is not None:
@@ -102,8 +102,10 @@ class LEPHARO:
             ax.axvline(zclust, color='r', label='Cluster redshift (%.4f)' % zclust)
             ax.legend(loc='best')
 
+        fig.savefig(figname+"_"+xlabel+"_zphot_hist.png")
+
     def plot(self, px, py, minx=None, maxx=None, miny=None, maxy=None,
-             xlabel=None, ylabel=None, title=None):
+             xlabel=None, ylabel=None, title=None, figname=""):
         pvalx = self.data_dict[px]
         pvaly = self.data_dict[py]
         filt = N.array([1]*len(pvalx), dtype='bool')
@@ -127,6 +129,8 @@ class LEPHARO:
         ax.set_ylabel(ylabel)
         if title is not None:
             ax.set_title(title)
+
+        fig.savefig(figname+"_%s_vs_%s_zphot.png" % (ylabel, xlabel))
         
 def dict_to_array(d, filters='ugriz'):
     return N.array([N.array(d[f]) for f in filters])

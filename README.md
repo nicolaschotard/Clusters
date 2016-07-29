@@ -63,7 +63,9 @@ clusters_zphot.py config.yaml input_extcorr.pkl --plot
 
 **Next parts will come soon**
 
-Exctract background galaxies from the whole sample (remove the red sequence)
+Exctract background galaxies from the whole sample: remove the cluster
+galaxies (red sequence) and other foreground galaxies using the
+photometric redshifts.
 
 ```
 clusters_getbackground config.yaml input.pkl output.pkl

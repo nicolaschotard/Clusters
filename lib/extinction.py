@@ -82,7 +82,7 @@ def from_ebv_sfd_TO_megacam_albd(ebv):
     """Return A(lbd) for the 6 Megacam filters: u, g, r, i, z"""
     return from_sdss_albd_TO_megacam_albd(from_ebv_sfd_TO_sdss_albd(ebv))
 
-def plots(ra, dec, ebv, albd, title=None, filters=None):
+def plots(ra, dec, ebv, albd, title=None, figname="", filters=None):
 
     fig = P.figure()
     ax = fig.add_subplot(111, xlabel='RA (deg)', ylabel='DEC (deg)')
@@ -91,7 +91,8 @@ def plots(ra, dec, ebv, albd, title=None, filters=None):
     cb.set_label('E(B-V)')
     if title is not None:
         ax.set_title(title)
-
+    fig.savefig(figname+"_ebmv_map.png")
+    
     if filters is None:
         filters = albd.keys()
     fig = P.figure()
@@ -101,5 +102,6 @@ def plots(ra, dec, ebv, albd, title=None, filters=None):
     if title is not None:
         ax.set_title(title)
     ax.legend(loc='best')
+    fig.savefig(figname+"_albd.png")
 
     P.show()

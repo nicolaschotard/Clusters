@@ -54,4 +54,5 @@ if __name__ == "__main__":
     if args.plot:
         print "INFO: Making some plots"
         extinction.plots(allra, alldec, ebv_sfd, albd, filters=['u', 'g', 'r', 'i_old', 'i_new', 'z'],
-                         title='Dust extinction map, %s, %i sources' % (config['cluster'], len(allra)))
+                         title='Dust extinction map, %s, %i sources' % (config['cluster'], len(allra)),
+                         figname=config['cluster'])

@@ -13,12 +13,13 @@ def doplot(data):
     
     print "INFO: Making some plots"
     data.hist('Z_BEST', min=0, nbins=100, xlabel='Photometric redshift',
+              figname=config['cluster'],
               title="LEPHARE photo-z for %s (%i sources)" % \
               (config['cluster'], data.nsources), zclust=config['redshift'])
-    data.hist('CHI_BEST', nbins=100, max=100,
+    data.hist('CHI_BEST', nbins=100, max=100, figname=config['cluster'],
               title="LEPHARE photo-z for %s (%i sources)" % \
               (config['cluster'], data.nsources))
-    data.plot('CHI_BEST', 'Z_BEST', miny=0)
+    data.plot('CHI_BEST', 'Z_BEST', miny=0, figname=config['cluster'])
     zphot.P.show()
 
 if __name__ == "__main__":
