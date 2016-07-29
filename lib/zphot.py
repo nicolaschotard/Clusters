@@ -90,7 +90,7 @@ class LEPHARO:
         if max is not None:
             filt &= (pval <= max)
         pval = pval[filt]
-        fig = P.figure(figsize=(12,8))
+        fig = P.figure()
         ax = fig.add_subplot(111, ylabel='#')
         ax.hist(pval, bins=nbins if nbins is not None else 10)
         if xlabel is None:
@@ -118,7 +118,7 @@ class LEPHARO:
         if maxy is not None:
             filt &= (pvaly <= maxy)
         pvalx, pvaly = pvalx[filt], pvaly[filt]
-        fig = P.figure(figsize=(12,8))
+        fig = P.figure()
         ax = fig.add_subplot(111)
         ax.scatter(pvalx, pvaly)
         if xlabel is None:
