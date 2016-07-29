@@ -42,7 +42,7 @@ if __name__ == "__main__":
     mags = {f: [] for f in filters}
     mags_sigma = {f: [] for f in filters}
     ell = {f: {'e1': [], 'e2': []} for f in filters}
-    coords = {'ra': [], 'dec': []}
+    coords = {'ra': [], 'dec': [], 'id': []}
     resolution = {f: [] for f in filters}
     xSrc, ySrc = [], []
     
@@ -135,6 +135,7 @@ if __name__ == "__main__":
             x, y = wcs.skyToPixel(ra, dec)
             coords['ra'].append(float(ra))
             coords['dec'].append(float(dec))
+            coords['id'].append(int(meas[filters[0]][i].get("id")))
             xSrc.append(x)
             ySrc.append(y)
     

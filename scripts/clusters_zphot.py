@@ -20,6 +20,9 @@ def doplot(data):
               title="LEPHARE photo-z for %s (%i sources)" % \
               (config['cluster'], data.nsources))
     data.plot('CHI_BEST', 'Z_BEST', miny=0, figname=config['cluster'])
+    data.plot_map(title="LEPHARE photometric redshift map for %s (%i sources)"%\
+                  (config['cluster'], data.nsources), figname=config['cluster'],
+                  zmin=args.zmin, zmax=args.zmax)
     zphot.P.show()
 
 if __name__ == "__main__":
@@ -33,6 +36,10 @@ if __name__ == "__main__":
                         help="LEPHARE output file, used for the plots")
     parser.add_argument("--plot", action='store_true', default=False,
                         help="Make some plots")
+    parser.add_argument("--zmin", type=float, default=0,
+                        help="Redshift cut used to plot the map (min value)")
+    parser.add_argument("--zmax", type=float, default=999,
+                        help="Redshift cut used to plot the map (max value)")
     args = parser.parse_args()
 
     config = yaml.load(open(args.config))
@@ -46,7 +53,7 @@ if __name__ == "__main__":
     print "INFO: Working on filters", filters
 
     if args.data is not None:
-        doplot(zphot.LEPHARO(args.data))
+        doplot(zphot.LEPHARO(args.data, args.data.replace('out', 'all')))
         sys.exit()
         
     # And dump them into a file
@@ -56,7 +63,8 @@ if __name__ == "__main__":
     reload(zphot)
     zp = zphot.LEPHARE(zphot.dict_to_array(mags, filters=filters), 
                        zphot.dict_to_array(mags_sigma, filters=filters), 
-                       config['cluster'], filters=filters)
+                       config['cluster'], filters=filters,
+                       RA=coords['ra'], DEC=coords['dec'], ID=coords['id'])
     zp.run()
 
     cPickle.dump(zp.data_out.data_dict, open(args.output, 'w'))
