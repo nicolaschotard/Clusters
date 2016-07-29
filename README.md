@@ -55,18 +55,18 @@ Correct the data for Milky Way extinction (output.pkl is the output of the previ
 clusters_extinction.py config.yaml output.pkl --plot
 ```
 
-**Next parts will come soon**
-
 Get the photometric redshift using LEPHARE
 
 ```
-clusters_zphot config.yaml input.pkl output.pkl
+clusters_zphot.py config.yaml input_extcorr.pkl --plot
 ```
+
+**Next parts will come soon**
 
 Exctract background galaxies from the whole sample (remove the red sequence)
 
 ```
-clusters_background config.yaml input.pkl output.pkl
+clusters_getbackground config.yaml input.pkl output.pkl
 ```
 
 Etc.
