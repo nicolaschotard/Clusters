@@ -1,5 +1,7 @@
+import os
 import numpy as N
 import pylab as P
+import seaborn
 import subprocess
 
 class LEPHARE:
@@ -78,19 +80,53 @@ class LEPHARO:
         self.data_array = N.loadtxt(self.output, unpack=True)
         self.variables = N.loadtxt(os.getenv('LEPHAREDIR')+"/config/zphot_output.para", dtype='string')
         self.data_dict = {v: a for v, a in zip(self.variables, self.data_array)}
+        self.nsources = len(self.data_dict['Z_BEST'])
 
-    def plot(self, param, min=None, max=None, nbins=None):
+    def hist(self, param, min=None, max=None, nbins=None, xlabel=None, title=None, zclust=None):
         pval = self.data_dict[param]
-        filt = [True] * len(pval)
+        filt = N.array([1]*len(pval), dtype='bool')
         if min is not None:
-            filt &= pval >= min
+            filt &= (pval >= min)
         if max is not None:
-            filt &= pval <= max
+            filt &= (pval <= max)
         pval = pval[filt]
         fig = P.figure(figsize=(12,8))
-        ax = fig.add_subplot(111, xlabel=param)
-        ax.hist(pval, bins=nbins)
-        P.show()
+        ax = fig.add_subplot(111, ylabel='#')
+        ax.hist(pval, bins=nbins if nbins is not None else 10)
+        if xlabel is None:
+            xlabel = param
+        ax.set_xlabel(xlabel)
+        if title is not None:
+            ax.set_title(title)
+        if zclust is not None:
+            ax.axvline(zclust, color='r', label='Cluster redshift (%.4f)' % zclust)
+            ax.legend(loc='best')
+
+    def plot(self, px, py, minx=None, maxx=None, miny=None, maxy=None,
+             xlabel=None, ylabel=None, title=None):
+        pvalx = self.data_dict[px]
+        pvaly = self.data_dict[py]
+        filt = N.array([1]*len(pvalx), dtype='bool')
+        if minx is not None:
+            filt &= (pvalx >= minx)
+        if maxx is not None:
+            filt &= (pvalx <= maxx)
+        if miny is not None:
+            filt &= (pvaly >= miny)
+        if maxy is not None:
+            filt &= (pvaly <= maxy)
+        pvalx, pvaly = pvalx[filt], pvaly[filt]
+        fig = P.figure(figsize=(12,8))
+        ax = fig.add_subplot(111)
+        ax.scatter(pvalx, pvaly)
+        if xlabel is None:
+            xlabel = px
+        if ylabel is None:
+            ylabel = py        
+        ax.set_xlabel(xlabel)
+        ax.set_ylabel(ylabel)
+        if title is not None:
+            ax.set_title(title)
         
 def dict_to_array(d, filters='ugriz'):
     return N.array([N.array(d[f]) for f in filters])

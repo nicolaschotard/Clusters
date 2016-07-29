@@ -9,14 +9,16 @@ Python package wrapping up the ongoing cluster analysis of the french LSST/DESC 
 
 ## Installation
 
-To install (use --prefix to install it locally)
+To install
 
 ```
 git clone https://github.com/nicolaschotard/Clusters.git
 pip install Clusters/
 ```
 
-To install a release version:
+Use --prefix to install it locally, and --upgrade to udate to a new version.
+
+To install a release version (no release version available yet):
 
 ```
 pip install http://github.com/nicolaschotard/Cluster/archive/v0.1.tar.gz
@@ -75,9 +77,12 @@ optional arguments, e.g., `cubefit --help`.
 Input format
 ------------
 
-All the scripts will take the same input YAML file. Keys are
-case-sensitive. Additional keys are simply ignored. Each script will
-aslo have a set of option that you can use.
+All the scripts will take the same input YAML file. Keys are listed
+below and are case-sensitive. Additional keys are simply ignored. You
+can find examples of these comfiguration files in the
+[config](https://github.com/nicolaschotard/Clusters/blob/master/configs)
+directory, or clicking here for
+[MACSJ2243.3-0935](https://github.com/nicolaschotard/Clusters/blob/master/configs/MACSJ2243.3-0935.yaml).
 
 | Parameter        | Type     | Description [units]                   |
 | ---------------- | ------   | ------------------------------------- |
@@ -88,3 +93,5 @@ aslo have a set of option that you can use.
 | `"filters"`     | *string*  | Filter list to study, e.g., 'ugriz' (Megacam filters) |
 | `"butler"`     | *string*  | Absolute path to the intput data (butler) |
 | `"patches"`     | *list*  | List of patches to study |
+
+Each script will aslo have a set of options.
