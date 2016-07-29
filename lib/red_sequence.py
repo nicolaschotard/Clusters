@@ -157,62 +157,62 @@ def fitRedSequence(diffMag, mag, minDiff=1.0, maxDiff=2.0, minMag=20.0, maxMag=2
                 sigmaMin = p1[2]
                 param = p1
 
-                fig, (ax0) = P.subplots(ncols=1, figsize=(18, 10))
-                ax0.scatter(val, sigma, s=5, color='b')
-                bestSlope = val[N.argmin(N.asarray(sigma))]
+        fig, (ax0) = P.subplots(ncols=1, figsize=(18, 10))
+        ax0.scatter(val, sigma, s=5, color='b')
+        bestSlope = val[N.argmin(N.asarray(sigma))]
 
-                #    print "Best slope:", bestSlope, sigmaMin
-                #    print param
+        #    print "Best slope:", bestSlope, sigmaMin
+        #    print param
 
-                # Fit a parabola on the (slope, sigma) distribution to find the RS slope
-                # corresponding to the minimum sigma
-                func = lambda p, z: p[0]*z*z + p[1]*z + p[2]
-                dist = lambda p, z, y: (func(p, z) - y)
-                p0 = [1., 1., 1.]
-                p1,cov,infodict1,mesg,ier = optimize.leastsq(dist, p0[:], args=(N.asarray(val), N.asarray(sigma)), full_output=True)
-                fitSlope = -0.5*p1[1]/p1[0]
+        # Fit a parabola on the (slope, sigma) distribution to find the RS slope
+        # corresponding to the minimum sigma
+        func = lambda p, z: p[0]*z*z + p[1]*z + p[2]
+        dist = lambda p, z, y: (func(p, z) - y)
+        p0 = [1., 1., 1.]
+        p1,cov,infodict1,mesg,ier = optimize.leastsq(dist, p0[:], args=(N.asarray(val), N.asarray(sigma)), full_output=True)
+        fitSlope = -0.5*p1[1]/p1[0]
 
-                ax0.plot(N.asarray(val), func(p1,N.asarray(val)), color='r')
-                ax0.tick_params(labelsize=20)
-                ax0.set_xlabel("Red sequence slope")
-                ax0.set_ylabel("Sigma")
+        ax0.plot(N.asarray(val), func(p1,N.asarray(val)), color='r')
+        ax0.tick_params(labelsize=20)
+        ax0.set_xlabel("Red sequence slope")
+        ax0.set_ylabel("Sigma")
 
-                ss_err=(infodict1['fvec']**2).sum()
-                ss_tot=((N.asarray(sigma)-N.asarray(sigma).mean())**2).sum()
-                rsquared=1-(ss_err/ss_tot)
-                print "R^2 = ", rsquared
-                if rsquared < 0.9 :
-                    print "Bad fit - take absolute minimun instead of fitted value"
-                    fitSlope = bestSlope
-                    print("Fitted minimum: %f"%fitSlope)
+        ss_err=(infodict1['fvec']**2).sum()
+        ss_tot=((N.asarray(sigma)-N.asarray(sigma).mean())**2).sum()
+        rsquared=1-(ss_err/ss_tot)
+        print "R^2 = ", rsquared
+        if rsquared < 0.9 :
+            print "Bad fit - take absolute minimun instead of fitted value"
+            fitSlope = bestSlope
+            print("Fitted minimum: %f"%fitSlope)
 
-                    # Plot RS projection corresponding to the fitted optimal slope
-                    nbins = 40
-                    alpha = math.atan(slope)
-                    dy = N.cos(alpha)*((magRef-mag)*fitSlope + diffMag - diffRef)
-                    idx = N.where( (diffMag > minDiff) & (diffMag < maxDiff) & (mag < maxMag) & (mag > minMag) )
-                    fig, (ax2) = P.subplots(ncols=1, figsize=(18, 10))
-                    n, bins, patches = ax2.hist(dy[idx], bins=nbins, color='b')
-                    x = N.asarray([0.5*(bins[i+1]-bins[i])+bins[i] for i in range(len(n))])
+            # Plot RS projection corresponding to the fitted optimal slope
+            nbins = 40
+            alpha = math.atan(slope)
+            dy = N.cos(alpha)*((magRef-mag)*fitSlope + diffMag - diffRef)
+            idx = N.where( (diffMag > minDiff) & (diffMag < maxDiff) & (mag < maxMag) & (mag > minMag) )
+            fig, (ax2) = P.subplots(ncols=1, figsize=(18, 10))
+            n, bins, patches = ax2.hist(dy[idx], bins=nbins, color='b')
+            x = N.asarray([0.5*(bins[i+1]-bins[i])+bins[i] for i in range(len(n))])
 
-                    func = lambda p, z: p[0]*N.exp(-(p[1]-z)**2/(2*p[2]**2)) + p[3]*z*z*z + p[4]*z*z + p[5]*z + p[6]
-                    dist = lambda p, z, y: (func(p, z) - y)/(N.sqrt(y)+1.)
-                    p0 = param
-                    p1,cov,infodict,mesg,ier = optimize.leastsq(dist, p0[:], args=(x, n), full_output=True)
-                    ss_err=(infodict['fvec']**2).sum()
-                    ss_tot=((n-n.mean())**2).sum()
-                    rsquared=1-(ss_err/ss_tot)
-                    print "mean %f - sigma %f"%(p1[1], p1[2])
-                    print "Reduced chi2 = ", ss_err/(nbins+6-1), rsquared
-                    ax2.plot(bins, func(p1,bins), color='r')
-                    ax2.tick_params(labelsize=20)
+            func = lambda p, z: p[0]*N.exp(-(p[1]-z)**2/(2*p[2]**2)) + p[3]*z*z*z + p[4]*z*z + p[5]*z + p[6]
+            dist = lambda p, z, y: (func(p, z) - y)/(N.sqrt(y)+1.)
+            p0 = param
+            p1,cov,infodict,mesg,ier = optimize.leastsq(dist, p0[:], args=(x, n), full_output=True)
+            ss_err=(infodict['fvec']**2).sum()
+            ss_tot=((n-n.mean())**2).sum()
+            rsquared=1-(ss_err/ss_tot)
+            print "mean %f - sigma %f"%(p1[1], p1[2])
+            print "Reduced chi2 = ", ss_err/(nbins+6-1), rsquared
+            ax2.plot(bins, func(p1,bins), color='r')
+            ax2.tick_params(labelsize=20)
 
-                    # Compute the ordinates at origin corresponding to the +/- 1.5 sigma
-                    # interval
-                    alpha = math.atan(fitSlope)
-                    b0 = (p1[1] - fitSlope*magRef)/math.cos(alpha) + diffRef
-                    b1 = (p1[1]-1.5*p1[2] - fitSlope*magRef)/math.cos(alpha) + diffRef
-                    b2 = (p1[1]+1.5*p1[2] - fitSlope*magRef)/math.cos(alpha) + diffRef
+            # Compute the ordinates at origin corresponding to the +/- 1.5 sigma
+            # interval
+            alpha = math.atan(fitSlope)
+            b0 = (p1[1] - fitSlope*magRef)/math.cos(alpha) + diffRef
+            b1 = (p1[1]-1.5*p1[2] - fitSlope*magRef)/math.cos(alpha) + diffRef
+            b2 = (p1[1]+1.5*p1[2] - fitSlope*magRef)/math.cos(alpha) + diffRef
 
-                    print("Ordinate at origin of the RS band middle : %f, lower : %f, upper : %f"%(b0, b1, b2))
+            print("Ordinate at origin of the RS band middle : %f, lower : %f, upper : %f"%(b0, b1, b2))
     P.show()
