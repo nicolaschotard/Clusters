@@ -96,4 +96,4 @@ directory, or clicking here for
 | `"butler"`     | *string*  | Absolute path to the intput data (butler) |
 | `"patches"`     | *list*  | List of patches to study |
 
-Each script will aslo have a set of options.
+Each script will also have a set of options.
