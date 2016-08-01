@@ -22,7 +22,6 @@ if __name__ == "__main__":
         args.output = os.path.basename(args.config).replace('.yaml', '_output.pkl')
 
     filters = config['filters']
-    inputdir = config['butler']
     
     raClust = afwGeom.degToRad(config['ra'])
     deClust = afwGeom.degToRad(config['dec'])
@@ -30,11 +29,11 @@ if __name__ == "__main__":
     print "INFO: Working on cluster %s (z=%.4f)" % (config['cluster'],
                                                     config['redshift'])
     print "INFO: Working on filters", filters
-    print "INFO: Butler located under %s" % inputdir
+    print "INFO: Butler located under %s" % config['butler']
     
     # Initialize butler
     print "INFO: Initializing the butler..."
-    butler = dafPersist.Butler(inputdir)
+    butler = dafPersist.Butler(config['butler'])
     print "INFO: done."
     
     # Initialize some lists
