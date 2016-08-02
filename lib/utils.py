@@ -62,7 +62,7 @@ def add_extra_info(d):
     # compute all magnitudes and positions
     for f in d:
         for p in d[f]:
-            for e in ['meas, forced']:
+            for e in ['meas', 'forced']:
                 print "INFO:     adding magnitude for", f, p, e
                 add_magnitudes(d[f][p][e], mag)
             print "INFO:     adding position for", f, p 
