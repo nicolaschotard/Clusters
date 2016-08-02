@@ -93,6 +93,7 @@ def add_extra_info(d):
                 add_magnitudes(d[f][p][e], mag)
                 add_filter_column(d[f][p][e], f)
                 add_patch_column(d[f][p][e], p)
+                add_intid_column(d[f][p][e])
             print "INFO:     adding position for", f, p 
             add_position(d[f][p]['forced'], wcs)
 
