@@ -50,7 +50,8 @@ def add_extra_info(d):
     p = d[f].keys()[0]
 
     # get the calib objects
-    getmag, wcs = d[f][p]['calexp'].getCalib().getMagnitude, d[f][p]['calexp'].getWcs()
+    wcs = d[f][p]['calexp'].getWcs()
+    getmag = d[f][p]['calexp'].getCalib().getMagnitude
 
     # redefine the magnitude function to make it 'work' for negative flux or sigma
     def mag(flux, sigma):
@@ -75,7 +76,7 @@ def get_all_data(path, patches, filters, add_extra=False):
     Get butler data for a list of patches, for a list of filters
     Return a dictionnary with patches as keys
     """
-    print "INFO: Loading data from", path, ", pathes:", patches, ", filters:", filters
+    print "INFO: Loading data from", path, " pathes:", patches, " filters:", filters
     import lsst.daf.persistence as dafPersist
     butler = dafPersist.Butler(path)
     data = {f: get_filter_data(butler, path, patches, f) for f in filters}
