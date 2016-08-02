@@ -154,10 +154,10 @@ def stack_tables(d):
          ...
         }
     """
-    return {'meas': vstack([add_intid_column(vstack([d[f][p]['meas'] for p in d[f]]))
-                            for f in d]).group_by('filter'),
-            'forced': vstack([add_intid_columnvstack([d[f][p]['forced'] for p in d[f]])
-                              for f in d]).group_by('filter')}
+    return {'meas': vstack([add_intid_column(vstack([d[f][p]['meas']
+                                                     for p in d[f]])) for f in d]),
+            'forced': vstack([add_intid_columnvstack([d[f][p]['forced']
+                                                      for p in d[f]]) for f in d])}
 
 def filter_table(t):
 
