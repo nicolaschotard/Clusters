@@ -4,6 +4,9 @@ import lsst.afw.geom as afwGeom
 from astropy.table import Table, Column
 
 def load_config(config):
+    """
+    Load the configuration file, and return the corresponding dictionnary
+    """
     return yaml.load(open(config))
 
 def get_astropy_table(cat):
@@ -19,12 +22,19 @@ def get_astropy_table(cat):
     return tab
 
 def get_from_butler(butler, key, filt, patch, tract=0, table=False):
-    """Return selected data from a butler"""
+    """
+    Return selected data from a butler for a given key, tract, patch and filter
+    Either retrun the object or the astropy table version of it
+    """
     dataId = {'tract': tract, 'filter': filt, 'patch': patch}
     b = butler.get(key, dataId=dataId)
     return b if not table else get_astropy_table(b)
 
 def add_magnitudes(t, getMagnitude):
+    """
+    Compute magnitude for all fluxes of a given table and add the corresponding
+    new columns
+    """
     Kfluxes = [k for k in t.columns if k.endswith('_flux')]
     Ksigmas = [k+'Sigma' for k in Kfluxes]
     for kf, ks in zip(Kfluxes, Ksigmas):
@@ -35,6 +45,10 @@ def add_magnitudes(t, getMagnitude):
                               description='Magnitude error', unit='mag')])
 
 def add_position(t, wcs):
+    """
+    Compute the x/y position in pixel for all sources and add new columns to 
+    the astropy table
+    """
     x, y = N.array([wcs.skyToPixel(afwGeom.geomLib.Angle(ra), 
                                    afwGeom.geomLib.Angle(dec))
                     for ra, dec in zip(t["coord_ra"], t["coord_dec"])]).T
@@ -44,7 +58,9 @@ def add_position(t, wcs):
                           description='y coordinate', unit='pixel')])
     
 def add_extra_info(d):
-
+    """
+    Add magnitude and position to all tables
+    """
     # take the first filter, and the first patch
     f = d.keys()[0]
     p = d[f].keys()[0]
@@ -73,8 +89,8 @@ def add_extra_info(d):
     
 def get_all_data(path, patches, filters, add_extra=False):
     """
-    Get butler data for a list of patches, for a list of filters
-    Return a dictionnary with patches as keys
+    Get butler data for a list of patches and filters
+    Return a dictionnary with filters as keys
     """
     print "INFO: Loading data from", path, " pathes:", patches, " filters:", filters
     import lsst.daf.persistence as dafPersist
@@ -91,6 +107,9 @@ def get_filter_data(butler, path, patches, f):
     return {p: get_patch_data(butler, p, f) for p in patches}
 
 def get_patch_data(butler, p, f):
+    """
+    Get bulter data for a given set of patch and filter
+    """
     print "INFO:   loading patch", p
     meas = get_from_butler(butler, 'deepCoadd_meas', f, p, table=True)
     forced = get_from_butler(butler, 'deepCoadd_forced_src', f, p, table=True)
@@ -99,7 +118,9 @@ def get_patch_data(butler, p, f):
     
 
 def from_list_to_array(d):
-    """Transform lists (of dict of list) into numpy arrays"""
+    """
+    Transform lists (of dict of list) into numpy arrays
+    """
     if type(d) in [list, N.ndarray]:
         return N.array(d)
     for k in d:
