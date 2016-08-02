@@ -14,7 +14,7 @@ def get_from_butler(butler, key, filt, patch, tract=0, dic=False):
 
 def add_magnitudes(d, getMagnitude):
     Kfluxes = [k for k in d if k.endswith('_flux')]
-    Ksigmas = [k+'Sigma' for k in fluxes]
+    Ksigmas = [k+'Sigma' for k in Kfluxes]
     for kf, ks in zip(Kfluxes, Ksigmas):
         m, dm = N.array([getMagnitude(f, s) for f, s in zip(d[kf]. d[ks])]).T
         d[kf.replace('_flux', '_mag')] = m
