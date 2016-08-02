@@ -28,7 +28,7 @@ def add_magnitudes(t, getMagnitude):
     Kfluxes = [k for k in t.columns if k.endswith('_flux')]
     Ksigmas = [k+'Sigma' for k in Kfluxes]
     for kf, ks in zip(Kfluxes, Ksigmas):
-        m, dm = N.array([getMagnitude(f, s) for f, s in zip(d[kf], d[ks])]).T
+        m, dm = N.array([getMagnitude(f, s) for f, s in zip(t[kf], t[ks])]).T
         t.add_columns([Column(name=kf.replace('_flux', '_mag'), data=m,
                               description='Magnitude', unit='mag'),
                        Column(name=ks.replace('_fluxSigma', '_magSigma'), data=dm,
