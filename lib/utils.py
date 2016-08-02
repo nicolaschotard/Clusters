@@ -11,7 +11,7 @@ def get_astropy_table(cat):
     Convert an afw data table into a simple astropy table
     """
     schema = cat.getSchema() 
-    dic = {n: cat.get(n) for n in schema().getNames()}
+    dic = {n: cat.get(n) for n in schema.getNames()}
     tab = Table(dic)
     #s=schema['modelfit_CModel_flag_badCentroid']
     #f=s.asField()
