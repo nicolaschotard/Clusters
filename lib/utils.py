@@ -159,33 +159,47 @@ def stack_tables(d):
             'forced': vstack([add_intid_column(vstack([d[f][p]['forced']
                                                        for p in d[f]])) for f in d])}
 
+def save_data(d, output):
+    import cPickle
+    cPickle.dump(d, open(output, 'w'))
+
 def filter_table(t):
 
     # Select galaxies (and reject stars)
-    filt = t['base_ClassificationExtendedness_flag'] == 0 # keep galaxy
-    filt &= t['base_ClassificationExtendedness_value'] >= 0.5 # keep galaxy
+    filt = t['meas']['base_ClassificationExtendedness_flag'] != 0 # keep galaxy
+    filt |= t['meas']['base_ClassificationExtendedness_value'] < 0.5 # keep galaxy
 
-    #Select sources which have a proper flux value in r, g and i bands
-    for f in 'ugriz':
-        filt &= t['forced']['modelfit_CModel_flag'] == 0
+    # Gauss regulerarization flag
+    filt |= t['meas']['ext_shapeHSM_HsmShapeRegauss_flag'] != 0
+
+    filt &= t['meas']['filter'] == 'r'
 
     # Check the flux value, which must be > 0
-    filt &= t['forced']['modelfit_CModel_flux'] > 0
+    filt2 = t['forced']['modelfit_CModel_flux'] > 0
+    
+    #Select sources which have a proper flux value
+    for f in 'ugriz':
+        filt2 &= t['forced']['modelfit_CModel_flag'] == 0
     
     # Check the signal to noise (stn) value, which must be > 10
-    filt &= (t['forced']['modelfit_CModel_flux'] / \
+    filt2 &= (t['forced']['modelfit_CModel_flux'] / \
              t['forced']['modelfit_CModel_fluxSigma']) > 10
     
-    # Gauss regulerarization flag
-    filt &= t['meas']['ext_shapeHSM_HsmShapeRegauss_flag'] == 0
-    
-    return t[filt]
-#
-#def keep_galaxies(table, key_colnames):
-#    if table['base_ClassificationExtendedness_flag'] == 0 \
-#       or ['base_ClassificationExtendedness_value'] < 0.5:
-#        return False
-#    else:
-#        return True
-#
-#    
+    # Only keeps sources with the 5 filters
+    dmg = t['meas'][~filt&filt2].group_by('intId')
+    dfg = t['forced'][~filt&filt2].group_by('intId')
+
+    # Indices different is a quick way to get the lenght of each group
+    filt = (dmg.groups.indices[1:] - dmg.groups.indices[:-1]) == 5
+
+    return {'meas': dmg.groups[filt], 'forced': dfg.groups[filt]}
+
+def getdata(config, output='all_data.pkl', output_filtered='filtered_data.pkl'):
+    if type(config) == 'str':
+        config = load_config(config)
+    d = get_all_data(config['butler'], config['patches'],
+                     config['filters'], add_extra=True)
+    save_data(d, output)
+    df = filter_table(d)
+    save_data(df, output_filtered)
+    return d, df
