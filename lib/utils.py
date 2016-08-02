@@ -64,7 +64,8 @@ def add_patch_column(t, p):
     t.add_column(Column(name='patch', data=[p]*len(t), description='Patch name'))
 
 def add_intid_column(t):
-    t.add_column(Column(name='intId', data=range(len(t)), description='Patch name'))
+    t.add_column(Column(name='intId', data=range(len(t)), description='Interger ID'))
+    return t
     
 def add_extra_info(d):
     """
@@ -93,7 +94,6 @@ def add_extra_info(d):
                 add_magnitudes(d[f][p][e], mag)
                 add_filter_column(d[f][p][e], f)
                 add_patch_column(d[f][p][e], p)
-                add_intid_column(d[f][p][e])
             print "INFO:     adding position for", f, p 
             add_position(d[f][p]['forced'], wcs)
 
@@ -154,9 +154,9 @@ def stack_tables(d):
          ...
         }
     """
-    return {'meas': vstack([vstack([d[f][p]['meas'] for p in d[f]])
+    return {'meas': vstack([add_intid_column(vstack([d[f][p]['meas'] for p in d[f]]))
                             for f in d]).group_by('filter'),
-            'forced': vstack([vstack([d[f][p]['forced'] for p in d[f]])
+            'forced': vstack([add_intid_columnvstack([d[f][p]['forced'] for p in d[f]])
                               for f in d]).group_by('filter')}
 
 def filter_table(t):
