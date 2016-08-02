@@ -172,8 +172,8 @@ def filter_table(t):
     filt &= t['forced']['modelfit_CModel_flux'] > 0
     
      # Check the signal to noise (stn) value, which must be > 10
-     filt &= t['forced']['modelfit_CModel_flux'] / \
-             t['forced']['modelfit_CModel_fluxSigma'] > 10
+     filt &= (t['forced']['modelfit_CModel_flux'] / \
+              t['forced']['modelfit_CModel_fluxSigma']) > 10
 
      # Gauss regulerarization flag
      filt &= t['meas']['ext_shapeHSM_HsmShapeRegauss_flag'] == 0
