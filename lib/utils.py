@@ -1,7 +1,7 @@
 import yaml
 import numpy as N
 import lsst.afw.geom as afwGeom
-from astropy.table import Table, Column
+from astropy.table import Table, Column, vstack
 
 def load_config(config):
     """
@@ -116,7 +116,6 @@ def get_patch_data(butler, p, f):
     calexp = get_from_butler(butler, 'deepCoadd_calexp', f, p, table=False)
     return {'meas': meas, 'forced': forced, 'calexp':calexp}
     
-
 def from_list_to_array(d):
     """
     Transform lists (of dict of list) into numpy arrays
@@ -129,3 +128,88 @@ def from_list_to_array(d):
         elif type(d[k]) == dict:
             from_list_to_array(d[k])
     return d
+
+def stack_tables(data):
+    """
+    Stack the astropy tables across all patches
+    Return a new dictionnary of the form:
+    d = {u: 
+          'forced': table,
+          'meas': table,
+         g: 
+          'forced': table,
+          'meas': table
+         ...
+        }
+    """
+    return {f: {'forced': vstack([d[f][p]['forced'] for p in d[f]]),
+                'meas': vstack([d[f][p]['meas'] for p in d[f]])}
+            for f in data}
+    
+def select_data(data):
+
+    # Initialize some lists
+    print "INFO: Initializing variables"
+    mags = {f: [] for f in filters}
+    mags_sigma = {f: [] for f in filters}
+    ell = {f: {'e1': [], 'e2': []} for f in filters}
+    coords = {'ra': [], 'dec': [], 'id': []}
+    resolution = {f: [] for f in filters}
+    xSrc, ySrc = [], []
+    # Loop over deblended sources in the filters forcedPhotCoadd catalogs
+    ejected = {'star': 0, 'flag_flux':0, 'pos_flux': 0, 'stn': 0, 'gauss': 0}
+    for i in range(len(forced[filters[0]])):
+        
+        # Select galaxies (and reject stars)
+        if meas['r'][i].get(extFlagKey) or meas['r'][i].get(extKey) < 0.5:
+            rejected['star'] += 1
+            continue
+        
+        # Select sources which have a proper flux value in r, g and i bands
+        # Notice that it would not be strictly necessary with forced photometry
+        if N.any([forced[f][i].get(fluxFlagKey) for f in filters]):
+            rejected['flag_flux'] += 1
+            continue
+        
+        # Check the flux value, which must be > 0
+        fluxes = {f: forced[f][i].get(fluxKey) for f in filters}
+        fluxes_sigma = {f: forced[f][i].get(fluxSigmaKey) for f in filters}
+        if any([fluxes[f] <= 0. for f in fluxes]):
+            rejected['pos_flux'] += 1
+            continue
+        
+        # Check the signal to noise (stn) value, which must be > 10
+        stns = [forced[f][i].get(fluxKey)/forced[f][i].get(fluxSigmaKey) for f in filters
+                if forced[f][i].get(fluxSigmaKey) != 0]
+        if any([stn < 10. for stn in stns]):
+            rejected['stn'] += 1
+            continue
+        
+        # Gauss regulerarization flag?
+        if meas['r'][i].get(regaussFlagKey) or meas['r'][i].get(regaussFlagKey):
+            rejected['gauss'] += 1
+            continue
+        
+        # Get filter dependent values
+        for f in filters:
+        
+            # Need to use a calibobject in order to convert flux to magnitude
+            m, sm = calib[f].getMagnitude(fluxes[f], fluxes_sigma[f])
+            mags[f].append(m)
+            mags_sigma[f].append(sm)
+            
+            # Get ellipticities
+            ell[f]['e1'].append(meas[f][i].get(e1Key))
+            ell[f]['e2'].append(meas[f][i].get(e2Key))
+        
+            # Get resolution
+            resolution[f].append(meas[f][i].get(resKey))
+        
+        ra = forced[filters[0]][i].get(raKey)
+        dec = forced[filters[0]][i].get(decKey)
+        x, y = wcs.skyToPixel(ra, dec)
+        coords['ra'].append(float(ra))
+        coords['dec'].append(float(dec))
+        coords['id'].append(int(meas[filters[0]][i].get("id")))
+        xSrc.append(x)
+        ySrc.append(y)
