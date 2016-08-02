@@ -146,12 +146,12 @@ def stack_tables(d):
          ...
         }
     """
-    {'forced': vstack([vstack([d[f][p]['forced'] for p in d[f]]) for f in d])
-    patches_stack = {f: {'forced': vstack([d[f][p]['forced'] for p in d[f]]),
-                'meas': vstack([d[f][p]['meas'] for p in d[f]])}
-            for f in d}
-    filter_stack = {'forced': vstack([patches_stack[f]['forced'] for f in d])}
-    mall=vstack([mr, mg])
+    #a = {'forced': vstack([vstack([d[f][p]['forced'] for p in d[f]]) for f in d])
+    #     patches_stack = {f: {'forced': vstack([d[f][p]['forced'] for p in d[f]]),
+    #            'meas': vstack([d[f][p]['meas'] for p in d[f]])}
+    #        for f in d}
+    #filter_stack = {'forced': vstack([patches_stack[f]['forced'] for f in d])}
+    #mall=vstack([mr, mg])
     return {f: {'forced': vstack([d[f][p]['forced'] for p in d[f]]),
                 'meas': vstack([d[f][p]['meas'] for p in d[f]])}
             for f in d}
