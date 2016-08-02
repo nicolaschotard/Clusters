@@ -62,6 +62,9 @@ def add_filter_column(t, f):
 
 def add_patch_column(t, p):
     t.add_column(Column(name='patch', data=[p]*len(t), description='Patch name'))
+
+def add_intid_column(t):
+    t.add_column(Column(name='intId', data=range(len(t)), description='Patch name'))
     
 def add_extra_info(d):
     """
@@ -103,8 +106,8 @@ def get_all_data(path, patches, filters, add_extra=False):
     print "INFO: Loading data from", path, " pathes:", patches, " filters:", filters
     import lsst.daf.persistence as dafPersist
     butler = dafPersist.Butler(path)
-    data = {f: get_filter_data(butler, path, patches, f) for f in filters}
-    return data if not add_extra else add_extra_info(data)
+    d = {f: get_filter_data(butler, path, patches, f) for f in filters}
+    return stack_tables(d) if not add_extra else stack_tables(add_extra_info(d))
 
 def get_filter_data(butler, path, patches, f):
     """
@@ -155,38 +158,27 @@ def stack_tables(d):
             'forced': vstack([vstack([d[f][p]['forced'] for p in d[f]])
                               for f in d]).group_by('filter')}
 
-#def filter_table(t):
-#
-#    # Select galaxies (and reject stars)
-#    filt = t['base_ClassificationExtendedness_flag'] == 0 # keep galaxy
-#    filt &= t['base_ClassificationExtendedness_value'] >= 0.5 # keep galaxy
-#    
-#            # Select sources which have a proper flux value in r, g and i bands
-#            # Notice that it would not be strictly necessary with forced photometry
-#            if N.any([forced[f][i].get(fluxFlagKey) for f in filters]):
-#                rejected['flag_flux'] += 1
-#                continue
-#    
-#            # Check the flux value, which must be > 0
-#            fluxes = {f: forced[f][i].get(fluxKey) for f in filters}
-#            fluxes_sigma = {f: forced[f][i].get(fluxSigmaKey) for f in filters}
-#            if any([fluxes[f] <= 0. for f in fluxes]):
-#                rejected['pos_flux'] += 1
-#                continue
-#    
-#            # Check the signal to noise (stn) value, which must be > 10
-#            stns = [forced[f][i].get(fluxKey)/forced[f][i].get(fluxSigmaKey) for f in filters
-#                    if forced[f][i].get(fluxSigmaKey) != 0]
-#            if any([stn < 10. for stn in stns]):
-#                rejected['stn'] += 1
-#                continue
-#    
-#            # Gauss regulerarization flag?
-#            if meas['r'][i].get(regaussFlagKey) or meas['r'][i].get(regaussFlagKey):
-#                rejected['gauss'] += 1
-#                continue
-#  
-#    return t[filt]
+def filter_table(t):
+
+    # Select galaxies (and reject stars)
+    filt = t['base_ClassificationExtendedness_flag'] == 0 # keep galaxy
+    filt &= t['base_ClassificationExtendedness_value'] >= 0.5 # keep galaxy
+
+    #Select sources which have a proper flux value in r, g and i bands
+    for f in 'ugriz':
+        filt &= t['forced']['modelfit_CModel_flag'] == 0
+
+    # Check the flux value, which must be > 0
+    filt &= t['forced']['modelfit_CModel_flux'] > 0
+    
+     # Check the signal to noise (stn) value, which must be > 10
+     filt &= t['forced']['modelfit_CModel_flux'] / \
+             t['forced']['modelfit_CModel_fluxSigma'] > 10
+
+     # Gauss regulerarization flag
+     filt &= t['meas']['ext_shapeHSM_HsmShapeRegauss_flag'] == 0
+
+     return t[filt]
 #
 #def keep_galaxies(table, key_colnames):
 #    if table['base_ClassificationExtendedness_flag'] == 0 \
