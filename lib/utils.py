@@ -1,15 +1,33 @@
 import yaml
 import numpy as N
 import lsst.afw.geom as afwGeom
+from astropy.table import Table
 
 def load_config(config):
     return yaml.load(open(config))
-    
-def get_from_butler(butler, key, filt, patch, tract=0, dic=False):
+
+def get_astropy_table(cat):
+    """
+    Convert an afw data table into a simple astropy table
+    """
+    schema = cat.getSchema() 
+    dic = {n: cat.get(n) for n in schema().getNames()}
+    tab = Table(dic)
+    #s=schema['modelfit_CModel_flag_badCentroid']
+    #f=s.asField()
+    #description = f.getDoc()
+    #unit = f.getUnits()
+    for k in schema.getNames():
+        tab[k].description=schema[k].asField().getDoc()
+        tab[k].unit=schema[k].asField().getUnits()
+    return tab
+
+def get_from_butler(butler, key, filt, patch, tract=0, table=False):
     """Return selected data from a butler"""
     dataId = {'tract': tract, 'filter': filt, 'patch': patch}
     b = butler.get(key, dataId=dataId)
-    return b if not dic else {n: b.get(n) for n in b.getSchema().getNames()}
+    return b if not table else get_astropy_table(b)
+#{n: b.get(n) for n in b.getSchema().getNames()}
 
 def add_magnitudes(d, getMagnitude):
     Kfluxes = [k for k in d if k.endswith('_flux')]
@@ -76,9 +94,9 @@ def get_filter_data(butler, path, patches, f):
 
 def get_patch_data(butler, p, f):
     print "INFO:   loading patch", p
-    meas = get_from_butler(butler, 'deepCoadd_meas', f, p, dic=True)
-    forced = get_from_butler(butler, 'deepCoadd_forced_src', f, p, dic=True)
-    calexp = get_from_butler(butler, 'deepCoadd_calexp', f, p, dic=False)
+    meas = get_from_butler(butler, 'deepCoadd_meas', f, p, table=True)
+    forced = get_from_butler(butler, 'deepCoadd_forced_src', f, p, table=True)
+    calexp = get_from_butler(butler, 'deepCoadd_calexp', f, p, table=False)
     return {'meas': meas, 'forced': forced, 'calexp':calexp}
     
 
