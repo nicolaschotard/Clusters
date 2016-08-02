@@ -1,5 +1,6 @@
 import yaml
 import numpy as N
+import lsst.afw.geom as afwGeom
 
 def load_config(config):
     return yaml.load(open(config))
@@ -7,23 +8,21 @@ def load_config(config):
 def get_from_butler(butler, key, filt, patch, tract=0, dic=False):
     """Return selected data from a butler"""
     dataId = {'tract': tract, 'filter': filt, 'patch': patch}
-    print dataId
     b = butler.get(key, dataId=dataId)
-    print b
     return b if not dic else {n: b.get(n) for n in b.getSchema().getNames()}
 
 def add_magnitudes(d, getMagnitude):
     Kfluxes = [k for k in d if k.endswith('_flux')]
     Ksigmas = [k+'Sigma' for k in Kfluxes]
     for kf, ks in zip(Kfluxes, Ksigmas):
-        m, dm = N.array([getMagnitude(f, s) for f, s in zip(d[kf]. d[ks])]).T
+        m, dm = N.array([getMagnitude(f, s) for f, s in zip(d[kf], d[ks])]).T
         d[kf.replace('_flux', '_mag')] = m
-        d[kf.replace('_fluxSigma', '_magSigma')] = dm
+        d[ks.replace('_fluxSigma', '_magSigma')] = dm
 
 def add_position(d, wcs):
-    d['x_src'], d['y_Src'] = N.array([wcs.skyToPixel(ra, dec)
-                                      for ra, dec in zip(d["coord_ra"],
-                                                         d["coord_dec"])]).T
+    d['x_Src'], d['y_Src'] = N.array([wcs.skyToPixel(afwGeom.geomLib.Angle(ra), 
+                                                     afwGeom.geomLib.Angle(dec))
+                                      for ra, dec in zip(d["coord_ra"], d["coord_dec"])]).T
 
 def add_extra_info(d):
 
@@ -32,19 +31,29 @@ def add_extra_info(d):
     p = d[f].keys()[0]
 
     # get the calib objects
-    mag, wcs = d[f][p]['calexp'].getCalib().getMagnitude, d[f][p]['calexp'].getWcs()
+    getmag, wcs = d[f][p]['calexp'].getCalib().getMagnitude, d[f][p]['calexp'].getWcs()
+
+    # redefine the magnitude function to make it 'work' for negative flux or sigma
+    def mag(flux, sigma):
+        if flux <= 0 or sigma <= 0:
+            return N.nan, N.nan
+        else:
+            return getmag(flux, sigma)
 
     # compute all magnitudes
     for f in d:
         for p in d[f]:
-            print "INFO:     adding magnitude for", f, p 
-            add_magnitudes(d[f][p], mag)
+            for e in d[f][p]:
+                print "INFO:     adding magnitude for", f, p, e
+                add_magnitudes(d[f][p][e], mag)
 
     # compute all positions
     for f in d:
         for p in d[f]:
             print "INFO:     adding position for", f, p 
-            add_position(d[f][p], wcs)
+            add_position(d[f][p]['forced'], wcs)
+
+    return d
     
 def get_all_data(path, patches, filters, add_extra=False):
     """
