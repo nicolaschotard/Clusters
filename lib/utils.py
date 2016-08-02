@@ -32,7 +32,7 @@ def add_extra_info(d):
     p = d[f].keys()[0]
 
     # get the calib objects
-    mag, wcs = d[f][p]['calexp'].getCalib().getmagnitude, d[f][p]['calexp'].getWcs()
+    mag, wcs = d[f][p]['calexp'].getCalib().getMagnitude, d[f][p]['calexp'].getWcs()
 
     # compute all magnitudes
     for f in d:
