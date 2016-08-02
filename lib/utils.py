@@ -59,6 +59,9 @@ def add_position(t, wcs):
 
 def add_filter_column(t, f):
     t.add_column(Column(name='filter', data=[f]*len(t), description='Filter name'))
+
+def add_patch_column(t, p):
+    t.add_column(Column(name='patch', data=[p]*len(t), description='Patch name'))
     
 def add_extra_info(d):
     """
@@ -86,6 +89,7 @@ def add_extra_info(d):
                 print "INFO:     adding magnitude for", f, p, e
                 add_magnitudes(d[f][p][e], mag)
                 add_filter_column(d[f][p][e], f)
+                add_patch_column(d[f][p][e], p)
             print "INFO:     adding position for", f, p 
             add_position(d[f][p]['forced'], wcs)
 
@@ -146,16 +150,10 @@ def stack_tables(d):
          ...
         }
     """
-    #a = {'forced': vstack([vstack([d[f][p]['forced'] for p in d[f]]) for f in d])
-    #     patches_stack = {f: {'forced': vstack([d[f][p]['forced'] for p in d[f]]),
-    #            'meas': vstack([d[f][p]['meas'] for p in d[f]])}
-    #        for f in d}
-    #filter_stack = {'forced': vstack([patches_stack[f]['forced'] for f in d])}
-    #mall=vstack([mr, mg])
-    return {f: {'forced': vstack([d[f][p]['forced'] for p in d[f]]),
-                'meas': vstack([d[f][p]['meas'] for p in d[f]])}
-            for f in d}
-
+    return {'meas': vstack([vstack([d[f][p]['meas'] for p in d[f]])
+                            for f in d]).group_by('filter'),
+            'forced': vstack([vstack([d[f][p]['forced'] for p in d[f]])
+                              for f in d]).group_by('filter')}
 
 #def filter_table(t):
 #
@@ -198,70 +196,3 @@ def stack_tables(d):
 #        return True
 #
 #    
-#def select_data(data):
-#
-#    # Initialize some lists
-#    print "INFO: Initializing variables"
-#    mags = {f: [] for f in filters}
-#    mags_sigma = {f: [] for f in filters}
-#    ell = {f: {'e1': [], 'e2': []} for f in filters}
-#    coords = {'ra': [], 'dec': [], 'id': []}
-#    resolution = {f: [] for f in filters}
-#    xSrc, ySrc = [], []
-#    # Loop over deblended sources in the filters forcedPhotCoadd catalogs
-#    ejected = {'star': 0, 'flag_flux':0, 'pos_flux': 0, 'stn': 0, 'gauss': 0}
-#    for i in range(len(forced[filters[0]])):
-#        
-#        # Select galaxies (and reject stars)
-#        if meas['r'][i].get(extFlagKey) or meas['r'][i].get(extKey) < 0.5:
-#            rejected['star'] += 1
-#            continue
-#        
-#        # Select sources which have a proper flux value in r, g and i bands
-#        # Notice that it would not be strictly necessary with forced photometry
-#        if N.any([forced[f][i].get(fluxFlagKey) for f in filters]):
-#            rejected['flag_flux'] += 1
-#            continue
-#        
-#        # Check the flux value, which must be > 0
-#        fluxes = {f: forced[f][i].get(fluxKey) for f in filters}
-#        fluxes_sigma = {f: forced[f][i].get(fluxSigmaKey) for f in filters}
-#        if any([fluxes[f] <= 0. for f in fluxes]):
-#            rejected['pos_flux'] += 1
-#            continue
-#        
-#        # Check the signal to noise (stn) value, which must be > 10
-#        stns = [forced[f][i].get(fluxKey)/forced[f][i].get(fluxSigmaKey) for f in filters
-#                if forced[f][i].get(fluxSigmaKey) != 0]
-#        if any([stn < 10. for stn in stns]):
-#            rejected['stn'] += 1
-#            continue
-#        
-#        # Gauss regulerarization flag?
-#        if meas['r'][i].get(regaussFlagKey) or meas['r'][i].get(regaussFlagKey):
-#            rejected['gauss'] += 1
-#            continue
-#        
-#        # Get filter dependent values
-#        for f in filters:
-#        
-#            # Need to use a calibobject in order to convert flux to magnitude
-#            m, sm = calib[f].getMagnitude(fluxes[f], fluxes_sigma[f])
-#            mags[f].append(m)
-#            mags_sigma[f].append(sm)
-#            
-#            # Get ellipticities
-#            ell[f]['e1'].append(meas[f][i].get(e1Key))
-#            ell[f]['e2'].append(meas[f][i].get(e2Key))
-#        
-#            # Get resolution
-#            resolution[f].append(meas[f][i].get(resKey))
-#        
-#        ra = forced[filters[0]][i].get(raKey)
-#        dec = forced[filters[0]][i].get(decKey)
-#        x, y = wcs.skyToPixel(ra, dec)
-#        coords['ra'].append(float(ra))
-#        coords['dec'].append(float(dec))
-#        coords['id'].append(int(meas[filters[0]][i].get("id")))
-#        xSrc.append(x)
-#        ySrc.append(y)
