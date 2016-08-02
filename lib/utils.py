@@ -59,16 +59,12 @@ def add_extra_info(d):
         else:
             return getmag(flux, sigma)
 
-    # compute all magnitudes
+    # compute all magnitudes and positions
     for f in d:
         for p in d[f]:
-            for e in d[f][p]:
+            for e in ['meas, forced']:
                 print "INFO:     adding magnitude for", f, p, e
                 add_magnitudes(d[f][p][e], mag)
-
-    # compute all positions
-    for f in d:
-        for p in d[f]:
             print "INFO:     adding position for", f, p 
             add_position(d[f][p]['forced'], wcs)
 
