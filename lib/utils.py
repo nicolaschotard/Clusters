@@ -1,5 +1,9 @@
+import yaml
 import numpy as N
 
+def load_config(config):
+    return yaml.load(open(config))
+    
 def get_from_butler(butler, key, filt, patch, tract=0, dic=False):
     """Return selected data from a butler"""
     dataId = {'tract': tract, 'filter': filt, 'patch': patch}
@@ -65,7 +69,7 @@ def get_patch_data(butler, p, f):
     print "INFO:   loading patch", p
     meas = get_from_butler(butler, 'deepCoadd_meas', f, p, dic=True)
     forced = get_from_butler(butler, 'deepCoadd_forced_src', f, p, dic=True)
-    calexp = get_from_butler(butler, 'deepCoadd_calexp', f, p, dic=True)
+    calexp = get_from_butler(butler, 'deepCoadd_calexp', f, p, dic=False)
     return {'meas': meas, 'forced': forced, 'calexp':calexp}
     
 
