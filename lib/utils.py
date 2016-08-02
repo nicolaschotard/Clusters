@@ -56,6 +56,9 @@ def add_position(t, wcs):
                           description='x coordinate', unit='pixel'),
                    Column(name='y_Src', data=y,
                           description='y coordinate', unit='pixel')])
+
+def add_filter_column(t, f):
+    t.add_column(Column(name='filter', data=[f]*len(t), description='Filter name'))
     
 def add_extra_info(d):
     """
@@ -82,6 +85,7 @@ def add_extra_info(d):
             for e in ['meas', 'forced']:
                 print "INFO:     adding magnitude for", f, p, e
                 add_magnitudes(d[f][p][e], mag)
+                add_filter_column(d[f][p][e], f):
             print "INFO:     adding position for", f, p 
             add_position(d[f][p]['forced'], wcs)
 
@@ -129,7 +133,7 @@ def from_list_to_array(d):
             from_list_to_array(d[k])
     return d
 
-def stack_tables(data):
+def stack_tables(d):
     """
     Stack the astropy tables across all patches
     Return a new dictionnary of the form:
@@ -142,9 +146,57 @@ def stack_tables(data):
          ...
         }
     """
-    return {f: {'forced': vstack([data[f][p]['forced'] for p in data[f]]),
-                'meas': vstack([data[f][p]['meas'] for p in data[f]])}
-            for f in data}
+    {'forced': vstack([vstack([d[f][p]['forced'] for p in d[f]]) for f in d])
+    patches_stack = {f: {'forced': vstack([d[f][p]['forced'] for p in d[f]]),
+                'meas': vstack([d[f][p]['meas'] for p in d[f]])}
+            for f in d}
+    filter_stack = {'forced': vstack([patches_stack[f]['forced'] for f in d])}
+    mall=vstack([mr, mg])
+    return {f: {'forced': vstack([d[f][p]['forced'] for p in d[f]]),
+                'meas': vstack([d[f][p]['meas'] for p in d[f]])}
+            for f in d}
+
+
+def filter_table(t):
+
+    # Select galaxies (and reject stars)
+    filt = t['base_ClassificationExtendedness_flag'] == 0 # keep galaxy
+    filt &= t['base_ClassificationExtendedness_value'] >= 0.5 # keep galaxy
+    
+            # Select sources which have a proper flux value in r, g and i bands
+            # Notice that it would not be strictly necessary with forced photometry
+            if N.any([forced[f][i].get(fluxFlagKey) for f in filters]):
+                rejected['flag_flux'] += 1
+                continue
+    
+            # Check the flux value, which must be > 0
+            fluxes = {f: forced[f][i].get(fluxKey) for f in filters}
+            fluxes_sigma = {f: forced[f][i].get(fluxSigmaKey) for f in filters}
+            if any([fluxes[f] <= 0. for f in fluxes]):
+                rejected['pos_flux'] += 1
+                continue
+    
+            # Check the signal to noise (stn) value, which must be > 10
+            stns = [forced[f][i].get(fluxKey)/forced[f][i].get(fluxSigmaKey) for f in filters
+                    if forced[f][i].get(fluxSigmaKey) != 0]
+            if any([stn < 10. for stn in stns]):
+                rejected['stn'] += 1
+                continue
+    
+            # Gauss regulerarization flag?
+            if meas['r'][i].get(regaussFlagKey) or meas['r'][i].get(regaussFlagKey):
+                rejected['gauss'] += 1
+                continue
+  
+    return t[filt]
+
+def keep_galaxies(table, key_colnames):
+    if table['base_ClassificationExtendedness_flag'] == 0 \
+       or ['base_ClassificationExtendedness_value'] < 0.5:
+        return False
+    else:
+        return True
+
     
 def select_data(data):
 
