@@ -142,8 +142,8 @@ def stack_tables(data):
          ...
         }
     """
-    return {f: {'forced': vstack([d[f][p]['forced'] for p in d[f]]),
-                'meas': vstack([d[f][p]['meas'] for p in d[f]])}
+    return {f: {'forced': vstack([data[f][p]['forced'] for p in data[f]]),
+                'meas': vstack([data[f][p]['meas'] for p in data[f]])}
             for f in data}
     
 def select_data(data):
