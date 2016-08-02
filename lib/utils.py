@@ -90,11 +90,10 @@ def add_extra_info(d):
     for f in d:
         for p in d[f]:
             for e in ['meas', 'forced']:
-                print "INFO:     adding magnitude for", f, p, e
+                print "INFO: adding extra info for", f, p, e
                 add_magnitudes(d[f][p][e], mag)
                 add_filter_column(d[f][p][e], f)
                 add_patch_column(d[f][p][e], p)
-            print "INFO:     adding position for", f, p 
             add_position(d[f][p]['forced'], wcs)
 
     return d
@@ -154,10 +153,11 @@ def stack_tables(d):
          ...
         }
     """
+    print "Info: Stacking the data (patches, filters) into a single astropy table"
     return {'meas': vstack([add_intid_column(vstack([d[f][p]['meas']
                                                      for p in d[f]])) for f in d]),
-            'forced': vstack([add_intid_columnvstack([d[f][p]['forced']
-                                                      for p in d[f]]) for f in d])}
+            'forced': vstack([add_intid_column(vstack([d[f][p]['forced']
+                                                       for p in d[f]])) for f in d])}
 
 def filter_table(t):
 
