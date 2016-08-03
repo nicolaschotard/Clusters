@@ -89,7 +89,7 @@ clusters_getbackground config.yaml input.pkl output.pkl
 
 Etc.
 
-With any command, you can run with `-h` or `--help` options to see all the
+With any command, you can run with `-h` or `--help` to see all the
 optional arguments, e.g., `clusters_extinction.py --help`.
 
 Input format
