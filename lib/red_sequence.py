@@ -85,7 +85,7 @@ def fitRedSequence(diffMag, mag, minDiff=1.0, maxDiff=2.0, minMag=20.0, maxMag=2
         YMax[i] = 0.5*(edges[nMax+1]-edges[nMax]) + edges[nMax]
         XMax[i] = xMin + 0.5*stp
 
-        print "XMax, YMax", XMax, YMax
+    print "XMax, YMax", XMax, YMax
     d = N.polyfit(XMax, YMax, 1)
     appSlope = min([d[0], 0])
     print("Approximate slope: %f"%appSlope)
