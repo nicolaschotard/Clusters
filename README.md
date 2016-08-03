@@ -38,6 +38,8 @@ pip install http://github.com/nicolaschotard/Cluster/archive/v0.1.tar.gz
 In the future, release versions will be listed
 [here](http://github.com/nicolaschotard/Clusters/releases).
 
+## Dependencies
+
 `Clusters` has for now (too) many dependencies:
 
 - The LSST DM stack (see [here](https://developer.lsst.io/build-ci/lsstsw.html))
@@ -47,8 +49,8 @@ In the future, release versions will be listed
   - seaborn
   - astropy / astroquery
   - healpy
+  - and probably other packages that will be replaced/listed at some point
 - LEPHARE (see [here](http://cesam.lam.fr/lephare/lephare.html))
-- and probably other packages that will be replaced at some point
 
 
 Usage
@@ -88,7 +90,7 @@ clusters_getbackground config.yaml input.pkl output.pkl
 Etc.
 
 With any command, you can run with `-h` or `--help` options to see all the
-optional arguments, e.g., `cubefit --help`.
+optional arguments, e.g., `clusters_extinction.py --help`.
 
 Input format
 ------------
@@ -97,8 +99,9 @@ All the scripts will take the same input YAML file. Keys are listed
 below and are case-sensitive. Additional keys are simply ignored. You
 can find examples of these comfiguration files in the
 [config](https://github.com/nicolaschotard/Clusters/blob/master/configs)
-directory, or clicking here for
-[MACSJ2243.3-0935](https://github.com/nicolaschotard/Clusters/blob/master/configs/MACSJ2243.3-0935.yaml).
+directory, or clicking
+[here](https://github.com/nicolaschotard/Clusters/blob/master/configs/MACSJ2243.3-0935.yaml)
+for MACSJ2243.3-0935.
 
 | Parameter        | Type     | Description [units]                   |
 | ---------------- | ------   | ------------------------------------- |
@@ -109,5 +112,3 @@ directory, or clicking here for
 | `"filters"`     | *string*  | Filter list to study, e.g., 'ugriz' (Megacam filters) |
 | `"butler"`     | *string*  | Absolute path to the intput data (butler) |
 | `"patches"`     | *list*  | List of patches to study |
-
-Each script will also have a set of options.
