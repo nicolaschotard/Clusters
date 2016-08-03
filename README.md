@@ -1,8 +1,10 @@
 # Clusters
 
-***Warning***: This package is under development!
+***Warning***: Package under development
 
-Python package wrapping up the ongoing cluster analysis of the french LSST/DESC group. For more info, see the two following github repos:
+Python package wrapping up the ongoing cluster analysis of the french
+LSST/DESC group. For more info, see the two following github
+repositories:
 
 - https://github.com/lsst-france/LSST_notebooks
 - https://github.com/DarkEnergyScienceCollaboration/ReprocessingTaskForce
@@ -16,7 +18,16 @@ git clone https://github.com/nicolaschotard/Clusters.git
 pip install Clusters/
 ```
 
-Use --prefix to install it locally, and --upgrade to udate to a new version.
+To install in a local directory `mypath`, use
+```
+pip install --prefix='mypath' Clusters/
+```
+and do not forget to add it to your PYTHONPATH.
+
+To upgrade to a new version (after a `git pull` or a local modification), use
+```
+pip install --upgrade (--prefix='mypath') Clusters/
+```
 
 To install a release version (no release version available yet):
 
@@ -24,17 +35,20 @@ To install a release version (no release version available yet):
 pip install http://github.com/nicolaschotard/Cluster/archive/v0.1.tar.gz
 ```
 
-Release versions are listed
+In the future, release versions will be listed
 [here](http://github.com/nicolaschotard/Clusters/releases).
 
 `Clusters` has for now (too) many dependencies:
 
-- The lsst DM stack! (see [here](https://developer.lsst.io/build-ci/lsstsw.html))
-- Python 2.7
-- numpy
-- matplotlib
+- The LSST DM stack (see [here](https://developer.lsst.io/build-ci/lsstsw.html))
+- Python 2.7 and libraries
+  - numpy
+  - matplotlib
+  - seaborn
+  - astropy / astroquery
+  - healpy
 - LEPHARE (see [here](http://cesam.lam.fr/lephare/lephare.html))
-- and many other packages that will be replaced at some point
+- and probably other packages that will be replaced at some point
 
 
 Usage
