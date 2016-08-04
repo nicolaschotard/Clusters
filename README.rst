@@ -14,8 +14,8 @@ Python package wrapping up the ongoing cluster analysis of the french
 LSST/DESC group. For more info, see the two following github
 repositories:
 
-- https://github.com/lsst-france/LSST_notebooks
-- https://github.com/DarkEnergyScienceCollaboration/ReprocessingTaskForce
+- A collection of `notebooks <https://github.com/lsst-france/LSST_notebooks>`_ for LSST
+- The `ReprocessingTaskForce <https://github.com/DarkEnergyScienceCollaboration/ReprocessingTaskForce>`_ repository
 
 Installation
 ------------
@@ -49,12 +49,14 @@ Dependencies
 
 - The LSST DM stack (see `here <https://developer.lsst.io/build-ci/lsstsw.html>`_)
 - Python 2.7 and libraries
+  
   - numpy
   - matplotlib
   - seaborn
   - astropy / astroquery
   - healpy
   - and probably other packages that will be replaced/listed at some point
+    
 - LEPHARE (see `here <http://cesam.lam.fr/lephare/lephare.html>`_)
 
 
@@ -81,7 +83,7 @@ Get the photometric redshift using LEPHARE::
 
 Exctract background galaxies from the whole sample: remove the cluster
 galaxies (red sequence) and other foreground galaxies using the
-photometric redshifts.::
+photometric redshifts::
 
   clusters_getbackground config.yaml input.pkl output.pkl
 
