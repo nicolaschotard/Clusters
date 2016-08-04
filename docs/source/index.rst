@@ -6,10 +6,7 @@
 Welcome to Clusters's documentation!
 ====================================
 
-.. include::
-   :maxdepth: 2
-
-   ../../README.rst
+.. include:: ../../README.rst
 
 Contents:
 
