@@ -3,7 +3,7 @@
    :alt: Documentation Status
                 
 Clusters
---------
+========
 
 **Warning**: Package under development
 
