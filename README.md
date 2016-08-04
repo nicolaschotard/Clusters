@@ -1,3 +1,5 @@
+[![Documentation Status](https://readthedocs.org/projects/clusters/badge/?version=latest)](http://clusters.readthedocs.io/en/latest/?badge=latest)
+                
 # Clusters
 
 ***Warning***: Package under development
