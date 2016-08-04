@@ -4,7 +4,7 @@ import os, yaml, cPickle
 import numpy as N
 from argparse import ArgumentParser
 
-from Clusters import utils
+from Clusters import data
 
 import lsst.daf.persistence as dafPersist
 import lsst.afw.geom as afwGeom
@@ -49,9 +49,9 @@ if __name__ == "__main__":
     for i, patch in enumerate(config['patches']):
     
         print "INFO:   Working on patch", patch
-        meas = {f: utils.get_from_butler(butler, 'deepCoadd_meas', f, patch) for f in filters} # meas_
-        forced = {f: utils.get_from_butler(butler, 'deepCoadd_forced_src', f, patch) for f in filters}
-        calexp = {f: utils.get_from_butler(butler, 'deepCoadd_calexp', f, patch) for f in filters} # md_
+        meas = {f: data.get_from_butler(butler, 'deepCoadd_meas', f, patch) for f in filters} # meas_
+        forced = {f: data.get_from_butler(butler, 'deepCoadd_forced_src', f, patch) for f in filters}
+        calexp = {f: data.get_from_butler(butler, 'deepCoadd_calexp', f, patch) for f in filters} # md_
         calib = {f: calexp[f].getCalib() for f in filters}
     
         if i == 0:
@@ -145,8 +145,8 @@ if __name__ == "__main__":
             print "            %s: %i" % (r, rejected[r])
 
     # Make them all numpy array
-    data = map(utils.from_list_to_array, [mags, mags_sigma, ell, resolution, xSrc, ySrc, coords])
+    d = map(data.from_list_to_array, [mags, mags_sigma, ell, resolution, xSrc, ySrc, coords])
 
     # And dump them into a file
-    cPickle.dump(data, open(args.output, 'w'))
+    cPickle.dump(d, open(args.output, 'w'))
     print "INFO: Data saved in", args.output 

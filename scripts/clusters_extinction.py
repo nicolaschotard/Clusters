@@ -4,7 +4,7 @@ import os, yaml, cPickle
 import numpy as N
 from argparse import ArgumentParser
 
-from Clusters import utils, extinction
+from Clusters import extinction
 
 import lsst.afw.geom as afwGeom
 

@@ -1,7 +1,9 @@
 import yaml
+import cPickle
 import numpy as N
-import lsst.afw.geom as afwGeom
 from astropy.table import Table, Column, vstack
+import lsst.afw.geom as afwGeom
+import lsst.daf.persistence as dafPersist
 
 def load_config(config):
     """
@@ -63,10 +65,6 @@ def add_filter_column(t, f):
 def add_patch_column(t, p):
     t.add_column(Column(name='patch', data=[p]*len(t), description='Patch name'))
 
-def add_intid_column(t):
-    t.add_column(Column(name='intId', data=range(len(t)), description='Interger ID'))
-    return t
-    
 def add_extra_info(d):
     """
     Add magnitude and position to all tables
@@ -104,7 +102,6 @@ def get_all_data(path, patches, filters, add_extra=False):
     Return a dictionnary with filters as keys
     """
     print "INFO: Loading data from", path, " pathes:", patches, " filters:", filters
-    import lsst.daf.persistence as dafPersist
     butler = dafPersist.Butler(path)
     d = {f: get_filter_data(butler, path, patches, f) for f in filters}
     return stack_tables(d) if not add_extra else stack_tables(add_extra_info(d))
@@ -154,13 +151,12 @@ def stack_tables(d):
         }
     """
     print "Info: Stacking the data (patches, filters) into a single astropy table"
-    return {'meas': vstack([add_intid_column(vstack([d[f][p]['meas']
-                                                     for p in d[f]])) for f in d]),
-            'forced': vstack([add_intid_column(vstack([d[f][p]['forced']
-                                                       for p in d[f]])) for f in d])}
+    return {'meas': vstack([vstack([d[f][p]['meas']
+                                    for p in d[f]]) for f in d]),
+            'forced': vstack([vstack([d[f][p]['forced']
+                                      for p in d[f]]) for f in d])}
 
 def save_data(d, output):
-    import cPickle
     cPickle.dump(d, open(output, 'w'))
 
 def filter_table(t):
@@ -186,8 +182,8 @@ def filter_table(t):
              t['forced']['modelfit_CModel_fluxSigma']) > 10
     
     # Only keeps sources with the 5 filters
-    dmg = t['meas'][~filt&filt2].group_by('intId')
-    dfg = t['forced'][~filt&filt2].group_by('intId')
+    dmg = t['meas'][~filt&filt2].group_by('objectId')
+    dfg = t['forced'][~filt&filt2].group_by('objectId')
 
     # Indices different is a quick way to get the lenght of each group
     filt = (dmg.groups.indices[1:] - dmg.groups.indices[:-1]) == 5
@@ -195,7 +191,7 @@ def filter_table(t):
     return {'meas': dmg.groups[filt], 'forced': dfg.groups[filt]}
 
 def getdata(config, output='all_data.pkl', output_filtered='filtered_data.pkl'):
-    if type(config) == 'str':
+    if type(config) == str:
         config = load_config(config)
     d = get_all_data(config['butler'], config['patches'],
                      config['filters'], add_extra=True)
