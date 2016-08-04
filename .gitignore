@@ -4,6 +4,7 @@ __pycache__/
 *$py.class
 *.yaml~
 *.rst~
+*.html~
 
 # C extensions
 *.so
