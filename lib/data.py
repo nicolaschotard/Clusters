@@ -2,8 +2,6 @@ import yaml
 import cPickle
 import numpy as N
 from astropy.table import Table, Column, vstack
-import lsst.afw.geom as afwGeom
-import lsst.daf.persistence as dafPersist
 
 def load_config(config):
     """Load the configuration file, and return the corresponding dictionnary
@@ -50,14 +48,12 @@ def add_magnitudes(t, getMagnitude):
                        Column(name=ks.replace('_fluxSigma', '_magSigma'), data=dm,
                               description='Magnitude error', unit='mag')])
 
-def add_position(t, wcs):
+def add_position(t, wcs_alt):
     """
     Compute the x/y position in pixel for all sources and add new columns to 
     the astropy table
     """
-    x, y = N.array([wcs.skyToPixel(afwGeom.geomLib.Angle(ra), 
-                                   afwGeom.geomLib.Angle(dec))
-                    for ra, dec in zip(t["coord_ra"], t["coord_dec"])]).T
+    x, y = N.array([wcs_alt(ra, dec) for ra, dec in zip(t["coord_ra"], t["coord_dec"])]).T
     t.add_columns([Column(name='x_Src', data=x,
                           description='x coordinate', unit='pixel'),
                    Column(name='y_Src', data=y,
@@ -79,6 +75,11 @@ def add_extra_info(d):
 
     # get the calib objects
     wcs = d[f][p]['calexp'].getWcs()
+
+    # redifine wcs
+    import lsst.afw.geom as afwGeom
+    wcs_alt = lambda r, d: wcs.skyToPixel(afwGeom.geomLib.Angle(r), afwGeom.geomLib.Angle(d))
+    
     getmag = d[f][p]['calexp'].getCalib().getMagnitude
 
     # redefine the magnitude function to make it 'work' for negative flux or sigma
@@ -96,7 +97,7 @@ def add_extra_info(d):
                 add_magnitudes(d[f][p][e], mag)
                 add_filter_column(d[f][p][e], f)
                 add_patch_column(d[f][p][e], p)
-            add_position(d[f][p]['forced'], wcs)
+            add_position(d[f][p]['forced'], wcs_alt)
 
     return d
     
@@ -105,6 +106,7 @@ def get_all_data(path, patches, filters, add_extra=False):
     Get butler data for a list of patches and filters
     Return a dictionnary with filters as keys
     """
+    import lsst.daf.persistence as dafPersist
     print "INFO: Loading data from", path, " pathes:", patches, " filters:", filters
     butler = dafPersist.Butler(path)
     d = {f: get_filter_data(butler, path, patches, f) for f in filters}
