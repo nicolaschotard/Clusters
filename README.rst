@@ -5,7 +5,10 @@
 Clusters
 --------
 
-***Warning***: Package under development
+**Warning**: Package under development
+
+____
+
 
 Python package wrapping up the ongoing cluster analysis of the french
 LSST/DESC group. For more info, see the two following github
@@ -97,20 +100,20 @@ can find examples of these comfiguration files in the
 directory, or clicking `here <https://github.com/nicolaschotard/Clusters/blob/master/configs/MACSJ2243.3-0935.yaml>`_)
 for MACSJ2243.3-0935.
 
-+--------------------+------------+-------------------------------------------------------+
-| Parameter          | Type       | Description [units]                                   |
-+====================+============+=======================================================+
-| ``"cluster"``      | **string** | Name of the cluster                                   |
-+--------------------+------------+-------------------------------------------------------+
-| ``"ra"``           | **float**  | RA coordinate of the cluster **[deg]**                |
-+--------------------+------------+-------------------------------------------------------+
-| ``"dec"``          | **float**  | DEC coordinate of the cluster **[deg]**               |
-+--------------------+------------+-------------------------------------------------------+
-| ``"redshift"``     | **float**  | Redshift the cluster                                  |
-+--------------------+------------+-------------------------------------------------------+
-| ``"filters"``      | **string** | Filter list to study, e.g., 'ugriz' (Megacam filters) |
-+--------------------+------------+-------------------------------------------------------+
-| ``"butler"``       | **string** | Absolute path to the intput data (butler)             |
-+--------------------+------------+-------------------------------------------------------+
-| ``"patches"``      | **list**   | List of patches to study                              |
-+--------------------+------------+-------------------------------------------------------+
++--------------------+--------+-------------------------------------------------------+
+| Parameter          | Type   | Description [units]                                   |
++====================+========+=======================================================+
+| ``"cluster"``      | string | Name of the cluster                                   |
++--------------------+--------+-------------------------------------------------------+
+| ``"ra"``           | float  | RA coordinate of the cluster **[deg]**                |
++--------------------+--------+-------------------------------------------------------+
+| ``"dec"``          | float  | DEC coordinate of the cluster **[deg]**               |
++--------------------+--------+-------------------------------------------------------+
+| ``"redshift"``     | float  | Redshift the cluster                                  |
++--------------------+--------+-------------------------------------------------------+
+| ``"filters"``      | string | Filter list to study, e.g., 'ugriz' (Megacam filters) |
++--------------------+--------+-------------------------------------------------------+
+| ``"butler"``       | string | Absolute path to the intput data (butler)             |
++--------------------+--------+-------------------------------------------------------+
+| ``"patches"``      | list   | List of patches to study                              |
++--------------------+--------+-------------------------------------------------------+
