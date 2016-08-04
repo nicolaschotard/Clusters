@@ -1,6 +1,9 @@
-[![Documentation Status](https://readthedocs.org/projects/clusters/badge/?version=latest)](http://clusters.readthedocs.io/en/latest/?badge=latest)
+.. image:: https://readthedocs.org/projects/clusters/badge/?version=latest
+:target: http://clusters.readthedocs.io/en/latest/?badge=latest
+:alt: Documentation Status
                 
-# Clusters
+Clusters
+--------
 
 ***Warning***: Package under development
 
@@ -11,7 +14,8 @@ repositories:
 - https://github.com/lsst-france/LSST_notebooks
 - https://github.com/DarkEnergyScienceCollaboration/ReprocessingTaskForce
 
-## Installation
+Installation
+------------
 
 To install
 
@@ -40,7 +44,8 @@ pip install http://github.com/nicolaschotard/Cluster/archive/v0.1.tar.gz
 In the future, release versions will be listed
 [here](http://github.com/nicolaschotard/Clusters/releases).
 
-## Dependencies
+Dependencies
+------------
 
 `Clusters` has for now (too) many dependencies:
 
