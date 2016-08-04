@@ -14,7 +14,7 @@ with open(os.path.abspath('')+'/version.py') as f:
     exec(f.read())
 
 def readme():
-    with open('README.md') as f:
+    with open('README.rst') as f:
         return f.read()
     
 class PyTest(TestCommand):
