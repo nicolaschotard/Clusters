@@ -6,9 +6,13 @@ import lsst.afw.geom as afwGeom
 import lsst.daf.persistence as dafPersist
 
 def load_config(config):
-    """
-    Load the configuration file, and return the corresponding dictionnary
-    """
+    """Load the configuration file, and return the corresponding dictionnary
+
+    :param config: Name of the configuretion file.
+    :type config: str.
+    :returns: dic
+
+    """ 
     return yaml.load(open(config))
 
 def get_astropy_table(cat):

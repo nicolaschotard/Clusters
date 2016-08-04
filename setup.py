@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import os
 import sys
 import glob
 
@@ -9,7 +10,7 @@ from setuptools.command.test import test as TestCommand
 import numpy
 
 # Get __version__ from version.py without importing package itself.
-with open('version.py') as f:
+with open(os.path.abspath('')+'/version.py') as f:
     exec(f.read())
 
 def readme():
