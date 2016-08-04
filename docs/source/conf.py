@@ -60,7 +60,7 @@ author = u'N. Chotard'
 # built documents.
 #
 # The short X.Y version.
-version = open('../../version.py').read().split('"')[1]
+version = open('../../version.txt').read().split('"')[1]
 # The full version, including alpha/beta/rc tags.
 release = version
 
