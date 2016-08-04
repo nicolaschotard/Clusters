@@ -1,7 +1,8 @@
 .. image:: https://readthedocs.org/projects/clusters/badge/?version=latest
    :target: http://clusters.readthedocs.io/en/latest/?badge=latest
    :alt: Documentation Status
-                
+
+	 
 Clusters
 ========
 
