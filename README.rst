@@ -2,8 +2,10 @@
    :target: http://clusters.readthedocs.io/en/latest/?badge=latest
    :alt: Documentation Status
 
+
+	 
 Clusters
-========
+--------
 
 **Warning**: Package under development
 
@@ -92,8 +94,8 @@ Etc.
 With any command, you can run with ``-h`` or ``--help`` to see all the
 optional arguments, e.g., ``clusters_data.py -h``.
 
-Input format
-------------
+Configuration file
+------------------
 
 All the scripts will take the same input YAML file. Keys are listed
 below and are case-sensitive. Additional keys are simply ignored. You

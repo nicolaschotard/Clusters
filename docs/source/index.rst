@@ -12,10 +12,34 @@ Welcome to Clusters's documentation!
 
    readme
 
+.. toctree::
+   :maxdepth: 2
+   :caption: Data format
 
-Indices and tables
-==================
+.. toctree::
+   :maxdepth: 2
+   :caption: Extinction
+	    
+.. toctree::
+   :maxdepth: 2
+   :caption: Photometric redshift
 
+.. toctree::
+   :maxdepth: 2
+   :caption: Galaxy selection
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Shear
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Mass	     
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Code description
+   
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
