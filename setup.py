@@ -11,7 +11,7 @@ import numpy
 
 # Get __version__ from version.py without importing package itself.
 with open('/'.join(os.path.realpath(__file__).split('/')[:-1]) + \
-     '/version.py') as f:
+     '/version.txt') as f:
     exec(f.read())
 
 def readme():
