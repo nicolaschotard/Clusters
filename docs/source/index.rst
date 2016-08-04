@@ -6,12 +6,11 @@
 Welcome to Clusters's documentation!
 ====================================
 
-.. include:: ../../README.rst
-
-Contents:
-
 .. toctree::
    :maxdepth: 2
+   :caption: General
+
+   readme
 
 
 Indices and tables

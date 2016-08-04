@@ -2,7 +2,6 @@
    :target: http://clusters.readthedocs.io/en/latest/?badge=latest
    :alt: Documentation Status
 
-	 
 Clusters
 ========
 
@@ -40,7 +39,7 @@ To install a release version (no release version available yet)::
 
   pip install http://github.com/nicolaschotard/Cluster/archive/v0.1.tar.gz
 
-In the future, release versions will be listed `here
+In the future, release versions will be listed at this `location
 <http://github.com/nicolaschotard/Clusters/releases>`_.
 
 Dependencies
@@ -48,7 +47,7 @@ Dependencies
 
 ``Clusters`` has for now (too) many dependencies:
 
-- The LSST DM stack (see `here <https://developer.lsst.io/build-ci/lsstsw.html>`_)
+- The LSST DM `stack <https://developer.lsst.io/build-ci/lsstsw.html>`_)
 - Python 2.7 and libraries
   
   - numpy
@@ -58,7 +57,7 @@ Dependencies
   - healpy
   - and probably other packages that will be replaced/listed at some point
     
-- LEPHARE (see `here <http://cesam.lam.fr/lephare/lephare.html>`_)
+- `LEPHARE <http://cesam.lam.fr/lephare/lephare.html>`_
 
 
 Usage

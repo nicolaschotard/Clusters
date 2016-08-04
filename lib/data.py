@@ -145,14 +145,7 @@ def stack_tables(d):
     """
     Stack the astropy tables across all patches
     Return a new dictionnary of the form:
-    d = {u: 
-          'forced': table,
-          'meas': table,
-         g: 
-          'forced': table,
-          'meas': table
-         ...
-        }
+    d = {u: {'forced': table, 'meas': table}, g: {'forced': table, 'meas': table}, ...}
     """
     print "Info: Stacking the data (patches, filters) into a single astropy table"
     return {'meas': vstack([vstack([d[f][p]['meas']
