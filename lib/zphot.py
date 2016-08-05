@@ -6,18 +6,24 @@ import subprocess
 
 class LEPHARE:
 
-    def __init__(self, mags, magserr, cname, input=None, filters=None, RA=None, DEC=None, ID=None):
+    def __init__(self, mags, magserr, cname, input=None, filters=None,
+                 zpara=None, RA=None, DEC=None, ID=None):
         """
         Runs the LEPHARE progam (zphota)
-        param list mags:
+        param list mags: list of magnitude
         param list magserr:
         param string cname:
+        param string filters: filter list
+        param string zpara: default is $LEPHAREDIR/config/zphot_megacam.para
+        param list RA: list of ra
+        param list DEC: list of dec
+        param list ID: list of ID
         """
         self.mags = mags
         self.magserr = magserr
         self.cluster_name = cname
         self.filters = filters
-        self.config = '$LEPHAREDIR/config/zphot_megacam.para'
+        self.config = "$LEPHAREDIR/config/zphot_megacam.para" if zpara is None else zpara
         self.RA, self.DEC, self.ID = RA, DEC, ID
         
         if input is not None:
