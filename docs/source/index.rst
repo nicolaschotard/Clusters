@@ -10,9 +10,8 @@ Welcome to Clusters's documentation!
    :maxdepth: 2
    :caption: General
 
-   overview
-   installation
-   
+   .. include:: readme
+      :start-after: inclusion-marker-do-not-remove   
 
 .. toctree::
    :maxdepth: 2
