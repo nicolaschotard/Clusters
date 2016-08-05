@@ -154,9 +154,16 @@ def stack_tables(d):
             'forced': vstack([vstack([d[f][p]['forced']
                                       for p in d[f]]) for f in d])}
 
-def save_data(d, output):
+def write_data(d, output):
     d['forced'].write(output, path='forced', compression=True)
     d['meas'].write(output, path='meas', compression=True, append=True)
+
+def read_data(data_file, path=None):
+    if path is None:
+        return {'meas': Table.read(data_file, path='meas'),
+                'forced': Table.read(data_file, path='forced')}
+    else:
+        return Table.read(data_file, path=path)
 
 def filter_table(t):
 
@@ -196,7 +203,7 @@ def getdata(config, output='all_data.hdf5', output_filtered='filtered_data.hdf5'
         config = load_config(config)
     d = get_all_data(config['butler'], config['patches'],
                      config['filters'], add_extra=True)
-    save_data(d, output)
+    write_data(d, output)
     df = filter_table(d)
-    save_data(df, output_filtered)
+    write_data(df, output_filtered)
     return d, df
