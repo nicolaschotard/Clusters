@@ -1,4 +1,5 @@
 from scipy import optimize
+from scipy import special
 import numpy as N
 import pylab as P
 import seaborn
@@ -47,127 +48,102 @@ def color_mag_plot(mags):
                 ax.legend(loc='best')
     P.show()
 
-def fitRedSequence(diffMag, mag, minDiff=1.0, maxDiff=2.0, minMag=20.0, maxMag=23.5):
+def fitRedSequence(diffMag, mag, minDiff=1.0, maxDiff=2.0, minMag=20.0, maxMag=23.5, iniSlope=-0.04):
     """
-    find slope of the red sequence (RS) band in galaxy color plots
-    color plots are typically mag_i-mag_j / mag_k
+    fit red sequence (RS) band in galaxy color plots
+    color plots are typically mag_i-mag_j versus mag_k
     Input :
-    diffMag : numpy array representing the ordinate of the color plot
-    mag : numpy array reprensenting the abcissa of the color plot
+    diffMag : mag_i-mag_j axis of the color plot
+    mag : abcissa of the color plot
     minDiff, maxDiff : select minDiff < diffMag < maxDiff
     minMag, maxMag : select minMag < mag < maxMag
-    
+    iniSlope : first guess for the RS band slope
+
     Output :
     slope of the red sequence band
-    ordinate at the origin of the red sequence band
     ordinate at the origin of the red sequence band +/- 1.5 sigma
 
-    Cut the color plots in 6 bins to determine a first approximation of the RS
-    slope
+    fitRedSequence is also producing some control plots
+
     """
-    
-    nBins = 5
+
     magRef = minMag # Arbitrary reference magnitude for projection
     diffRef = 0.5*(minDiff+maxDiff) # Arbitrary reference ordinate for projection
-    XMax = N.zeros(nBins)
-    YMax = N.zeros(nBins)
+    appSlope = iniSlope
 
-    bins, stp = N.linspace(minMag, maxMag, nBins, endpoint=False, retstep=True)
+    # Project diffMag on an axis perpendicular to the RS band and at an
+    # arbitrary magnitude (magRef)
+    # The idea is that the projection of the RS band on this axis is a gaussian
+    # over some background represented by an Exponentially Modified Gaussian
 
-    fig, (ax) = P.subplots(ncols=nBins)
-    for i, xMin in enumerate(bins) :
-        xMax = xMin + stp
-        idx = N.where((mag >= xMin) & (mag < xMax) & \
-                      (diffMag > minDiff) & (diffMag < maxDiff))
-        ax[i].hist(diffMag[idx], bins=20, range = [minDiff, maxDiff])
-        histo, edges = N.histogram(diffMag[idx], bins=20, range=[minDiff, maxDiff])
-        nMax =  N.argmax(histo)
-        YMax[i] = 0.5*(edges[nMax+1]-edges[nMax]) + edges[nMax]
-        XMax[i] = xMin + 0.5*stp
-
-    print "XMax, YMax", XMax, YMax
-    d = N.polyfit(XMax, YMax, 1)
-    appSlope = min([d[0], 0])
-    print("Approximate slope: %f"%appSlope)
-    #    appSlope = -0.03
-    
-    # project diffMag along the straight line that we just roughthly fitted and
-    # to an arbitrary magnitude (magRef)
-    # This is just to check that we have something reasonable
-    
     alpha = math.atan(appSlope)
     dy = N.cos(alpha)*((N.asarray(magRef)-mag)*appSlope + diffMag - diffRef)
-    
+
     nbins = 40
     idx = N.where( (diffMag > minDiff) & (diffMag < maxDiff) & (mag < maxMag) & (mag > minMag) )
     fig, (ax0) = P.subplots(ncols=1)
     n, bins, patches = ax0.hist(dy[idx], bins=nbins, color='b')
-    
+
     max = n.max()
     x = N.asarray([0.5*(bins[i+1]-bins[i])+bins[i] for i in range(len(n))])
-    
-    # Fit a gaussian (corresponding to the projection of the RS) plus a 3rd
-    # degree polynomial. The gaussian is supposed to fit the projection of the
-    # red sequence
-    func = lambda p, z: p[0]*N.exp(-(p[1]-z)**2/(2*p[2]**2)) + \
-           p[3]*z*z*z + p[4]*z*z + p[5]*z + p[6]
+
+    # Fit a gaussian for the RS projection plus an Exponentially Modified
+    # Gaussian distribution for the background
+    func = (lambda p, z: p[0]*N.exp(-(p[1]-z)**2/(2*p[2]**2))+
+            p[6]*p[5]*N.exp(0.5*p[5]*(2*p[3]+p[5]*p[4]**2-2*z))*
+            special.erfc((p[3]+p[5]*p[4]**2-z)/(math.sqrt(2)*p[4])))
     dist = lambda p, z, y: (func(p, z) - y)/(N.sqrt(y)+1.)
-    p0 = [max, 0., 0.1, 0.01, 1., 1., 1.]  # Initial parameter values
-    p1,cov,infodict,mesg,ier = optimize.leastsq(dist, p0[:],
-                                                args=(x, n),
-                                                full_output=True)
+    p0 = [max, 0.2, 0.1, -3.0, 1., 1., 40.]  # Initial parameter values
+    p2,cov,infodict,mesg,ier = optimize.leastsq(dist, p0[:], args=(x, n), full_output=True)
     ss_err=(infodict['fvec']**2).sum()
-    print("mean %f - sigma %f"%(p1[1], p1[2]))
+    print("mean %f - sigma %f"%(p2[1], p2[2]))
     print("Reduced chi2 = ", ss_err/(nbins+6-1))
-    # Plot fitted curved as a cross check
-    ax0.plot(bins, func(p1,bins), color='r')
+    print p2
+    # Superimpose fitted curve over diffMag projection
+    ax0.plot(bins, func(p2,bins), color='g')
     ax0.tick_params(labelsize=20)
     ax0.set_xlabel("Projected red sequence")
-    
-    # Varying RS slope around the approximate value determined above,
-    # we try to find a better value by minimizing the width of the gaussian
-    # corresponding to the projection of the RS
-    
+
+    # Minimize the width of the gaussian by varying the RS slope around the
+    # initial guess
+
     nSteps = 80
     step = 0.001
     slope = appSlope-0.5*(nSteps)*step
-    
+
     val = []
     sigma = []
     sigmaMin = 999.0
-    
+
     for i in range(nSteps) :
         slope = slope + step
+        # RS slope is always negative
+        if slope > 0.0 :
+            break
         alpha = math.atan(slope)
         dy = N.cos(alpha)*((magRef-mag)*slope + diffMag - diffRef)
         nbins = 40
         idx = N.where( (diffMag > minDiff) & (diffMag < maxDiff) & (mag < maxMag) & (mag > minMag) )
         n, bins, = N.histogram(dy[idx], bins=nbins)
-    
-        #        max = n.max()
+
         x = N.asarray([0.5*(bins[i+1]-bins[i])+bins[i] for i in range(len(n))])
-    
-        func = lambda p, z: p[0]*N.exp(-(p[1]-z)**2/(2*p[2]**2)) + p[3]*z*z*z + p[4]*z*z + p[5]*z + p[6]
+
+        func = (lambda p, z: p[0]*N.exp(-(p[1]-z)**2/(2*p[2]**2))+
+                p[6]*p[5]*N.exp(0.5*p[5]*(2*p[3]+p[5]*p[4]**2-2*z))*
+                special.erfc((p[3]+p[5]*p[4]**2-z)/(math.sqrt(2)*p[4])))
         dist = lambda p, z, y: (func(p, z) - y)/(N.sqrt(y)+1.)
-        p0 = p1 # Start fit with parameters fitted at the previous step
-        #        p0 = [max, 1.5, 0.1, 0.01, 1., 1., 1.]
+        p0 = p2 # Start fit with parameters fitted at the previous step
         p1,cov,infodict,mesg,ier = optimize.leastsq(dist, p0[:], args=(x, n), full_output=True)
-        #        ss_err=(infodict['fvec']**2).sum()
-        #        print "mean %f - sigma %f"%(p1[1], p1[2])
-        #        print "Reduced chi2 = ", ss_err/(nbins+6-1)
         val.append(slope)
         sigma.append(p1[2])
         if p1[2] < sigmaMin :
             sigmaMin = p1[2]
             param = p1
-    
+
     fig, (ax0) = P.subplots(ncols=1)
     ax0.scatter(val, sigma, s=5, color='b')
     bestSlope = val[N.argmin(N.asarray(sigma))]
-    
-    #    print "Best slope:", bestSlope, sigmaMin
-    #    print param
-    
+
     # Fit a parabola on the (slope, sigma) distribution to find the RS slope
     # corresponding to the minimum sigma
     func = lambda p, z: p[0]*z*z + p[1]*z + p[2]
@@ -175,12 +151,12 @@ def fitRedSequence(diffMag, mag, minDiff=1.0, maxDiff=2.0, minMag=20.0, maxMag=2
     p0 = [1., 1., 1.]
     p1,cov,infodict1,mesg,ier = optimize.leastsq(dist, p0[:], args=(N.asarray(val), N.asarray(sigma)), full_output=True)
     fitSlope = -0.5*p1[1]/p1[0]
-    
+
     ax0.plot(N.asarray(val), func(p1,N.asarray(val)), color='r')
     ax0.tick_params(labelsize=20)
     ax0.set_xlabel("Red sequence slope")
     ax0.set_ylabel("Sigma")
-    
+
     ss_err=(infodict1['fvec']**2).sum()
     ss_tot=((N.asarray(sigma)-N.asarray(sigma).mean())**2).sum()
     rsquared=1-(ss_err/ss_tot)
@@ -189,8 +165,8 @@ def fitRedSequence(diffMag, mag, minDiff=1.0, maxDiff=2.0, minMag=20.0, maxMag=2
         print "Bad fit - take absolute minimun instead of fitted value"
         fitSlope = bestSlope
     print("Fitted minimum: %f"%fitSlope)
-    
-    # Plot RS projection corresponding to the fitted optimal slope
+
+    # Plot RS projection corresponding to the optimal slope
     nbins = 40
     alpha = math.atan(slope)
     dy = N.cos(alpha)*((magRef-mag)*fitSlope + diffMag - diffRef)
@@ -198,25 +174,41 @@ def fitRedSequence(diffMag, mag, minDiff=1.0, maxDiff=2.0, minMag=20.0, maxMag=2
     fig, (ax2) = P.subplots(ncols=1)
     n, bins, patches = ax2.hist(dy[idx], bins=nbins, color='b')
     x = N.asarray([0.5*(bins[i+1]-bins[i])+bins[i] for i in range(len(n))])
-    
-    func = lambda p, z: p[0]*N.exp(-(p[1]-z)**2/(2*p[2]**2)) + p[3]*z*z*z + p[4]*z*z + p[5]*z + p[6]
+
+    func = (lambda p, z: p[0]*N.exp(-(p[1]-z)**2/(2*p[2]**2))+
+                p[6]*p[5]*N.exp(0.5*p[5]*(2*p[3]+p[5]*p[4]**2-2*z))*
+                special.erfc((p[3]+p[5]*p[4]**2-z)/(math.sqrt(2)*p[4])))
     dist = lambda p, z, y: (func(p, z) - y)/(N.sqrt(y)+1.)
     p0 = param
     p1,cov,infodict,mesg,ier = optimize.leastsq(dist, p0[:], args=(x, n), full_output=True)
     ss_err=(infodict['fvec']**2).sum()
     ss_tot=((n-n.mean())**2).sum()
     rsquared=1-(ss_err/ss_tot)
-    print "mean %f - sigma %f"%(p1[1], p1[2])
-    print "Reduced chi2 = ", ss_err/(nbins+6-1), rsquared
+    print("mean %f - sigma %f"%(p1[1], p1[2]))
+    print("Reduced chi2 = %f - R^2 = %f"%(ss_err/(nbins+6-1), rsquared))
     ax2.plot(bins, func(p1,bins), color='r')
     ax2.tick_params(labelsize=20)
-    
-    # Compute the ordinates at origin corresponding to the +/- 1.5 sigma
-    # interval
+
+    # Compute the ordinates at origin corresponding to a +/- 1.5 sigma
+    # interval around the best gaussian mean value
     alpha = math.atan(fitSlope)
     b0 = (p1[1] - fitSlope*magRef)/math.cos(alpha) + diffRef
     b1 = (p1[1]-1.5*p1[2] - fitSlope*magRef)/math.cos(alpha) + diffRef
     b2 = (p1[1]+1.5*p1[2] - fitSlope*magRef)/math.cos(alpha) + diffRef
-    
-    print("Ordinate at origin of the RS band middle : %f, lower : %f, upper : %f"%(b0, b1, b2))
+
+    print("Ordinate at origin of the RS band - middle : %f, lower : %f, upper : %f"%(b0, b1, b2))
+
+    # plot fitted RS band over color plot
+    fig, (ax3) = P.subplots(ncols=1)
+    ax3.scatter(mag, diffMag, s=1, color='b')
+    ax3.set_xlim([minMag-3.0,maxMag+3.0])
+    ax3.set_ylim([minDiff-1.5, maxDiff+0.5])
+    x = N.linspace(minMag-3.0, maxMag+3.0)
+    yMin = fitSlope*x + b1
+    yMax = fitSlope*x + b2
+    yMid = fitSlope*x + b0
+    ax3.plot(x, yMin, color='r')
+    ax3.plot(x, yMax, color='r')
+    ax3.plot(x, yMid, color='g')
+
     P.show()
