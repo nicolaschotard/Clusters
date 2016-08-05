@@ -1,12 +1,16 @@
 import yaml
+import cPickle
 import numpy as N
-import lsst.afw.geom as afwGeom
 from astropy.table import Table, Column, vstack
 
 def load_config(config):
-    """
-    Load the configuration file, and return the corresponding dictionnary
-    """
+    """Load the configuration file, and return the corresponding dictionnary
+
+    :param config: Name of the configuretion file.
+    :type config: str.
+    :returns: dic
+
+    """ 
     return yaml.load(open(config))
 
 def get_astropy_table(cat):
@@ -44,14 +48,12 @@ def add_magnitudes(t, getMagnitude):
                        Column(name=ks.replace('_fluxSigma', '_magSigma'), data=dm,
                               description='Magnitude error', unit='mag')])
 
-def add_position(t, wcs):
+def add_position(t, wcs_alt):
     """
     Compute the x/y position in pixel for all sources and add new columns to 
     the astropy table
     """
-    x, y = N.array([wcs.skyToPixel(afwGeom.geomLib.Angle(ra), 
-                                   afwGeom.geomLib.Angle(dec))
-                    for ra, dec in zip(t["coord_ra"], t["coord_dec"])]).T
+    x, y = N.array([wcs_alt(ra, dec) for ra, dec in zip(t["coord_ra"], t["coord_dec"])]).T
     t.add_columns([Column(name='x_Src', data=x,
                           description='x coordinate', unit='pixel'),
                    Column(name='y_Src', data=y,
@@ -63,10 +65,6 @@ def add_filter_column(t, f):
 def add_patch_column(t, p):
     t.add_column(Column(name='patch', data=[p]*len(t), description='Patch name'))
 
-def add_intid_column(t):
-    t.add_column(Column(name='intId', data=range(len(t)), description='Interger ID'))
-    return t
-    
 def add_extra_info(d):
     """
     Add magnitude and position to all tables
@@ -77,6 +75,11 @@ def add_extra_info(d):
 
     # get the calib objects
     wcs = d[f][p]['calexp'].getWcs()
+
+    # redifine wcs
+    import lsst.afw.geom as afwGeom
+    wcs_alt = lambda r, d: wcs.skyToPixel(afwGeom.geomLib.Angle(r), afwGeom.geomLib.Angle(d))
+    
     getmag = d[f][p]['calexp'].getCalib().getMagnitude
 
     # redefine the magnitude function to make it 'work' for negative flux or sigma
@@ -94,7 +97,7 @@ def add_extra_info(d):
                 add_magnitudes(d[f][p][e], mag)
                 add_filter_column(d[f][p][e], f)
                 add_patch_column(d[f][p][e], p)
-            add_position(d[f][p]['forced'], wcs)
+                add_position(d[f][p]['forced'], wcs_alt)
 
     return d
     
@@ -103,8 +106,8 @@ def get_all_data(path, patches, filters, add_extra=False):
     Get butler data for a list of patches and filters
     Return a dictionnary with filters as keys
     """
-    print "INFO: Loading data from", path, " pathes:", patches, " filters:", filters
     import lsst.daf.persistence as dafPersist
+    print "INFO: Loading data from", path, " pathes:", patches, " filters:", filters
     butler = dafPersist.Butler(path)
     d = {f: get_filter_data(butler, path, patches, f) for f in filters}
     return stack_tables(d) if not add_extra else stack_tables(add_extra_info(d))
@@ -144,23 +147,15 @@ def stack_tables(d):
     """
     Stack the astropy tables across all patches
     Return a new dictionnary of the form:
-    d = {u: 
-          'forced': table,
-          'meas': table,
-         g: 
-          'forced': table,
-          'meas': table
-         ...
-        }
+    d = {u: {'forced': table, 'meas': table}, g: {'forced': table, 'meas': table}, ...}
     """
     print "Info: Stacking the data (patches, filters) into a single astropy table"
-    return {'meas': vstack([add_intid_column(vstack([d[f][p]['meas']
-                                                     for p in d[f]])) for f in d]),
-            'forced': vstack([add_intid_column(vstack([d[f][p]['forced']
-                                                       for p in d[f]])) for f in d])}
+    return {'meas': vstack([vstack([d[f][p]['meas']
+                                    for p in d[f]]) for f in d]),
+            'forced': vstack([vstack([d[f][p]['forced']
+                                      for p in d[f]]) for f in d])}
 
 def save_data(d, output):
-    import cPickle
     cPickle.dump(d, open(output, 'w'))
 
 def filter_table(t):
@@ -186,8 +181,8 @@ def filter_table(t):
              t['forced']['modelfit_CModel_fluxSigma']) > 10
     
     # Only keeps sources with the 5 filters
-    dmg = t['meas'][~filt&filt2].group_by('intId')
-    dfg = t['forced'][~filt&filt2].group_by('intId')
+    dmg = t['meas'][~filt&filt2].group_by('objectId')
+    dfg = t['forced'][~filt&filt2].group_by('objectId')
 
     # Indices different is a quick way to get the lenght of each group
     filt = (dmg.groups.indices[1:] - dmg.groups.indices[:-1]) == 5
@@ -195,7 +190,7 @@ def filter_table(t):
     return {'meas': dmg.groups[filt], 'forced': dfg.groups[filt]}
 
 def getdata(config, output='all_data.pkl', output_filtered='filtered_data.pkl'):
-    if type(config) == 'str':
+    if type(config) == str:
         config = load_config(config)
     d = get_all_data(config['butler'], config['patches'],
                      config['filters'], add_extra=True)

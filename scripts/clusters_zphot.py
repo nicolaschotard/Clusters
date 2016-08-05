@@ -34,6 +34,8 @@ if __name__ == "__main__":
                         help="Name of the output file (pkl file)")
     parser.add_argument("--data",
                         help="LEPHARE output file, used for the plots")
+    parser.add_argument("--zpara",
+                        help="LEPHARE configuration file (zphot.para)")
     parser.add_argument("--plot", action='store_true', default=False,
                         help="Make some plots")
     parser.add_argument("--zmin", type=float, default=0,
@@ -63,7 +65,7 @@ if __name__ == "__main__":
     reload(zphot)
     zp = zphot.LEPHARE(zphot.dict_to_array(mags, filters=filters), 
                        zphot.dict_to_array(mags_sigma, filters=filters), 
-                       config['cluster'], filters=filters,
+                       config['cluster'], filters=filters, zpara=args.zpara,
                        RA=coords['ra'], DEC=coords['dec'], ID=coords['id'])
     zp.run()
 

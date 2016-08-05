@@ -1,0 +1,4 @@
+numpy
+pylab
+scipy
+astropy
