@@ -10,7 +10,7 @@ Welcome to Clusters's documentation!
    :maxdepth: 2
    :caption: General
 
-   .. include:: readme
+   .. include:: readme.rst
       :start-after: inclusion-marker-do-not-remove   
 
 .. toctree::
