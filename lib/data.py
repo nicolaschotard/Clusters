@@ -97,7 +97,7 @@ def add_extra_info(d):
                 add_magnitudes(d[f][p][e], mag)
                 add_filter_column(d[f][p][e], f)
                 add_patch_column(d[f][p][e], p)
-            add_position(d[f][p]['forced'], wcs_alt)
+                add_position(d[f][p]['forced'], wcs_alt)
 
     return d
     
