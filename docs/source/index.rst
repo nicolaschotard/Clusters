@@ -10,7 +10,9 @@ Welcome to Clusters's documentation!
    :maxdepth: 2
    :caption: General
 
-   readme
+   overview
+   installation
+   
 
 .. toctree::
    :maxdepth: 2
