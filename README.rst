@@ -72,16 +72,15 @@ to run in the right order.
 
 Get the input data and dump them in a pickle file (will change soon)::
 
-  clusters_data config.yaml output.pkl
+  clusters_data config.yaml --output output.pkl
 
-Correct the data for Milky Way extinction (output.pkl is the output of the previous step)::
+Correct the data for Milky Way extinction (input.pkl is the output of the previous step)::
 
-  clusters_extinction.py config.yaml output.pkl --plot
-
+  clusters_extinction.py config.yaml input.pkl --plot
 
 Get the photometric redshift using LEPHARE::
 
-  clusters_zphot.py config.yaml input_extcorr.pkl --plot
+  clusters_zphot.py config.yaml input.pkl (--zpara zphot.para) --plot
 
 **Next parts will come soon**
 
