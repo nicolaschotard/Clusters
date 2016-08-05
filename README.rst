@@ -45,6 +45,10 @@ To install a release version (no release version available yet)::
 
   pip install http://github.com/nicolaschotard/Cluster/archive/v0.1.tar.gz
 
+Also works with the master::
+
+  pip install (--upgrade) https://github.com/nicolaschotard/Clusters/archive/master.zip
+
 In the future, release versions will be listed at this `location
 <http://github.com/nicolaschotard/Clusters/releases>`_.
     
