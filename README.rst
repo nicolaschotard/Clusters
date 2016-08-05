@@ -10,9 +10,9 @@
 ____
 
 
-.. include:: docs/source/overview
+.. include:: docs/source/overview.rst
 
-.. include:: docs/source/installation
+.. include:: docs/source/installation.rst
     
 
 Dependencies
