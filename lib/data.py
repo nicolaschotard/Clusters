@@ -160,6 +160,9 @@ def save_data(d, output):
 
 def filter_table(t):
 
+    # Get the initial number of filter
+    nfilt = len(t['meas'].group_by('id').groups[0])
+
     # Select galaxies (and reject stars)
     filt = t['meas']['base_ClassificationExtendedness_flag'] != 0 # keep galaxy
     filt |= t['meas']['base_ClassificationExtendedness_value'] < 0.5 # keep galaxy
@@ -173,19 +176,18 @@ def filter_table(t):
     filt2 = t['forced']['modelfit_CModel_flux'] > 0
     
     #Select sources which have a proper flux value
-    for f in 'ugriz':
-        filt2 &= t['forced']['modelfit_CModel_flag'] == 0
+    filt2 &= t['forced']['modelfit_CModel_flag'] == 0
     
     # Check the signal to noise (stn) value, which must be > 10
     filt2 &= (t['forced']['modelfit_CModel_flux'] / \
-             t['forced']['modelfit_CModel_fluxSigma']) > 10
+              t['forced']['modelfit_CModel_fluxSigma']) > 10
     
     # Only keeps sources with the 5 filters
-    dmg = t['meas'][~filt&filt2].group_by('objectId')
+    dmg = t['meas'][~filt&filt2].group_by('id')
     dfg = t['forced'][~filt&filt2].group_by('objectId')
 
     # Indices different is a quick way to get the lenght of each group
-    filt = (dmg.groups.indices[1:] - dmg.groups.indices[:-1]) == 5
+    filt = (dmg.groups.indices[1:] - dmg.groups.indices[:-1]) == nfilt
 
     return {'meas': dmg.groups[filt], 'forced': dfg.groups[filt]}
 
