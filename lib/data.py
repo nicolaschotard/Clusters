@@ -194,6 +194,8 @@ def getdata(config, output='all_data.pkl', output_filtered='filtered_data.pkl'):
         config = load_config(config)
     d = get_all_data(config['butler'], config['patches'],
                      config['filters'], add_extra=True)
+    #d['forced'].write('all_data.hdf5', path='forced', compression=True)
+    #d['meas'].write('all_data.hdf5', path='meas', compression=True, append=True)
     save_data(d, output)
     df = filter_table(d)
     save_data(df, output_filtered)
