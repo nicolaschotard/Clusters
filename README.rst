@@ -3,9 +3,7 @@
    :alt: Documentation Status
 
 
-.. warning::
-
-   Package under development
+**WARNING**: Package under development
 
 ____
 
