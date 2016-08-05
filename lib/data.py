@@ -1,5 +1,4 @@
 import yaml
-import cPickle
 import numpy as N
 from astropy.table import Table, Column, vstack
 
@@ -156,7 +155,8 @@ def stack_tables(d):
                                       for p in d[f]]) for f in d])}
 
 def save_data(d, output):
-    cPickle.dump(d, open(output, 'w'))
+    d['forced'].write(output, path='forced', compression=True)
+    d['meas'].write(output, path='meas', compression=True, append=True)
 
 def filter_table(t):
 
@@ -191,13 +191,11 @@ def filter_table(t):
 
     return {'meas': dmg.groups[filt], 'forced': dfg.groups[filt]}
 
-def getdata(config, output='all_data.pkl', output_filtered='filtered_data.pkl'):
+def getdata(config, output='all_data.hdf5', output_filtered='filtered_data.hdf5'):
     if type(config) == str:
         config = load_config(config)
     d = get_all_data(config['butler'], config['patches'],
                      config['filters'], add_extra=True)
-    #d['forced'].write('all_data.hdf5', path='forced', compression=True)
-    #d['meas'].write('all_data.hdf5', path='meas', compression=True, append=True)
     save_data(d, output)
     df = filter_table(d)
     save_data(df, output_filtered)
