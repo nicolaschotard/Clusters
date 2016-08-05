@@ -1,4 +1,8 @@
 numpy
 pylab
 scipy
+matplotlib
+seaborn
+pyyaml
 astropy
+requests
