@@ -2,6 +2,9 @@
    :target: http://clusters.readthedocs.io/en/latest/?badge=latest
    :alt: Documentation Status
 
+.. image:: https://travis-ci.org/nicolaschotard/Clusters.svg?branch=master
+   :target: https://travis-ci.org/nicolaschotard/Clusters
+   :alt: Travis CI build status (Linux)
 ____
 
 **WARNING**: Package under development
