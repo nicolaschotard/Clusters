@@ -16,13 +16,9 @@ install:
   - hash -r
   - conda config --set always_yes yes --set changeps1 no
   - conda update -q conda
-#  - conda install matplotlib
-#  - conda install astropy 
-#  - conda install seaborn
-#  - conda install yaml
   # Useful for debugging any issues with conda
   - conda info -a
-  - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION numpy scipy nose matplotlib astropy seaborn yaml
+  - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION numpy scipy nose matplotlib astropy seaborn pyyaml
   - source activate test-environment
   - python setup.py install
 # command to run tests
