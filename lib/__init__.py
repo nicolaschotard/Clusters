@@ -1,5 +1,7 @@
 #!/usr/bin/env python
-"""Cluster analysis on the LSST DM stack.
+
+"""
+Cluster analysis on the LSST DM stack.
 
 .. moduleauthor:: N. Chotard <nchotard@in2p3.fr>
 

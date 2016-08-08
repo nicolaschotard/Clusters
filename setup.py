@@ -12,10 +12,6 @@ with open('/'.join(os.path.realpath(__file__).split('/')[:-1]) + \
      '/version.txt') as f:
     exec(f.read())
 
-def readme():
-    with open('README.rst') as f:
-        return f.read()
-    
 # Package name
 name = 'Clusters'
 
