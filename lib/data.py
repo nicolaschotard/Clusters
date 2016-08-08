@@ -162,14 +162,18 @@ def stack_tables(d):
             'forced': vstack([vstack([d[f][p]['forced']
                                       for p in d[f]]) for f in d])}
 
-def write_data(d, output):
-    d['forced'].write(output, path='forced', compression=True, serialize_meta=True)
+def write_data(d, output, overwrite=False):
+    d['forced'].write(output, path='forced', compression=True,
+                      serialize_meta=True, overwrite=overwrite)
     d['meas'].write(output, path='meas', compression=True, append=True, serialize_meta=True)
 
 def read_data(data_file, path=None):
     if path is None:
-        return {'meas': Table.read(data_file, path='meas'),
-                'forced': Table.read(data_file, path='forced')}
+        try:
+            return {'meas': Table.read(data_file, path='meas'),
+                    'forced': Table.read(data_file, path='forced')}
+        except:
+            return Table.read(data_file)
     else:
         return Table.read(data_file, path=path)
 
@@ -207,12 +211,12 @@ def filter_table(t):
 
     return {'meas': dmg.groups[filt], 'forced': dfg.groups[filt]}
 
-def getdata(config, output='all_data.hdf5', output_filtered='filtered_data.hdf5'):
+def getdata(config, output='all_data.hdf5', output_filtered='filtered_data.hdf5', overwrite=False):
     if type(config) == str:
         config = load_config(config)
     d = get_all_data(config['butler'], config['patches'],
                      config['filters'], add_extra=True)
-    write_data(d, output)
+    write_data(d, output, overwrite=overwrite)
     df = filter_table(d)
-    write_data(df, output_filtered)
+    write_data(df, output_filtered, overwrite=overwrite)
     return d, df
