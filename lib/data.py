@@ -12,6 +12,14 @@ def load_config(config):
     """ 
     return yaml.load(open(config))
 
+def shorten(doc):
+    """
+    Really bad hack to go around an astropy/hdf5 bug
+    Cut in half words longer than 18 character
+    """
+    return " ".join([w if len(w) < 18 else (w[:len(w)/2]+' - '+w[len(w)/2:]) for w in doc.split()])
+
+
 def get_astropy_table(cat):
     """
     Convert an afw data table into a simple astropy table
@@ -20,7 +28,7 @@ def get_astropy_table(cat):
     dic = {n: cat.get(n) for n in schema.getNames()}
     tab = Table(dic)
     for k in schema.getNames():
-        tab[k].description=schema[k].asField().getDoc()
+        tab[k].description=shorten(schema[k].asField().getDoc())
         tab[k].unit=schema[k].asField().getUnits()
     return tab
 
