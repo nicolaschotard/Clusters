@@ -155,8 +155,8 @@ def stack_tables(d):
                                       for p in d[f]]) for f in d])}
 
 def write_data(d, output):
-    d['forced'].write(output, path='forced', compression=True)
-    d['meas'].write(output, path='meas', compression=True, append=True)
+    d['forced'].write(output, path='forced', compression=True, serialize_meta=True)
+    d['meas'].write(output, path='meas', compression=True, append=True, serialize_meta=True)
 
 def read_data(data_file, path=None):
     if path is None:
