@@ -7,8 +7,6 @@ import glob
 from setuptools import setup
 from setuptools.command.test import test as TestCommand
 
-import numpy
-
 # Get __version__ from version.py without importing package itself.
 with open('/'.join(os.path.realpath(__file__).split('/')[:-1]) + \
      '/version.txt') as f:
