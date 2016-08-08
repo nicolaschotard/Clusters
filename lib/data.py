@@ -189,8 +189,8 @@ def filter_table(t):
     # Gauss regulerarization flag
     filt &= t['meas']['ext_shapeHSM_HsmShapeRegauss_flag'] == 0
 
-    # Make sure to reject un-delbended sources (sources with 0 child)
-    filt &= t['meas']['deblend_nChild'] == 0
+    # Make sure to nin pprimary sources
+    filt &= t['meas']['detect_isPrimary'] == 1
 
     # Check the flux value, which must be > 0
     filt &= t['forced']['modelfit_CModel_flux'] > 0
