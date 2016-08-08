@@ -5,6 +5,9 @@
 .. image:: https://travis-ci.org/nicolaschotard/Clusters.svg?branch=master
    :target: https://travis-ci.org/nicolaschotard/Clusters
    :alt: Travis CI build status (Linux)
+
+.. image:: https://codecov.io/gh/nicolaschotard/Clusters/branch/master/graph/badge.svg
+  :target: https://codecov.io/gh/nicolaschotard/Clusters	 
 ____
 
 **WARNING**: Package under development
