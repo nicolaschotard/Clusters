@@ -28,17 +28,6 @@ cmdclass = {}
 command_options = {}
 package_data = {}
 
-# build_sphinx command in case sphinx is installed
-try:
-    from sphinx.setup_command import BuildDoc
-    cmdclass.update({'build_sphinx': BuildDoc})
-    command_options.update({'build_sphinx': {
-        'version': ('setup.py', __version__),
-        'release': ('setup.py', __version__)}
-    })
-except ImportError:
-    pass
-
 setup(name=name,
       version=__version__,
       description=("Cluster analysis tools and scripts"),
