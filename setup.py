@@ -43,5 +43,6 @@ setup(name=name,
       scripts=scripts,
       package_data=package_data,
       cmdclass=cmdclass,
-      command_options=command_options
+      command_options=command_options,
+      long_description=open('README.rst').read(),
 )

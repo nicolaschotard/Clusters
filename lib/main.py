@@ -1,12 +1,14 @@
 """Main entry points for scripts."""
 
+import os
 import cPickle
 import numpy as N
 from argparse import ArgumentParser
 
 import lsst.afw.geom as afwGeom
 
-from . import data, extinction as E
+from . import data as D
+from . import extinction as E
 
 def load_data(argv=None):
     """
@@ -25,7 +27,7 @@ def load_data(argv=None):
                         help="Overwrite the output files if they exist already")
     args = parser.parse_args(argv)
     
-    config = data.load_config(args.config)
+    config = D.load_config(args.config)
 
     if args.output is None:
         output = os.path.basename(args.config).replace('.yaml', '_data.hdf5')
@@ -39,11 +41,11 @@ def load_data(argv=None):
     print "INFO: Working on filters", config['filters']
     print "INFO: Butler located under %s" % config['butler']
 
-    d = data.get_all_data(config['butler'], config['patches'],
+    d = D.get_all_data(config['butler'], config['patches'],
                           config['filters'], add_extra=True)
-    df = data.filter_table(d)
-    data.write_data(d, output, overwrite=args.overwrite)
-    data.write_data(df, output_filtered, overwrite=args.overwrite)
+    df = D.filter_table(d)
+    D.write_data(d, output, overwrite=args.overwrite)
+    D.write_data(df, output_filtered, overwrite=args.overwrite)
 
 def extinction(argv=None):
 
@@ -55,18 +57,16 @@ def extinction(argv=None):
     parser.add_argument("--plot", action='store_true', default=False,
                         help="Make some plots")
     args = parser.parse_args(argv)
-    from . import data
-    import os
-    config = data.load_config(args.config)
+
+    config = D.load_config(args.config)
     if args.output is None:
         args.output = os.path.basename(args.config).replace('.yaml', '_extcorr.pkl')
     
-    print "INFO: Working on cluster %s (z=%.4f)" % (config['cluster'],
-                                                    config['redshift'])
+    print "INFO: Working on cluster %s (z=%.4f)" % (config['cluster'], config['redshift'])
     print "INFO: Working on filters", config['filters']
     
     # Load the data
-    d = data.read_data(args.input)
+    d = D.read_data(args.input)
     df = d['forced']
     # Get the data we need
     mags = {f: df['modelfit_CModel_mag'][df['filter'] == f] for f in config['filters']}
