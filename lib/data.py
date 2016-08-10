@@ -222,3 +222,24 @@ def getdata(config, output='all_data.hdf5', output_filtered='filtered_data.hdf5'
     df = filter_table(d)
     write_data(df, output_filtered, overwrite=overwrite)
     return d, df
+
+def correct_for_extinction(ti, te, mag='modelfit_CModel_mag', ext='sfd', ifilt="i_new"):
+    """
+    Take a data table, an extinction table, a type of magnitude and a type of extinction, and
+    correct for extinction. ifilt is the 'i' filter you want to use (i_old or i_new)
+
+    Return a astropy table compatible with the input one, with a new key added 'mag'+_extcorr.
+    """
+    filters = list(set(te['filter']))
+    for i, f in enumerate(filters):
+        if f == 'i':
+            filters[i] = ifilt
+    magext = mag + '_extcorr'
+    mcorr = N.zeros(len(ti[mag]))
+    for f in filters:
+        filt = ti['filter'] == (f if 'i' not in f else 'i')
+        mcorr[filt] = ti[mag][filt] - te['albd_%s_%s' % (f, ext)][filt]
+    print len(mcorr), len(ti['filter'])
+    ti.add_columns([Column(name=magext, data=mcorr, unit='mag',
+                           description='Extinction corrected magnitude (i=%s, ext=%s)' % \
+                           (ifilt, ext))])

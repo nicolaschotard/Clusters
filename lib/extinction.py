@@ -65,7 +65,7 @@ def query(lon, lat, coordsys='gal', mode='full'):
 def from_ebv_sfd_TO_sdss_albd(ebv):
     """Return A(lbd) for the 5 SDSS filters: u, g, r, i, z"""
     coeff = {'u': 5.155, 'g': 3.793, 'r': 2.751, 'i': 2.086, 'z': 1.479}
-    return {f: coeff[f] * ebv for f in coeff}
+    return {f: coeff[f] * N.array(ebv) for f in coeff}
 
 def from_sdss_albd_TO_megacam_albd(sdss):
     """Return A(lbd) for the 6 Megecam filters: u, g, r, i_old, i_new, z"""
