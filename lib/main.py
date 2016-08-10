@@ -25,6 +25,8 @@ def load_data(argv=None):
                         help="Name of the output file (pkl file)")
     parser.add_argument("--overwrite", action="store_true", default=False,
                         help="Overwrite the output files if they exist already")
+    parser.add_argument("--overwrite", action="store_true", default=False,
+                        help="Overwrite the output files if they exist already")
     args = parser.parse_args(argv)
     
     config = D.load_config(args.config)
