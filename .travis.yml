@@ -15,13 +15,17 @@ install:
   # Useful for debugging any issues with conda
   - conda info -a
   - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION numpy scipy nose matplotlib astropy seaborn pyyaml requests
-  - pip install coveralls
   - source activate test-environment
+  - pip install codecov
+  - pip install coveralls
   - python setup.py install
 # command to run tests
 script:
-  - coverage run --source="./" setup.py test
+  #- coverage run --source="./" setup.py test
+  #- python -c "import numpy; print numpy"
+  - coverage run --source="./" lib/*py
 after_success:
+  - codecov
   - coveralls
-  - bash <(curl -s https://codecov.io/bash)
+  #- bash <(curl -s https://codecov.io/bash)
 

@@ -1,26 +1,20 @@
 #!/usr/bin/env python
 
 import os
-import sys
 import glob
+import yaml
 
 from setuptools import setup
-from setuptools.command.test import test as TestCommand
 
 # Get __version__ from version.py without importing package itself.
-with open('/'.join(os.path.realpath(__file__).split('/')[:-1]) + \
-     '/version.txt') as f:
-    exec(f.read())
+__version__ = yaml.load(open('/'.join(os.path.realpath(__file__).split('/')[:-1]) + \
+                        '/version.yaml'))['version']
 
-def readme():
-    with open('README.rst') as f:
-        return f.read()
-    
 # Package name
 name = 'Clusters'
 
 # Packages (subdirectories in lib/)
-packages = []
+packages = ["lib"]
 
 # Modules (all python files in lib/)
 modules = [m.replace("lib/", "%s." % name).replace('.py', '') for m in glob.glob("lib/*.py")]
@@ -32,16 +26,7 @@ cmdclass = {}
 command_options = {}
 package_data = {}
 
-# build_sphinx command in case sphinx is installed
-try:
-    from sphinx.setup_command import BuildDoc
-    cmdclass.update({'build_sphinx': BuildDoc})
-    command_options.update({'build_sphinx': {
-        'version': ('setup.py', __version__),
-        'release': ('setup.py', __version__)}
-    })
-except ImportError:
-    pass
+print __version__
 
 setup(name=name,
       version=__version__,
@@ -58,5 +43,6 @@ setup(name=name,
       scripts=scripts,
       package_data=package_data,
       cmdclass=cmdclass,
-      command_options=command_options
+      command_options=command_options,
+      long_description=open('README.rst').read(),
 )

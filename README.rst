@@ -5,6 +5,13 @@
 .. image:: https://travis-ci.org/nicolaschotard/Clusters.svg?branch=master
    :target: https://travis-ci.org/nicolaschotard/Clusters
    :alt: Travis CI build status (Linux)
+
+.. image:: https://codecov.io/gh/nicolaschotard/Clusters/branch/master/graph/badge.svg
+  :target: https://codecov.io/gh/nicolaschotard/Clusters
+
+.. image:: https://landscape.io/github/nicolaschotard/Clusters/master/landscape.svg?style=flat
+   :target: https://landscape.io/github/nicolaschotard/Clusters/master
+   :alt: Code Health
 ____
 
 **WARNING**: Package under development
@@ -58,7 +65,7 @@ Dependencies
 
 ``Clusters`` has for now (too) many dependencies:
 
-- The LSST DM `stack <https://developer.lsst.io/build-ci/lsstsw.html>`_)
+- The LSST DM `stack <https://developer.lsst.io/build-ci/lsstsw.html>`_
 - Python 2.7 and libraries
   
   - numpy
@@ -108,8 +115,8 @@ Configuration file
 All the scripts will take the same input YAML file. Keys are listed
 below and are case-sensitive. Additional keys are simply ignored. You
 can find examples of these comfiguration files in the
-`config <https://github.com/nicolaschotard/Clusters/blob/master/configs>`_)
-directory, or clicking `here <https://github.com/nicolaschotard/Clusters/blob/master/configs/MACSJ2243.3-0935.yaml>`_)
+`config <https://github.com/nicolaschotard/Clusters/blob/master/configs>`_
+directory, or clicking `here <https://github.com/nicolaschotard/Clusters/blob/master/configs/MACSJ2243.3-0935.yaml>`_
 for MACSJ2243.3-0935.
 
 +--------------------+--------+-------------------------------------------------------+

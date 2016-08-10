@@ -1,0 +1,12 @@
+doc-warnings: true
+test-warnings: true
+strictness: veryhigh
+max-line-length: 100
+autodetect: true
+python-targets:
+  - 2
+pep8:
+  full: true
+pylint:
+  disable:
+    - invalid-name

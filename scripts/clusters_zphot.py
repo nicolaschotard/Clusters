@@ -4,7 +4,6 @@ import os
 import sys
 import yaml
 import cPickle
-import numpy as N
 from argparse import ArgumentParser
 
 from Clusters import zphot
@@ -59,8 +58,7 @@ if __name__ == "__main__":
         sys.exit()
         
     # And dump them into a file
-    data = cPickle.load(open(args.input, 'r'))
-    mags, mags_sigma, ell, resolution, xSrc, ySrc, coords = data
+    mags, mags_sigma, ell, resolution, xSrc, ySrc, coords = cPickle.load(open(args.input, 'r'))
 
     reload(zphot)
     zp = zphot.LEPHARE(zphot.dict_to_array(mags, filters=filters), 

@@ -1,5 +1,12 @@
 #!/usr/bin/env python
 
+"""
+Cluster analysis on the LSST DM stack.
+
+.. moduleauthor:: N. Chotard <nchotard@in2p3.fr>
+
+"""
+
 import os, glob
 
 # Automatically import all modules (python files)
