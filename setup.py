@@ -1,12 +1,10 @@
 #!/usr/bin/env python
 
 import os
-import sys
 import glob
 import yaml
 
 from setuptools import setup
-from setuptools.command.test import test as TestCommand
 
 # Get __version__ from version.py without importing package itself.
 __version__ = yaml.load(open('/'.join(os.path.realpath(__file__).split('/')[:-1]) + \

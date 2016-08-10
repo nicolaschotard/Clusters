@@ -119,7 +119,7 @@ def get_all_data(path, patches, filters, add_extra=False):
     d = {f: get_filter_data(butler, path, patches, f) for f in filters}
     return stack_tables(d) if not add_extra else stack_tables(add_extra_info(d))
 
-def get_filter_data(butler, path, patches, f):
+def get_filter_data(butler, patches, f):
     """
     Get butler data for a list of patches, for a given filter
     Return a dictionnary with patches as keys

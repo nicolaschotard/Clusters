@@ -4,7 +4,7 @@ import pylab as P
 import seaborn
 import subprocess
 
-class LEPHARE:
+class LEPHARE(object):
 
     def __init__(self, mags, magserr, cname, input=None, filters=None,
                  zpara=None, RA=None, DEC=None, ID=None):
@@ -86,7 +86,7 @@ class LEPHARE:
         self.data_out = LEPHARO(self.output, all_input=self.allinput)
 
 
-class LEPHARO:
+class LEPHARO(object):
     def __init__(self, zphot_output, all_input=None):
         """
         Read the LEPHARe progam Output (zphota output)
@@ -114,13 +114,14 @@ class LEPHARO:
         f.close()
         
 
-    def hist(self, param, min=None, max=None, nbins=None, xlabel=None, title=None, zclust=None, figname=""):
+    def hist(self, param, minv=None, maxv=None, nbins=None, xlabel=None,
+             title=None, zclust=None, figname=""):
         pval = self.data_dict[param]
         filt = N.array([1]*len(pval), dtype='bool')
-        if min is not None:
-            filt &= (pval >= min)
-        if max is not None:
-            filt &= (pval <= max)
+        if minv is not None:
+            filt &= (pval >= minv)
+        if maxv is not None:
+            filt &= (pval <= maxv)
         pval = pval[filt]
         fig = P.figure()
         ax = fig.add_subplot(111, ylabel='#')

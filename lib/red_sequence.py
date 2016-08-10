@@ -35,7 +35,7 @@ def color_histo(mags):
 
 def color_mag_plot(mags):
     filt = (mags['g'] - mags['r']) > 1.2
-    for k, fref in enumerate('gri'):
+    for fref in enumerate('gri'):
         for i, f1 in enumerate('gri'):
             for j, f2 in enumerate('gri'):
                 if i >= j:
