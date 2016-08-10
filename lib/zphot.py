@@ -24,7 +24,7 @@ class LEPHARE(object):
         self.magserr = magserr
         self.cluster_name = cname
         self.filters = filters
-        self.config = os.environ["LEPHAREDIR"]+"/config/zphot_megacam.para" if zpara is None else zpara
+        self.config = os.environ["LEPHAREDIR"] + "/config/zphot_megacam.para" if zpara is None else zpara
         self.RA, self.DEC, self.ID = RA, DEC, ID
         
         if input is not None:
@@ -77,37 +77,37 @@ class LEPHARE(object):
         with open(self.config) as f:
             for line in f:
                 if "ZPHOTLIB" in line:
-                    libs=line.split()[1].split(",")
-        path_to_lib=os.environ["LEPHAREWORK"]+"/lib_mag/"
-   
+                    libs = line.split()[1].split(",")
+        path_to_lib = os.environ["LEPHAREWORK"] + "/lib_mag/"
+
         for lib in libs:
-            lib_tmp=path_to_lib+lib+".bin"
+            lib_tmp = path_to_lib + lib + ".bin"
             if not os.path.exists(lib_tmp):
                 print "\nERROR: Requested library %s does not exist " % lib_tmp
                 print "INFO: Available SED libraries are:\n ",  
                 for file in os.listdir(path_to_lib):
                     if file.endswith(".bin"):
                         print(file)
-                print ("--> Correct the ZPHOTLIB variable in %s or generate the missing LePhare SED libraries" % self.config)                    
+                print "--> Correct the ZPHOTLIB variable in %s or generate the missing LePhare SED libraries" % self.config                   
                 sys.exit()
-                
-        counter=0
-        for lib in libs:  
-            lib_tmp=path_to_lib+lib+".doc"
+
+        counter = 0
+        for lib in libs:
+            lib_tmp = path_to_lib + lib + ".doc"
             with open(lib_tmp) as f:
                 for line in f:
                     if "FILTER_FILE" in line:
-                        filt_tmp=line.split()[1]
-                        if counter==0:
-                            filt_ref=filt_tmp
+                        filt_tmp = line.split()[1]
+                        if counter == 0:
+                            filt_ref = filt_tmp
                         if filt_tmp != filt_ref:
                             print "\nERROR: Requested SED libraries %s have been built using different filters. Either change the requested libraries or re-generate them accordingly." %libs
                             sys.exit()
-            counter+=1
+            counter += 1
 
-        path_to_filt=os.environ["LEPHAREWORK"]+"/filt/"
-        if not os.path.exists(path_to_filt+filt_ref):
-            print "\nERROR: The FILTER_FILE %s used by the SED libraries %s does not exists." % ((path_to_filt+filt_ref),libs)
+        path_to_filt = os.environ["LEPHAREWORK"]+"/filt/"
+        if not os.path.exists(path_to_filt + filt_ref):
+            print "\nERROR: The FILTER_FILE %s used by the SED libraries %s does not exists." % ((path_to_filt + filt_ref), libs)
             sys.exit()
  
     
