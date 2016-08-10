@@ -16,7 +16,7 @@ with open('/'.join(os.path.realpath(__file__).split('/')[:-1]) + \
 name = 'Clusters'
 
 # Packages (subdirectories in lib/)
-packages = []
+packages = ["lib"]
 
 # Modules (all python files in lib/)
 modules = [m.replace("lib/", "%s." % name).replace('.py', '') for m in glob.glob("lib/*.py")]
