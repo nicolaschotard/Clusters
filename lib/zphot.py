@@ -85,9 +85,6 @@ class LEPHARE:
 
         self.data_out = LEPHARO(self.output, all_input=self.allinput)
 
-    def read_output(self):
-        self.header = [l for l in f if l.startswith('#')]
-        self.outdata = N.loadtxt(self.output, unpack=True)
 
 class LEPHARO:
     def __init__(self, zphot_output, all_input=None):

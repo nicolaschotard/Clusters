@@ -3,14 +3,14 @@
 import os
 import sys
 import glob
+import yaml
 
 from setuptools import setup
 from setuptools.command.test import test as TestCommand
 
 # Get __version__ from version.py without importing package itself.
-with open('/'.join(os.path.realpath(__file__).split('/')[:-1]) + \
-     '/version.txt') as f:
-    exec(f.read())
+__version__ = yaml.load(open('/'.join(os.path.realpath(__file__).split('/')[:-1]) + \
+                        '/version.yaml'))['version']
 
 # Package name
 name = 'Clusters'
@@ -27,6 +27,8 @@ scripts = glob.glob("scripts/*.py")
 cmdclass = {}
 command_options = {}
 package_data = {}
+
+print __version__
 
 setup(name=name,
       version=__version__,
