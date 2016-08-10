@@ -35,6 +35,10 @@ def query(lon, lat, coordsys='gal', mode='full'):
     Less information is returned in 'lite' mode, while in 'sfd' mode,
     the Schlegel, Finkbeiner & Davis (1998) E(B-V) is returned.
     '''
+
+    # make sure to have elss than 500000 object. Cut the list in smaller pieces if needed
+    #if len(lon) >= 500000:
+    # has to be finish    
     
     url = 'http://argonaut.skymaps.info/gal-lb-query-light'
     
