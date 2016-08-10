@@ -65,6 +65,7 @@ if __name__ == "__main__":
                        zphot.dict_to_array(mags_sigma, filters=filters), 
                        config['cluster'], filters=filters, zpara=args.zpara,
                        RA=coords['ra'], DEC=coords['dec'], ID=coords['id'])
+    zp.check_config()
     zp.run()
 
     cPickle.dump(zp.data_out.data_dict, open(args.output, 'w'))
