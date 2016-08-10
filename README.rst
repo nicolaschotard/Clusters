@@ -7,7 +7,11 @@
    :alt: Travis CI build status (Linux)
 
 .. image:: https://codecov.io/gh/nicolaschotard/Clusters/branch/master/graph/badge.svg
-  :target: https://codecov.io/gh/nicolaschotard/Clusters	 
+  :target: https://codecov.io/gh/nicolaschotard/Clusters
+
+.. image:: https://landscape.io/github/nicolaschotard/Clusters/master/landscape.svg?style=flat
+   :target: https://landscape.io/github/nicolaschotard/Clusters/master
+   :alt: Code Health
 ____
 
 **WARNING**: Package under development
