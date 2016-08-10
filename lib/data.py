@@ -116,7 +116,7 @@ def get_all_data(path, patches, filters, add_extra=False):
     import lsst.daf.persistence as dafPersist
     print "INFO: Loading data from", path, " pathes:", patches, " filters:", filters
     butler = dafPersist.Butler(path)
-    d = {f: get_filter_data(butler, path, patches, f) for f in filters}
+    d = {f: get_filter_data(butler, patches, f) for f in filters}
     return stack_tables(d) if not add_extra else stack_tables(add_extra_info(d))
 
 def get_filter_data(butler, patches, f):

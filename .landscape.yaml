@@ -7,3 +7,6 @@ python-targets:
   - 2
 pep8:
   full: true
+pylint:
+  disable:
+    - invalid-name
