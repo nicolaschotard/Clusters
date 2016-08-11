@@ -16,7 +16,7 @@ Welcome to Clusters's documentation!
    :maxdepth: 2
    :caption: Data format
 
-   ../../lib/README
+   data
 
 .. toctree::
    :maxdepth: 2

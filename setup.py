@@ -6,9 +6,11 @@ import yaml
 
 from setuptools import setup
 
+README = '/'.join(os.path.realpath(__file__).split('/')[:-1]) + '/README.rst'
+VERSION = '/'.join(os.path.realpath(__file__).split('/')[:-1]) + '/version.yaml'
+
 # Get __version__ from version.py without importing package itself.
-__version__ = yaml.load(open('/'.join(os.path.realpath(__file__).split('/')[:-1]) + \
-                        '/version.yaml'))['version']
+__version__ = yaml.load(open(VERSION))['version']
 
 # Package name
 name = 'Clusters'
@@ -44,5 +46,5 @@ setup(name=name,
       package_data=package_data,
       cmdclass=cmdclass,
       command_options=command_options,
-      long_description=open('README.rst').read(),
+      long_description=open(README).read(),
 )
