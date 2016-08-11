@@ -3,11 +3,9 @@ import numpy as N
 from astropy.table import Table, Column, vstack
 
 """
-.. _data:
+.. _data
 
-clusters.data - Data builder and parser for the Clusters package
-====================================================================
-
+Data builder and parser for the Clusters package
 """
 
 def load_config(config):

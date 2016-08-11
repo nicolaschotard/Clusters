@@ -9,7 +9,7 @@ import numpy as N
 import seaborn
 
 def query(lon, lat, coordsys='gal', mode='full', limit=500000):
-    '''
+    """
     Send a line-of-sight reddening query to the Argonaut web server.
 
     lon, lat: longitude and latitude, in degrees.
@@ -18,24 +18,24 @@ def query(lon, lat, coordsys='gal', mode='full', limit=500000):
 
     In 'full' mode, outputs a dictionary containing, among other things:
 
-    'distmod':    The distance moduli that define the distance bins.
-    'best':       The best-fit (maximum proability density)
+    - 'distmod':    The distance moduli that define the distance bins.
+    - 'best':       The best-fit (maximum proability density)
                   line-of-sight reddening, in units of SFD-equivalent
                   E(B-V), to each distance modulus in 'distmod.' See
                   Schlafly & Finkbeiner (2011) for a definition of the
                   reddening vector (use R_V = 3.1).
-    'samples':    Samples of the line-of-sight reddening, drawn from
+    - 'samples':    Samples of the line-of-sight reddening, drawn from
                   the probability density on reddening profiles.
-    'success':    1 if the query succeeded, and 0 otherwise.
-    'converged':  1 if the line-of-sight reddening fit converged, and
+    - 'success':    1 if the query succeeded, and 0 otherwise.
+    - 'converged':  1 if the line-of-sight reddening fit converged, and
                   0 otherwise.
-    'n_stars':    # of stars used to fit the line-of-sight reddening.
-    'DM_reliable_min':  Minimum reliable distance modulus in pixel.
-    'DM_reliable_max':  Maximum reliable distance modulus in pixel.
+    - 'n_stars':    # of stars used to fit the line-of-sight reddening.
+    - 'DM_reliable_min':  Minimum reliable distance modulus in pixel.
+    - 'DM_reliable_max':  Maximum reliable distance modulus in pixel.
 
     Less information is returned in 'lite' mode, while in 'sfd' mode,
     the Schlegel, Finkbeiner & Davis (1998) E(B-V) is returned.
-    '''
+    """
 
     # Make sure to have less than 500000 objects (the limit).
     # Cut the list in smaller pieces if that is the case.
