@@ -1,7 +1,7 @@
 Data format
 -----------
 
-.. image:: https://cdn.rawgit.com/nicolaschotard/Clusters/a43ea6f280579e1d0cd270398130688efe759150/data-table.svg
+.. image:: https://cdn.rawgit.com/nicolaschotard/Clusters/data-table-1.0.svg
    :scale: 100 %
    :alt: Data table construction
    :align: center
