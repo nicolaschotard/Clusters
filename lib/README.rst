@@ -15,5 +15,6 @@ patch `p`. Since we have the same amount of patch for all filter,
 which contain the exact same amount of sources, all table created from
 a patch will be of the same size for all filter. Each table (1,p), (2,p), etc. 
 
-----
+--------
+
 .. [#] Diagram created using https://www.jgraph.com/. Use the draw,io application and the last xml file to update the diagram if needed. 
