@@ -3,28 +3,35 @@ import pylab as P
 import seaborn
 from Clusters import data
 
-def load_cluster (cluster="MACSJ2243.3-0935", ifilt="i_new") :
+"""
+Data validation utilisites and plots
+"""
+
+def load_cluster (cluster="MACSJ2243.3-0935", ifilt="i_new"):
+    """
+    Load the data for a given cluster
+    """
     # load astropy tables from hdf5 file
     d = data.read_data(cluster + "_all.hdf5")
     # read extinction law parameters
     d2 = data.read_data(cluster + "_all_extinction.hdf5", path="extinction")
 
     # correct maggnitude for extinction
-    data.correct_for_extinction(d["forced"], d2, ifilt = ifilt)
-    data.correct_for_extinction(d["meas"], d2, ifilt = ifilt)
+    data.correct_for_extinction(d["forced"], d2, ifilt=ifilt)
+    data.correct_for_extinction(d["meas"], d2, ifilt=ifilt)
 
     return d
 
-def stellarLocus(d, mag_type="modelfit_CModel_mag_extcorr", ifilt="i_new", cat="forced") :
-    # plot stellar locus
+def stellarLocus(d, mag_type="modelfit_CModel_mag_extcorr", ifilt="i_new", cat="forced"):
+    """plot stellar locus"""
 
     # get number of filters in table.
     # For stellar locus we need at least the g, r ani filters
     nfilters = len(d['meas'].group_by('id').groups[0])
 
-    if cat == 'forced' :
+    if cat == 'forced':
         oid = 'objectId'
-    else :
+    else:
         oid = 'id'
 
     # define selection filter
@@ -61,8 +68,10 @@ def stellarLocus(d, mag_type="modelfit_CModel_mag_extcorr", ifilt="i_new", cat="
     idxG = mrG < 22
 
     fig, (ax1) = P.subplots(ncols=1)
-    ax1.scatter(mgS[idxS]-mrS[idxS], mrS[idxS]-miS[idxS], s=1, color='b', label="stars %d"%len(mgS[idxS]))
-    ax1.scatter(mgG[idxG]-mrG[idxG], mrG[idxG]-miG[idxG], s=1, color='r', label="galaxies %d"%len(mgG[idxG]))
+    ax1.scatter(mgS[idxS]-mrS[idxS], mrS[idxS]-miS[idxS], s=1,
+                color='b', label="stars %d"%len(mgS[idxS]))
+    ax1.scatter(mgG[idxG]-mrG[idxG], mrG[idxG]-miG[idxG], s=1,
+                color='r', label="galaxies %d"%len(mgG[idxG]))
     ax1.set_xlim([-0.5, 2.0])
     ax1.set_ylim([-0.5, 2.5])
     ax1.tick_params(labelsize=20)
@@ -76,10 +85,14 @@ def stellarLocus(d, mag_type="modelfit_CModel_mag_extcorr", ifilt="i_new", cat="
     # according to Covey et al. 2007 - arXiv:0707.4473
     # The color reference system is SDSS
 
-    uMinusg = N.asarray([1.0636113, -1.6267818, 4.9389572, -3.2809081, 0.8725109, -0.0828035, 0.6994, 0.0149])
-    gMinusr = N.asarray([0.4290263, -0.8852323, 2.0740616, -1.1091553, 0.2397461, -0.0183195, 0.2702, 0.0178])
-    rMinusi = N.asarray([-0.4113500, 1.8229991, -1.9989772, 1.0662075, -0.2284455, 0.0172212, 0.2680, 0.0164])
-    iMinusz = N.asarray([-0.2270331, 0.7794558, -0.7350749, 0.3727802, -0.0735412, 0.0049808, 0.1261, 0.0071])
+    uMinusg = N.asarray([1.0636113, -1.6267818, 4.9389572, -3.2809081,
+                         0.8725109, -0.0828035, 0.6994, 0.0149])
+    gMinusr = N.asarray([0.4290263, -0.8852323, 2.0740616, -1.1091553,
+                         0.2397461, -0.0183195, 0.2702, 0.0178])
+    rMinusi = N.asarray([-0.4113500, 1.8229991, -1.9989772, 1.0662075,
+                         -0.2284455, 0.0172212, 0.2680, 0.0164])
+    iMinusz = N.asarray([-0.2270331, 0.7794558, -0.7350749, 0.3727802,
+                         -0.0735412, 0.0049808, 0.1261, 0.0071])
     poly_5 = (lambda p, x: p[0] + p[1]*x + p[2]*x**2 + p[3]*x**3 + p[4]*x**4 + p[5]*x**5)
 
     # Color corrections CFHT --> SDSS
@@ -95,11 +108,11 @@ def stellarLocus(d, mag_type="modelfit_CModel_mag_extcorr", ifilt="i_new", cat="
 
     gSDSS = g_SDSS_gr(mgS, mrS)
     rSDSS = r_SDSS_gr(mrS, mgS)
-    if ifilt == "i_new" :
+    if ifilt == "i_new":
         print "Will use new i2 (MP9702) filter"
         iSDSS = i2_SDSS_ri(miS, mrS)
         iSDSS2 = i2_SDSS_gi(miS, mgS)
-    else :
+    else:
         print "Will use old i (MP9701) filter"
         iSDSS = i_SDSS_ri(miS, mrS)
         iSDSS2 = i_SDSS_gi(miS, mgS)
@@ -109,7 +122,8 @@ def stellarLocus(d, mag_type="modelfit_CModel_mag_extcorr", ifilt="i_new", cat="
     idxS = (mrS < 23) & (mgS < 23)
     fig, (ax1, ax2) = P.subplots(ncols=2)
 
-    ax1.scatter(gSDSS[idxS]-iSDSS[idxS], rSDSS[idxS]-iSDSS[idxS], s=1, color='b', label='%s '%mag_type)
+    ax1.scatter(gSDSS[idxS]-iSDSS[idxS], rSDSS[idxS]-iSDSS[idxS],
+                s=1, color='b', label='%s '%mag_type)
     ax1.set_xlim([-0.5, 4.])
     ax1.set_ylim([-0.3, 2.5])
     nbins = 80
@@ -120,7 +134,8 @@ def stellarLocus(d, mag_type="modelfit_CModel_mag_extcorr", ifilt="i_new", cat="
     ax1.tick_params(labelsize=10)
     ax1.legend(loc="upper left", fontsize=10)
 
-    ax2.scatter(gSDSS[idxS]-iSDSS[idxS], gSDSS[idxS]-rSDSS[idxS], s=1, color='b', label='%s'%mag_type)
+    ax2.scatter(gSDSS[idxS]-iSDSS[idxS], gSDSS[idxS]-rSDSS[idxS],
+                s=1, color='b', label='%s'%mag_type)
     ax2.set_xlim([-0.5, 4.])
     ax2.set_ylim([-0.3, 2.0])
     gMr_model = N.linspace(0.4, 3.8, nbins)
@@ -141,9 +156,11 @@ def stellarLocus(d, mag_type="modelfit_CModel_mag_extcorr", ifilt="i_new", cat="
     colVal, step = N.linspace(xMin,xMax,num=numStep,retstep=True)
     for c in colVal :
         idc = ((gSDSS[idxS]-iSDSS[idxS]) > (c-step/2)) & ((gSDSS[idxS]-iSDSS[idxS]) < (c+step/2))
-        res.append( poly_5(rMinusi[:6], c) -  N.mean((rSDSS[idxS]-iSDSS[idxS])[idc]) )
-        err.append( N.std((rSDSS[idxS]-iSDSS[idxS])[idc]) / N.sqrt(len((rSDSS[idxS]-iSDSS[idxS])[idc])) )
-    ax1.errorbar(colVal, res, yerr=err, ls='None', fmt='s', capsize=25, color='b', lw=1, label='%s - Residuals'%mag_type)
+        res.append(poly_5(rMinusi[:6], c) -  N.mean((rSDSS[idxS]-iSDSS[idxS])[idc]))
+        err.append(N.std((rSDSS[idxS]-iSDSS[idxS])[idc]) / \
+                   N.sqrt(len((rSDSS[idxS]-iSDSS[idxS])[idc])))
+    ax1.errorbar(colVal, res, yerr=err, ls='None', fmt='s',
+                 capsize=25, color='b', lw=1, label='%s - Residuals'%mag_type)
     ax1.set_xlim([xMin-0.2, xMax+0.2])
     ax1.set_ylim([-0.1, 0.1])
     ax1.set_xlabel("g - i", fontsize=10)
@@ -158,11 +175,13 @@ def stellarLocus(d, mag_type="modelfit_CModel_mag_extcorr", ifilt="i_new", cat="
     res = []
     err = []
     colVal, step = N.linspace(xMin,xMax,num=numStep,retstep=True)
-    for c in colVal :
+    for c in colVal:
         idc = ((gSDSS[idxS]-iSDSS[idxS]) > (c-step/2)) & ((gSDSS[idxS]-iSDSS[idxS]) < (c+step/2))
-        res.append( poly_5(gMinusr[:6], c) -  N.mean((gSDSS[idxS]-rSDSS[idxS])[idc]) )
-        err.append( N.std((gSDSS[idxS]-rSDSS[idxS])[idc]) / N.sqrt(len((gSDSS[idxS]-rSDSS[idxS])[idc])) )
-    ax2.errorbar(colVal, res, yerr=err, ls='None', fmt='s', capsize=25, color='b', lw=1, label='%s - Residuals'%mag_type)
+        res.append(poly_5(gMinusr[:6], c) -  N.mean((gSDSS[idxS]-rSDSS[idxS])[idc]))
+        err.append(N.std((gSDSS[idxS]-rSDSS[idxS])[idc]) / \
+                   N.sqrt(len((gSDSS[idxS]-rSDSS[idxS])[idc])))
+    ax2.errorbar(colVal, res, yerr=err, ls='None', fmt='s', capsize=25,
+                 color='b', lw=1, label='%s - Residuals'%mag_type)
     ax2.set_xlim([xMin-0.2, xMax+0.2])
     ax2.set_ylim([-0.1, 0.1])
     ax2.set_xlabel("g - i", fontsize=10)

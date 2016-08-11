@@ -30,6 +30,14 @@ clusters.red_sequence module
     :undoc-members:
     :show-inheritance:
 
+clusters.validation module
+----------------------------
+
+.. automodule:: clusters.validation
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 clusters.zphot module
 ---------------------
 

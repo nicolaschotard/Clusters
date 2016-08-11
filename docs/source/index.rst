@@ -36,7 +36,11 @@ Welcome to Clusters's documentation!
 
 .. toctree::
    :maxdepth: 2
-   :caption: Mass	     
+   :caption: Mass
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Data validation
 
 .. toctree::
    :maxdepth: 3
