@@ -2,6 +2,14 @@ import yaml
 import numpy as N
 from astropy.table import Table, Column, vstack
 
+"""
+.. _data:
+
+clusters.data - Data builder and parser for the Clusters package
+====================================================================
+
+"""
+
 def load_config(config):
     """Load the configuration file, and return the corresponding dictionnary
 

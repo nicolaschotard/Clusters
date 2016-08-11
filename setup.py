@@ -15,11 +15,11 @@ __version__ = yaml.load(open(VERSION))['version']
 # Package name
 name = 'Clusters'
 
-# Packages (subdirectories in lib/)
-packages = ["lib"]
+# Packages (subdirectories in clusters/)
+packages = ["clusters"]
 
-# Modules (all python files in lib/)
-modules = [m.replace("lib/", "%s." % name).replace('.py', '') for m in glob.glob("lib/*.py")]
+# Modules (all python files in clusters/)
+modules = [m.replace("clusters/", "%s." % name).replace('.py', '') for m in glob.glob("clusters/*.py")]
 
 # Scripts (in scripts/)
 scripts = glob.glob("scripts/*.py")
@@ -39,7 +39,7 @@ setup(name=name,
       url="https://github.com/nicolaschotard/Clusters",
       author="Nicolas Chotard, Dominique Boutigny, Celine Combet",
       author_email="nchotard@in2p3.fr",
-      package_dir={name: 'lib'},
+      package_dir={name: 'clusters'},
       packages=packages,
       py_modules=modules,
       scripts=scripts,

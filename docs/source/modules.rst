@@ -1,7 +1,7 @@
-lib
-===
+clusters
+========
 
 .. toctree::
    :maxdepth: 4
 
-   lib
+   clusters

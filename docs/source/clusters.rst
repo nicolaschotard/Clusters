@@ -1,37 +1,37 @@
-lib package
+clusters package
 ===========
 
 Submodules
 ----------
 
-lib.data module
+clusters.data module
 ---------------
 
-.. automodule:: lib.data
+.. automodule:: clusters.data
     :members:
     :undoc-members:
     :show-inheritance:
 
-lib.extinction module
+clusters.extinction module
 ---------------------
 
-.. automodule:: lib.extinction
+.. automodule:: clusters.extinction
     :members:
     :undoc-members:
     :show-inheritance:
 
-lib.red_sequence module
+clusters.red_sequence module
 -----------------------
 
-.. automodule:: lib.red_sequence
+.. automodule:: clusters.red_sequence
     :members:
     :undoc-members:
     :show-inheritance:
 
-lib.zphot module
+clusters.zphot module
 ----------------
 
-.. automodule:: lib.zphot
+.. automodule:: clusters.zphot
     :members:
     :undoc-members:
     :show-inheritance:
@@ -40,7 +40,7 @@ lib.zphot module
 Module contents
 ---------------
 
-.. automodule:: lib
+.. automodule:: clusters
     :members:
     :undoc-members:
     :show-inheritance:
