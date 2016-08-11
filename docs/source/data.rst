@@ -2,7 +2,15 @@ Overview
 --------
 
 The data format used in all scripts is based on the `Astropy Table
-<http://docs.astropy.org/en/stable/table/>`_ format. 
+<http://docs.astropy.org/en/stable/table/>`_ format. In the `Building
+the table`_ section, we show how these Astropy Tables are create from
+the DM bulter. This work is automaticaly done for the `meas` and
+`forced` catalgue, and then saved together in one single `hdf5`
+file. The procedure to write and read these files is describe in the
+`Saving / reading the table`_ section. In the `Working with the
+table`_, we show how you can use these tables to run your analysis or
+make plots.
+
 
 Building the table
 ------------------
