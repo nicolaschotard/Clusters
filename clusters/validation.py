@@ -187,3 +187,89 @@ def stellarLocus(d, mag_type="modelfit_CModel_mag_extcorr", ifilt="i_new", cat="
     ax2.legend(loc="upper left", fontsize=10)
     P.tight_layout()
     P.show()
+
+def starElipticities(d) :
+
+    """Compute star elipticities from second momments and check if
+    psf correction is valid - Also check magnitude Vs radius"""
+
+    nfilters = len(d['meas'].group_by('id').groups[0])
+    cat = 'meas'
+    oid = 'id'
+
+    filt = d['meas']['base_ClassificationExtendedness_flag'] == 0
+    filt &= d['meas']['detect_isPrimary'] == 1
+    filt &= d[cat]['modelfit_CModel_flag'] == 0
+    filt &= d[cat]['modelfit_CModel_flux'] > 0
+
+    filt &= (d[cat]['modelfit_CModel_flux'] / \
+              d[cat]['modelfit_CModel_fluxSigma']) > 10
+
+    filtS = d['meas']['base_ClassificationExtendedness_value'] < 0.5
+    filtG = d['meas']['base_ClassificationExtendedness_value'] > 0.5
+
+    s = d[cat][filt&filtS].group_by(oid)
+    f = (s.groups.indices[1:] - s.groups.indices[:-1]) == nfilters
+    star = s.groups[f]
+    g = d[cat][filt&filtG].group_by(oid)
+    f = (g.groups.indices[1:] - g.groups.indices[:-1]) == nfilters
+    gal = g.groups[f]
+
+    shapeHSMSource_xx_s = star[star['filter']=='i']['ext_shapeHSM_HsmSourceMoments_xx']
+    shapeHSMSource_yy_s = star[star['filter']=='i']['ext_shapeHSM_HsmSourceMoments_yy']
+    shapeHSMSource_xy_s = star[star['filter']=='i']['ext_shapeHSM_HsmSourceMoments_xy']
+    shapeHSMPsf_xx_s = star[star['filter']=='i']['ext_shapeHSM_HsmPsfMoments_xx']
+    shapeHSMPsf_yy_s = star[star['filter']=='i']['ext_shapeHSM_HsmPsfMoments_yy']
+    shapeHSMPsf_xy_s = star[star['filter']=='i']['ext_shapeHSM_HsmPsfMoments_xy']
+    magI_s = star[star['filter']=='i']['modelfit_CModel_mag']
+    radius_s = r = N.sqrt(shapeHSMSource_xx_s + shapeHSMSource_yy_s)
+
+    shapeHSMSource_xx_g = gal[gal['filter']=='i']['ext_shapeHSM_HsmSourceMoments_xx']
+    shapeHSMSource_yy_g = gal[gal['filter']=='i']['ext_shapeHSM_HsmSourceMoments_yy']
+    shapeHSMSource_xy_g = gal[gal['filter']=='i']['ext_shapeHSM_HsmSourceMoments_xy']
+    magI_g = gal[gal['filter']=='i']['modelfit_CModel_mag']
+    radius_g = r = N.sqrt(shapeHSMSource_xx_g + shapeHSMSource_yy_g)
+
+    # Plot magnitude as a function of the source radius computed from second momments
+    fig, (ax1, ax2) = P.subplots(ncols=2)
+    ax1.scatter(radius_s, magI_s, s=1, color='b', label='Stars %d'%len(magI_s))
+    ax1.scatter(radius_g, magI_g, s=1, color='r', label='Galaxies %d'%len(magI_g))
+    ax1.set_xlim([1.,6.])
+    ax1.set_ylim([16,26])
+    ax1.set_xlabel('Radius in pixels', fontsize=10)
+    ax1.set_ylabel('Magnitude i', fontsize=10)
+    ax1.tick_params(labelsize=10)
+    ax1.legend(loc="lower left", fontsize=10)
+
+    ax2.hist(radius_s[magI_s<23], bins=80, range=[1.7,3], color='b')
+    ax2.hist(radius_g[magI_g<23], bins=80, range=[1.7,3], color='r')
+    ax1.set_xlabel('Radius in pixels', fontsize=10)
+
+    P.tight_layout()
+    P.show()
+
+    denomSource = shapeHSMSource_xx_s +2.*N.sqrt(shapeHSMSource_xx_s*shapeHSMSource_yy_s - N.square(shapeHSMSource_xy_s))
+    e1Source = (shapeHSMSource_xx_s - shapeHSMSource_yy_s) / denomSource
+    e2Source = 2.0*shapeHSMSource_xy_s / denomSource
+
+    denomPsf = shapeHSMPsf_xx_s +2.*N.sqrt(shapeHSMPsf_xx_s*shapeHSMPsf_yy_s - N.square(shapeHSMPsf_xy_s))
+    e1Psf = (shapeHSMPsf_xx_s - shapeHSMPsf_yy_s) / denomSource
+    e2Psf = 2.0*shapeHSMPsf_xy_s / denomSource
+
+    idx = magI_s < 22.5
+    fig, (ax0, ax1) = P.subplots(ncols=2)
+    ax0.scatter(e1Source[idx], e2Source[idx], s=1, color='b')
+    ax0.set_xlabel('e1(source)', fontsize=10)
+    ax0.set_ylabel('e2(source)', fontsize=10)
+    ax0.set_xlim([-0.10, 0.10])
+    ax0.set_ylim([-0.10, 0.10])
+    ax1.tick_params(labelsize=10)
+    ax1.scatter(e1Source[idx]-e1Psf[idx], e2Source[idx]-e2Psf[idx], s=1, color='b')
+    ax1.set_xlim([-0.10, 0.10])
+    ax1.set_ylim([-0.10, 0.10])
+    ax1.set_xlabel('e1(source) - e1(psf)', fontsize=10)
+    ax1.set_ylabel('e2(source) - e2(psf)', fontsize=10)
+    ax1.tick_params(labelsize=10)
+
+    P.tight_layout()
+    P.show()
