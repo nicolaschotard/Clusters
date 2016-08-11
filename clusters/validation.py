@@ -7,10 +7,8 @@ from Clusters import data
 Data validation utilisites and plots
 """
 
-def load_cluster (cluster="MACSJ2243.3-0935", ifilt="i_new"):
-    """
-    Load the data for a given cluster
-    """
+def load_cluster(cluster="MACSJ2243.3-0935", ifilt="i_new"):
+    """Load the data for a given cluster."""
     # load astropy tables from hdf5 file
     d = data.read_data(cluster + "_all.hdf5")
     # read extinction law parameters
@@ -23,8 +21,7 @@ def load_cluster (cluster="MACSJ2243.3-0935", ifilt="i_new"):
     return d
 
 def stellarLocus(d, mag_type="modelfit_CModel_mag_extcorr", ifilt="i_new", cat="forced"):
-    """plot stellar locus"""
-
+    """Plot stellar locus."""
     # get number of filters in table.
     # For stellar locus we need at least the g, r ani filters
     nfilters = len(d['meas'].group_by('id').groups[0])
@@ -40,8 +37,8 @@ def stellarLocus(d, mag_type="modelfit_CModel_mag_extcorr", ifilt="i_new", cat="
     filt &= d[cat]['modelfit_CModel_flag'] == 0
     filt &= d[cat]['modelfit_CModel_flux'] > 0
 
-    filt &= (d[cat]['modelfit_CModel_flux'] / \
-              d[cat]['modelfit_CModel_fluxSigma']) > 10
+    filt &= (d[cat]['modelfit_CModel_flux'] /
+             d[cat]['modelfit_CModel_fluxSigma']) > 10
 
     filtS = d['meas']['base_ClassificationExtendedness_value'] < 0.5
     filtG = d['meas']['base_ClassificationExtendedness_value'] > 0.5
@@ -68,9 +65,9 @@ def stellarLocus(d, mag_type="modelfit_CModel_mag_extcorr", ifilt="i_new", cat="
     idxG = mrG < 22
 
     fig, (ax1) = P.subplots(ncols=1)
-    ax1.scatter(mgS[idxS]-mrS[idxS], mrS[idxS]-miS[idxS], s=1,
+    ax1.scatter(mgS[idxS] - mrS[idxS], mrS[idxS] - miS[idxS], s=1,
                 color='b', label="stars %d"%len(mgS[idxS]))
-    ax1.scatter(mgG[idxG]-mrG[idxG], mrG[idxG]-miG[idxG], s=1,
+    ax1.scatter(mgG[idxG] - mrG[idxG], mrG[idxG] - miG[idxG], s=1,
                 color='r', label="galaxies %d"%len(mgG[idxG]))
     ax1.set_xlim([-0.5, 2.0])
     ax1.set_ylim([-0.5, 2.5])
@@ -135,7 +132,7 @@ def stellarLocus(d, mag_type="modelfit_CModel_mag_extcorr", ifilt="i_new", cat="
     ax1.legend(loc="upper left", fontsize=10)
 
     ax2.scatter(gSDSS[idxS]-iSDSS[idxS], gSDSS[idxS]-rSDSS[idxS],
-                s=1, color='b', label='%s'%mag_type)
+                s=1, color='b', label='%s' % mag_type)
     ax2.set_xlim([-0.5, 4.])
     ax2.set_ylim([-0.3, 2.0])
     gMr_model = N.linspace(0.4, 3.8, nbins)
@@ -156,8 +153,8 @@ def stellarLocus(d, mag_type="modelfit_CModel_mag_extcorr", ifilt="i_new", cat="
     colVal, step = N.linspace(xMin,xMax,num=numStep,retstep=True)
     for c in colVal :
         idc = ((gSDSS[idxS]-iSDSS[idxS]) > (c-step/2)) & ((gSDSS[idxS]-iSDSS[idxS]) < (c+step/2))
-        res.append(poly_5(rMinusi[:6], c) -  N.mean((rSDSS[idxS]-iSDSS[idxS])[idc]))
-        err.append(N.std((rSDSS[idxS]-iSDSS[idxS])[idc]) / \
+        res.append(poly_5(rMinusi[:6], c) - N.mean((rSDSS[idxS]-iSDSS[idxS])[idc]))
+        err.append(N.std((rSDSS[idxS]-iSDSS[idxS])[idc]) /
                    N.sqrt(len((rSDSS[idxS]-iSDSS[idxS])[idc])))
     ax1.errorbar(colVal, res, yerr=err, ls='None', fmt='s',
                  capsize=25, color='b', lw=1, label='%s - Residuals'%mag_type)
@@ -177,8 +174,8 @@ def stellarLocus(d, mag_type="modelfit_CModel_mag_extcorr", ifilt="i_new", cat="
     colVal, step = N.linspace(xMin,xMax,num=numStep,retstep=True)
     for c in colVal:
         idc = ((gSDSS[idxS]-iSDSS[idxS]) > (c-step/2)) & ((gSDSS[idxS]-iSDSS[idxS]) < (c+step/2))
-        res.append(poly_5(gMinusr[:6], c) -  N.mean((gSDSS[idxS]-rSDSS[idxS])[idc]))
-        err.append(N.std((gSDSS[idxS]-rSDSS[idxS])[idc]) / \
+        res.append(poly_5(gMinusr[:6], c) - N.mean((gSDSS[idxS]-rSDSS[idxS])[idc]))
+        err.append(N.std((gSDSS[idxS]-rSDSS[idxS])[idc]) /
                    N.sqrt(len((gSDSS[idxS]-rSDSS[idxS])[idc])))
     ax2.errorbar(colVal, res, yerr=err, ls='None', fmt='s', capsize=25,
                  color='b', lw=1, label='%s - Residuals'%mag_type)
