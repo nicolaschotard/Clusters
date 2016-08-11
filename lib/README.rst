@@ -1,7 +1,3 @@
-Data format
------------
+See the `online documentation <http://clusters.readthedocs.io/en/latest/>`_ for detail on what is done. Here are direct links to each (available) subsections:
 
-.. image:: data-table.svg
-   :scale: 100 %
-   :alt: Data table construction
-   :align: center
+- `Data format <http://clusters.readthedocs.io/en/latest/data.html>`_

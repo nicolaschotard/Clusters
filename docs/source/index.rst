@@ -16,6 +16,8 @@ Welcome to Clusters's documentation!
    :maxdepth: 2
    :caption: Data format
 
+   data
+
 .. toctree::
    :maxdepth: 2
    :caption: Extinction
