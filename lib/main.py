@@ -1,7 +1,6 @@
 """Main entry points for scripts."""
 
 import os
-import numpy as N
 from argparse import ArgumentParser
 
 from astropy.table import Table, hstack

@@ -84,7 +84,6 @@ def fitRedSequence(diffMag, mag, minDiff=1.0, maxDiff=2.0, minMag=20.0, maxMag=2
     fig, (ax0) = P.subplots(ncols=1)
     n, bins, patches = ax0.hist(dy[idx], bins=nbins, color='b')
 
-    max = n.max()
     x = N.asarray([0.5*(bins[i+1]-bins[i])+bins[i] for i in range(len(n))])
 
     # Fit a gaussian for the RS projection plus an Exponentially Modified
@@ -93,7 +92,7 @@ def fitRedSequence(diffMag, mag, minDiff=1.0, maxDiff=2.0, minMag=20.0, maxMag=2
             p[6]*p[5]*N.exp(0.5*p[5]*(2*p[3]+p[5]*p[4]**2-2*z))*
             special.erfc((p[3]+p[5]*p[4]**2-z)/(math.sqrt(2)*p[4])))
     dist = lambda p, z, y: (func(p, z) - y)/(N.sqrt(y)+1.)
-    p0 = [max, 0.2, 0.1, -3.0, 1., 1., 40.]  # Initial parameter values
+    p0 = [n.max(), 0.2, 0.1, -3.0, 1., 1., 40.]  # Initial parameter values
     p2,cov,infodict,mesg,ier = optimize.leastsq(dist, p0[:], args=(x, n), full_output=True)
     ss_err=(infodict['fvec']**2).sum()
     print("mean %f - sigma %f"%(p2[1], p2[2]))

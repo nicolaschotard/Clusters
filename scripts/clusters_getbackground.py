@@ -4,21 +4,22 @@ import os
 import sys
 import yaml
 import cPickle
-import numpy as N
 from argparse import ArgumentParser
 
 from Clusters import zphot
 
-def doplot(data):
-    
+def doplot(d):
+    """
+    Make a few plots
+    """
     print "INFO: Making some plots"
-    data.hist('Z_BEST', min=0, nbins=100, xlabel='Photometric redshift',
-              title="LEPHARE photo-z for %s (%i sources)" % \
-              (config['cluster'], data.nsources), zclust=config['redshift'])
-    data.hist('CHI_BEST', nbins=100, max=100,
-              title="LEPHARE photo-z for %s (%i sources)" % \
-              (config['cluster'], data.nsources))
-    data.plot('CHI_BEST', 'Z_BEST', miny=0)
+    d.hist('Z_BEST', min=0, nbins=100, xlabel='Photometric redshift',
+           title="LEPHARE photo-z for %s (%i sources)" % \
+           (config['cluster'], data.nsources), zclust=config['redshift'])
+    d.hist('CHI_BEST', nbins=100, max=100,
+           title="LEPHARE photo-z for %s (%i sources)" % \
+           (config['cluster'], data.nsources))
+    d.plot('CHI_BEST', 'Z_BEST', miny=0)
     zphot.P.show()
 
 if __name__ == "__main__":
@@ -39,7 +40,7 @@ if __name__ == "__main__":
         args.output = os.path.basename(args.config).replace('.yaml', '_lephare_output.pkl')
 
     filters = config['filters']
-    
+
     print "INFO: Working on cluster %s (z=%.4f)" % (config['cluster'],
                                                     config['redshift'])
     print "INFO: Working on filters", filters
@@ -47,14 +48,14 @@ if __name__ == "__main__":
     if args.data is not None:
         doplot(zphot.LEPHARO(args.data))
         sys.exit()
-        
+
     # And dump them into a file
     data = cPickle.load(open(args.input, 'r'))
     mags, mags_sigma, ell, resolution, xSrc, ySrc, coords = data
 
     reload(zphot)
     zp = zphot.LEPHARE(zphot.dict_to_array(mags, filters=filters), 
-                       zphot.dict_to_array(mags_sigma, filters=filters), 
+                       zphot.dict_to_array(mags_sigma, filters=filters),
                        config['cluster'], filters=filters)
     zp.run()
 

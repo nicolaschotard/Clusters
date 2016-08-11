@@ -7,7 +7,8 @@ Cluster analysis on the LSST DM stack.
 
 """
 
-import os, glob
+import os
+import glob
 
 # Automatically import all modules (python files)
 __all__ = [os.path.basename(m).replace('.py', '') for m in glob.glob("lib/*.py")
