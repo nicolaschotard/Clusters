@@ -77,7 +77,7 @@ def extinction(argv=None):
     RA = [afwGeom.radToDeg(ra) for ra in d['coord_ra']]
     DEC = [afwGeom.radToDeg(dec) for dec in d['coord_dec']]
 
-    # Qeury for E(b-v) and compute the extinction
+    # Query for E(b-v) and compute the extinction
     EBV = {'ebv_sfd': E.query(RA, DEC, coordsys='equ', mode='sfd')['EBV_SFD']}
     ALBD = {}
     for k in EBV:
