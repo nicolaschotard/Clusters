@@ -9,7 +9,7 @@ from argparse import ArgumentParser
 from Clusters import zphot
 
 def doplot(data):
-    
+    """Make a few plots."""
     print "INFO: Making some plots"
     data.hist('Z_BEST', min=0, nbins=100, xlabel='Photometric redshift',
               figname=config['cluster'],
@@ -48,7 +48,7 @@ if __name__ == "__main__":
         args.output = os.path.basename(args.config).replace('.yaml', '_lephare_output.pkl')
 
     filters = config['filters']
-    
+
     print "INFO: Working on cluster %s (z=%.4f)" % (config['cluster'],
                                                     config['redshift'])
     print "INFO: Working on filters", filters
@@ -56,13 +56,12 @@ if __name__ == "__main__":
     if args.data is not None:
         doplot(zphot.LEPHARO(args.data, args.data.replace('out', 'all')))
         sys.exit()
-        
+
     # And dump them into a file
     mags, mags_sigma, ell, resolution, xSrc, ySrc, coords = cPickle.load(open(args.input, 'r'))
 
-    reload(zphot)
-    zp = zphot.LEPHARE(zphot.dict_to_array(mags, filters=filters), 
-                       zphot.dict_to_array(mags_sigma, filters=filters), 
+    zp = zphot.LEPHARE(zphot.dict_to_array(mags, filters=filters),
+                       zphot.dict_to_array(mags_sigma, filters=filters),
                        config['cluster'], filters=filters, zpara=args.zpara,
                        RA=coords['ra'], DEC=coords['dec'], ID=coords['id'])
     zp.check_config()

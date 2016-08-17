@@ -11,10 +11,7 @@ from . import data as D
 from . import extinction as E
 
 def load_data(argv=None):
-    """
-    Load data from the DM stack butler
-    """
-
+    """Load data from the DM stack butler."""
     description = """Load data from the DM stack butler."""
     prog = "clusters_data"
     usage = """usage: %s [options] datadir""" % prog
@@ -50,7 +47,7 @@ def load_data(argv=None):
     D.write_data(df, output_filtered, overwrite=args.overwrite)
 
 def extinction(argv=None):
-
+    """Get color excess E(B-V) and store it in the data table for further use."""
     parser = ArgumentParser()
     parser.add_argument('config', help='Configuration (yaml) file')
     parser.add_argument('input', help='Input data file: output of clusters_data.py, i.e, hdf5 file')
@@ -73,19 +70,19 @@ def extinction(argv=None):
     d = D.read_data(args.input)['forced']
 
     # Get the coordinates
-    RA = [afwGeom.radToDeg(ra) for ra in d['coord_ra']]
-    DEC = [afwGeom.radToDeg(dec) for dec in d['coord_dec']]
+    ras = [afwGeom.radToDeg(ra) for ra in d['coord_ra']]
+    decs = [afwGeom.radToDeg(dec) for dec in d['coord_dec']]
 
     # Query for E(b-v) and compute the extinction
-    EBV = {'ebv_sfd': E.query(RA, DEC, coordsys='equ', mode='sfd')['EBV_SFD']}
-    ALBD = {}
-    for k in EBV:
-        albd = E.from_ebv_sfd_TO_megacam_albd(EBV[k])
-        ALBD.update({k.replace('ebv_', 'albd_%s_' % f): albd[f] for f in albd})
+    ebmv = {'ebv_sfd': E.query(ras, decs, coordsys='equ', mode='sfd')['EBV_SFD']}
+    albds = {}
+    for k in ebmv:
+        albd = E.from_ebv_sfd_TO_megacam_albd(ebmv[k])
+        albds.update({k.replace('ebv_', 'albd_%s_' % f): albd[f] for f in albd})
 
     # Create a new table and save it
     new_tab = hstack([d['objectId', 'coord_ra', 'coord_dec', 'filter'],
-                      Table(EBV), Table(ALBD)], join_type='inner')
+                      Table(ebmv), Table(albds)], join_type='inner')
     new_tab.write(args.output, path='extinction', compression=True,
                   serialize_meta=True, overwrite=args.overwrite)
     print "INFO: Milky Way dust extinction correctino applied"
@@ -97,7 +94,7 @@ def extinction(argv=None):
         filt = new_tab['filter'] == config['filters'][0]
         E.plots(new_tab['coord_ra'][filt],
                 new_tab['coord_dec'][filt],
-                new_tab['ebv_sfd'], ALBD['albd_sfd'][filt],
+                new_tab['ebv_sfd'], albds['albd_sfd'][filt],
                 filters=['u', 'g', 'r', 'i_old', 'i_new', 'z'],
                 title='Dust extinction map, %s, %i sources' % (config['cluster'],
                                                                len(new_tab['coord_ra'][filt])),

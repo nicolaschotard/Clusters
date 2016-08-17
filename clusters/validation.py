@@ -93,15 +93,15 @@ def stellarLocus(d, mag_type="modelfit_CModel_mag_extcorr", ifilt="i_new", cat="
     poly_5 = (lambda p, x: p[0] + p[1]*x + p[2]*x**2 + p[3]*x**3 + p[4]*x**4 + p[5]*x**5)
 
     # Color corrections CFHT --> SDSS
-    u_SDSS_ug  = (lambda u_Mega, g_Mega : u_Mega +0.181*(u_Mega - g_Mega))
-    g_SDSS_gr  = (lambda g_Mega, r_Mega : g_Mega +0.195*(g_Mega - r_Mega))
-    g_SDSS_gi  = (lambda g_Mega, i_Mega : g_Mega +0.103*(g_Mega - i_Mega))
-    r_SDSS_gr  = (lambda r_Mega, g_Mega : r_Mega +0.011*(g_Mega - r_Mega))
-    i_SDSS_ri  = (lambda i_Mega, r_Mega : i_Mega +0.079*(r_Mega - i_Mega))
-    i_SDSS_gi  = (lambda i_Mega, g_Mega : i_Mega +0.044*(g_Mega - i_Mega))
+    u_SDSS_ug = (lambda u_Mega, g_Mega : u_Mega +0.181*(u_Mega - g_Mega))
+    g_SDSS_gr = (lambda g_Mega, r_Mega : g_Mega +0.195*(g_Mega - r_Mega))
+    g_SDSS_gi = (lambda g_Mega, i_Mega : g_Mega +0.103*(g_Mega - i_Mega))
+    r_SDSS_gr = (lambda r_Mega, g_Mega : r_Mega +0.011*(g_Mega - r_Mega))
+    i_SDSS_ri = (lambda i_Mega, r_Mega : i_Mega +0.079*(r_Mega - i_Mega))
+    i_SDSS_gi = (lambda i_Mega, g_Mega : i_Mega +0.044*(g_Mega - i_Mega))
     i2_SDSS_ri = (lambda i2_Mega, r_Mega : i2_Mega +0.001*(r_Mega - i2_Mega))
     i2_SDSS_gi = (lambda i2_Mega, g_Mega : i2_Mega -0.003*(g_Mega - i2_Mega))
-    z_SDSS_iz  = (lambda z_Mega, i_Mega : z_Mega -0.099*(i_Mega - z_Mega))
+    z_SDSS_iz = (lambda z_Mega, i_Mega : z_Mega -0.099*(i_Mega - z_Mega))
 
     gSDSS = g_SDSS_gr(mgS, mrS)
     rSDSS = r_SDSS_gr(mrS, mgS)
@@ -215,56 +215,56 @@ def starElipticities(d) :
     f = (g.groups.indices[1:] - g.groups.indices[:-1]) == nfilters
     gal = g.groups[f]
 
-    shapeHSMSource_xx_s = star[star['filter']=='i']['ext_shapeHSM_HsmSourceMoments_xx']
-    shapeHSMSource_yy_s = star[star['filter']=='i']['ext_shapeHSM_HsmSourceMoments_yy']
-    shapeHSMSource_xy_s = star[star['filter']=='i']['ext_shapeHSM_HsmSourceMoments_xy']
-    shapeHSMPsf_xx_s = star[star['filter']=='i']['ext_shapeHSM_HsmPsfMoments_xx']
-    shapeHSMPsf_yy_s = star[star['filter']=='i']['ext_shapeHSM_HsmPsfMoments_yy']
-    shapeHSMPsf_xy_s = star[star['filter']=='i']['ext_shapeHSM_HsmPsfMoments_xy']
+    shapeHSMSource_xx_s = star[star['filter'] == 'i']['ext_shapeHSM_HsmSourceMoments_xx']
+    shapeHSMSource_yy_s = star[star['filter'] == 'i']['ext_shapeHSM_HsmSourceMoments_yy']
+    shapeHSMSource_xy_s = star[star['filter'] == 'i']['ext_shapeHSM_HsmSourceMoments_xy']
+    shapeHSMPsf_xx_s = star[star['filter'] == 'i']['ext_shapeHSM_HsmPsfMoments_xx']
+    shapeHSMPsf_yy_s = star[star['filter'] == 'i']['ext_shapeHSM_HsmPsfMoments_yy']
+    shapeHSMPsf_xy_s = star[star['filter'] == 'i']['ext_shapeHSM_HsmPsfMoments_xy']
     magI_s = star[star['filter']=='i']['modelfit_CModel_mag']
     radius_s = r = N.sqrt(shapeHSMSource_xx_s + shapeHSMSource_yy_s)
 
-    shapeHSMSource_xx_g = gal[gal['filter']=='i']['ext_shapeHSM_HsmSourceMoments_xx']
-    shapeHSMSource_yy_g = gal[gal['filter']=='i']['ext_shapeHSM_HsmSourceMoments_yy']
-    shapeHSMSource_xy_g = gal[gal['filter']=='i']['ext_shapeHSM_HsmSourceMoments_xy']
-    magI_g = gal[gal['filter']=='i']['modelfit_CModel_mag']
+    shapeHSMSource_xx_g = gal[gal['filter'] == 'i']['ext_shapeHSM_HsmSourceMoments_xx']
+    shapeHSMSource_yy_g = gal[gal['filter'] == 'i']['ext_shapeHSM_HsmSourceMoments_yy']
+    shapeHSMSource_xy_g = gal[gal['filter'] == 'i']['ext_shapeHSM_HsmSourceMoments_xy']
+    magI_g = gal[gal['filter'] == 'i']['modelfit_CModel_mag']
     radius_g = r = N.sqrt(shapeHSMSource_xx_g + shapeHSMSource_yy_g)
 
     # Plot magnitude as a function of the source radius computed from second momments
     fig, (ax1, ax2) = P.subplots(ncols=2)
     ax1.scatter(radius_s, magI_s, s=1, color='b', label='Stars %d'%len(magI_s))
     ax1.scatter(radius_g, magI_g, s=1, color='r', label='Galaxies %d'%len(magI_g))
-    ax1.set_xlim([1.,6.])
-    ax1.set_ylim([16,26])
+    ax1.set_xlim([1., 6.])
+    ax1.set_ylim([16, 26])
     ax1.set_xlabel('Radius in pixels', fontsize=10)
     ax1.set_ylabel('Magnitude i', fontsize=10)
     ax1.tick_params(labelsize=10)
     ax1.legend(loc="lower left", fontsize=10)
 
-    ax2.hist(radius_s[magI_s<23], bins=80, range=[1.7,3], color='b')
-    ax2.hist(radius_g[magI_g<23], bins=80, range=[1.7,3], color='r')
+    ax2.hist(radius_s[magI_s < 23], bins=80, range=[1.7, 3], color='b')
+    ax2.hist(radius_g[magI_g < 23], bins=80, range=[1.7, 3], color='r')
     ax1.set_xlabel('Radius in pixels', fontsize=10)
 
     P.tight_layout()
     P.show()
 
     denomSource = shapeHSMSource_xx_s +2.*N.sqrt(shapeHSMSource_xx_s*shapeHSMSource_yy_s - N.square(shapeHSMSource_xy_s))
-    e1Source = (shapeHSMSource_xx_s - shapeHSMSource_yy_s) / denomSource
-    e2Source = 2.0*shapeHSMSource_xy_s / denomSource
+    e1source = (shapeHSMSource_xx_s - shapeHSMSource_yy_s) / denomSource
+    e2source = 2.0*shapeHSMSource_xy_s / denomSource
 
     denomPsf = shapeHSMPsf_xx_s +2.*N.sqrt(shapeHSMPsf_xx_s*shapeHSMPsf_yy_s - N.square(shapeHSMPsf_xy_s))
-    e1Psf = (shapeHSMPsf_xx_s - shapeHSMPsf_yy_s) / denomSource
+    e1psf = (shapeHSMPsf_xx_s - shapeHSMPsf_yy_s) / denomSource
     e2Psf = 2.0*shapeHSMPsf_xy_s / denomSource
 
     idx = magI_s < 22.5
     fig, (ax0, ax1) = P.subplots(ncols=2)
-    ax0.scatter(e1Source[idx], e2Source[idx], s=1, color='b')
+    ax0.scatter(e1source[idx], e2source[idx], s=1, color='b')
     ax0.set_xlabel('e1(source)', fontsize=10)
     ax0.set_ylabel('e2(source)', fontsize=10)
     ax0.set_xlim([-0.10, 0.10])
     ax0.set_ylim([-0.10, 0.10])
     ax1.tick_params(labelsize=10)
-    ax1.scatter(e1Source[idx]-e1Psf[idx], e2Source[idx]-e2Psf[idx], s=1, color='b')
+    ax1.scatter(e1source[idx]-e1psf[idx], e2source[idx]-e2Psf[idx], s=1, color='b')
     ax1.set_xlim([-0.10, 0.10])
     ax1.set_ylim([-0.10, 0.10])
     ax1.set_xlabel('e1(source) - e1(psf)', fontsize=10)
