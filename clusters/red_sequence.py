@@ -13,7 +13,7 @@ def color_histo(mags):
             if i >= j:
                 continue
             fig, ax = P.subplots(ncols=1)
-            ax.hist((mags[filt1]-mags[filt2])[filt],
+            ax.hist((mags[filt1] - mags[filt2])[filt],
                     bins=100, label='%s - %s' % (filt1, filt2))
             ax.legend(loc='best')
     P.show()
@@ -52,7 +52,6 @@ def fit_red_sequence(diffmag, mag, mindiff=1.0, maxdiff=2.0,
 
     fitRedSequence is also producing some control plots
     """
-
     magref = minmag  # Arbitrary reference magnitude for projection
     diffref = 0.5 * (mindiff + maxdiff)  # Arbitrary reference ordinate for projection
     appslope = inislope
@@ -63,7 +62,7 @@ def fit_red_sequence(diffmag, mag, mindiff=1.0, maxdiff=2.0,
     # over some background represented by an Exponentially Modified Gaussian
 
     alpha = math.atan(appslope)
-    dy = N.cos(alpha) * ((N.asarray(magref)-mag) * appslope + diffmag - diffref)
+    dy = N.cos(alpha) * ((N.asarray(magref) - mag) * appslope + diffmag - diffref)
 
     nbins = 40
     idx = N.where((diffmag > mindiff) & (diffmag < maxdiff) & (mag < maxmag) & (mag > minmag))
@@ -74,14 +73,17 @@ def fit_red_sequence(diffmag, mag, mindiff=1.0, maxdiff=2.0,
 
     # Fit a gaussian for the RS projection plus an Exponentially Modified
     # Gaussian distribution for the background
-    func = lambda p, z: p[0]*N.exp(-(p[1]-z)**2/(2*p[2]**2)) + \
-           p[6]*p[5]*N.exp(0.5*p[5]*(2*p[3]+p[5]*p[4]**2-2*z)) * \
-           special.erfc((p[3]+p[5]*p[4]**2-z)/(math.sqrt(2)*p[4]))
-    dist = lambda p, z, y: (func(p, z) - y)/(N.sqrt(y)+1.)
+    def func(p, z):
+        """Function to fit"""
+        return p[0] * N.exp(-(p[1] - z)**2 / (2 * p[2]**2)) + \
+            p[6] * p[5] * N.exp(0.5 * p[5] * (2 * p[3] + p[5] * p[4]**2 - 2 * z)) * \
+            special.erfc((p[3] + p[5] * p[4]**2 - z)/(math.sqrt(2) * p[4]))
+
+    dist = lambda p, z, y: (func(p, z) - y)/(N.sqrt(y) + 1.)
     p0 = [n.max(), 0.2, 0.1, -3.0, 1., 1., 40.]  # Initial parameter values
     p2, cov, infodict, mesg, ier = optimize.leastsq(dist, p0[:], args=(x, n), full_output=True)
     ss_err = (infodict['fvec']**2).sum()
-    print "mean %f - sigma %f"%(p2[1], p2[2])
+    print "mean %f - sigma %f" % (p2[1], p2[2])
     print "Reduced chi2 = ", ss_err / (nbins + 6 - 1)
     print p2
     # Superimpose fitted curve over diffmag projection
@@ -106,7 +108,7 @@ def fit_red_sequence(diffmag, mag, mindiff=1.0, maxdiff=2.0,
         if slope > 0.0:
             break
         alpha = math.atan(slope)
-        dy = N.cos(alpha) * ((magref-mag) * slope + diffmag - diffref)
+        dy = N.cos(alpha) * ((magref - mag) * slope + diffmag - diffref)
         nbins = 40
         idx = N.where((diffmag > mindiff) & (diffmag < maxdiff) & (mag < maxmag) & (mag > minmag))
         n, bins, = N.histogram(dy[idx], bins=nbins)
@@ -135,34 +137,37 @@ def fit_red_sequence(diffmag, mag, mindiff=1.0, maxdiff=2.0,
     dist = lambda p, z, y: (func(p, z) - y)
     p0 = [1., 1., 1.]
     p1,cov,infodict1,mesg,ier = optimize.leastsq(dist, p0[:], args=(N.asarray(val), N.asarray(sigma)), full_output=True)
-    fitslope = -0.5*p1[1]/p1[0]
+    fitslope = -0.5 * p1[1] / p1[0]
 
     ax0.plot(N.asarray(val), func(p1,N.asarray(val)), color='r')
     ax0.tick_params(labelsize=20)
     ax0.set_xlabel("Red sequence slope")
     ax0.set_ylabel("Sigma")
 
-    ss_err=(infodict1['fvec']**2).sum()
-    ss_tot=((N.asarray(sigma)-N.asarray(sigma).mean())**2).sum()
-    rsquared=1-(ss_err/ss_tot)
+    ss_err = (infodict1['fvec']**2).sum()
+    ss_tot = ((N.asarray(sigma) - N.asarray(sigma).mean())**2).sum()
+    rsquared = 1 - (ss_err / ss_tot)
     print "R^2 = ", rsquared
     if rsquared < 0.9:
         print "Bad fit - take absolute minimun instead of fitted value"
         fitslope = bestslope
-    print("Fitted minimum: %f"%fitslope)
+    print "Fitted minimum: %f" % fitslope
 
     # Plot RS projection corresponding to the optimal slope
     nbins = 40
     alpha = math.atan(slope)
-    dy = N.cos(alpha)*((magref-mag)*fitslope + diffmag - diffref)
-    idx = N.where( (diffmag > mindiff) & (diffmag < maxdiff) & (mag < maxmag) & (mag > minmag) )
+    dy = N.cos(alpha) * ((magref - mag) * fitslope + diffmag - diffref)
+    idx = N.where((diffmag > mindiff) & (diffmag < maxdiff) & (mag < maxmag) & (mag > minmag))
     fig, (ax2) = P.subplots(ncols=1)
     n, bins, patches = ax2.hist(dy[idx], bins=nbins, color='b')
     x = N.asarray([0.5*(bins[i+1]-bins[i])+bins[i] for i in range(len(n))])
 
-    func = lambda p, z: p[0]*N.exp(-(p[1]-z)**2/(2*p[2]**2)) + \
-           p[6]*p[5]*N.exp(0.5*p[5]*(2*p[3]+p[5]*p[4]**2-2*z)) * \
-           special.erfc((p[3]+p[5]*p[4]**2-z)/(math.sqrt(2)*p[4]))
+    def func(p, z):
+        """Function to fit."""
+        return p[0]*N.exp(-(p[1]-z)**2/(2*p[2]**2)) + \
+            p[6]*p[5]*N.exp(0.5*p[5]*(2*p[3]+p[5]*p[4]**2-2*z)) * \
+            special.erfc((p[3]+p[5]*p[4]**2-z)/(math.sqrt(2)*p[4]))
+
     dist = lambda p, z, y: (func(p, z) - y) / (N.sqrt(y) + 1.)
     p0 = param
     p1, cov, infodict, mesg, ier = optimize.leastsq(dist, p0[:], args=(x, n), full_output=True)
@@ -170,7 +175,7 @@ def fit_red_sequence(diffmag, mag, mindiff=1.0, maxdiff=2.0,
     ss_tot = ((n-n.mean())**2).sum()
     rsquared = 1 - (ss_err / ss_tot)
     print "mean %f - sigma %f" % (p1[1], p1[2])
-    print "Reduced chi2 = %f - R^2 = %f"%(ss_err/(nbins+6-1), rsquared)
+    print "Reduced chi2 = %f - R^2 = %f" % (ss_err / (nbins + 6-1), rsquared)
     ax2.plot(bins, func(p1, bins), color='r')
     ax2.tick_params(labelsize=20)
 
@@ -178,8 +183,8 @@ def fit_red_sequence(diffmag, mag, mindiff=1.0, maxdiff=2.0,
     # interval around the best gaussian mean value
     alpha = math.atan(fitslope)
     b0 = (p1[1] - fitslope * magref) / math.cos(alpha) + diffref
-    b1 = (p1[1] - 1.5 * p1[2] - fitslope*magref) / math.cos(alpha) + diffref
-    b2 = (p1[1] + 1.5 * p1[2] - fitslope*magref) / math.cos(alpha) + diffref
+    b1 = (p1[1] - 1.5 * p1[2] - fitslope * magref) / math.cos(alpha) + diffref
+    b2 = (p1[1] + 1.5 * p1[2] - fitslope * magref) / math.cos(alpha) + diffref
 
     print"Ordinate at origin of the RS band - middle : %f, lower : %f, upper : %f" %\
         (b0, b1, b2)

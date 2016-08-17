@@ -1,11 +1,9 @@
+"""Data validation utilisites and plots."""
+
 import numpy as N
 import pylab as P
 import seaborn
 from Clusters import data
-
-"""
-Data validation utilisites and plots
-"""
 
 def load_cluster(cluster="MACSJ2243.3-0935", ifilt="i_new"):
     """Load the data for a given cluster."""
@@ -222,13 +220,13 @@ def starElipticities(d) :
     shapeHSMPsf_yy_s = star[star['filter'] == 'i']['ext_shapeHSM_HsmPsfMoments_yy']
     shapeHSMPsf_xy_s = star[star['filter'] == 'i']['ext_shapeHSM_HsmPsfMoments_xy']
     magI_s = star[star['filter']=='i']['modelfit_CModel_mag']
-    radius_s = r = N.sqrt(shapeHSMSource_xx_s + shapeHSMSource_yy_s)
+    radius_s = N.sqrt(shapeHSMSource_xx_s + shapeHSMSource_yy_s)
 
     shapeHSMSource_xx_g = gal[gal['filter'] == 'i']['ext_shapeHSM_HsmSourceMoments_xx']
     shapeHSMSource_yy_g = gal[gal['filter'] == 'i']['ext_shapeHSM_HsmSourceMoments_yy']
     shapeHSMSource_xy_g = gal[gal['filter'] == 'i']['ext_shapeHSM_HsmSourceMoments_xy']
     magI_g = gal[gal['filter'] == 'i']['modelfit_CModel_mag']
-    radius_g = r = N.sqrt(shapeHSMSource_xx_g + shapeHSMSource_yy_g)
+    radius_g = N.sqrt(shapeHSMSource_xx_g + shapeHSMSource_yy_g)
 
     # Plot magnitude as a function of the source radius computed from second momments
     fig, (ax1, ax2) = P.subplots(ncols=2)

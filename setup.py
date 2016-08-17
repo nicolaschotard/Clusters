@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """Setup script."""
-    
+
 import os
 import glob
 import yaml

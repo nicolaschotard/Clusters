@@ -1,8 +1,4 @@
-"""
-.. _data
-
-Data builder and parser for the Clusters package
-"""
+"""Data builder and parser for the Clusters package."""
 
 import yaml
 import numpy as N
@@ -19,9 +15,7 @@ def load_config(config):
     return yaml.load(open(config))
 
 def shorten(doc):
-    """
-    Really bad hack to go around an astropy/hdf5 bug. Cut in half words longer than 18 character.
-    """
+    """Hack to go around an astropy/hdf5 bug. Cut in half words longer than 18 chars."""
     return " ".join([w if len(w) < 18 else (w[:len(w) / 2] + ' - ' + w[len(w) / 2:])
                      for w in doc.split()])
 
@@ -47,9 +41,7 @@ def get_from_butler(butler, key, filt, patch, tract=0, table=False):
     return b if not table else get_astropy_table(b)
 
 def add_magnitudes(t, getmagnitude):
-    """
-    Compute magnitude for all fluxes of a given table and add the corresponding new columns
-    """
+    """Compute magns for all fluxes of a given table. Add the corresponding new columns."""
     kfluxes = [k for k in t.columns if k.endswith('_flux')]
     ksigmas = [k + 'Sigma' for k in kfluxes]
     for kf, ks in zip(kfluxes, ksigmas):
@@ -60,9 +52,7 @@ def add_magnitudes(t, getmagnitude):
                               description='Magnitude error', unit='mag')])
 
 def add_position(t, wcs_alt):
-    """
-    Compute the x/y position in pixel for all sources and add new columns to the astropy table
-    """
+    """Compute the x/y position in pixel for all sources. Add new columns to the table."""
     x, y = N.array([wcs_alt(ra, dec) for ra, dec in zip(t["coord_ra"], t["coord_dec"])]).T
     t.add_columns([Column(name='x_Src', data=x,
                           description='x coordinate', unit='pixel'),
@@ -88,7 +78,7 @@ def add_extra_info(d):
 
     import lsst.afw.geom as afwGeom
     def wcs_alt(r, d):
-        """ Redifine the WCS function."""
+        """Redifine the WCS function."""
         return wcs.skyToPixel(afwGeom.geomLib.Angle(r), afwGeom.geomLib.Angle(d))
 
     getmag = d[f][p]['calexp'].getCalib().getMagnitude
@@ -231,8 +221,8 @@ def correct_for_extinction(ti, te, mag='modelfit_CModel_mag', ext='sfd', ifilt="
     """
     Compute extinction-corrected magnitude.
 
-    Inputs: 
-    - data table 
+    Inputs:
+    - data table
     - extinction table
     - type of magnitude
     - type of extinction
@@ -251,5 +241,5 @@ def correct_for_extinction(ti, te, mag='modelfit_CModel_mag', ext='sfd', ifilt="
         mcorr[filt] = ti[mag][filt] - te['albd_%s_%s' % (f, ext)][filt]
     print len(mcorr), len(ti['filter'])
     ti.add_columns([Column(name=magext, data=mcorr, unit='mag',
-                           description='Extinction corrected magnitude (i=%s, ext=%s)' % 
+                           description='Extinction corrected magnitude (i=%s, ext=%s)' %
                            (ifilt, ext))])
