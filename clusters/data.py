@@ -4,6 +4,7 @@ import yaml
 import numpy as N
 from astropy.table import Table, Column, vstack
 
+
 def load_config(config):
     """Load the configuration file, and return the corresponding dictionnary.
 
@@ -14,6 +15,7 @@ def load_config(config):
     """
     return yaml.load(open(config))
 
+
 def shorten(doc):
     """Hack to go around an astropy/hdf5 bug. Cut in half words longer than 18 chars."""
     return " ".join([w if len(w) < 18 else (w[:len(w) / 2] + ' - ' + w[len(w) / 2:])
@@ -21,7 +23,7 @@ def shorten(doc):
 
 
 def get_astropy_table(cat):
-    """Convert an afw data table into a simple astropy table"""
+    """Convert an afw data table into a simple astropy table."""
     schema = cat.getSchema()
     dic = {n: cat.get(n) for n in schema.getNames()}
     tab = Table(dic)
@@ -29,6 +31,7 @@ def get_astropy_table(cat):
         tab[k].description = shorten(schema[k].asField().getDoc())
         tab[k].unit = schema[k].asField().getUnits()
     return tab
+
 
 def get_from_butler(butler, key, filt, patch, tract=0, table=False):
     """
@@ -39,6 +42,7 @@ def get_from_butler(butler, key, filt, patch, tract=0, table=False):
     dataid = {'tract': tract, 'filter': filt, 'patch': patch}
     b = butler.get(key, dataId=dataid)
     return b if not table else get_astropy_table(b)
+
 
 def add_magnitudes(t, getmagnitude):
     """Compute magns for all fluxes of a given table. Add the corresponding new columns."""
@@ -51,6 +55,7 @@ def add_magnitudes(t, getmagnitude):
                        Column(name=ks.replace('_fluxSigma', '_magSigma'), data=dm,
                               description='Magnitude error', unit='mag')])
 
+
 def add_position(t, wcs_alt):
     """Compute the x/y position in pixel for all sources. Add new columns to the table."""
     x, y = N.array([wcs_alt(ra, dec) for ra, dec in zip(t["coord_ra"], t["coord_dec"])]).T
@@ -59,13 +64,16 @@ def add_position(t, wcs_alt):
                    Column(name='y_Src', data=y,
                           description='y coordinate', unit='pixel')])
 
-def add_filter_column(t, f):
-    """Add a ne wcolumn containing the filter name."""
-    t.add_column(Column(name='filter', data=[f] * len(t), description='Filter name'))
 
-def add_patch_column(t, p):
+def add_filter_column(table, filt):
+    """Add a new column containing the filter name."""
+    table.add_column(Column(name='filter', data=[filt] * len(table), description='Filter name'))
+
+
+def add_patch_column(table, patch):
     """Add a new column containing the patch name."""
-    t.add_column(Column(name='patch', data=[p] * len(t), description='Patch name'))
+    table.add_column(Column(name='patch', data=[patch] * len(table), description='Patch name'))
+
 
 def add_extra_info(d):
     """Add magnitude and position to all tables."""
@@ -102,6 +110,7 @@ def add_extra_info(d):
 
     return d
 
+
 def get_all_data(path, patches, filters, add_extra=False):
     """
     Get butler data for a list of patches and filters.
@@ -114,6 +123,7 @@ def get_all_data(path, patches, filters, add_extra=False):
     d = {f: get_filter_data(butler, patches, f) for f in filters}
     return stack_tables(d) if not add_extra else stack_tables(add_extra_info(d))
 
+
 def get_filter_data(butler, patches, f):
     """
     Get butler data for a list of patches, for a given filter.
@@ -123,6 +133,7 @@ def get_filter_data(butler, patches, f):
     print "INFO: loading filter", f
     return {p: get_patch_data(butler, p, f) for p in patches}
 
+
 def get_patch_data(butler, p, f):
     """Get bulter data for a given set of patch and filter."""
     print "INFO:   loading patch", p
@@ -130,6 +141,7 @@ def get_patch_data(butler, p, f):
     forced = get_from_butler(butler, 'deepCoadd_forced_src', f, p, table=True)
     calexp = get_from_butler(butler, 'deepCoadd_calexp', f, p, table=False)
     return {'meas': meas, 'forced': forced, 'calexp': calexp}
+
 
 def from_list_to_array(d):
     """Transform lists (of dict of list) into numpy arrays."""
@@ -141,6 +153,7 @@ def from_list_to_array(d):
         elif type(d[k]) == dict:
             from_list_to_array(d[k])
     return d
+
 
 def stack_tables(d):
     """
@@ -155,11 +168,13 @@ def stack_tables(d):
             'forced': vstack([vstack([d[f][p]['forced']
                                       for p in d[f]]) for f in d])}
 
+
 def write_data(d, output, overwrite=False):
     """Write astropy 'forced' and 'meas' tables in an hdf5 file."""
     d['forced'].write(output, path='forced', compression=True,
                       serialize_meta=True, overwrite=overwrite)
     d['meas'].write(output, path='meas', compression=True, append=True, serialize_meta=True)
+
 
 def read_data(data_file, path=None):
     """Write astropy tables from an hdf5 file."""
@@ -171,6 +186,7 @@ def read_data(data_file, path=None):
             return Table.read(data_file)
     else:
         return Table.read(data_file, path=path)
+
 
 def filter_table(t):
     """Apply a few quality filters on the data tables."""
@@ -206,6 +222,7 @@ def filter_table(t):
 
     return {'meas': dmg.groups[filt], 'forced': dfg.groups[filt]}
 
+
 def getdata(config, output='all_data.hdf5', output_filtered='filtered_data.hdf5', overwrite=False):
     """Shortuc function to get all the data from a bulter, fitler them, and save same."""
     if isinstance(config, str):
@@ -216,6 +233,7 @@ def getdata(config, output='all_data.hdf5', output_filtered='filtered_data.hdf5'
     df = filter_table(d)
     write_data(df, output_filtered, overwrite=overwrite)
     return d, df
+
 
 def correct_for_extinction(ti, te, mag='modelfit_CModel_mag', ext='sfd', ifilt="i_new"):
     """

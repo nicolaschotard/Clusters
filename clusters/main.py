@@ -10,6 +10,7 @@ import lsst.afw.geom as afwGeom
 from . import data as D
 from . import extinction as E
 
+
 def load_data(argv=None):
     """Load data from the DM stack butler."""
     description = """Load data from the DM stack butler."""
@@ -45,6 +46,7 @@ def load_data(argv=None):
     df = D.filter_table(d)
     D.write_data(d, output, overwrite=args.overwrite)
     D.write_data(df, output_filtered, overwrite=args.overwrite)
+
 
 def extinction(argv=None):
     """Get color excess E(B-V) and store it in the data table for further use."""

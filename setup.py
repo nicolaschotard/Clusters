@@ -20,7 +20,8 @@ name = 'Clusters'
 packages = ["clusters"]
 
 # Modules (all python files in clusters/)
-modules = [m.replace("clusters/", "%s." % name).replace('.py', '') for m in glob.glob("clusters/*.py")]
+modules = [m.replace("clusters/", "%s." % name).replace('.py', '')
+           for m in glob.glob("clusters/*.py")]
 
 # Scripts (in scripts/)
 scripts = glob.glob("scripts/*.py")

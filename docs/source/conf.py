@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
-#
+
+"""Configuration file for sphinx."""
+
 # Clusters documentation build configuration file, created by
 # sphinx-quickstart on Thu Aug  4 12:06:33 2016.
 #
@@ -53,7 +55,9 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Clusters'
-copyright = u'2016, N. Chotard'
+# Hack to avoid the "Redefining built-in 'copyright'" error from static
+# analysis tools
+globals()['copyright'] = u'2016, N. Chotard'
 author = u'N. Chotard'
 
 # The version info for the project you're documenting, acts as replacement for
