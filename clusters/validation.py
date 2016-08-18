@@ -19,10 +19,12 @@ def load_cluster(cluster="MACSJ2243.3-0935", ifilt="i_new"):
 
     return d
 
+
 def get_filter_list(table):
     """Get the filter list and number of filter in a table."""
     filters = set(table['filter'])
     return filters, len(filters)
+
 
 def define_selection_filter(d, cat):
     """Define and return a standard quality selection filter."""
@@ -35,6 +37,7 @@ def define_selection_filter(d, cat):
              d[cat]['modelfit_CModel_fluxSigma']) > 10
 
     return filt
+
 
 def separate_star_gal(d, cat, oid, nfilters, filt=None):
     """Return two clean tables: one for the stars, the other for the galaxies."""
@@ -57,12 +60,13 @@ def separate_star_gal(d, cat, oid, nfilters, filt=None):
 
     return stars, galaxies
 
+
 def stellarLocus(d, mag_type="modelfit_CModel_mag_extcorr", ifilt="i_new", cat="forced"):
     """Plot stellar locus."""
     # Get number of filters in table.
     # For stellar locus we need at least the g, r and i filters
     filters, nfilters = get_filter_list(d['meas'])
-    raise not ('i' in filters and 'g' in filters and 'r' in filters), \
+    assert 'i' in filters and 'g' in filters and 'r' in filters, \
         "filter list must contains gri"
 
     # Get the id
@@ -90,9 +94,9 @@ def stellarLocus(d, mag_type="modelfit_CModel_mag_extcorr", ifilt="i_new", cat="
 
     fig, (ax1) = P.subplots(ncols=1)
     ax1.scatter(mgS[idx_star] - mrS[idx_star], mrS[idx_star] - miS[idx_star], s=1,
-                color='b', label="stars %d"%len(mgS[idx_star]))
+                color='b', label="stars %d" % len(mgS[idx_star]))
     ax1.scatter(mgG[idx_gal] - mrG[idx_gal], mrG[idx_gal] - miG[idx_gal], s=1,
-                color='r', label="galaxies %d"%len(mgG[idx_gal]))
+                color='r', label="galaxies %d" % len(mgG[idx_gal]))
     ax1.set_xlim([-0.5, 2.0])
     ax1.set_ylim([-0.5, 2.5])
     ax1.tick_params(labelsize=20)
@@ -115,15 +119,15 @@ def stellarLocus(d, mag_type="modelfit_CModel_mag_extcorr", ifilt="i_new", cat="
     poly_5 = (lambda p, x: p[0] + p[1]*x + p[2]*x**2 + p[3]*x**3 + p[4]*x**4 + p[5]*x**5)
 
     # Color corrections CFHT --> SDSS
-    u_SDSS_ug = (lambda u_Mega, g_Mega : u_Mega +0.181*(u_Mega - g_Mega))
-    g_SDSS_gr = (lambda g_Mega, r_Mega : g_Mega +0.195*(g_Mega - r_Mega))
-    g_SDSS_gi = (lambda g_Mega, i_Mega : g_Mega +0.103*(g_Mega - i_Mega))
-    r_SDSS_gr = (lambda r_Mega, g_Mega : r_Mega +0.011*(g_Mega - r_Mega))
-    i_SDSS_ri = (lambda i_Mega, r_Mega : i_Mega +0.079*(r_Mega - i_Mega))
-    i_SDSS_gi = (lambda i_Mega, g_Mega : i_Mega +0.044*(g_Mega - i_Mega))
-    i2_SDSS_ri = (lambda i2_Mega, r_Mega : i2_Mega +0.001*(r_Mega - i2_Mega))
-    i2_SDSS_gi = (lambda i2_Mega, g_Mega : i2_Mega -0.003*(g_Mega - i2_Mega))
-    z_SDSS_iz = (lambda z_Mega, i_Mega : z_Mega -0.099*(i_Mega - z_Mega))
+    u_SDSS_ug = lambda u_Mega, g_Mega: u_Mega + 0.181*(u_Mega - g_Mega)
+    g_SDSS_gr = lambda g_Mega, r_Mega: g_Mega + 0.195*(g_Mega - r_Mega)
+    g_SDSS_gi = lambda g_Mega, i_Mega: g_Mega + 0.103*(g_Mega - i_Mega)
+    r_SDSS_gr = lambda r_Mega, g_Mega: r_Mega + 0.011*(g_Mega - r_Mega)
+    i_SDSS_ri = lambda i_Mega, r_Mega: i_Mega + 0.079*(r_Mega - i_Mega)
+    i_SDSS_gi = lambda i_Mega, g_Mega: i_Mega + 0.044*(g_Mega - i_Mega)
+    i2_SDSS_ri = lambda i2_Mega, r_Mega: i2_Mega + 0.001*(r_Mega - i2_Mega)
+    i2_SDSS_gi = lambda i2_Mega, g_Mega: i2_Mega - 0.003*(g_Mega - i2_Mega)
+    z_SDSS_iz = lambda z_Mega, i_Mega: z_Mega - 0.099*(i_Mega - z_Mega)
 
     gSDSS = g_SDSS_gr(mgS, mrS)
     rSDSS = r_SDSS_gr(mrS, mgS)
@@ -141,13 +145,13 @@ def stellarLocus(d, mag_type="modelfit_CModel_mag_extcorr", ifilt="i_new", cat="
     idx_star = (mrS < 23) & (mgS < 23)
     fig, (ax1, ax2) = P.subplots(ncols=2)
 
-    ax1.scatter(gSDSS[idx_star]-iSDSS[idx_star], rSDSS[idx_star]-iSDSS[idx_star],
-                s=1, color='b', label='%s '%mag_type)
+    ax1.scatter(gSDSS[idx_star] - iSDSS[idx_star], rSDSS[idx_star] - iSDSS[idx_star],
+                s=1, color='b', label='%s ' % mag_type)
     ax1.set_xlim([-0.5, 4.])
     ax1.set_ylim([-0.3, 2.5])
-    nbins = 80
-    gMi_model = N.linspace(0.4, 3.8, nbins)
-    ax1.plot(gMi_model, poly_5(rMinusi[:6], gMi_model), color='r', label='Covey 2007 model', lw=2)
+
+    model = N.linspace(0.4, 3.8, 80)
+    ax1.plot(model, poly_5(rMinusi[:6], model), color='r', label='Covey 2007 model', lw=2)
     ax1.set_xlabel("g - i", fontsize=10)
     ax1.set_ylabel("r - i", fontsize=10)
     ax1.tick_params(labelsize=10)
@@ -157,8 +161,7 @@ def stellarLocus(d, mag_type="modelfit_CModel_mag_extcorr", ifilt="i_new", cat="
                 s=1, color='b', label='%s' % mag_type)
     ax2.set_xlim([-0.5, 4.])
     ax2.set_ylim([-0.3, 2.0])
-    gMr_model = N.linspace(0.4, 3.8, nbins)
-    ax2.plot(gMi_model, poly_5(gMinusr[:6], gMr_model), color='r', label='Covey 2007 model', lw=2)
+    ax2.plot(model, poly_5(gMinusr[:6], model), color='r', label='Covey 2007 model', lw=2)
     ax2.set_xlabel("g - i", fontsize=10)
     ax2.set_ylabel("g - r", fontsize=10)
     ax2.tick_params(labelsize=10)
