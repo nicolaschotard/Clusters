@@ -33,7 +33,7 @@ class LEPHARE(object):
         self.RA, self.DEC, self.ID = RA, DEC, ID
 
         if input_name is not None:
-            self.input = input_nanme
+            self.input = input_name
             self.output = self.input.split(".")[0] + "_zphot.out"
         else:
             self.input = cname + "_zphot.in"

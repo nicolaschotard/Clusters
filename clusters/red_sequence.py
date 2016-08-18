@@ -115,10 +115,10 @@ def fit_red_sequence(diffmag, mag, mindiff=1.0, maxdiff=2.0,
 
         x = N.asarray([0.5 * (bins[i + 1] - bins[i]) + bins[i] for i in range(len(n))])
 
-        func = (lambda p, z: p[0] * N.exp(-(p[1]-z)**2/(2*p[2]**2))+
+        lfunc = (lambda p, z: p[0] * N.exp(-(p[1]-z)**2/(2*p[2]**2))+
                 p[6]*p[5]*N.exp(0.5*p[5]*(2*p[3]+p[5]*p[4]**2-2*z))*
                 special.erfc((p[3]+p[5]*p[4]**2-z)/(math.sqrt(2)*p[4])))
-        dist = lambda p, z, y: (func(p, z) - y)/(N.sqrt(y)+1.)
+        dist = lambda p, z, y: (lfunc(p, z) - y)/(N.sqrt(y)+1.)
         p0 = p2 # Start fit with parameters fitted at the previous step
         p1, cov, infodict, mesg, ier = optimize.leastsq(dist, p0[:], args=(x, n), full_output=True)
         val.append(slope)
@@ -133,13 +133,13 @@ def fit_red_sequence(diffmag, mag, mindiff=1.0, maxdiff=2.0,
 
     # Fit a parabola on the (slope, sigma) distribution to find the RS slope
     # corresponding to the minimum sigma
-    func = lambda p, z: p[0]*z*z + p[1]*z + p[2]
-    dist = lambda p, z, y: (func(p, z) - y)
+    parabola = lambda p, z: p[0]*z*z + p[1]*z + p[2]
+    dist = lambda p, z, y: (parabola(p, z) - y)
     p0 = [1., 1., 1.]
     p1,cov,infodict1,mesg,ier = optimize.leastsq(dist, p0[:], args=(N.asarray(val), N.asarray(sigma)), full_output=True)
     fitslope = -0.5 * p1[1] / p1[0]
 
-    ax0.plot(N.asarray(val), func(p1,N.asarray(val)), color='r')
+    ax0.plot(N.asarray(val), parabola(p1,N.asarray(val)), color='r')
     ax0.tick_params(labelsize=20)
     ax0.set_xlabel("Red sequence slope")
     ax0.set_ylabel("Sigma")
@@ -162,13 +162,13 @@ def fit_red_sequence(diffmag, mag, mindiff=1.0, maxdiff=2.0,
     n, bins, patches = ax2.hist(dy[idx], bins=nbins, color='b')
     x = N.asarray([0.5*(bins[i+1]-bins[i])+bins[i] for i in range(len(n))])
 
-    def func(p, z):
+    def hfunc(p, z):
         """Function to fit."""
         return p[0]*N.exp(-(p[1]-z)**2/(2*p[2]**2)) + \
             p[6]*p[5]*N.exp(0.5*p[5]*(2*p[3]+p[5]*p[4]**2-2*z)) * \
             special.erfc((p[3]+p[5]*p[4]**2-z)/(math.sqrt(2)*p[4]))
 
-    dist = lambda p, z, y: (func(p, z) - y) / (N.sqrt(y) + 1.)
+    dist = lambda p, z, y: (hfunc(p, z) - y) / (N.sqrt(y) + 1.)
     p0 = param
     p1, cov, infodict, mesg, ier = optimize.leastsq(dist, p0[:], args=(x, n), full_output=True)
     ss_err = (infodict['fvec']**2).sum()
@@ -176,7 +176,7 @@ def fit_red_sequence(diffmag, mag, mindiff=1.0, maxdiff=2.0,
     rsquared = 1 - (ss_err / ss_tot)
     print "mean %f - sigma %f" % (p1[1], p1[2])
     print "Reduced chi2 = %f - R^2 = %f" % (ss_err / (nbins + 6-1), rsquared)
-    ax2.plot(bins, func(p1, bins), color='r')
+    ax2.plot(bins, hfunc(p1, bins), color='r')
     ax2.tick_params(labelsize=20)
 
     # Compute the ordinates at origin corresponding to a +/- 1.5 sigma
