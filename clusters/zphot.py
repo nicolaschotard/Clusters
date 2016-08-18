@@ -5,12 +5,16 @@ import pylab as P
 import seaborn
 import subprocess
 
+
 class LEPHARE(object):
 
-    def __init__(self, mags, magserr, cname, input=None, filters=None,
+    """Wrapper to the LEPHARE photometric redshift code."""
+
+    def __init__(self, mags, magserr, cname, input_name=None, filters=None,
                  zpara=None, RA=None, DEC=None, ID=None):
         """
-        Runs the LEPHARE progam (zphota)
+        Run the LEPHARE progam (zphota).
+
         param list mags: list of magnitude
         param list magserr:
         param string cname:
@@ -24,12 +28,13 @@ class LEPHARE(object):
         self.magserr = magserr
         self.cluster_name = cname
         self.filters = filters
-        self.config = os.environ["LEPHAREDIR"] + "/config/zphot_megacam.para" if zpara is None else zpara
+        self.config = os.environ["LEPHAREDIR"] + \
+                      "/config/zphot_megacam.para" if zpara is None else zpara
         self.RA, self.DEC, self.ID = RA, DEC, ID
-        
-        if input is not None:
-            self.input = input
-            self.output = input.split(".")[0]+"_zphot.out"
+
+        if input_name is not None:
+            self.input = input_nanme
+            self.output = self.input.split(".")[0] + "_zphot.out"
         else:
             self.input = cname + "_zphot.in"
             self.output = cname + "_zphot.out"
@@ -39,14 +44,16 @@ class LEPHARE(object):
 
     def write_input(self):
         """
-        Write two files:
-         - the input data file for LEPHARE
-         - a similare file containing the soruces ID along with their RA DEC. 
+        Create and write files needed to run LEPHARE.
+
+        - the input data file for LEPHARE
+        - a similare file containing the soruces ID along with their RA DEC.
         """
         f = open(self.input, 'w')
         if self.filters is not None:
-            f.write("# id " + " ".join(["mag_%s" % filt for filt in self.filters]) + \
-                    " " + " ".join(["err_mag_%s" % filt for filt in self.filters]) + "\n")
+            f.write("# id " + " ".join(["mag_%s" % filt for filt in self.filters]) +
+                    " " + " ".join(["err_mag_%s" % filt for filt in self.filters]) +
+                    "\n")
         for i, mags in enumerate(N.concatenate([self.mags, self.magserr]).T):
             f.write("%i %s\n" % (i, " ".join(["%.3f" % m for m in mags])))
         f.close()
@@ -55,18 +62,20 @@ class LEPHARE(object):
         if self.RA is not None:
             f = open(self.allinput, 'w')
             if self.filters is not None:
-                f.write("# id ID RA DEC " + " ".join(["mag_%s" % filt for filt in self.filters]) + \
-                        " " + " ".join(["err_mag_%s" % filt for filt in self.filters]) + "\n")
+                f.write("# id ID RA DEC " +
+                        " ".join(["mag_%s" % filt for filt in self.filters]) + " " +
+                        " ".join(["err_mag_%s" % filt for filt in self.filters]) +
+                        "\n")
             for i, mags in enumerate(N.concatenate([self.mags, self.magserr]).T):
                 f.write("%i %i %f %f %s\n" % (i, self.ID[i], self.RA[i], self.DEC[i],
                                               " ".join(["%.3f" % m for m in mags])))
             f.close()
             print "INFO: All data saved in", self.allinput
 
-            
     def check_config(self, config=None):
         """
         Check that the SED and filters requested for the LePhare run do exist.
+
         If not: explains where the problem is and aborts.
         """
         if config is not None:
@@ -84,11 +93,11 @@ class LEPHARE(object):
             lib_tmp = path_to_lib + lib + ".bin"
             if not os.path.exists(lib_tmp):
                 print "\nERROR: Requested library %s does not exist " % lib_tmp
-                print "INFO: Available SED libraries are:\n ",  
-                for file in os.listdir(path_to_lib):
-                    if file.endswith(".bin"):
-                        print(file)
-                print "--> Correct the ZPHOTLIB variable in %s or generate the missing LePhare SED libraries" % self.config                   
+                print "INFO: Available SED libraries are:\n ",
+                for f in os.listdir(path_to_lib):
+                    if f.endswith(".bin"):
+                        print f
+                print "--> Correct the ZPHOTLIB variable in %s or generate the missing LePhare SED libraries" % self.config
                 sys.exit()
 
         counter = 0
@@ -105,15 +114,17 @@ class LEPHARE(object):
                             sys.exit()
             counter += 1
 
-        path_to_filt = os.environ["LEPHAREWORK"]+"/filt/"
+        path_to_filt = os.environ["LEPHAREWORK"] + "/filt/"
         if not os.path.exists(path_to_filt + filt_ref):
-            print "\nERROR: The FILTER_FILE %s used by the SED libraries %s does not exists." % ((path_to_filt + filt_ref), libs)
+            print "\nERROR: The FILTER_FILE %s used by the SED libraries %s does not exists." % \
+                ((path_to_filt + filt_ref), libs)
             sys.exit()
- 
-    
+
     def run(self, config=None):
         """
-        Default config file is $LEPHAREDIR/config/zphot_megacam.para
+        Run LEPHARE.
+
+        Default config file is $LEPHAREDIR/config/zphot_megacam.para. 
         Can be overwritten with the config argument
         """
         if config is not None:
@@ -121,7 +132,7 @@ class LEPHARE(object):
                 self.config = config
             else:
                 raise ValueError("%s does not exist" % config)
-        
+
         # build command line
         cmd = "zphota"
         cmd += " -c " + self.config
@@ -129,17 +140,18 @@ class LEPHARE(object):
         cmd += " -CAT_OUT " + self.output
         print "INFO: Will run '%s'" % cmd
         self.lephare_out = subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True)
-        print "INFO: LEPHARE output summary (full output in self.lephare_out)" 
+        print "INFO: LEPHARE output summary (full output in self.lephare_out)"
         print "\n".join(["   " + zo for zo in self.lephare_out.split("\n")[-6:]])
 
         self.data_out = LEPHARO(self.output, all_input=self.allinput)
 
 
 class LEPHARO(object):
+
+    """Read LEPHARE output file."""
+    
     def __init__(self, zphot_output, all_input=None):
-        """
-        Read the LEPHARe progam Output (zphota output)
-        """
+        """Read the LEPHARe progam Output (zphota output)."""
         self.output = zphot_output
         if all_input is not None:
             self.input = all_input
@@ -147,24 +159,27 @@ class LEPHARO(object):
         self.read()
 
     def read(self):
+        """Read the output."""
         f = open(self.output, 'r')
         self.header = [l for l in f if l.startswith('#')]
         f.close()
         self.data_array = N.loadtxt(self.output, unpack=True)
-        self.variables = N.loadtxt(os.getenv('LEPHAREDIR')+"/config/zphot_output.para", dtype='string')
+        self.variables = N.loadtxt(os.getenv('LEPHAREDIR') + \
+                                   "/config/zphot_output.para", dtype='string')
         self.data_dict = {v: a for v, a in zip(self.variables, self.data_array)}
         self.nsources = len(self.data_dict['Z_BEST'])
 
     def read_input(self):
+        """Read the input."""
         data = N.loadtxt(self.input, unpack=True)
         f = open(self.input, 'r')
         l = f.readlines()[0]
         self.input_data = {k: d for k, d in zip(l[2:-1].split(), data)}
         f.close()
-        
 
     def hist(self, param, minv=None, maxv=None, nbins=None, xlabel=None,
              title=None, zclust=None, figname=""):
+        """Plot histograms."""
         pval = self.data_dict[param]
         filt = N.array([1]*len(pval), dtype='bool')
         if minv is not None:
@@ -184,13 +199,14 @@ class LEPHARO(object):
             ax.axvline(zclust, color='r', label='Cluster redshift (%.4f)' % zclust)
             ax.legend(loc='best')
 
-        fig.savefig(figname+"_"+xlabel+"_zphot_hist.png")
+        fig.savefig(figname + "_" + xlabel + "_zphot_hist.png")
 
     def plot(self, px, py, minx=None, maxx=None, miny=None, maxy=None,
              xlabel=None, ylabel=None, title=None, figname=""):
+        """Plot x vs. y."""
         pvalx = self.data_dict[px]
         pvaly = self.data_dict[py]
-        filt = N.array([1]*len(pvalx), dtype='bool')
+        filt = N.array([1] * len(pvalx), dtype='bool')
         if minx is not None:
             filt &= (pvalx >= minx)
         if maxx is not None:
@@ -206,25 +222,26 @@ class LEPHARO(object):
         if xlabel is None:
             xlabel = px
         if ylabel is None:
-            ylabel = py        
+            ylabel = py
         ax.set_xlabel(xlabel)
         ax.set_ylabel(ylabel)
         if title is not None:
             ax.set_title(title)
 
-        fig.savefig(figname+"_%s_vs_%s_zphot.png" % (ylabel, xlabel))
+        fig.savefig(figname + "_%s_vs_%s_zphot.png" % (ylabel, xlabel))
 
     def plot_map(self, title=None, figname="", zmin=0, zmax=999):
+        """Plot the redshift sky-map."""
         if not hasattr(self, 'input_data'):
             print "WARNING: No input data given. Cannot plot the redshift map."
             return
-        
+
         ra, dec, redshift = self.input_data['RA'], self.input_data['DEC'], self.data_dict['Z_BEST']
 
         # redshift has to be >= 0
         filt = (redshift >= zmin) & (redshift < zmax)
         ra, dec, redshift = ra[filt], dec[filt], redshift[filt]
-        
+
         fig = P.figure()
         ax = fig.add_subplot(111, xlabel='RA (deg)', ylabel='DEC (deg)')
         scat = ax.scatter(ra, dec, c=redshift, cmap=(P.cm.jet))
@@ -232,9 +249,11 @@ class LEPHARO(object):
         cb.set_label('Photometric redshift')
         if title is not None:
             ax.set_title(title)
-        ax.set_xlim(xmin=min(ra)-0.001, xmax=max(ra)+0.001)
-        ax.set_ylim(ymin=min(dec)-0.001, ymax=max(dec)+0.001)
+        ax.set_xlim(xmin=min(ra) - 0.001, xmax=max(ra) + 0.001)
+        ax.set_ylim(ymin=min(dec) - 0.001, ymax=max(dec) + 0.001)
         fig.savefig(figname+"_redshift_map.png")
-        
+
+
 def dict_to_array(d, filters='ugriz'):
+    """Transform a dictionnary into a list of arrays."""
     return N.array([N.array(d[f]) for f in filters])

@@ -5,6 +5,7 @@ import pylab as P
 import seaborn
 from Clusters import data
 
+
 def load_cluster(cluster="MACSJ2243.3-0935", ifilt="i_new"):
     """Load the data for a given cluster."""
     # load astropy tables from hdf5 file
@@ -18,18 +19,13 @@ def load_cluster(cluster="MACSJ2243.3-0935", ifilt="i_new"):
 
     return d
 
-def stellarLocus(d, mag_type="modelfit_CModel_mag_extcorr", ifilt="i_new", cat="forced"):
-    """Plot stellar locus."""
-    # get number of filters in table.
-    # For stellar locus we need at least the g, r ani filters
-    nfilters = len(d['meas'].group_by('id').groups[0])
+def get_filter_list(table):
+    """Get the filter list and number of filter in a table."""
+    filters = set(table['filter'])
+    return filters, len(filters)
 
-    if cat == 'forced':
-        oid = 'objectId'
-    else:
-        oid = 'id'
-
-    # define selection filter
+def define_selection_filter(d, cat):
+    """Define and return a standard quality selection filter."""
     filt = d['meas']['base_ClassificationExtendedness_flag'] == 0
     filt &= d['meas']['detect_isPrimary'] == 1
     filt &= d[cat]['modelfit_CModel_flag'] == 0
@@ -38,43 +34,71 @@ def stellarLocus(d, mag_type="modelfit_CModel_mag_extcorr", ifilt="i_new", cat="
     filt &= (d[cat]['modelfit_CModel_flux'] /
              d[cat]['modelfit_CModel_fluxSigma']) > 10
 
-    filtS = d['meas']['base_ClassificationExtendedness_value'] < 0.5
-    filtG = d['meas']['base_ClassificationExtendedness_value'] > 0.5
+    return filt
 
-    s = d[cat][filt&filtS].group_by(oid)
-    f = (s.groups.indices[1:] - s.groups.indices[:-1]) == nfilters
-    star = s.groups[f]
-    g = d[cat][filt&filtG].group_by(oid)
-    f = (g.groups.indices[1:] - g.groups.indices[:-1]) == nfilters
-    gal = g.groups[f]
+def separate_star_gal(d, cat, oid, nfilters, filt=None):
+    """Return two clean tables: one for the stars, the other for the galaxies."""
+    filt_star = d['meas']['base_ClassificationExtendedness_value'] < 0.5
+    filt_gal = d['meas']['base_ClassificationExtendedness_value'] > 0.5
+
+    if filt is not None:
+        filt_star &= filt
+        filt_gal &= filt
+
+    # Select stars
+    star = d[cat][filt_star].group_by(oid)
+    stars = star.groups[(star.groups.indices[1:] -
+                         star.groups.indices[:-1]) == nfilters]
+
+    # Select galaxies
+    gal = d[cat][filt_gal].group_by(oid)
+    galaxies = gal.groups[(gal.groups.indices[1:] -
+                           gal.groups.indices[:-1]) == nfilters]
+
+    return stars, galaxies
+
+def stellarLocus(d, mag_type="modelfit_CModel_mag_extcorr", ifilt="i_new", cat="forced"):
+    """Plot stellar locus."""
+    # Get number of filters in table.
+    # For stellar locus we need at least the g, r and i filters
+    filters, nfilters = get_filter_list(d['meas'])
+    raise not ('i' in filters and 'g' in filters and 'r' in filters), \
+        "filter list must contains gri"
+
+    # Get the id
+    oid = 'objectId' if cat == 'forced' else 'id'
+
+    # Define selection filter
+    filt = define_selection_filter(d, cat)
+
+    # Seprat ethe stars from the galaxies
+    star, gal = separate_star_gal(d, cat, oid, nfilters, filt=filt)
 
     # get color magnitudes for stars and galaxies
-    mrS = star[star['filter']=='r'][mag_type]
-    miS = star[star['filter']=='i'][mag_type]
-    mgS = star[star['filter']=='g'][mag_type]
-    mrG = gal[gal['filter']=='r'][mag_type]
-    miG = gal[gal['filter']=='i'][mag_type]
-    mgG = gal[gal['filter']=='g'][mag_type]
+    mrS = star[star['filter'] == 'r'][mag_type]
+    miS = star[star['filter'] == 'i'][mag_type]
+    mgS = star[star['filter'] == 'g'][mag_type]
+    mrG = gal[gal['filter'] == 'r'][mag_type]
+    miG = gal[gal['filter'] == 'i'][mag_type]
+    mgG = gal[gal['filter'] == 'g'][mag_type]
 
-    # plot r-i Vs g-r for stars and galaxies
+    # Plot r-i Vs g-r for stars and galaxies
 
     # cut on magnitude
-    idxS = mrS < 23
-    idxG = mrG < 22
+    idx_star = mrS < 23
+    idx_gal = mrG < 22
 
     fig, (ax1) = P.subplots(ncols=1)
-    ax1.scatter(mgS[idxS] - mrS[idxS], mrS[idxS] - miS[idxS], s=1,
-                color='b', label="stars %d"%len(mgS[idxS]))
-    ax1.scatter(mgG[idxG] - mrG[idxG], mrG[idxG] - miG[idxG], s=1,
-                color='r', label="galaxies %d"%len(mgG[idxG]))
+    ax1.scatter(mgS[idx_star] - mrS[idx_star], mrS[idx_star] - miS[idx_star], s=1,
+                color='b', label="stars %d"%len(mgS[idx_star]))
+    ax1.scatter(mgG[idx_gal] - mrG[idx_gal], mrG[idx_gal] - miG[idx_gal], s=1,
+                color='r', label="galaxies %d"%len(mgG[idx_gal]))
     ax1.set_xlim([-0.5, 2.0])
     ax1.set_ylim([-0.5, 2.5])
     ax1.tick_params(labelsize=20)
     ax1.set_xlabel("g - r", fontsize=20)
     ax1.set_ylabel("r - i", fontsize=20)
     ax1.legend(loc="upper left")
-
-    P.show()
 
     # Coefficients of 5-degree polynomials in (g-i) + residuals for stellar locus parametrization
     # according to Covey et al. 2007 - arXiv:0707.4473
@@ -114,10 +138,10 @@ def stellarLocus(d, mag_type="modelfit_CModel_mag_extcorr", ifilt="i_new", cat="
 
     # plot stellar locus for stars and compare to Covey et al. 2007 model
 
-    idxS = (mrS < 23) & (mgS < 23)
+    idx_star = (mrS < 23) & (mgS < 23)
     fig, (ax1, ax2) = P.subplots(ncols=2)
 
-    ax1.scatter(gSDSS[idxS]-iSDSS[idxS], rSDSS[idxS]-iSDSS[idxS],
+    ax1.scatter(gSDSS[idx_star]-iSDSS[idx_star], rSDSS[idx_star]-iSDSS[idx_star],
                 s=1, color='b', label='%s '%mag_type)
     ax1.set_xlim([-0.5, 4.])
     ax1.set_ylim([-0.3, 2.5])
@@ -129,7 +153,7 @@ def stellarLocus(d, mag_type="modelfit_CModel_mag_extcorr", ifilt="i_new", cat="
     ax1.tick_params(labelsize=10)
     ax1.legend(loc="upper left", fontsize=10)
 
-    ax2.scatter(gSDSS[idxS]-iSDSS[idxS], gSDSS[idxS]-rSDSS[idxS],
+    ax2.scatter(gSDSS[idx_star]-iSDSS[idx_star], gSDSS[idx_star]-rSDSS[idx_star],
                 s=1, color='b', label='%s' % mag_type)
     ax2.set_xlim([-0.5, 4.])
     ax2.set_ylim([-0.3, 2.0])
@@ -150,10 +174,10 @@ def stellarLocus(d, mag_type="modelfit_CModel_mag_extcorr", ifilt="i_new", cat="
     err = []
     colVal, step = N.linspace(xMin,xMax,num=numStep,retstep=True)
     for c in colVal :
-        idc = ((gSDSS[idxS]-iSDSS[idxS]) > (c-step/2)) & ((gSDSS[idxS]-iSDSS[idxS]) < (c+step/2))
-        res.append(poly_5(rMinusi[:6], c) - N.mean((rSDSS[idxS]-iSDSS[idxS])[idc]))
-        err.append(N.std((rSDSS[idxS]-iSDSS[idxS])[idc]) /
-                   N.sqrt(len((rSDSS[idxS]-iSDSS[idxS])[idc])))
+        idc = ((gSDSS[idx_star]-iSDSS[idx_star]) > (c-step/2)) & ((gSDSS[idx_star]-iSDSS[idx_star]) < (c+step/2))
+        res.append(poly_5(rMinusi[:6], c) - N.mean((rSDSS[idx_star]-iSDSS[idx_star])[idc]))
+        err.append(N.std((rSDSS[idx_star]-iSDSS[idx_star])[idc]) /
+                   N.sqrt(len((rSDSS[idx_star]-iSDSS[idx_star])[idc])))
     ax1.errorbar(colVal, res, yerr=err, ls='None', fmt='s',
                  capsize=25, color='b', lw=1, label='%s - Residuals'%mag_type)
     ax1.set_xlim([xMin-0.2, xMax+0.2])
@@ -171,10 +195,10 @@ def stellarLocus(d, mag_type="modelfit_CModel_mag_extcorr", ifilt="i_new", cat="
     err = []
     colVal, step = N.linspace(xMin,xMax,num=numStep,retstep=True)
     for c in colVal:
-        idc = ((gSDSS[idxS]-iSDSS[idxS]) > (c-step/2)) & ((gSDSS[idxS]-iSDSS[idxS]) < (c+step/2))
-        res.append(poly_5(gMinusr[:6], c) - N.mean((gSDSS[idxS]-rSDSS[idxS])[idc]))
-        err.append(N.std((gSDSS[idxS]-rSDSS[idxS])[idc]) /
-                   N.sqrt(len((gSDSS[idxS]-rSDSS[idxS])[idc])))
+        idc = ((gSDSS[idx_star]-iSDSS[idx_star]) > (c-step/2)) & ((gSDSS[idx_star]-iSDSS[idx_star]) < (c+step/2))
+        res.append(poly_5(gMinusr[:6], c) - N.mean((gSDSS[idx_star]-rSDSS[idx_star])[idc]))
+        err.append(N.std((gSDSS[idx_star]-rSDSS[idx_star])[idc]) /
+                   N.sqrt(len((gSDSS[idx_star]-rSDSS[idx_star])[idc])))
     ax2.errorbar(colVal, res, yerr=err, ls='None', fmt='s', capsize=25,
                  color='b', lw=1, label='%s - Residuals'%mag_type)
     ax2.set_xlim([xMin-0.2, xMax+0.2])
@@ -186,32 +210,21 @@ def stellarLocus(d, mag_type="modelfit_CModel_mag_extcorr", ifilt="i_new", cat="
     P.tight_layout()
     P.show()
 
-def starElipticities(d) :
+def starElipticities(d, cat='meas', oid='id'):
 
-    """Compute star elipticities from second momments and check if
-    psf correction is valid - Also check magnitude Vs radius"""
+    """
+    Compute star elipticities from second momments and check if psf correction is valid.
 
-    nfilters = len(d['meas'].group_by('id').groups[0])
-    cat = 'meas'
-    oid = 'id'
+    Also check magnitude Vs radius
+    """
+    filters, nfilters = get_filter_list(d[cat])
+    raise 'i' not in filters, "'i' filter must be in the list of filters"
 
-    filt = d['meas']['base_ClassificationExtendedness_flag'] == 0
-    filt &= d['meas']['detect_isPrimary'] == 1
-    filt &= d[cat]['modelfit_CModel_flag'] == 0
-    filt &= d[cat]['modelfit_CModel_flux'] > 0
+    # Define selection filter
+    filt = define_selection_filter(d, cat)
 
-    filt &= (d[cat]['modelfit_CModel_flux'] / \
-              d[cat]['modelfit_CModel_fluxSigma']) > 10
-
-    filtS = d['meas']['base_ClassificationExtendedness_value'] < 0.5
-    filtG = d['meas']['base_ClassificationExtendedness_value'] > 0.5
-
-    s = d[cat][filt&filtS].group_by(oid)
-    f = (s.groups.indices[1:] - s.groups.indices[:-1]) == nfilters
-    star = s.groups[f]
-    g = d[cat][filt&filtG].group_by(oid)
-    f = (g.groups.indices[1:] - g.groups.indices[:-1]) == nfilters
-    gal = g.groups[f]
+    # Seprat ethe stars from the galaxies
+    star, gal = separate_star_gal(d, cat, oid, nfilters, filt=filt)
 
     shapeHSMSource_xx_s = star[star['filter'] == 'i']['ext_shapeHSM_HsmSourceMoments_xx']
     shapeHSMSource_yy_s = star[star['filter'] == 'i']['ext_shapeHSM_HsmSourceMoments_yy']
@@ -244,9 +257,8 @@ def starElipticities(d) :
     ax1.set_xlabel('Radius in pixels', fontsize=10)
 
     P.tight_layout()
-    P.show()
 
-    denomSource = shapeHSMSource_xx_s +2.*N.sqrt(shapeHSMSource_xx_s*shapeHSMSource_yy_s - N.square(shapeHSMSource_xy_s))
+    denomSource = shapeHSMSource_xx_s + 2.*N.sqrt(shapeHSMSource_xx_s*shapeHSMSource_yy_s - N.square(shapeHSMSource_xy_s))
     e1source = (shapeHSMSource_xx_s - shapeHSMSource_yy_s) / denomSource
     e2source = 2.0*shapeHSMSource_xy_s / denomSource
 

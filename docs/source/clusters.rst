@@ -1,10 +1,8 @@
-Clusters package
+clusters package
 ================
 
-.. automodule:: clusters
-    :members:
-    :undoc-members:
-    :show-inheritance:
+Submodules
+----------
 
 clusters.data module
 --------------------
@@ -22,6 +20,14 @@ clusters.extinction module
     :undoc-members:
     :show-inheritance:
 
+clusters.main module
+--------------------
+
+.. automodule:: clusters.main
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 clusters.red_sequence module
 ----------------------------
 
@@ -31,7 +37,7 @@ clusters.red_sequence module
     :show-inheritance:
 
 clusters.validation module
-----------------------------
+--------------------------
 
 .. automodule:: clusters.validation
     :members:
@@ -42,6 +48,15 @@ clusters.zphot module
 ---------------------
 
 .. automodule:: clusters.zphot
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: clusters
     :members:
     :undoc-members:
     :show-inheritance:
