@@ -214,24 +214,28 @@ def stellarLocus(d, mag_type="modelfit_CModel_mag_extcorr", ifilt="i_new", cat="
     P.show()
 
 
-def starElipticities(d, cat='meas', oid='id'):
+def computt_elipticities(xx, yy, xy):
+    """Compute star elipticities from second momments."""
+    denom = xx + 2. * N.sqrt(xx * yy - N.square(xy))
+    e1 = (xx - yy) / denom
+    e2 = 2.0 * xy / denom
+    return e1, e2
+
+
+def check_star_elipticities(d, cat='meas', oid='id'):
     """
     Compute star elipticities from second momments and check if psf correction is valid.
 
-    Also check magnitude Vs radius
+    Also check magnitude vss radius
     """
     filters, nfilters = get_filter_list(d[cat])
     assert 'i' not in filters, "'i' filter must be in the list of filters"
 
     # Define selection filter
-    filt = define_selection_filter(d, cat)
+    filt = define_selection_filter(d, cat) & d['filter'] == 'i'
 
     # Seprat ethe stars from the galaxies
     star, gal = separate_star_gal(d, cat, oid, nfilters, filt=filt)
-
-    # Only keep the 'i' filter
-    star = star[star['filter'] == 'i']
-    gal = gal[gal['filter'] == 'i']
 
     # Get the needed variables
     moments = {'star': {'xx': star['ext_shapeHSM_HsmSourceMoments_xx'],
@@ -267,17 +271,12 @@ def starElipticities(d, cat='meas', oid='id'):
 
     P.tight_layout()
 
-    denomsource = moments['star']['xx'] + 2. * N.sqrt(moments['star']['xx'] *
-                                                      moments['star']['yy'] -
-                                                      N.square(moments['star']['xy']))
-    e1source = (moments['star']['xx'] - moments['star']['yy']) / denomsource
-    e2source = 2.0*moments['star']['xy'] / denomsource
-
-    # denompsf = moments['psfs']['xx'] + 2. * N.sqrt(moments['psfs']['xx'] *
-    #                                                moments['psfs']['yy'] -
-    #                                                N.square(moments['psfs']['xy']))
-    e1psf = (moments['psfs']['xx'] - moments['psfs']['yy']) / denomsource
-    e2psf = 2.0 * moments['psfs']['xy'] / denomsource
+    e1source, e2source = computt_elipticities(moments['star']['xx'],
+                                              moments['star']['yy'],
+                                              moments['star']['xy'])
+    e1psf, e2psf = computt_elipticities(moments['psfs']['xx'],
+                                        moments['psfs']['yy'],
+                                        moments['psfs']['xy'])
 
     idx = magi['star'] < 22.5
     fig, (ax0, ax1) = P.subplots(ncols=2)
