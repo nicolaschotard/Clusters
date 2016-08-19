@@ -61,13 +61,23 @@ def add_magnitudes(t, getmagnitude):
                               description='Magnitude error', unit='mag')])
 
 
-def add_position(t, wcs_alt):
+def add_position_and_deg(t, wcs_alt, afwGeom):
     """Compute the x/y position in pixel for all sources. Add new columns to the table."""
-    x, y = N.array([wcs_alt(ra, dec) for ra, dec in zip(t["coord_ra"], t["coord_dec"])]).T
+    # Add the x / y position in pixel
+    x, y = N.array([wcs_alt(ra, dec) for ra, dec in zip(t["coord_ra"],
+                                                        t["coord_dec"])]).T
     t.add_columns([Column(name='x_Src', data=x,
                           description='x coordinate', unit='pixel'),
                    Column(name='y_Src', data=y,
                           description='y coordinate', unit='pixel')])
+
+    # Add a new column to hav eto coordinates in degree
+    ras = [afwGeom.radToDeg(ra) for ra in t['coord_ra']]
+    decs = [afwGeom.radToDeg(dec) for dec in t['coord_dec']]
+    t.add_columns([Column(name='coord_ra_deg', data=ras,
+                          description='RA coordinate', unit='degree'),
+                   Column(name='coord_dec_deg', data=decs,
+                          description='DEC coordinate', unit='degree')])
 
 
 def add_filter_column(table, filt):
@@ -89,7 +99,7 @@ def add_extra_info(d):
     # get the calib objects
     import lsst.afw.geom as afwGeom
     wcs = d[f][p]['calexp'].getWcs()
-    
+
     def wcs_alt(r, d):
         """Redifine the WCS function."""
         return wcs.skyToPixel(afwGeom.geomLib.Angle(r), afwGeom.geomLib.Angle(d))
@@ -111,7 +121,7 @@ def add_extra_info(d):
                 add_magnitudes(d[f][p][e], mag)
                 add_filter_column(d[f][p][e], f)
                 add_patch_column(d[f][p][e], p)
-                add_position(d[f][p][e], wcs_alt)
+                add_position_and_deg(d[f][p][e], wcs_alt, afwGeom)
 
     return d
 
@@ -150,12 +160,12 @@ def get_patch_data(butler, p, f):
 
 def from_list_to_array(d):
     """Transform lists (of dict of list) into numpy arrays."""
-    if type(d) in [list, N.ndarray]:
+    if isinstance(d, (list, N.ndarray)):
         return N.array(d)
     for k in d:
-        if type(d[k]) == list:
+        if isinstance(d[k], list):
             d[k] = N.array(d[k])
-        elif type(d[k]) == dict:
+        elif isinstance(d[k], dict):
             from_list_to_array(d[k])
     return d
 
