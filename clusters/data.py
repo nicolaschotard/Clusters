@@ -4,8 +4,6 @@ import yaml
 import numpy as N
 from astropy.table import Table, Column, vstack
 
-import lsst.afw.geom as afwGeom
-
 
 def load_config(config):
     """Load the configuration file, and return the corresponding dictionnary.
@@ -89,8 +87,9 @@ def add_extra_info(d):
     p = d[f].keys()[0]
 
     # get the calib objects
+    import lsst.afw.geom as afwGeom
     wcs = d[f][p]['calexp'].getWcs()
-
+    
     def wcs_alt(r, d):
         """Redifine the WCS function."""
         return wcs.skyToPixel(afwGeom.geomLib.Angle(r), afwGeom.geomLib.Angle(d))
