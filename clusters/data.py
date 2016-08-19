@@ -4,6 +4,8 @@ import yaml
 import numpy as N
 from astropy.table import Table, Column, vstack
 
+import lsst.afw.geom as afwGeom
+
 
 def load_config(config):
     """Load the configuration file, and return the corresponding dictionnary.
@@ -33,12 +35,17 @@ def get_astropy_table(cat):
     return tab
 
 
-def get_from_butler(butler, key, filt, patch, tract=0, table=False):
+def get_from_butler(butler, key, filt, patch, **kwargs):
     """
     Return selected data from a butler for a given key, tract, patch and filter.
 
+    Possible kwargs are
+    - tract int: tract in which to look for data (default will be 0)
+    - table bool: If True, an astropy tab le will be returned (default is False)
     Either retrun the object or the astropy table version of it
     """
+    tract = 0 if 'tract' not in kwargs else kwargs['tract']
+    table = False if 'tract' not in kwargs else kwargs['tract']
     dataid = {'tract': tract, 'filter': filt, 'patch': patch}
     b = butler.get(key, dataId=dataid)
     return b if not table else get_astropy_table(b)
@@ -84,7 +91,6 @@ def add_extra_info(d):
     # get the calib objects
     wcs = d[f][p]['calexp'].getWcs()
 
-    import lsst.afw.geom as afwGeom
     def wcs_alt(r, d):
         """Redifine the WCS function."""
         return wcs.skyToPixel(afwGeom.geomLib.Angle(r), afwGeom.geomLib.Angle(d))
@@ -182,7 +188,7 @@ def read_data(data_file, path=None):
         try:
             return {'meas': Table.read(data_file, path='meas'),
                     'forced': Table.read(data_file, path='forced')}
-        except:
+        except IOError:
             return Table.read(data_file)
     else:
         return Table.read(data_file, path=path)

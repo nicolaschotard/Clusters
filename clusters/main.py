@@ -79,7 +79,7 @@ def extinction(argv=None):
     ebmv = {'ebv_sfd': E.query(ras, decs, coordsys='equ', mode='sfd')['EBV_SFD']}
     albds = {}
     for k in ebmv:
-        albd = E.from_ebv_sfd_TO_megacam_albd(ebmv[k])
+        albd = E.from_ebv_sfd_to_megacam_albd(ebmv[k])
         albds.update({k.replace('ebv_', 'albd_%s_' % f): albd[f] for f in albd})
 
     # Create a new table and save it

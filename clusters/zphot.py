@@ -1,3 +1,5 @@
+"""Photometric redshift analysis. Includes a wrapper to LEPHARE."""
+
 import os
 import sys
 import numpy as N
@@ -28,8 +30,8 @@ class LEPHARE(object):
         self.magserr = magserr
         self.cluster_name = cname
         self.filters = filters
-        self.config = os.environ["LEPHAREDIR"] + \
-                      "/config/zphot_megacam.para" if zpara is None else zpara
+        self.config = os.environ["LEPHAREDIR"] + "/config/zphot_megacam.para" \
+                      if zpara is None else zpara
         self.RA, self.DEC, self.ID = RA, DEC, ID
 
         if input_name is not None:
@@ -39,6 +41,10 @@ class LEPHARE(object):
             self.input = cname + "_zphot.in"
             self.output = cname + "_zphot.out"
         self.allinput = self.input.replace('.in', '.all')
+
+        # initialize lephare output variables
+        self.lephare_out = None
+        self.data_out = None
 
         self.write_input()
 
@@ -110,7 +116,7 @@ class LEPHARE(object):
                         if counter == 0:
                             filt_ref = filt_tmp
                         if filt_tmp != filt_ref:
-                            print "\nERROR: Requested SED libraries %s have been built using different filters. Either change the requested libraries or re-generate them accordingly." %libs
+                            print "\nERROR: Requested SED libraries %s have been built using different filters. Either change the requested libraries or re-generate them accordingly." % libs
                             sys.exit()
             counter += 1
 
@@ -124,7 +130,7 @@ class LEPHARE(object):
         """
         Run LEPHARE.
 
-        Default config file is $LEPHAREDIR/config/zphot_megacam.para. 
+        Default config file is $LEPHAREDIR/config/zphot_megacam.para.
         Can be overwritten with the config argument
         """
         if config is not None:
@@ -149,7 +155,7 @@ class LEPHARE(object):
 class LEPHARO(object):
 
     """Read LEPHARE output file."""
-    
+
     def __init__(self, zphot_output, all_input=None):
         """Read the LEPHARe progam Output (zphota output)."""
         self.output = zphot_output
@@ -164,7 +170,7 @@ class LEPHARO(object):
         self.header = [l for l in f if l.startswith('#')]
         f.close()
         self.data_array = N.loadtxt(self.output, unpack=True)
-        self.variables = N.loadtxt(os.getenv('LEPHAREDIR') + \
+        self.variables = N.loadtxt(os.getenv('LEPHAREDIR') +
                                    "/config/zphot_output.para", dtype='string')
         self.data_dict = {v: a for v, a in zip(self.variables, self.data_array)}
         self.nsources = len(self.data_dict['Z_BEST'])
@@ -201,34 +207,48 @@ class LEPHARO(object):
 
         fig.savefig(figname + "_" + xlabel + "_zphot_hist.png")
 
-    def plot(self, px, py, minx=None, maxx=None, miny=None, maxy=None,
-             xlabel=None, ylabel=None, title=None, figname=""):
-        """Plot x vs. y."""
+    def plot(self, px, py, **kwargs):
+        """
+        Plot x vs. y.
+
+        Possible kwargs are:
+        - minx: lower limit of the x axis
+        - maxx: upper limit of the x axis
+        - miny: lower limit of the y axis
+        - maxy: upper limit of the y axis
+        - xlabel: label of the x axis
+        - ylabel: label of the y axis
+        - title: title of the figure
+        - figname: name of the figure to save
+        """
         pvalx = self.data_dict[px]
         pvaly = self.data_dict[py]
         filt = N.array([1] * len(pvalx), dtype='bool')
-        if minx is not None:
-            filt &= (pvalx >= minx)
-        if maxx is not None:
-            filt &= (pvalx <= maxx)
-        if miny is not None:
-            filt &= (pvaly >= miny)
-        if maxy is not None:
-            filt &= (pvaly <= maxy)
+        if 'minx' in kwargs and kwargs['minx'] is not None:
+            filt &= (pvalx >= kwargs['minx'])
+        if 'maxx' in kwargs and kwargs['maxx'] is not None:
+            filt &= (pvalx <= kwargs['maxx'])
+        if 'miny' in kwargs and kwargs['miny'] is not None:
+            filt &= (pvaly >= kwargs['miny'])
+        if 'maxy' in kwargs and kwargs['maxy'] is not None:
+            filt &= (pvaly <= kwargs['maxy'])
         pvalx, pvaly = pvalx[filt], pvaly[filt]
         fig = P.figure()
         ax = fig.add_subplot(111)
         ax.scatter(pvalx, pvaly)
-        if xlabel is None:
-            xlabel = px
-        if ylabel is None:
-            ylabel = py
-        ax.set_xlabel(xlabel)
-        ax.set_ylabel(ylabel)
-        if title is not None:
-            ax.set_title(title)
+        if 'xlabel' in kwargs and kwargs['xlabel'] is not None:
+            px = kwargs['xlabel']
+        if 'ylabel' in kwargs and kwargs['ylabel'] is not None:
+            py = kwargs['ylabel']
+        ax.set_xlabel(px)
+        ax.set_ylabel(py)
+        if 'title' in kwargs and kwargs['title'] is not None:
+            ax.set_title(kwargs['title'])
 
-        fig.savefig(figname + "_%s_vs_%s_zphot.png" % (ylabel, xlabel))
+        if 'figname' in kwargs and kwargs['figname'] is not None:
+            fig.savefig(kwargs['figname'] + "_%s_vs_%s_zphot.png" % (py, px))
+        else:
+            fig.savefig("%s_vs_%s_zphot.png" % (py, px))
 
     def plot_map(self, title=None, figname="", zmin=0, zmax=999):
         """Plot the redshift sky-map."""
@@ -251,7 +271,7 @@ class LEPHARO(object):
             ax.set_title(title)
         ax.set_xlim(xmin=min(ra) - 0.001, xmax=max(ra) + 0.001)
         ax.set_ylim(ymin=min(dec) - 0.001, ymax=max(dec) + 0.001)
-        fig.savefig(figname+"_redshift_map.png")
+        fig.savefig(figname + "_redshift_map.png")
 
 
 def dict_to_array(d, filters='ugriz'):

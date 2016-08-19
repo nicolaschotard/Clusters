@@ -1,9 +1,12 @@
+"""Tools to fit the red sequence and extract background galaxies around a cluster."""
+
 from scipy import optimize
 from scipy import special
 import numpy as N
 import pylab as P
 import seaborn
 import math
+
 
 def color_histo(mags):
     """Plot color histograms."""
@@ -12,12 +15,14 @@ def color_histo(mags):
         for j, filt2 in enumerate('gri'):
             if i >= j:
                 continue
-            fig, ax = P.subplots(ncols=1)
+            fig = P.figure()
+            ax = fig.add_subplot(111)
             ax.hist((mags[filt1] - mags[filt2])[filt],
                     bins=100, label='%s - %s' % (filt1, filt2))
             ax.legend(loc='best')
     P.show()
 
+    
 def color_mag_plot(mags):
     """Plot color / mag diagrams."""
     filt = (mags['g'] - mags['r']) > 1.2
@@ -26,7 +31,8 @@ def color_mag_plot(mags):
             for j, filt2 in enumerate('gri'):
                 if i >= j:
                     continue
-                fig, ax = P.subplots(ncols=1)
+                fig = P.figure()
+                ax = fig.add_subplot(111)
                 ax.scatter(mags[fref][filt], (mags[filt1]-mags[filt2])[filt],
                            s=1, label='%s - %s' % (filt1, filt2))
                 ax.set_xlabel(fref)
@@ -34,6 +40,8 @@ def color_mag_plot(mags):
                 ax.legend(loc='best')
     P.show()
 
+
+    
 def fit_red_sequence(diffmag, mag, mindiff=1.0, maxdiff=2.0,
                      minmag=20.0, maxmag=23.5, inislope=-0.04):
     """
@@ -54,15 +62,14 @@ def fit_red_sequence(diffmag, mag, mindiff=1.0, maxdiff=2.0,
     """
     magref = minmag  # Arbitrary reference magnitude for projection
     diffref = 0.5 * (mindiff + maxdiff)  # Arbitrary reference ordinate for projection
-    appslope = inislope
 
     # Project diffmag on an axis perpendicular to the RS band and at an
     # arbitrary magnitude (magref)
     # The idea is that the projection of the RS band on this axis is a gaussian
     # over some background represented by an Exponentially Modified Gaussian
 
-    alpha = math.atan(appslope)
-    dy = N.cos(alpha) * ((N.asarray(magref) - mag) * appslope + diffmag - diffref)
+    alpha = math.atan(inislope)
+    dy = N.cos(alpha) * ((N.asarray(magref) - mag) * inislope + diffmag - diffref)
 
     nbins = 40
     idx = N.where((diffmag > mindiff) & (diffmag < maxdiff) & (mag < maxmag) & (mag > minmag))
@@ -74,12 +81,12 @@ def fit_red_sequence(diffmag, mag, mindiff=1.0, maxdiff=2.0,
     # Fit a gaussian for the RS projection plus an Exponentially Modified
     # Gaussian distribution for the background
     def func(p, z):
-        """Function to fit"""
+        """Function to fit."""
         return p[0] * N.exp(-(p[1] - z)**2 / (2 * p[2]**2)) + \
             p[6] * p[5] * N.exp(0.5 * p[5] * (2 * p[3] + p[5] * p[4]**2 - 2 * z)) * \
-            special.erfc((p[3] + p[5] * p[4]**2 - z)/(math.sqrt(2) * p[4]))
+            special.erfc((p[3] + p[5] * p[4] ** 2 - z)/(math.sqrt(2) * p[4]))
 
-    dist = lambda p, z, y: (func(p, z) - y)/(N.sqrt(y) + 1.)
+    dist = lambda p, z, y: (func(p, z) - y) / (N.sqrt(y) + 1.)
     p0 = [n.max(), 0.2, 0.1, -3.0, 1., 1., 40.]  # Initial parameter values
     p2, cov, infodict, mesg, ier = optimize.leastsq(dist, p0[:], args=(x, n), full_output=True)
     ss_err = (infodict['fvec']**2).sum()
@@ -96,12 +103,16 @@ def fit_red_sequence(diffmag, mag, mindiff=1.0, maxdiff=2.0,
 
     nsteps = 80
     step = 0.001
-    slope = appslope - 0.5 * nsteps * step
+    slope = inislope - 0.5 * nsteps * step
 
     val = []
     sigma = []
     sigmamin = 999.0
 
+    lfunc = (lambda p, z: p[0] * N.exp(-(p[1] - z) ** 2/(2 * p[2] ** 2)) +
+                 p[6] * p[5] * N.exp(0.5 * p[5] * (2 * p[3] + p[5] * p[4] ** 2 - 2 * z))*
+                special.erfc((p[3] + p[5] * p[4] ** 2 - z)/(math.sqrt(2) * p[4])))
+    dist = lambda p, z, y: (lfunc(p, z) - y) / (N.sqrt(y) + 1.)
     for i in range(nsteps):
         slope = slope + step
         # RS slope is always negative
@@ -114,11 +125,6 @@ def fit_red_sequence(diffmag, mag, mindiff=1.0, maxdiff=2.0,
         n, bins, = N.histogram(dy[idx], bins=nbins)
 
         x = N.asarray([0.5 * (bins[i + 1] - bins[i]) + bins[i] for i in range(len(n))])
-
-        lfunc = (lambda p, z: p[0] * N.exp(-(p[1]-z)**2/(2*p[2]**2))+
-                p[6]*p[5]*N.exp(0.5*p[5]*(2*p[3]+p[5]*p[4]**2-2*z))*
-                special.erfc((p[3]+p[5]*p[4]**2-z)/(math.sqrt(2)*p[4])))
-        dist = lambda p, z, y: (lfunc(p, z) - y)/(N.sqrt(y)+1.)
         p0 = p2 # Start fit with parameters fitted at the previous step
         p1, cov, infodict, mesg, ier = optimize.leastsq(dist, p0[:], args=(x, n), full_output=True)
         val.append(slope)
@@ -133,13 +139,15 @@ def fit_red_sequence(diffmag, mag, mindiff=1.0, maxdiff=2.0,
 
     # Fit a parabola on the (slope, sigma) distribution to find the RS slope
     # corresponding to the minimum sigma
-    parabola = lambda p, z: p[0]*z*z + p[1]*z + p[2]
+    parabola = lambda p, z: p[0] * z * z + p[1] * z + p[2]
     dist = lambda p, z, y: (parabola(p, z) - y)
     p0 = [1., 1., 1.]
-    p1,cov,infodict1,mesg,ier = optimize.leastsq(dist, p0[:], args=(N.asarray(val), N.asarray(sigma)), full_output=True)
+    p1,cov,infodict1,mesg,ier = optimize.leastsq(dist, p0[:],
+                                                 args=(N.asarray(val), N.asarray(sigma)),
+                                                 full_output=True)
     fitslope = -0.5 * p1[1] / p1[0]
 
-    ax0.plot(N.asarray(val), parabola(p1,N.asarray(val)), color='r')
+    ax0.plot(N.asarray(val), parabola(p1, N.asarray(val)), color='r')
     ax0.tick_params(labelsize=20)
     ax0.set_xlabel("Red sequence slope")
     ax0.set_ylabel("Sigma")
@@ -160,22 +168,22 @@ def fit_red_sequence(diffmag, mag, mindiff=1.0, maxdiff=2.0,
     idx = N.where((diffmag > mindiff) & (diffmag < maxdiff) & (mag < maxmag) & (mag > minmag))
     fig, (ax2) = P.subplots(ncols=1)
     n, bins, patches = ax2.hist(dy[idx], bins=nbins, color='b')
-    x = N.asarray([0.5*(bins[i+1]-bins[i])+bins[i] for i in range(len(n))])
+    x = N.asarray([0.5 * (bins[i + 1] - bins[i]) + bins[i] for i in range(len(n))])
 
     def hfunc(p, z):
         """Function to fit."""
-        return p[0]*N.exp(-(p[1]-z)**2/(2*p[2]**2)) + \
-            p[6]*p[5]*N.exp(0.5*p[5]*(2*p[3]+p[5]*p[4]**2-2*z)) * \
-            special.erfc((p[3]+p[5]*p[4]**2-z)/(math.sqrt(2)*p[4]))
+        return p[0] * N.exp(-(p[1]-z) ** 2 / (2 * p[2] ** 2)) + \
+            p[6] * p[5] * N.exp(0.5 * p[5] * (2 * p[3] + p[5] * p[4] ** 2 - 2 * z)) * \
+            special.erfc((p[3] + p[5] * p[4] ** 2 - z) / (math.sqrt(2) * p[4]))
 
     dist = lambda p, z, y: (hfunc(p, z) - y) / (N.sqrt(y) + 1.)
     p0 = param
     p1, cov, infodict, mesg, ier = optimize.leastsq(dist, p0[:], args=(x, n), full_output=True)
     ss_err = (infodict['fvec']**2).sum()
-    ss_tot = ((n-n.mean())**2).sum()
+    ss_tot = ((n - n.mean()) ** 2).sum()
     rsquared = 1 - (ss_err / ss_tot)
     print "mean %f - sigma %f" % (p1[1], p1[2])
-    print "Reduced chi2 = %f - R^2 = %f" % (ss_err / (nbins + 6-1), rsquared)
+    print "Reduced chi2 = %f - R^2 = %f" % (ss_err / (nbins + 6 - 1), rsquared)
     ax2.plot(bins, hfunc(p1, bins), color='r')
     ax2.tick_params(labelsize=20)
 

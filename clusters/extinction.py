@@ -1,12 +1,11 @@
-"""
-From http://argonaut.skymaps.info/usage#function-call
-"""
+"""From http://argonaut.skymaps.info/usage#function-call."""
 
 import json
 import requests
 import pylab as P
 import numpy as N
 import seaborn
+
 
 def query(lon, lat, coordsys='gal', mode='full', limit=500000):
     """
@@ -36,17 +35,16 @@ def query(lon, lat, coordsys='gal', mode='full', limit=500000):
     Less information is returned in 'lite' mode, while in 'sfd' mode,
     the Schlegel, Finkbeiner & Davis (1998) E(B-V) is returned.
     """
-
     # Make sure to have less than 500000 objects (the limit).
     # Cut the list in smaller pieces if that is the case.
     def chunk(ilist, length):
         """Divide a list 'l' into smaller lists of maximal length 'num'."""
         return [ilist[i:i + length] for i in range(0, len(ilist), length)]
-    
+
     if len(lon) >= limit:
-        lons = chunk(lon, limit - 1)
-        lats = chunk(lat, limit - 1)
-        dicts = [query(loni, lati, coordsys=coordsys, mode=mode) for loni, lati in zip(lons, lats)]
+        dicts = [query(loni, lati, coordsys=coordsys, mode=mode)
+                 for loni, lati in zip(chunk(lon, limit - 1),
+                                       chunk(lat, limit - 1))]
         for dic in dicts[1:]:
             for k in dic:
                 dicts[0][k].extend(dic[k])
@@ -76,13 +74,15 @@ def query(lon, lat, coordsys='gal', mode='full', limit=500000):
 
     return json.loads(req.text)
 
-def from_ebv_sfd_TO_sdss_albd(ebv):
-    """Return A(lbd) for the 5 SDSS filters: u, g, r, i, z"""
+
+def from_ebv_sfd_to_sdss_albd(ebv):
+    """Return A(lbd) for the 5 SDSS filters: u, g, r, i, z."""
     coeff = {'u': 5.155, 'g': 3.793, 'r': 2.751, 'i': 2.086, 'z': 1.479}
     return {f: coeff[f] * N.array(ebv) for f in coeff}
 
-def from_sdss_albd_TO_megacam_albd(sdss):
-    """Return A(lbd) for the 6 Megecam filters: u, g, r, i_old, i_new, z"""
+
+def from_sdss_albd_to_megacam_albd(sdss):
+    """Return A(lbd) for the 6 Megecam filters: u, g, r, i_old, i_new, z."""
     megacam = {}
     megacam['u'] = sdss['u'] - 0.241 * (sdss['u'] - sdss['g'])
     megacam['g'] = sdss['g'] - 0.153 * (sdss['g'] - sdss['r'])
@@ -92,12 +92,14 @@ def from_sdss_albd_TO_megacam_albd(sdss):
     megacam['i_new'] = sdss['i'] - 0.003 * (sdss['r'] - sdss['i'])
     return megacam
 
-def from_ebv_sfd_TO_megacam_albd(ebv):
-    """Return A(lbd) for the 6 Megacam filters: u, g, r, i, z"""
-    return from_sdss_albd_TO_megacam_albd(from_ebv_sfd_TO_sdss_albd(ebv))
+
+def from_ebv_sfd_to_megacam_albd(ebv):
+    """Return A(lbd) for the 6 Megacam filters: u, g, r, i, z."""
+    return from_sdss_albd_to_megacam_albd(from_ebv_sfd_to_sdss_albd(ebv))
+
 
 def plots(ra, dec, ebv, albd, title=None, figname="", filters=None):
-
+    """Plot the extinction sky-map."""
     fig = P.figure()
     ax = fig.add_subplot(111, xlabel='RA (deg)', ylabel='DEC (deg)')
     scat = ax.scatter(ra, dec, c=ebv, cmap=(P.cm.jet))
@@ -105,7 +107,7 @@ def plots(ra, dec, ebv, albd, title=None, figname="", filters=None):
     cbar.set_label('E(B-V)')
     if title is not None:
         ax.set_title(title)
-    fig.savefig(figname+"_ebmv_map.png")
+    fig.savefig(figname + "_ebmv_map.png")
 
     if filters is None:
         filters = albd.keys()
@@ -116,6 +118,6 @@ def plots(ra, dec, ebv, albd, title=None, figname="", filters=None):
     if title is not None:
         ax.set_title(title)
     ax.legend(loc='best')
-    fig.savefig(figname+"_albd.png")
+    fig.savefig(figname + "_albd.png")
 
     P.show()
