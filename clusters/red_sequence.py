@@ -22,7 +22,7 @@ def color_histo(mags):
             ax.legend(loc='best')
     P.show()
 
-    
+
 def color_mag_plot(mags):
     """Plot color / mag diagrams."""
     filt = (mags['g'] - mags['r']) > 1.2
@@ -33,7 +33,7 @@ def color_mag_plot(mags):
                     continue
                 fig = P.figure()
                 ax = fig.add_subplot(111)
-                ax.scatter(mags[fref][filt], (mags[filt1]-mags[filt2])[filt],
+                ax.scatter(mags[fref][filt], (mags[filt1] - mags[filt2])[filt],
                            s=1, label='%s - %s' % (filt1, filt2))
                 ax.set_xlabel(fref)
                 ax.set_ylabel('%s - %s' % (filt1, filt2))
@@ -41,7 +41,6 @@ def color_mag_plot(mags):
     P.show()
 
 
-    
 def fit_red_sequence(diffmag, mag, mindiff=1.0, maxdiff=2.0,
                      minmag=20.0, maxmag=23.5, inislope=-0.04):
     """
@@ -84,7 +83,7 @@ def fit_red_sequence(diffmag, mag, mindiff=1.0, maxdiff=2.0,
         """Function to fit."""
         return p[0] * N.exp(-(p[1] - z)**2 / (2 * p[2]**2)) + \
             p[6] * p[5] * N.exp(0.5 * p[5] * (2 * p[3] + p[5] * p[4]**2 - 2 * z)) * \
-            special.erfc((p[3] + p[5] * p[4] ** 2 - z)/(math.sqrt(2) * p[4]))
+            special.erfc((p[3] + p[5] * p[4] ** 2 - z) / (math.sqrt(2) * p[4]))
 
     dist = lambda p, z, y: (func(p, z) - y) / (N.sqrt(y) + 1.)
     p0 = [n.max(), 0.2, 0.1, -3.0, 1., 1., 40.]  # Initial parameter values
@@ -109,9 +108,9 @@ def fit_red_sequence(diffmag, mag, mindiff=1.0, maxdiff=2.0,
     sigma = []
     sigmamin = 999.0
 
-    lfunc = (lambda p, z: p[0] * N.exp(-(p[1] - z) ** 2/(2 * p[2] ** 2)) +
-                 p[6] * p[5] * N.exp(0.5 * p[5] * (2 * p[3] + p[5] * p[4] ** 2 - 2 * z))*
-                special.erfc((p[3] + p[5] * p[4] ** 2 - z)/(math.sqrt(2) * p[4])))
+    lfunc = lambda p, z: p[0] * N.exp(-(p[1] - z) ** 2 / (2 * p[2] ** 2)) + \
+            p[6] * p[5] * N.exp(0.5 * p[5] * (2 * p[3] + p[5] * p[4] ** 2 - 2 * z)) * \
+            special.erfc((p[3] + p[5] * p[4] ** 2 - z) / (math.sqrt(2) * p[4]))
     dist = lambda p, z, y: (lfunc(p, z) - y) / (N.sqrt(y) + 1.)
     for i in range(nsteps):
         slope = slope + step
@@ -125,7 +124,7 @@ def fit_red_sequence(diffmag, mag, mindiff=1.0, maxdiff=2.0,
         n, bins, = N.histogram(dy[idx], bins=nbins)
 
         x = N.asarray([0.5 * (bins[i + 1] - bins[i]) + bins[i] for i in range(len(n))])
-        p0 = p2 # Start fit with parameters fitted at the previous step
+        p0 = p2  # Start fit with parameters fitted at the previous step
         p1, cov, infodict, mesg, ier = optimize.leastsq(dist, p0[:], args=(x, n), full_output=True)
         val.append(slope)
         sigma.append(p1[2])
@@ -142,8 +141,9 @@ def fit_red_sequence(diffmag, mag, mindiff=1.0, maxdiff=2.0,
     parabola = lambda p, z: p[0] * z * z + p[1] * z + p[2]
     dist = lambda p, z, y: (parabola(p, z) - y)
     p0 = [1., 1., 1.]
-    p1,cov,infodict1,mesg,ier = optimize.leastsq(dist, p0[:],
-                                                 args=(N.asarray(val), N.asarray(sigma)),
+    p1, cov, infodict1, mesg, ier = optimize.leastsq(dist, p0[:],
+                                                     args=(N.asarray(val),
+                                                           N.asarray(sigma)),
                                                  full_output=True)
     fitslope = -0.5 * p1[1] / p1[0]
 
@@ -172,7 +172,7 @@ def fit_red_sequence(diffmag, mag, mindiff=1.0, maxdiff=2.0,
 
     def hfunc(p, z):
         """Function to fit."""
-        return p[0] * N.exp(-(p[1]-z) ** 2 / (2 * p[2] ** 2)) + \
+        return p[0] * N.exp(-(p[1] - z) ** 2 / (2 * p[2] ** 2)) + \
             p[6] * p[5] * N.exp(0.5 * p[5] * (2 * p[3] + p[5] * p[4] ** 2 - 2 * z)) * \
             special.erfc((p[3] + p[5] * p[4] ** 2 - z) / (math.sqrt(2) * p[4]))
 

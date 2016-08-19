@@ -119,26 +119,26 @@ def stellarLocus(d, mag_type="modelfit_CModel_mag_extcorr", ifilt="i_new", cat="
     poly_5 = (lambda p, x: p[0] + p[1]*x + p[2]*x**2 + p[3]*x**3 + p[4]*x**4 + p[5]*x**5)
 
     # Color corrections CFHT --> SDSS
-    u_SDSS_ug = lambda u_Mega, g_Mega: u_Mega + 0.181*(u_Mega - g_Mega)
-    g_SDSS_gr = lambda g_Mega, r_Mega: g_Mega + 0.195*(g_Mega - r_Mega)
-    g_SDSS_gi = lambda g_Mega, i_Mega: g_Mega + 0.103*(g_Mega - i_Mega)
-    r_SDSS_gr = lambda r_Mega, g_Mega: r_Mega + 0.011*(g_Mega - r_Mega)
-    i_SDSS_ri = lambda i_Mega, r_Mega: i_Mega + 0.079*(r_Mega - i_Mega)
-    i_SDSS_gi = lambda i_Mega, g_Mega: i_Mega + 0.044*(g_Mega - i_Mega)
-    i2_SDSS_ri = lambda i2_Mega, r_Mega: i2_Mega + 0.001*(r_Mega - i2_Mega)
-    i2_SDSS_gi = lambda i2_Mega, g_Mega: i2_Mega - 0.003*(g_Mega - i2_Mega)
-    z_SDSS_iz = lambda z_Mega, i_Mega: z_Mega - 0.099*(i_Mega - z_Mega)
+    u_SDSS_ug = lambda u_Mega, g_Mega: u_Mega + 0.181 * (u_Mega - g_Mega)
+    g_SDSS_gr = lambda g_Mega, r_Mega: g_Mega + 0.195 * (g_Mega - r_Mega)
+    g_SDSS_gi = lambda g_Mega, i_Mega: g_Mega + 0.103 * (g_Mega - i_Mega)
+    r_SDSS_gr = lambda r_Mega, g_Mega: r_Mega + 0.011 * (g_Mega - r_Mega)
+    i_SDSS_ri = lambda i_Mega, r_Mega: i_Mega + 0.079 * (r_Mega - i_Mega)
+    i_SDSS_gi = lambda i_Mega, g_Mega: i_Mega + 0.044 * (g_Mega - i_Mega)
+    i2_SDSS_ri = lambda i2_Mega, r_Mega: i2_Mega + 0.001 * (r_Mega - i2_Mega)
+    i2_SDSS_gi = lambda i2_Mega, g_Mega: i2_Mega - 0.003 * (g_Mega - i2_Mega)
+    z_SDSS_iz = lambda z_Mega, i_Mega: z_Mega - 0.099 * (i_Mega - z_Mega)
 
     gSDSS = g_SDSS_gr(mgS, mrS)
     rSDSS = r_SDSS_gr(mrS, mgS)
     if ifilt == "i_new":
         print "Will use new i2 (MP9702) filter"
         iSDSS = i2_SDSS_ri(miS, mrS)
-        iSDSS2 = i2_SDSS_gi(miS, mgS)
+        # iSDSS2 = i2_SDSS_gi(miS, mgS)
     else:
         print "Will use old i (MP9701) filter"
         iSDSS = i_SDSS_ri(miS, mrS)
-        iSDSS2 = i_SDSS_gi(miS, mgS)
+        # iSDSS2 = i_SDSS_gi(miS, mgS)
 
     # plot stellar locus for stars and compare to Covey et al. 2007 model
 
@@ -157,7 +157,7 @@ def stellarLocus(d, mag_type="modelfit_CModel_mag_extcorr", ifilt="i_new", cat="
     ax1.tick_params(labelsize=10)
     ax1.legend(loc="upper left", fontsize=10)
 
-    ax2.scatter(gSDSS[idx_star]-iSDSS[idx_star], gSDSS[idx_star]-rSDSS[idx_star],
+    ax2.scatter(gSDSS[idx_star] - iSDSS[idx_star], gSDSS[idx_star] - rSDSS[idx_star],
                 s=1, color='b', label='%s' % mag_type)
     ax2.set_xlim([-0.5, 4.])
     ax2.set_ylim([-0.3, 2.0])
@@ -170,20 +170,22 @@ def stellarLocus(d, mag_type="modelfit_CModel_mag_extcorr", ifilt="i_new", cat="
     # Plot residuals
     fig, (ax1, ax2) = P.subplots(ncols=2)
 
-    xMin = 0.5
-    xMax = 3.0
-    numStep = 40
+    xmin = 0.5
+    xmax = 3.0
+    numstep = 40
     res = []
     err = []
-    colVal, step = N.linspace(xMin,xMax,num=numStep,retstep=True)
-    for c in colVal :
-        idc = ((gSDSS[idx_star]-iSDSS[idx_star]) > (c-step/2)) & ((gSDSS[idx_star]-iSDSS[idx_star]) < (c+step/2))
-        res.append(poly_5(rMinusi[:6], c) - N.mean((rSDSS[idx_star]-iSDSS[idx_star])[idc]))
-        err.append(N.std((rSDSS[idx_star]-iSDSS[idx_star])[idc]) /
-                   N.sqrt(len((rSDSS[idx_star]-iSDSS[idx_star])[idc])))
-    ax1.errorbar(colVal, res, yerr=err, ls='None', fmt='s',
-                 capsize=25, color='b', lw=1, label='%s - Residuals'%mag_type)
-    ax1.set_xlim([xMin-0.2, xMax+0.2])
+    colval, step = N.linspace(xmin, xmax, num=numstep, retstep=True)
+    for c in colval:
+        idc = ((gSDSS[idx_star] - iSDSS[idx_star]) > (c - step/2)) & \
+              ((gSDSS[idx_star] - iSDSS[idx_star]) < (c + step/2))
+        res.append(poly_5(rMinusi[:6], c) - N.mean((rSDSS[idx_star] -
+                                                    iSDSS[idx_star])[idc]))
+        err.append(N.std((rSDSS[idx_star] - iSDSS[idx_star])[idc]) /
+                   N.sqrt(len((rSDSS[idx_star] - iSDSS[idx_star])[idc])))
+    ax1.errorbar(colval, res, yerr=err, ls='None', fmt='s',
+                 capsize=25, color='b', lw=1, label='%s - Residuals' % mag_type)
+    ax1.set_xlim([xmin-0.2, xmax+0.2])
     ax1.set_ylim([-0.1, 0.1])
     ax1.set_xlabel("g - i", fontsize=10)
     ax1.set_ylabel("Model - data (r-i)", fontsize=10)
@@ -191,20 +193,18 @@ def stellarLocus(d, mag_type="modelfit_CModel_mag_extcorr", ifilt="i_new", cat="
     ax1.legend(loc="upper left", fontsize=10)
 
 
-    xMin = 0.5
-    xMax = 3.0
-    numStep = 40
     res = []
     err = []
-    colVal, step = N.linspace(xMin,xMax,num=numStep,retstep=True)
-    for c in colVal:
-        idc = ((gSDSS[idx_star]-iSDSS[idx_star]) > (c-step/2)) & ((gSDSS[idx_star]-iSDSS[idx_star]) < (c+step/2))
-        res.append(poly_5(gMinusr[:6], c) - N.mean((gSDSS[idx_star]-rSDSS[idx_star])[idc]))
-        err.append(N.std((gSDSS[idx_star]-rSDSS[idx_star])[idc]) /
-                   N.sqrt(len((gSDSS[idx_star]-rSDSS[idx_star])[idc])))
-    ax2.errorbar(colVal, res, yerr=err, ls='None', fmt='s', capsize=25,
-                 color='b', lw=1, label='%s - Residuals'%mag_type)
-    ax2.set_xlim([xMin-0.2, xMax+0.2])
+    for c in colval:
+        idc = ((gSDSS[idx_star] - iSDSS[idx_star]) > (c - step / 2)) & \
+              ((gSDSS[idx_star] - iSDSS[idx_star]) < (c + step / 2))
+        res.append(poly_5(gMinusr[:6], c) - N.mean((gSDSS[idx_star] -
+                                                    rSDSS[idx_star])[idc]))
+        err.append(N.std((gSDSS[idx_star] - rSDSS[idx_star])[idc]) /
+                   N.sqrt(len((gSDSS[idx_star] - rSDSS[idx_star])[idc])))
+    ax2.errorbar(colval, res, yerr=err, ls='None', fmt='s', capsize=25,
+                 color='b', lw=1, label='%s - Residuals' % mag_type)
+    ax2.set_xlim([xmin - 0.2, xmax + 0.2])
     ax2.set_ylim([-0.1, 0.1])
     ax2.set_xlabel("g - i", fontsize=10)
     ax2.set_ylabel("Model - data (g-r)", fontsize=10)
@@ -214,7 +214,7 @@ def stellarLocus(d, mag_type="modelfit_CModel_mag_extcorr", ifilt="i_new", cat="
     P.show()
 
 
-def computt_elipticities(xx, yy, xy):
+def compute_elipticities(xx, yy, xy):
     """Compute star elipticities from second momments."""
     denom = xx + 2. * N.sqrt(xx * yy - N.square(xy))
     e1 = (xx - yy) / denom
@@ -271,10 +271,10 @@ def check_star_elipticities(d, cat='meas', oid='id'):
 
     P.tight_layout()
 
-    e1source, e2source = computt_elipticities(moments['star']['xx'],
+    e1source, e2source = compute_elipticities(moments['star']['xx'],
                                               moments['star']['yy'],
                                               moments['star']['xy'])
-    e1psf, e2psf = computt_elipticities(moments['psfs']['xx'],
+    e1psf, e2psf = compute_elipticities(moments['psfs']['xx'],
                                         moments['psfs']['yy'],
                                         moments['psfs']['xy'])
 
