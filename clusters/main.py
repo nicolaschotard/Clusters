@@ -100,7 +100,7 @@ def extinction(argv=None):
                           new_tab['coord_dec'][filt],
                           new_tab['ebv_sfd'], albds['albd_sfd'][filt],
                           filters=['u', 'g', 'r', 'i_old', 'i_new', 'z'],
-                          title='Dust extinction map, %s, %i sources' % \
+                          title='Dust extinction map, %s, %i sources' %
                           (config['cluster'], len(new_tab['coord_ra'][filt])),
                           figname=config['cluster'])
 
@@ -110,13 +110,13 @@ def doplot(data, config, args):
     print "INFO: Making some plots"
     data.hist('Z_BEST', min=0, nbins=100, xlabel='Photometric redshift',
               figname=config['cluster'],
-              title="LEPHARE photo-z for %s (%i sources)" % \
+              title="LEPHARE photo-z for %s (%i sources)" %
               (config['cluster'], data.nsources), zclust=config['redshift'])
     data.hist('CHI_BEST', nbins=100, max=100, figname=config['cluster'],
-              title="LEPHARE photo-z for %s (%i sources)" % \
+              title="LEPHARE photo-z for %s (%i sources)" %
               (config['cluster'], data.nsources))
     data.plot('CHI_BEST', 'Z_BEST', miny=0, figname=config['cluster'])
-    data.plot_map(title="LEPHARE photometric redshift map for %s (%i sources)"%\
+    data.plot_map(title="LEPHARE photometric redshift map for %s (%i sources)" %
                   (config['cluster'], data.nsources), figname=config['cluster'],
                   zmin=args.zmin, zmax=args.zmax)
     czphot.P.show()
@@ -177,3 +177,28 @@ def photometric_redshift(argv=None):
 
     if args.plot:
         doplot(zp.data_out, config, args)
+
+
+def get_background(argv=None):
+    """Get a cluster background galaxies."""
+    description = """Get a cluster background galaxies."""
+    prog = "clusters_getbackground.py"
+    usage = """%s [options] config input""" % prog
+
+    parser = ArgumentParser(prog=prog, usage=usage, description=description)
+    parser.add_argument('config', help='Configuration (yaml) file')
+    parser.add_argument('input', help='Input data file')
+    args = parser.parse_args(argv)
+
+    config = yaml.load(open(args.config))
+    if args.output is None:
+        args.output = os.path.basename(args.config).replace('.yaml',
+                                                            '_getbck_output.pkl')
+
+    filters = config['filters']
+
+    print "INFO: Working on cluster %s (z=%.4f)" % (config['cluster'],
+                                                    config['redshift'])
+    print "INFO: Working on filters", filters
+    print "WARNING: Implementation not finished for this part of the analysis."
+    print "EXIT."

@@ -61,7 +61,7 @@ def add_magnitudes(t, getmagnitude):
                               description='Magnitude error', unit='mag')])
 
 
-def add_position_and_deg(t, wcs_alt, afwGeom):
+def add_position_and_deg(t, wcs_alt, afwgeom):
     """Compute the x/y position in pixel for all sources. Add new columns to the table."""
     # Add the x / y position in pixel
     x, y = N.array([wcs_alt(ra, dec) for ra, dec in zip(t["coord_ra"],
@@ -72,8 +72,8 @@ def add_position_and_deg(t, wcs_alt, afwGeom):
                           description='y coordinate', unit='pixel')])
 
     # Add a new column to hav eto coordinates in degree
-    ras = [afwGeom.radToDeg(ra) for ra in t['coord_ra']]
-    decs = [afwGeom.radToDeg(dec) for dec in t['coord_dec']]
+    ras = [afwgeom.radToDeg(ra) for ra in t['coord_ra']]
+    decs = [afwgeom.radToDeg(dec) for dec in t['coord_dec']]
     t.add_columns([Column(name='coord_ra_deg', data=ras,
                           description='RA coordinate', unit='degree'),
                    Column(name='coord_dec_deg', data=decs,
