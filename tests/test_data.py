@@ -3,7 +3,7 @@
 from Clusters import data
 
 
-CONFIG = "../configs/MACSJ2243.3-0935.yaml"
+CONFIG = "configs/MACSJ2243.3-0935.yaml"
 
 # Test the data module
 
