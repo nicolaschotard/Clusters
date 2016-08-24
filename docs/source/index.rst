@@ -21,6 +21,11 @@ Welcome to Clusters's documentation!
 .. toctree::
    :maxdepth: 2
 
+   validation
+
+.. toctree::
+   :maxdepth: 2
+
    extinction
 
 .. toctree::
@@ -42,11 +47,6 @@ Welcome to Clusters's documentation!
    :maxdepth: 2
 
    mass
-
-.. toctree::
-   :maxdepth: 2
-
-   validation
 
 .. toctree::
    :maxdepth: 2
