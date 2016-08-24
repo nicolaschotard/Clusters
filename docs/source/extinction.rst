@@ -1,0 +1,4 @@
+Extinction
+==========
+
+Write the doc

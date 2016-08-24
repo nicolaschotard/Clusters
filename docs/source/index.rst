@@ -6,49 +6,49 @@
 Welcome to Clusters's documentation!
 ====================================
 
+.. warning:: Package under development
+  
 .. toctree::
    :maxdepth: 2
-   :caption: General
 
    readme
 
 .. toctree::
    :maxdepth: 2
-   :caption: Data format
 
    data
 
 .. toctree::
    :maxdepth: 2
-   :caption: Extinction
-	    
-.. toctree::
-   :maxdepth: 2
-   :caption: Photometric redshift
+
+   extinction
 
 .. toctree::
    :maxdepth: 2
-   :caption: Galaxy selection
+
+   photoz
 
 .. toctree::
    :maxdepth: 2
-   :caption: Shear
+
+   selection
 
 .. toctree::
    :maxdepth: 2
-   :caption: Mass
+
+   shear
 
 .. toctree::
    :maxdepth: 2
-   :caption: Data validation
+
+   mass
 
 .. toctree::
-   :maxdepth: 3
-   :caption: Code description
+   :maxdepth: 2
+
+   validation
+
+.. toctree::
+   :maxdepth: 2
 
    modules
-	     
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-
