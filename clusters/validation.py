@@ -3,7 +3,7 @@
 import numpy as N
 import pylab as P
 import seaborn
-from Clusters import data
+from . import data
 
 
 def load_cluster(cluster="MACSJ2243.3-0935", ifilt="i_new"):
