@@ -2,6 +2,10 @@
    :target: http://clusters.readthedocs.io/en/latest/?badge=latest
    :alt: Documentation Status
 
+.. image:: https://landscape.io/github/nicolaschotard/Clusters/master/landscape.svg?style=flat
+   :target: https://landscape.io/github/nicolaschotard/Clusters/master
+   :alt: Code Health
+
 .. image:: https://travis-ci.org/nicolaschotard/Clusters.svg?branch=master
    :target: https://travis-ci.org/nicolaschotard/Clusters
    :alt: Travis CI build status (Linux)
@@ -9,9 +13,6 @@
 .. image:: https://codecov.io/gh/nicolaschotard/Clusters/branch/master/graph/badge.svg
   :target: https://codecov.io/gh/nicolaschotard/Clusters
 
-.. image:: https://landscape.io/github/nicolaschotard/Clusters/master/landscape.svg?style=flat
-   :target: https://landscape.io/github/nicolaschotard/Clusters/master
-   :alt: Code Health
 ____
 
 **WARNING**: Package under development
