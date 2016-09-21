@@ -142,19 +142,19 @@ An example
 ----------
 
 If you have installed ``Clusters`` but do not have any data to run it
-on, you can use one of the data re-processing output for
-MACSJ2243.3-0935. The corresponding configuration file is stored `there
-<configs/MACSJ2243.3-0935.yaml>`_. To use it, you either need to be at
-CC-INP3, or change the path to the butler inside the config file (if
-you have your own data). You could also mount sps on your personal
-computer (see this `howto
-<http://lsstnotes.readthedocs.io/en/latest/sshfs.html>`).
+on, you can use one of our re-processing outputs for
+MACSJ2243.3-0935. The corresponding configuration file is stored
+`there <configs/MACSJ2243.3-0935.yaml>`_. To use it, you either need
+to be connected at CC-IN2P3, or change the path to the butler inside
+the config file (if you have your own data). You could also mount sps
+on your personal computer (see this `how to
+<http://lsstnotes.readthedocs.io/en/latest/sshfs.html>`_).
 
-The first step of the ``Clusters`` package if `clusters_data.py`,
+The first step of the ``Clusters`` package if ``clusters_data.py``,
 which will get the data from the DM butler and convert them into an
-astropy table. To do so, you need the LSST DM stack to be
-installed. If you want to skip this part and try the code, you could
-also use the output of this first step for MACSJ2243.3-0935 that we
-have stored under::
+``astropy`` table. To do so, you need the LSST DM stack to be
+installed. If you want to skip this part and try the code whithout
+having to install the DM stack, you could also use the output of this
+first step for MACSJ2243.3-0935 that we have stored under::
 
   /sps/lsst/data/clusters/MACSJ2243.3-0935/analysis/output_v1/MACSJ2243.3-0935_data.hdf5
