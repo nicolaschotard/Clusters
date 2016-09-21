@@ -78,9 +78,9 @@ Usage
 have to run in the right order.
 
 - Get the input data and dump them in an hdf5 file containing astropy
-tables (see the `data format section
-<http://clusters.readthedocs.io/en/latest/data.html>`_ of the
-documentation for detail)::
+  tables (see the `data format section
+  <http://clusters.readthedocs.io/en/latest/data.html>`_ of the
+  documentation for detail)::
 
     clusters_data config.yaml (--output output.hdf5)
 

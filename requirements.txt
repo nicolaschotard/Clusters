@@ -1,5 +1,4 @@
 numpy
-pylab
 scipy
 matplotlib
 seaborn
