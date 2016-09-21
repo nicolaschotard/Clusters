@@ -64,7 +64,7 @@ In the future, release versions will be listed at this `location
 Dependencies
 ------------
 
-``Clusters`` has for now (too) many dependencies:
+``Clusters`` has for now the following dependencies:
 
 - The LSST DM `stack <https://developer.lsst.io/build-ci/lsstsw.html>`_
 - Python 2.7 and libraries
@@ -73,8 +73,6 @@ Dependencies
   - matplotlib
   - seaborn
   - astropy / astroquery
-  - healpy
-  - and probably other packages that will be replaced/listed at some point
     
 - `LEPHARE <http://cesam.lam.fr/lephare/lephare.html>`_
 
@@ -82,20 +80,20 @@ Dependencies
 Usage
 -----
 
-``Clusters`` consists of several command-line executables that you have
-to run in the right order.
+``Clusters`` consists of several command-line executables that you
+have to run in the right order.
 
-Get the input data and dump them in a pickle file (will change soon)::
+Get the input data and dump them in an hdf5 file containing astropy tables::
 
-  clusters_data config.yaml --output output.pkl
+  clusters_data config.yaml (--output output.hdf5)
 
 Correct the data for Milky Way extinction (input.pkl is the output of the previous step)::
 
-  clusters_extinction.py config.yaml input.pkl --plot
+  clusters_extinction.py config.yaml input.hdf5 --plot
 
 Get the photometric redshift using LEPHARE::
 
-  clusters_zphot.py config.yaml input.pkl (--zpara zphot.para) --plot
+  clusters_zphot.py config.yaml input.hdf5 (--zpara zphot.para) --plot
 
 **Next parts will come soon**
 

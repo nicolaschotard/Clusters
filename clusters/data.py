@@ -43,7 +43,7 @@ def get_from_butler(butler, key, filt, patch, **kwargs):
     Either retrun the object or the astropy table version of it
     """
     tract = 0 if 'tract' not in kwargs else kwargs['tract']
-    table = False if 'tract' not in kwargs else kwargs['tract']
+    table = False if 'table' not in kwargs else kwargs['table']
     dataid = {'tract': tract, 'filter': filt, 'patch': patch}
     b = butler.get(key, dataId=dataid)
     return b if not table else get_astropy_table(b)
@@ -71,7 +71,7 @@ def add_position_and_deg(t, wcs_alt, afwgeom):
                    Column(name='y_Src', data=y,
                           description='y coordinate', unit='pixel')])
 
-    # Add a new column to hav eto coordinates in degree
+    # Add a new column to have to coordinates in degree
     ras = [afwgeom.radToDeg(ra) for ra in t['coord_ra']]
     decs = [afwgeom.radToDeg(dec) for dec in t['coord_dec']]
     t.add_columns([Column(name='coord_ra_deg', data=ras,
@@ -114,9 +114,9 @@ def add_extra_info(d):
             return getmag(flux, sigma)
 
     # compute all magnitudes and positions
-    for f in d:
-        for p in d[f]:
-            for e in ['meas', 'forced']:
+    for f in d: # loop on filters
+        for p in d[f]: # loop on patches
+            for e in ['meas', 'forced']: # loop on catalogs
                 print "INFO: adding extra info for", f, p, e
                 add_magnitudes(d[f][p][e], mag)
                 add_filter_column(d[f][p][e], f)
@@ -272,7 +272,6 @@ def correct_for_extinction(ti, te, mag='modelfit_CModel_mag', ext='sfd', ifilt="
     for f in filters:
         filt = ti['filter'] == (f if 'i' not in f else 'i')
         mcorr[filt] = ti[mag][filt] - te['albd_%s_%s' % (f, ext)][filt]
-    print len(mcorr), len(ti['filter'])
     ti.add_columns([Column(name=magext, data=mcorr, unit='mag',
                            description='Extinction corrected magnitude (i=%s, ext=%s)' %
                            (ifilt, ext))])
