@@ -5,3 +5,4 @@ seaborn
 pyyaml
 astropy
 requests
+h5py
