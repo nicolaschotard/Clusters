@@ -71,7 +71,7 @@ def extinction(argv=None):
     config = cdata.load_config(args.config)
     if args.output is None:
         args.output = os.path.basename(args.input).replace('.hdf5', '_extinction.hdf5')
-        if not args.overwrite and os.path.exists:
+        if not args.overwrite and os.path.exists(args.output):
             raise IOError("Output already exists. Remove them or use --overwrite.")
 
     print "INFO: Working on cluster %s (z=%.4f)" % (config['cluster'], config['redshift'])
@@ -81,8 +81,8 @@ def extinction(argv=None):
     data = cdata.read_data(args.input)['forced']
 
     # Query for E(b-v) and compute the extinction
-    ebmv = {'ebv_sfd': cextinction.query(data['coord_ra_deg'],
-                                         data['coord_dec_deg'],
+    ebmv = {'ebv_sfd': cextinction.query(data['coord_ra_deg'].tolist(),
+                                         data['coord_dec_deg'].tolist(),
                                          coordsys='equ', mode='sfd')['EBV_SFD']}
     albds = {}
     for k in ebmv:
