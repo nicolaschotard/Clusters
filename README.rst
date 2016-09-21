@@ -71,8 +71,40 @@ Dependencies
 - `LEPHARE <http://cesam.lam.fr/lephare/lephare.html>`_
 
 
-Usage
------
+Configuration file
+------------------
+
+All the scripts will take the same input YAML file, which contains
+necessary information for the analysis or simply for plotting purpose,
+such as the name of the studied cluster. Keys are listed below and are
+case-sensitive. Additional keys are simply ignored. You can find
+examples of these comfiguration files in the `config
+<https://github.com/nicolaschotard/Clusters/blob/master/configs>`_
+directory, or clicking `here
+<https://github.com/nicolaschotard/Clusters/blob/master/configs/MACSJ2243.3-0935.yaml>`_
+for MACSJ2243.3-0935.
+
++--------------------+--------+-------------------------------------------------------+
+| Parameter          | Type   | Description [units]                                   |
++====================+========+=======================================================+
+| ``"cluster"``      | string | Name of the cluster                                   |
++--------------------+--------+-------------------------------------------------------+
+| ``"ra"``           | float  | RA coordinate of the cluster **[deg]**                |
++--------------------+--------+-------------------------------------------------------+
+| ``"dec"``          | float  | DEC coordinate of the cluster **[deg]**               |
++--------------------+--------+-------------------------------------------------------+
+| ``"redshift"``     | float  | Redshift the cluster                                  |
++--------------------+--------+-------------------------------------------------------+
+| ``"filters"``      | string | Filter list to study, e.g., 'ugriz' (Megacam filters) |
++--------------------+--------+-------------------------------------------------------+
+| ``"butler"``       | string | Absolute path to the intput data (butler)             |
++--------------------+--------+-------------------------------------------------------+
+| ``"patches"``      | list   | List of patches to study                              |
++--------------------+--------+-------------------------------------------------------+
+
+
+General usage
+-------------
 
 ``Clusters`` consists of several command-line executables that you
 have to run in the right order.
@@ -105,30 +137,24 @@ Etc.
 With any command, you can run with ``-h`` or ``--help`` to see all the
 optional arguments, e.g., ``clusters_data.py -h``.
 
-Configuration file
-------------------
 
-All the scripts will take the same input YAML file. Keys are listed
-below and are case-sensitive. Additional keys are simply ignored. You
-can find examples of these comfiguration files in the
-`config <https://github.com/nicolaschotard/Clusters/blob/master/configs>`_
-directory, or clicking `here <https://github.com/nicolaschotard/Clusters/blob/master/configs/MACSJ2243.3-0935.yaml>`_
-for MACSJ2243.3-0935.
+An example
+----------
 
-+--------------------+--------+-------------------------------------------------------+
-| Parameter          | Type   | Description [units]                                   |
-+====================+========+=======================================================+
-| ``"cluster"``      | string | Name of the cluster                                   |
-+--------------------+--------+-------------------------------------------------------+
-| ``"ra"``           | float  | RA coordinate of the cluster **[deg]**                |
-+--------------------+--------+-------------------------------------------------------+
-| ``"dec"``          | float  | DEC coordinate of the cluster **[deg]**               |
-+--------------------+--------+-------------------------------------------------------+
-| ``"redshift"``     | float  | Redshift the cluster                                  |
-+--------------------+--------+-------------------------------------------------------+
-| ``"filters"``      | string | Filter list to study, e.g., 'ugriz' (Megacam filters) |
-+--------------------+--------+-------------------------------------------------------+
-| ``"butler"``       | string | Absolute path to the intput data (butler)             |
-+--------------------+--------+-------------------------------------------------------+
-| ``"patches"``      | list   | List of patches to study                              |
-+--------------------+--------+-------------------------------------------------------+
+If you have installed ``Clusters`` but do not have any data to run it
+on, you can use one of the data re-processing output for
+MACSJ2243.3-0935. The corresponding configuration file is stored `there
+<configs/MACSJ2243.3-0935.yaml>`_. To use it, you either need to be at
+CC-INP3, or change the path to the butler inside the config file (if
+you have your own data). You could also mount sps on your personal
+computer (see this `howto
+<http://lsstnotes.readthedocs.io/en/latest/sshfs.html>`).
+
+The first step of the ``Clusters`` package if `clusters_data.py`,
+which will get the data from the DM butler and convert them into an
+astropy table. To do so, you need the LSST DM stack to be
+installed. If you want to skip this part and try the code, you could
+also use the output of this first step for MACSJ2243.3-0935 that we
+have stored under::
+
+  /sps/lsst/data/clusters/MACSJ2243.3-0935/analysis/output_v1/MACSJ2243.3-0935_data.hdf5
