@@ -67,13 +67,7 @@ Dependencies
 ``Clusters`` has for now the following dependencies:
 
 - The LSST DM `stack <https://developer.lsst.io/build-ci/lsstsw.html>`_
-- Python 2.7 and libraries
-  
-  - numpy
-  - matplotlib
-  - seaborn
-  - astropy / astroquery
-    
+- Python 2.7 and libraries listed in the `requirements <requirements.txt>`_ file
 - `LEPHARE <http://cesam.lam.fr/lephare/lephare.html>`_
 
 
@@ -83,25 +77,28 @@ Usage
 ``Clusters`` consists of several command-line executables that you
 have to run in the right order.
 
-Get the input data and dump them in an hdf5 file containing astropy tables::
+- Get the input data and dump them in an hdf5 file containing astropy
+tables (see the `data format section
+<http://clusters.readthedocs.io/en/latest/data.html>`_ of the
+documentation for detail)::
 
-  clusters_data config.yaml (--output output.hdf5)
+    clusters_data config.yaml (--output output.hdf5)
 
-Correct the data for Milky Way extinction (input.pkl is the output of the previous step)::
+- Correct the data for Milky Way extinction (input.hdf5 is the output of the previous step)::
 
-  clusters_extinction.py config.yaml input.hdf5 --plot
+    clusters_extinction.py config.yaml input.hdf5 --plot
 
-Get the photometric redshift using LEPHARE::
+- Get the photometric redshift using LEPHARE::
 
-  clusters_zphot.py config.yaml input.hdf5 (--zpara zphot.para) --plot
+    clusters_zphot.py config.yaml input.hdf5 (--zpara zphot.para) --plot
 
 **Next parts will come soon**
 
-Exctract background galaxies from the whole sample: remove the cluster
-galaxies (red sequence) and other foreground galaxies using the
-photometric redshifts::
+- Exctract background galaxies from the whole sample: remove the
+  cluster galaxies (red sequence) and other foreground galaxies using
+  the photometric redshifts::
 
-  clusters_getbackground config.yaml input.pkl output.pkl
+    clusters_getbackground config.yaml input.hdf5 output.hdf5
 
 Etc.
 
