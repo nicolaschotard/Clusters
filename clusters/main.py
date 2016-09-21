@@ -36,6 +36,9 @@ def load_data(argv=None):
         output = args.output
         output_filtered = "filtered_" + args.output
 
+    if os.path.exists(output) or os.path.exists(output_filtered):
+        raise IOError("Output(s) already exist(s). Remove them or use overwrite=True.")
+
     print "INFO: Working on cluster %s (z=%.4f)" % (config['cluster'],
                                                     config['redshift'])
     print "INFO: Working on filters", config['filters']
@@ -68,6 +71,8 @@ def extinction(argv=None):
     config = cdata.load_config(args.config)
     if args.output is None:
         args.output = os.path.basename(args.input).replace('.hdf5', '_extinction.hdf5')
+        if not args.overwrite and os.path.exists:
+            raise IOError("Output already exists. Remove them or use --overwrite.")
 
     print "INFO: Working on cluster %s (z=%.4f)" % (config['cluster'], config['redshift'])
     print "INFO: Working on filters", config['filters']

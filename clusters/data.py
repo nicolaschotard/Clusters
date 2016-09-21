@@ -1,5 +1,6 @@
 """Data builder and parser for the Clusters package."""
 
+import os
 import yaml
 import numpy as N
 from astropy.table import Table, Column, vstack
@@ -215,7 +216,7 @@ def filter_table(t):
     # Gauss regulerarization flag
     filt &= t['meas']['ext_shapeHSM_HsmShapeRegauss_flag'] == 0
 
-    # Make sure to nin pprimary sources
+    # Make sure to keep primary sources
     filt &= t['meas']['detect_isPrimary'] == 1
 
     # Check the flux value, which must be > 0
@@ -240,6 +241,9 @@ def filter_table(t):
 
 def getdata(config, output='all_data.hdf5', output_filtered='filtered_data.hdf5', overwrite=False):
     """Shortuc function to get all the data from a bulter, fitler them, and save same."""
+    if not overwrite:
+        if os.path.exists(output) or os.path.exists(output_filtered):
+            raise IOError("Output(s) already exist(s). Remove them or use overwrite=True.")
     if isinstance(config, str):
         config = load_config(config)
     d = get_all_data(config['butler'], config['patches'],
