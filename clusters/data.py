@@ -9,7 +9,7 @@ from astropy.table import Table, Column, vstack
 def load_config(config):
     """Load the configuration file, and return the corresponding dictionnary.
 
-    :param config: Name of the configuretion file.
+    :param config: Name of the configuration file.
     :type config: str.
     :returns: dic
 
@@ -258,24 +258,32 @@ def correct_for_extinction(ti, te, mag='modelfit_CModel_mag', ext='sfd', ifilt="
     """
     Compute extinction-corrected magnitude.
 
-    Inputs:
-    - data table
-    - extinction table
-    - type of magnitude
-    - type of extinction
-    - ifilt is the 'i' filter you want to use (i_old or i_new)
+    :param table ti: input data table to fill with extinction-corrected magnitudes
+    :param table te: input extinction table
+    :param str mag: magnitude key from the catalog
+    :param str ext: type of extinction map
+    :param str ifilt: the 'i' filter you want to use (i_old or i_new)
 
     Return an astropy table compatible with the input one, with a new key added 'mag'+_extcorr.
     """
+    # get the list of filter
     filters = list(set(te['filter']))
+
+    # replace the 'i' filter by the one asked from the user
     for i, f in enumerate(filters):
         if f == 'i':
             filters[i] = ifilt
+
+    # name of the new key
     magext = mag + '_extcorr'
+
+    # Compute the corrected magnitude for each filter
     mcorr = N.zeros(len(ti[mag]))
     for f in filters:
         filt = ti['filter'] == (f if 'i' not in f else 'i')
         mcorr[filt] = ti[mag][filt] - te['albd_%s_%s' % (f, ext)][filt]
+
+    # Add the new corrected-magnitudes column to the input data table
     ti.add_columns([Column(name=magext, data=mcorr, unit='mag',
                            description='Extinction corrected magnitude (i=%s, ext=%s)' %
                            (ifilt, ext))])
