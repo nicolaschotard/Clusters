@@ -161,4 +161,4 @@ first step for MACSJ2243.3-0935 that we have stored under::
 
 A `short tutorial
 <http://clusters.readthedocs.io/en/latest/data.html#work-with-the-table>`_
-explains how to use this `hdf5` file to start an analysis.
+explains how to use this ``hdf5`` file to start an analysis.

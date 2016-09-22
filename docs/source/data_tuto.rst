@@ -17,16 +17,11 @@ example, we will use here the ``forced`` catalog, corresponding to the
 forced photometry processing (`some details
 <https://confluence.lsstcorp.org/display/DM/S15+Multi-Band+Coadd+Processing+Prototype>`_).
 
-If you want to start an analysis with an existing ``hdf5`` file containing catalgs, you can use the one we have created for MACSJ2243.3-0935, which is saved at CC-IN2P3 under::
+If you want to start an analysis with an existing ``hdf5`` file containing catalogs, you can use the one we have created for MACSJ2243.3-0935, which is saved at CC-IN2P3 under::
 
   /sps/lsst/data/clusters/MACSJ2243.3-0935/analysis/output_v1/MACSJ2243.3-0935_data.hdf5
 
 To load the ``forced`` catalog, do:
-
-.. code:: python
-
-    import warnings
-    warnings.filterwarnings("ignore")
 
 .. code:: python
 
@@ -100,16 +95,17 @@ in this table. This number correspond to the number of sources (ns) times the nu
 
 .. code:: python
 
-    nf = len(fc.group_by('objectId').groups[0])
-    print nf, "filters"
+    filters = set(fc['filter'])
+    nf = len(filters)
+    print nf, "filters:", filters 
 
 
 .. parsed-literal::
 
-    5 filters
+    5 filters: set(['i', 'r', 'u', 'z', 'g'])
 
 
-The number of sources in this catalogs if thus:
+The number of sources in this catalog if thus:
 
 .. code:: python
 
@@ -122,7 +118,7 @@ The number of sources in this catalogs if thus:
     210100 sources
 
 
-The number of columns corresponding to the number of keys available in the catalogs is:
+The number of columns corresponding to the number of keys available in the catalog is:
 
 .. code:: python
 
@@ -156,6 +152,8 @@ You can filter this table to, for example, only keep the ``i`` and ``r`` magnitu
     magi = fc['modelfit_CModel_mag'][fc['filter'] == 'i']
     magr = fc['modelfit_CModel_mag'][fc['filter'] == 'r']
 
+and plot them against each other
+
 .. code:: python
 
     %matplotlib inline
@@ -179,6 +177,13 @@ You can filter this table to, for example, only keep the ``i`` and ``r`` magnitu
 
 
 A few standard filters have been implemented in ``data`` and can be used directly to get a clean sample of galaxies:  
+
+.. code:: python
+
+    # ignore these lines
+    import warnings
+    warnings.filterwarnings("ignore")
+    # ignore these lines
 
 .. code:: python
 
@@ -206,10 +211,10 @@ The same plot as in the above example now looks like
 
 
 
-.. image:: data_tuto_files/data_tuto_21_1.png
+.. image:: data_tuto_files/data_tuto_22_1.png
 
 
-See `the code <https://github.com/nicolaschotard/Clusters/blob/master/clusters/data.py#L207>`_ for a few other example on how to use filters.
+See `the code <https://github.com/nicolaschotard/Clusters/blob/master/clusters/data.py#L207>`_ for a few other examples on how to use filters.
 
 Add a new column
 ~~~~~~~~~~~~~~~~
@@ -253,7 +258,7 @@ Add it to the initial table and plot it against the initial magnitude (for the `
 
 
 
-.. image:: data_tuto_files/data_tuto_28_1.png
+.. image:: data_tuto_files/data_tuto_29_1.png
 
 
-You can also add several columns using ``fc_filtered.add_columns([Columns(...), Columns(...), etc])``.
+You can also add several columns using ``fc.add_columns([Columns(...), Columns(...), etc])``.
