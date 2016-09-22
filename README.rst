@@ -158,3 +158,7 @@ having to install the DM stack, you could also use the output of this
 first step for MACSJ2243.3-0935 that we have stored under::
 
   /sps/lsst/data/clusters/MACSJ2243.3-0935/analysis/output_v1/MACSJ2243.3-0935_data.hdf5
+
+A `short tutorial
+<http://clusters.readthedocs.io/en/latest/data.html#work-with-the-table>`_
+explains how to use this `hdf5` file to start an analysis.

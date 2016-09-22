@@ -1,5 +1,8 @@
 
-Asptroy tables are great to work with, and can be used for all kind of
+.. note::
+    The corresponding Jupyter notebook can be found `here <https://github.com/nicolaschotard/Clusters/blob/master/docs/source/data_tuto.ipynb>`_. You can also reproduce these results in `ipython <https://ipython.org/>`_.
+
+``Astropy`` tables are great to work with, and can be used for all kind of
 analysis in the context of our cluster study. You can apply filters,
 group by column, concatenate them, etc. For a detailed review on
 Astropy tables, see `there <http://docs.astropy.org/en/stable/table/>`_.
@@ -19,6 +22,11 @@ If you want to start an analysis with an existing ``hdf5`` file containing catal
   /sps/lsst/data/clusters/MACSJ2243.3-0935/analysis/output_v1/MACSJ2243.3-0935_data.hdf5
 
 To load the ``forced`` catalog, do:
+
+.. code:: python
+
+    import warnings
+    warnings.filterwarnings("ignore")
 
 .. code:: python
 
@@ -141,55 +149,111 @@ The number of columns corresponding to the number of keys available in the catal
 Apply filters
 ~~~~~~~~~~~~~
 
-You can filter this table to, for example, only keep the ``i`` and ``r`` magnitude of the ``base_CircularApertureFlux_12_0_mag`` for all sources:
+You can filter this table to, for example, only keep the ``i`` and ``r`` magnitude of the ``modelfit_CModel_mag`` for all sources:
 
 .. code:: python
 
-    magi = fc['base_CircularApertureFlux_12_0_mag'][fc['filter'] == 'i']
-    magr = fc['base_CircularApertureFlux_12_0_mag'][fc['filter'] == 'r']
+    magi = fc['modelfit_CModel_mag'][fc['filter'] == 'i']
+    magr = fc['modelfit_CModel_mag'][fc['filter'] == 'r']
 
 .. code:: python
 
     %matplotlib inline
     import pylab
     pylab.scatter(magi, magr)
+    pylab.xlabel('i mag')
+    pylab.ylabel('r mag')
+    pylab.title('%i sources (galaxies+stars)' % len(magi))
 
 
 
 
 .. parsed-literal::
 
-    <matplotlib.collections.PathCollection at 0x7fe0f75886d0>
+    <matplotlib.text.Text at 0x7fe09490fb50>
 
 
 
 
-.. image:: data_tuto_files/data_tuto_16_1.png
+.. image:: data_tuto_files/data_tuto_17_1.png
 
 
-or with an other flux measurement
+A few standard filters have been implemented in ``data`` and can be used directly to get a clean sample of galaxies:  
 
 .. code:: python
 
-    magi = fc['modelfit_CModel_mag'][fc['filter'] == 'i']
-    magr = fc['modelfit_CModel_mag'][fc['filter'] == 'r']
-    pylab.scatter(magi, magr)
+    data_filtered = data.filter_table(d)
+    fc_filtered = data_filtered['forced']
+
+The same plot as in the above example now looks like
+
+.. code:: python
+
+    magi_filtered = fc_filtered['modelfit_CModel_mag'][fc_filtered['filter'] == 'i']
+    magr_filtered = fc_filtered['modelfit_CModel_mag'][fc_filtered['filter'] == 'r']
+    pylab.scatter(magi_filtered, magr_filtered)
+    pylab.xlabel('i mag')
+    pylab.ylabel('r mag')
+    pylab.title('%i sources (clean sample of galaxies)' % len(magi_filtered))
 
 
 
 
 .. parsed-literal::
 
-    <matplotlib.collections.PathCollection at 0x7fdfeafe5f10>
+    <matplotlib.text.Text at 0x7fe0ee741350>
 
 
 
 
-.. image:: data_tuto_files/data_tuto_18_1.png
+.. image:: data_tuto_files/data_tuto_21_1.png
 
+
+See `the code <https://github.com/nicolaschotard/Clusters/blob/master/clusters/data.py#L207>`_ for a few other example on how to use filters.
 
 Add a new column
 ~~~~~~~~~~~~~~~~
 
-If you want to add a new column to the table
+You can also add a new column to the table (`examples here <https://github.com/nicolaschotard/Clusters/blob/master/clusters/data.py#L53>`_)
 
+.. code:: python
+
+    from astropy.table import Column
+
+Create a simple shifted magnitude array
+
+.. code:: python
+
+    shifted_mags = fc_filtered['modelfit_CModel_mag'] + 2
+
+Add it to the initial table and plot it against the initial magnitude (for the `i` filter here)
+
+.. code:: python
+
+    fc_filtered.add_column(Column(name='shifted_mag', data=shifted_mags,
+                                  description='Shifted magnitude', unit='mag'))
+
+.. code:: python
+
+    magi_filtered = fc_filtered['modelfit_CModel_mag'][fc_filtered['filter'] == 'i']
+    magi_shifted =  fc_filtered['shifted_mag'][fc_filtered['filter'] == 'i']
+    pylab.scatter(magi_filtered, magi_filtered)
+    pylab.scatter(magi_filtered, magi_shifted, c='r')
+    pylab.xlabel('i mag')
+    pylab.ylabel('shifted i mag')
+    pylab.title('%i sources (clean sample of galaxies)' % len(magi_filtered))
+
+
+
+
+.. parsed-literal::
+
+    <matplotlib.text.Text at 0x7fe0eeaa52d0>
+
+
+
+
+.. image:: data_tuto_files/data_tuto_28_1.png
+
+
+You can also add several columns using ``fc_filtered.add_columns([Columns(...), Columns(...), etc])``.
