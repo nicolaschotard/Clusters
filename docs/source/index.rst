@@ -17,7 +17,7 @@ Welcome to Clusters's documentation!
    :maxdepth: 2
 
    data
-
+   
 .. toctree::
    :maxdepth: 2
 
