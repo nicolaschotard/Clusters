@@ -3,8 +3,8 @@
 import os
 import yaml
 import numpy as N
-from astropy.wcs import WCS, utils
-from astropy.coordinates import SkyCoord
+from astropy.wcs import WCS #, utils
+#from astropy.coordinates import SkyCoord
 from astropy.table import Table, Column, vstack
 
 
@@ -129,9 +129,21 @@ def add_extra_info(d):
     return d
 
 def get_wcs(d):
+    """Get the wcs dictionnary from the butler."""
     # take the first filter, and the first patch
-    wcs = d[d.keys()[0]][d[f].keys()[0]]['calexp'].getWcs()
-    return WCS(wcs.getFitsMetadata().toDict(), naxis=2)
+    f = d.keys()[0]
+    p = d[f].keys()[0]
+    return d[f][p]['calexp'].getWcs().getFitsMetadata().toDict()
+
+def save_wcs(wcs, output):
+    """Save the wcs dictionnary into a valid astropy Table format."""
+    t = Table({k: [wcs[k]] for k in wcs})
+    t.write(output, path='wcs', compression=True,
+            append=True, serialize_meta=True)
+
+def load_wcs(wcs):
+    """Get back the right wcs format from the hdf5 table."""
+    return WCS({k: wcs[k].item() for k in wcs.keys()})
 
 
 def get_all_data(path, patches, filters, add_extra=False):
@@ -144,7 +156,9 @@ def get_all_data(path, patches, filters, add_extra=False):
     print "INFO: Loading data from", path, " pathes:", patches, " filters:", filters
     butler = dafPersist.Butler(path)
     d = {f: get_filter_data(butler, patches, f) for f in filters}
-    return stack_tables(d) if not add_extra else stack_tables(add_extra_info(d))
+    out = stack_tables(d) if not add_extra else stack_tables(add_extra_info(d))
+    out['wcs'] = get_wcs(d)
+    return out
 
 
 def get_filter_data(butler, patches, f):
@@ -197,6 +211,7 @@ def write_data(d, output, overwrite=False):
     d['forced'].write(output, path='forced', compression=True,
                       serialize_meta=True, overwrite=overwrite)
     d['meas'].write(output, path='meas', compression=True, append=True, serialize_meta=True)
+    save_wcs(d['wcs'], output)
 
 
 def read_data(data_file, path=None):
@@ -204,7 +219,8 @@ def read_data(data_file, path=None):
     if path is None:
         try:
             return {'meas': Table.read(data_file, path='meas'),
-                    'forced': Table.read(data_file, path='forced')}
+                    'forced': Table.read(data_file, path='forced'),
+                    'wcs': load_wcs(Table.read(data_file, path='wcs'))}
         except IOError:
             return Table.read(data_file)
     else:
@@ -243,7 +259,7 @@ def filter_table(t):
     # Indices difference is a quick way to get the lenght of each group
     filt = (dmg.groups.indices[1:] - dmg.groups.indices[:-1]) == nfilt
 
-    return {'meas': dmg.groups[filt], 'forced': dfg.groups[filt]}
+    return {'meas': dmg.groups[filt], 'forced': dfg.groups[filt], 'wcs': t['wcs']}
 
 
 def getdata(config, output='all_data.hdf5', output_filtered='filtered_data.hdf5', overwrite=False):

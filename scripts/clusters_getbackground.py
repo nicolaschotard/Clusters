@@ -4,4 +4,4 @@
 import sys
 from Clusters import main
 
-sys.exit(main.get_background())
+sys.exit(main.getbackground())

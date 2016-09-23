@@ -35,7 +35,7 @@ def load_data(argv=None):
         output = args.output
         output_filtered = "filtered_" + args.output
 
-    if os.path.exists(output) or os.path.exists(output_filtered):
+    if not args.overwrite and (os.path.exists(output) or os.path.exists(output_filtered)):
         raise IOError("Output(s) already exist(s). Remove them or use overwrite=True.")
 
     print "INFO: Working on cluster %s (z=%.4f)" % (config['cluster'],
@@ -210,7 +210,7 @@ def photometric_redshift(argv=None):
         doplot(zphot.data_out, config, args)
 
 
-def get_background(argv=None):
+def getbackground(argv=None):
     """Get a cluster background galaxies."""
     description = """Get a cluster background galaxies."""
     prog = "clusters_getbackground.py"
@@ -224,7 +224,7 @@ def get_background(argv=None):
     config = yaml.load(open(args.config))
     if args.output is None:
         args.output = os.path.basename(args.config).replace('.yaml',
-                                                            '_getbck_output.pkl')
+                                                            '_background.hdf5')
 
     filters = config['filters']
 
@@ -233,6 +233,38 @@ def get_background(argv=None):
     print "INFO: Working on filters", filters
     print "WARNING: Implementation not finished for this part of the analysis."
     print "EXIT."
+
+
+def shear(argv=None):
+    """Compute the shear."""
+    description = """Compute the shear."""
+    prog = "clusters_shear.py"
+    usage = """%s [options] config input""" % prog
+
+    parser = ArgumentParser(prog=prog, usage=usage, description=description)
+    parser.add_argument('config', help='Configuration (yaml) file')
+    parser.add_argument('input', help='Input data file: output of clusters_data.py, i.e, hdf5 file')
+    parser.add_argument("--output",
+                        help="Name of the output file (hdf5 file)")
+    parser.add_argument("--overwrite", action="store_true", default=False,
+                        help="Overwrite the output files if they exist already")
+    parser.add_argument("--plot", action='store_true', default=False,
+                        help="Make some plots")
+    args = parser.parse_args(argv)
+
+    config = cdata.load_config(args.config)
+    if args.output is None:
+        args.output = os.path.basename(args.input).replace('.hdf5', '_shear.hdf5')
+        if not args.overwrite and os.path.exists(args.output):
+            raise IOError("Output already exists. Remove them or use --overwrite.")
+
+    print "INFO: Working on cluster %s (z=%.4f)" % (config['cluster'], config['redshift'])
+    print "INFO: Working on filters", config['filters']
+
+    # Load the data
+    data = cdata.read_data(args.input)['forced']
+    print len(data)
+    print "TBD"
 
 
 def pipeline(argv=None):
