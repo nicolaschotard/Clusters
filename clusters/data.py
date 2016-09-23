@@ -3,6 +3,8 @@
 import os
 import yaml
 import numpy as N
+from astropy.wcs import WCS, utils
+from astropy.coordinates import SkyCoord
 from astropy.table import Table, Column, vstack
 
 
@@ -97,7 +99,7 @@ def add_extra_info(d):
     f = d.keys()[0]
     p = d[f].keys()[0]
 
-    # get the calib objects
+    # get the wcs
     import lsst.afw.geom as afwGeom
     wcs = d[f][p]['calexp'].getWcs()
 
@@ -125,6 +127,11 @@ def add_extra_info(d):
                 add_position_and_deg(d[f][p][e], wcs_alt, afwGeom)
 
     return d
+
+def get_wcs(d):
+    # take the first filter, and the first patch
+    wcs = d[d.keys()[0]][d[f].keys()[0]]['calexp'].getWcs()
+    return WCS(wcs.getFitsMetadata().toDict(), naxis=2)
 
 
 def get_all_data(path, patches, filters, add_extra=False):
