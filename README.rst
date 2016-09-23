@@ -114,15 +114,15 @@ have to run in the right order.
   <http://clusters.readthedocs.io/en/latest/data.html>`_ of the
   documentation for detail)::
 
-    clusters_data config.yaml (--output output.hdf5)
+    clusters_data config.yaml (--output data.hdf5)
 
-- Correct the data for Milky Way extinction (input.hdf5 is the output of the previous step)::
+- Correct the data for Milky Way extinction::
 
-    clusters_extinction.py config.yaml input.hdf5 --plot
+    clusters_extinction.py config.yaml data.hdf5 (--output extinction.hdf5)
 
 - Get the photometric redshift using LEPHARE::
 
-    clusters_zphot.py config.yaml input.hdf5 (--zpara zphot.para) --plot
+    clusters_zphot.py config.yaml data.hdf5 (--extinction extinction.hdf) (--output zphot.hdf5)
 
 **Next parts will come soon**
 
