@@ -3,7 +3,6 @@
 import os
 import yaml
 import sys
-import cPickle
 from argparse import ArgumentParser
 
 from astropy.table import Table, hstack
@@ -22,7 +21,7 @@ def load_data(argv=None):
     parser = ArgumentParser(prog=prog, usage=usage, description=description)
     parser.add_argument('config', help='Configuration (yaml) file')
     parser.add_argument("--output",
-                        help="Name of the output file (pkl file)")
+                        help="Name of the output file (hdf5 file)")
     parser.add_argument("--overwrite", action="store_true", default=False,
                         help="Overwrite the output files if they exist already")
     args = parser.parse_args(argv)
@@ -61,7 +60,7 @@ def extinction(argv=None):
     parser.add_argument('config', help='Configuration (yaml) file')
     parser.add_argument('input', help='Input data file: output of clusters_data.py, i.e, hdf5 file')
     parser.add_argument("--output",
-                        help="Name of the output file (pkl file)")
+                        help="Name of the output file (hdf5 file)")
     parser.add_argument("--overwrite", action="store_true", default=False,
                         help="Overwrite the output files if they exist already")
     parser.add_argument("--plot", action='store_true', default=False,
@@ -110,7 +109,7 @@ def extinction(argv=None):
                           figname=config['cluster'])
 
 
-def doplot(data, config, args):
+def doplot(data, config, zmin=0, zmax=999):
     """Make a few plots."""
     print "INFO: Making some plots"
     data.hist('Z_BEST', min=0, nbins=100, xlabel='Photometric redshift',
@@ -123,7 +122,7 @@ def doplot(data, config, args):
     data.plot('CHI_BEST', 'Z_BEST', miny=0, figname=config['cluster'])
     data.plot_map(title="LEPHARE photometric redshift map for %s (%i sources)" %
                   (config['cluster'], data.nsources), figname=config['cluster'],
-                  zmin=args.zmin, zmax=args.zmax)
+                  zmin=zmin, zmax=zmax)
     czphot.P.show()
 
 
@@ -137,18 +136,19 @@ def photometric_redshift(argv=None):
     parser.add_argument('config', help='Configuration (yaml) file')
     parser.add_argument('input', help='Input data file')
     parser.add_argument("--output",
-                        help="Name of the output file (pkl file)")
+                        help="Name of the output file (hdf5 file)")
+    parser.add_argument("--extinction",
+                        help="Output of clusters_extinction (hdf5 file)."
+                        "Use to compute the extinction-corrected magnitudes.")
     parser.add_argument("--overwrite", action="store_true", default=False,
                         help="Overwrite the output files if they exist already")
     parser.add_argument("--zpara",
                         help="LEPHARE configuration file (zphot.para)")
     parser.add_argument("--plot", action='store_true', default=False,
                         help="Make some plots")
-    parser.add_argument("--zmin", type=float, default=0,
-                        help="Redshift cut used to plot the map (min value)")
-    parser.add_argument("--zmax", type=float, default=999,
-                        help="Redshift cut used to plot the map (max value)")
-    parser.add_argument("--mag", type=str, default='modelfit_CModel_mag_extcorr',
+    parser.add_argument("--zrange", default="0,999",
+                        help="Redshift range used to plot the map (min,max)")
+    parser.add_argument("--mag", type=str, default='modelfit_CModel_mag',
                         help="Magnitude name [default]")
     parser.add_argument("--data",
                         help="LEPHARE output file, used for the analysis only (plots)")
@@ -157,13 +157,13 @@ def photometric_redshift(argv=None):
     config = cdata.load_config(args.config)
     if args.data is not None:
         doplot(czphot.LEPHARO(args.data, args.data.replace('_zphot', '')),
-               config, args)
+               config, float(args.zrange.split(',')[0]), float(args.zrange.split(',')[1]))
         sys.exit()
-   
+
     if args.output is None:
         args.output = os.path.basename(args.input).replace('.hdf5', '_zphot.hdf5')
         if not args.overwrite and os.path.exists(args.output):
-            raise IOError("Output already exists. Remove them or use --overwrite.")
+            raise IOError("Output already exists. Remove themit or use --overwrite.")
 
     print "INFO: Working on cluster %s (z=%.4f)" % (config['cluster'], config['redshift'])
     print "INFO: Working on filters", config['filters']
@@ -172,28 +172,35 @@ def photometric_redshift(argv=None):
     print "INFO: Loading the data from", args.input
     data = cdata.read_data(args.input)['forced']
 
-    # Make sure the selected magnitude does exist in the data table
-    if not args.mag in data:
-        raise IOError("%s is not a column of the input table" % args.mag)
+    mag = args.mag
+    # Compute extinction-corrected magitudes
+    if args.extinction is not None:
+        print "INFO: Computing extinction-corrected magnitude for", args.mag
+        edata = cdata.read_data(args.extinction, path='extinction')
+        cdata.correct_for_extinction(data, edata, mag=args.mag)
+        mag += "_extcorr"
 
-    # And dump them into a file
-    print "INFO: Getting the useful data"
-    mags = [data[args.mag][data['filter'] == f] for f in config['filters']]
-    mags_sigma = [data[args.mag + 'Sigma'][data['filter'] == f] for f in config['filters']]
-    data_filter = data['filter'] == config['filters'][0]
+    # Make sure the selected magnitude does exist in the data table
+    if not mag in data.keys():
+        raise IOError("%s is not a column of the input table" % mag)
 
     # Run LEPHARE
     print "INFO: LEPHARE will run on", len(data) / len(config['filters']), "sources"
-    zphot = czphot.LEPHARE(mags, mags_sigma, config['cluster'], filters=config['filters'],
-                           zpara=args.zpara, RA=data['coord_ra_deg'][data_filter],
-                           DEC=data['coord_dec_deg'][data_filter], ID=data['objectId'][data_filter])
+    zphot = czphot.LEPHARE([data[mag][data['filter'] == f]
+                            for f in config['filters']],
+                           [data[args.mag + "Sigma"][data['filter'] == f]
+                            for f in config['filters']],
+                           config['cluster'], filters=config['filters'], zpara=args.zpara,
+                           RA=data['coord_ra_deg'][data['filter'] == config['filters'][0]],
+                           DEC=data['coord_dec_deg'][data['filter'] == config['filters'][0]],
+                           ID=data['objectId'][data['filter'] == config['filters'][0]])
     zphot.check_config()
     zphot.run()
 
     # Create a new table and save it
-    new_tab = hstack([data['objectId'][data_filter],
-                      data['coord_ra_deg'][data_filter],
-                      data['coord_dec_deg'][data_filter],
+    new_tab = hstack([data['objectId',
+                           'coord_ra_deg',
+                           'coord_dec_deg'][data['filter'] == config['filters'][0]],
                       Table(zphot.data_out.data_dict)], join_type='inner')
     new_tab.write(args.output, path='zphot', compression=True,
                   serialize_meta=True, overwrite=args.overwrite)
