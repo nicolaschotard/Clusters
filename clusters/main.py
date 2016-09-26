@@ -181,7 +181,7 @@ def photometric_redshift(argv=None):
         mag += "_extcorr"
 
     # Make sure the selected magnitude does exist in the data table
-    if not mag in data.keys():
+    if mag not in data.keys():
         raise IOError("%s is not a column of the input table" % mag)
 
     # Run LEPHARE
@@ -281,4 +281,4 @@ def pipeline(argv=None):
                         help="Overwrite the output files if they exist already")
     args = parser.parse_args(argv)
 
-    print "TBD"
+    print "TBD", args.config

@@ -27,7 +27,7 @@ def shorten(doc):
 def get_astropy_table(cat):
     """Convert an afw data table into a simple astropy table.
 
-    :param cat: an afw data table 
+    :param cat: an afw data table
     :return: the corresponding astropy.table.Table
     """
     schema = cat.getSchema()
@@ -70,16 +70,19 @@ def add_magnitudes(t, getmagnitude):
 def add_position_and_deg(t, wcs):
     """Compute the x/y position in pixel for all sources. Add new columns to the table."""
     # Add the x / y position in pixel
-    x, y = skycoord_to_pixel(SkyCoord(t["coord_ra"].tolist(), t["coord_dec"].tolist(), unit='rad'), wcs)
+    x, y = skycoord_to_pixel(SkyCoord(t["coord_ra"].tolist(),
+                                      t["coord_dec"].tolist(), unit='rad'), wcs)
     t.add_columns([Column(name='x_Src', data=x,
                           description='x coordinate', unit='pixel'),
                    Column(name='y_Src', data=y,
                           description='y coordinate', unit='pixel')])
 
     # Add a new column to have to coordinates in degree
-    t.add_columns([Column(name='coord_ra_deg', data=Angle(t['coord_ra'].tolist(), unit='rad').degree,
+    t.add_columns([Column(name='coord_ra_deg',
+                          data=Angle(t['coord_ra'].tolist(), unit='rad').degree,
                           description='RA coordinate', unit='degree'),
-                   Column(name='coord_dec_deg', data=Angle(t['coord_dec'].tolist(), unit='rad').degree,
+                   Column(name='coord_dec_deg',
+                          data=Angle(t['coord_dec'].tolist(), unit='rad').degree,
                           description='DEC coordinate', unit='degree')])
 
 
@@ -162,7 +165,7 @@ def skycoord_to_pixel(coords, wcs, unit='deg'):
 
 def pixel_to_skycoord(x, y, wcs):
     """Transform pixel coordinates (x, y) to sky coordinates (ra, dec in deg) given a wcs.
-    
+
     :param float x: x coordinate
     :param float y: y coordinate
     :param wcs: an astropy.wcs.WCS object
@@ -248,7 +251,7 @@ def read_data(data_file, path=None):
 
      - meas: the 'deepCoadd_meas' catalog (an astropy table)
      - forced: the 'deepCoad_forced_src' catalog (an astropy table)
-     - wcs: the 'wcs' of these catalogs (an `astropy.wcs.WCS <http://docs.astropy.org/en/stable/api/astropy.wcs.WCS.html#astropy.wcs.WCS>`_ object)
+     - wcs: the 'wcs' of these catalogs (an ``astropy.wcs.WCS`` object)
     """
     if path is None:
         try:
