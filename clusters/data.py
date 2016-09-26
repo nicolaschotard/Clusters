@@ -13,8 +13,7 @@ def load_config(config):
 
     :param config: Name of the configuration file.
     :type config: str.
-    :returns: dic
-
+    :returns: the configuration elements in a python dictionnary
     """
     return yaml.load(open(config))
 
@@ -26,7 +25,11 @@ def shorten(doc):
 
 
 def get_astropy_table(cat):
-    """Convert an afw data table into a simple astropy table."""
+    """Convert an afw data table into a simple astropy table.
+
+    :param cat: an afw data table 
+    :return: the corresponding astropy.table.Table
+    """
     schema = cat.getSchema()
     dic = {n: cat.get(n) for n in schema.getNames()}
     tab = Table(dic)
@@ -141,7 +144,17 @@ def load_wcs(wcs):
 
 
 def skycoord_to_pixel(coords, wcs, unit='deg'):
-    """Transform sky coordinates (ra, dec) to pixel coordinates (x, y) given a wcs."""
+    """Transform sky coordinates (ra, dec) to pixel coordinates (x, y) given a wcs.
+
+    :param coords: Coordinates. Multiple formats accepted:
+
+     - [ra, dec]
+     - [[ra1, ra2], [dec1, dec2]]
+     - or a SkyCoord object
+
+    :param wcs: an astropy.wcs.WCS object
+    :return: A list of (x, y) coordinates in pixel units
+    """
     if not isinstance(coords, SkyCoord):
         coords = SkyCoord(coords[0], coords[1], unit=unit)
     return utils.skycoord_to_pixel(coords, wcs)
@@ -149,8 +162,11 @@ def skycoord_to_pixel(coords, wcs, unit='deg'):
 
 def pixel_to_skycoord(x, y, wcs):
     """Transform pixel coordinates (x, y) to sky coordinates (ra, dec in deg) given a wcs.
-
-    Return a SkyCoord object.
+    
+    :param float x: x coordinate
+    :param float y: y coordinate
+    :param wcs: an astropy.wcs.WCS object
+    :return: an astropy.coordinates.SkyCoord object.
     """
     return utils.pixel_to_skycoord(x, y, wcs)
 
@@ -224,7 +240,16 @@ def write_data(d, output, overwrite=False):
 
 
 def read_data(data_file, path=None):
-    """Write astropy tables from an hdf5 file."""
+    """Read astropy tables from an hdf5 file.
+
+    :param string data_file: Name of the hdf5 file to load
+    :param string path: Path (key) of the table to load
+    :return: A dictionnary containing the following keys and values:
+
+     - meas: the 'deepCoadd_meas' catalog (an astropy table)
+     - forced: the 'deepCoad_forced_src' catalog (an astropy table)
+     - wcs: the 'wcs' of these catalogs (an `astropy.wcs.WCS <http://docs.astropy.org/en/stable/api/astropy.wcs.WCS.html#astropy.wcs.WCS>`_ object)
+    """
     if path is None:
         try:
             return {'meas': Table.read(data_file, path='meas'),
@@ -295,8 +320,7 @@ def correct_for_extinction(ti, te, mag='modelfit_CModel_mag', ext='sfd', ifilt="
     :param str mag: magnitude key from the catalog
     :param str ext: type of extinction map
     :param str ifilt: the 'i' filter you want to use (i_old or i_new)
-
-    Return an astropy table compatible with the input one, with a new key added 'mag'+_extcorr.
+    :return: a new column in the input table 'mag'+_extcorr.
     """
     # get the list of filter
     filters = list(set(te['filter']))
