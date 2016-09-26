@@ -86,7 +86,7 @@ def analysis(table, xclust, yclust):
     de1 = numpy.fabs(e1R - e1I)
     de2 = numpy.fabs(e2R - e2I)
 
-    filt &= de1 < 0.5) & (de2 < 0.5)
+    filt &= (de1 < 0.5) & (de2 < 0.5)
 
     mod = numpy.hypot(e1r, e2r)
     tg = e2r / e1r
