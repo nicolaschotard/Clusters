@@ -10,6 +10,7 @@ from astropy.table import Table, hstack
 from . import data as cdata
 from . import extinction as cextinction
 from . import zphot as czphot
+from . import shear as cshear
 
 
 def load_data(argv=None):
@@ -262,9 +263,11 @@ def shear(argv=None):
     print "INFO: Working on filters", config['filters']
 
     # Load the data
-    data = cdata.read_data(args.input)['forced']
-    print len(data)
-    print "TBD"
+    data = cdata.read_data(args.input)
+    meas = data['meas']
+    wcs = data['wcs']
+    xclust, yclust = cdata.skycoord_to_pixel([config['ra'], config['dec']], wcs)
+    cshear.analysis(meas, float(xclust), float(yclust))
 
 
 def pipeline(argv=None):
