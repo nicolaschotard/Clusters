@@ -2,9 +2,9 @@
 
 import os
 import yaml
-import numpy as N
-from astropy.wcs import WCS #, utils
-#from astropy.coordinates import SkyCoord
+import numpy
+from astropy.wcs import WCS, utils
+from astropy.coordinates import SkyCoord, Angle
 from astropy.table import Table, Column, vstack
 
 
@@ -57,29 +57,26 @@ def add_magnitudes(t, getmagnitude):
     kfluxes = [k for k in t.columns if k.endswith('_flux')]
     ksigmas = [k + 'Sigma' for k in kfluxes]
     for kf, ks in zip(kfluxes, ksigmas):
-        m, dm = N.array([getmagnitude(f, s) for f, s in zip(t[kf], t[ks])]).T
+        m, dm = numpy.array([getmagnitude(f, s) for f, s in zip(t[kf], t[ks])]).T
         t.add_columns([Column(name=kf.replace('_flux', '_mag'), data=m,
                               description='Magnitude', unit='mag'),
                        Column(name=ks.replace('_fluxSigma', '_magSigma'), data=dm,
                               description='Magnitude error', unit='mag')])
 
 
-def add_position_and_deg(t, wcs_alt, afwgeom):
+def add_position_and_deg(t, wcs):
     """Compute the x/y position in pixel for all sources. Add new columns to the table."""
     # Add the x / y position in pixel
-    x, y = N.array([wcs_alt(ra, dec) for ra, dec in zip(t["coord_ra"],
-                                                        t["coord_dec"])]).T
+    x, y = skycoord_to_pixel(SkyCoord(t["coord_ra"].tolist(), t["coord_dec"].tolist(), unit='rad'), wcs)
     t.add_columns([Column(name='x_Src', data=x,
                           description='x coordinate', unit='pixel'),
                    Column(name='y_Src', data=y,
                           description='y coordinate', unit='pixel')])
 
     # Add a new column to have to coordinates in degree
-    ras = [afwgeom.radToDeg(ra) for ra in t['coord_ra']]
-    decs = [afwgeom.radToDeg(dec) for dec in t['coord_dec']]
-    t.add_columns([Column(name='coord_ra_deg', data=ras,
+    t.add_columns([Column(name='coord_ra_deg', data=Angle(t['coord_ra'].tolist(), unit='rad').degree,
                           description='RA coordinate', unit='degree'),
-                   Column(name='coord_dec_deg', data=decs,
+                   Column(name='coord_dec_deg', data=Angle(t['coord_dec'].tolist(), unit='rad').degree,
                           description='DEC coordinate', unit='degree')])
 
 
@@ -95,55 +92,67 @@ def add_patch_column(table, patch):
 
 def add_extra_info(d):
     """Add magnitude and position to all tables."""
-    # take the first filter, and the first patch
-    f = d.keys()[0]
-    p = d[f].keys()[0]
-
     # get the wcs
-    import lsst.afw.geom as afwGeom
-    wcs = d[f][p]['calexp'].getWcs()
+    wcs = WCS(get_wcs(d))
 
-    def wcs_alt(r, d):
-        """Redifine the WCS function."""
-        return wcs.skyToPixel(afwGeom.geomLib.Angle(r), afwGeom.geomLib.Angle(d))
-
-    getmag = d[f][p]['calexp'].getCalib().getMagnitude
+    # Shorcut to magnitude function
+    filt = d.keys()[0]
+    patch = d[filt].keys()[0]
+    getmag = d[filt][patch]['calexp'].getCalib().getMagnitude
 
     def mag(flux, sigma):
         """Redefine the magnitude function. Negative flux or sigma possible."""
         if flux <= 0 or sigma <= 0:
-            return N.nan, N.nan
+            return numpy.nan, numpy.nan
         else:
             return getmag(flux, sigma)
 
     # compute all magnitudes and positions
-    for f in d: # loop on filters
-        for p in d[f]: # loop on patches
-            for e in ['meas', 'forced']: # loop on catalogs
+    for f in d:  # loop on filters
+        for p in d[f]:  # loop on patches
+            for e in ['meas', 'forced']:  # loop on catalogs
                 print "INFO: adding extra info for", f, p, e
                 add_magnitudes(d[f][p][e], mag)
                 add_filter_column(d[f][p][e], f)
                 add_patch_column(d[f][p][e], p)
-                add_position_and_deg(d[f][p][e], wcs_alt, afwGeom)
+                add_position_and_deg(d[f][p][e], wcs)
 
     return d
+
 
 def get_wcs(d):
     """Get the wcs dictionnary from the butler."""
     # take the first filter, and the first patch
-    f = d.keys()[0]
-    p = d[f].keys()[0]
-    return d[f][p]['calexp'].getWcs().getFitsMetadata().toDict()
+    filt = d.keys()[0]
+    patch = d[filt].keys()[0]
+    return d[filt][patch]['calexp'].getWcs().getFitsMetadata().toDict()
+
 
 def save_wcs(wcs, output):
     """Save the wcs dictionnary into a valid astropy Table format."""
-    t = Table({k: [wcs[k]] for k in wcs})
-    t.write(output, path='wcs', compression=True,
-            append=True, serialize_meta=True)
+    table = Table({k: [wcs[k]] for k in wcs})
+    table.write(output, path='wcs', compression=True,
+                append=True, serialize_meta=True)
+
 
 def load_wcs(wcs):
     """Get back the right wcs format from the hdf5 table."""
     return WCS({k: wcs[k].item() for k in wcs.keys()})
+
+
+def skycoord_to_pixel(coords, wcs, unit='deg'):
+    """Transform sky coordinates (ra, dec) to pixel coordinates (x, y) given a wcs."""
+    if not isinstance(coords, SkyCoord):
+        coords = SkyCoord(coords[0], coords[1], unit=unit)
+    return utils.skycoord_to_pixel(coords, wcs)
+
+
+def pixel_to_skycoord(x, y, wcs):
+    """Transform pixel coordinates (x, y) to sky coordinates (ra, dec in deg) given a wcs.
+
+    Return a SkyCoord object.
+    """
+    return utils.pixel_to_skycoord(x, y, wcs)
 
 
 def get_all_data(path, patches, filters, add_extra=False):
@@ -182,11 +191,11 @@ def get_patch_data(butler, p, f):
 
 def from_list_to_array(d):
     """Transform lists (of dict of list) into numpy arrays."""
-    if isinstance(d, (list, N.ndarray)):
-        return N.array(d)
+    if isinstance(d, (list, numpy.ndarray)):
+        return numpy.array(d)
     for k in d:
         if isinstance(d[k], list):
-            d[k] = N.array(d[k])
+            d[k] = numpy.array(d[k])
         elif isinstance(d[k], dict):
             from_list_to_array(d[k])
     return d
@@ -293,15 +302,15 @@ def correct_for_extinction(ti, te, mag='modelfit_CModel_mag', ext='sfd', ifilt="
     filters = list(set(te['filter']))
 
     # replace the 'i' filter by the one asked from the user
-    for i, f in enumerate(filters):
-        if f == 'i':
+    for i, filt in enumerate(filters):
+        if filt == 'i':
             filters[i] = ifilt
 
     # name of the new key
     magext = mag + '_extcorr'
 
     # Compute the corrected magnitude for each filter
-    mcorr = N.zeros(len(ti[mag]))
+    mcorr = numpy.zeros(len(ti[mag]))
     for f in filters:
         filt = ti['filter'] == (f if 'i' not in f else 'i')
         mcorr[filt] = ti[mag][filt] - te['albd_%s_%s' % (f, ext)][filt]
