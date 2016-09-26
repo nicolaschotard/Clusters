@@ -39,7 +39,7 @@ To load the ``forced`` catalog, do:
 
 .. parsed-literal::
 
-    ['forced', 'meas']
+    ['forced', 'meas', 'wcs']
 
 
 and ``fc`` is an astropy table
@@ -156,7 +156,11 @@ and plot them against each other
 
 .. code:: python
 
+    # ignore the following line
     %matplotlib inline
+
+.. code:: python
+
     import pylab
     pylab.scatter(magi, magr)
     pylab.xlabel('i mag')
@@ -168,22 +172,20 @@ and plot them against each other
 
 .. parsed-literal::
 
-    <matplotlib.text.Text at 0x7fe09490fb50>
+    <matplotlib.text.Text at 0x7f740ee46090>
 
 
 
 
-.. image:: data_tuto_files/data_tuto_17_1.png
+.. image:: data_tuto_files/data_tuto_18_1.png
 
 
 A few standard filters have been implemented in ``data`` and can be used directly to get a clean sample of galaxies:  
 
 .. code:: python
 
-    # ignore these lines
-    import warnings
-    warnings.filterwarnings("ignore")
-    # ignore these lines
+    # ignore the following line
+    import warnings; warnings.filterwarnings("ignore")
 
 .. code:: python
 
@@ -206,12 +208,12 @@ The same plot as in the above example now looks like
 
 .. parsed-literal::
 
-    <matplotlib.text.Text at 0x7fe0ee741350>
+    <matplotlib.text.Text at 0x7f740f87f490>
 
 
 
 
-.. image:: data_tuto_files/data_tuto_22_1.png
+.. image:: data_tuto_files/data_tuto_23_1.png
 
 
 See `the code <https://github.com/nicolaschotard/Clusters/blob/master/clusters/data.py#L207>`_ for a few other examples on how to use filters.
@@ -253,12 +255,12 @@ Add it to the initial table and plot it against the initial magnitude (for the `
 
 .. parsed-literal::
 
-    <matplotlib.text.Text at 0x7fe0eeaa52d0>
+    <matplotlib.text.Text at 0x7f740f002910>
 
 
 
 
-.. image:: data_tuto_files/data_tuto_29_1.png
+.. image:: data_tuto_files/data_tuto_30_1.png
 
 
 You can also add several columns using ``fc.add_columns([Columns(...), Columns(...), etc])``.

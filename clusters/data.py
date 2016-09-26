@@ -31,7 +31,7 @@ def get_astropy_table(cat):
     :return: the corresponding astropy.table.Table
     """
     schema = cat.getSchema()
-    dic = {n: cat.get(n) for n in schema.getNames()}
+    dic = cat.getColumnView().extract("*")
     tab = Table(dic)
     for k in schema.getNames():
         tab[k].description = shorten(schema[k].asField().getDoc())
