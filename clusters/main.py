@@ -221,6 +221,8 @@ def getbackground(argv=None):
     parser = ArgumentParser(prog=prog, usage=usage, description=description)
     parser.add_argument('config', help='Configuration (yaml) file')
     parser.add_argument('input', help='Input data file')
+    parser.add_argument("--output",
+                        help="Name of the output file (hdf5 file)")
     args = parser.parse_args(argv)
 
     config = yaml.load(open(args.config))

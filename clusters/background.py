@@ -211,3 +211,7 @@ def fit_red_sequence(diffmag, mag, mindiff=1.0, maxdiff=2.0,
     ax3.plot(x, ymid, color='g')
 
     P.show()
+
+
+def get_background(data):
+    print "test"
