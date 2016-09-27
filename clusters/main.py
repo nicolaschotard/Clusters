@@ -11,6 +11,7 @@ from . import data as cdata
 from . import extinction as cextinction
 from . import zphot as czphot
 from . import shear as cshear
+from . import background
 
 
 def load_data(argv=None):
@@ -232,8 +233,9 @@ def getbackground(argv=None):
     print "INFO: Working on cluster %s (z=%.4f)" % (config['cluster'],
                                                     config['redshift'])
     print "INFO: Working on filters", filters
-    print "WARNING: Implementation not finished for this part of the analysis."
-    print "EXIT."
+
+    data = cdata.read_data(args.input)
+    background.get_background(data['forced'])
 
 
 def shear(argv=None):
@@ -284,4 +286,6 @@ def pipeline(argv=None):
                         help="Overwrite the output files if they exist already")
     args = parser.parse_args(argv)
 
+    load_data()
+    extinction(argv=None)
     print "TBD", args.config
