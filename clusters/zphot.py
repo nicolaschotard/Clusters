@@ -7,6 +7,10 @@ import pylab as P
 import seaborn
 import subprocess
 
+from astropy.io import ascii
+from astropy.table import Table
+from astropy.coordinates import SkyCoord
+
 
 class LEPHARE(object):
 
@@ -277,3 +281,79 @@ class LEPHARO(object):
 def dict_to_array(d, filters='ugriz'):
     """Transform a dictionnary into a list of arrays."""
     return N.array([N.array(d[f]) for f in filters])
+
+
+class ZSPEC(object):
+    """Compare spectroscopic and photometric redshifts."""
+
+    def __init__(self, sfile, names, unit='deg'):
+        """Read the input data file and organize the data.
+
+        :param str sfile: File containing the spectroscopic redshift
+        :param list names: A list of names for the columns. You must use 'ra' and 'dec'
+         for the coordinates.
+        :param str unit: Unit of the given coordinates ('deg', 'rad'). Should be understandable by
+         astropy.coordinates.SkyCoord
+
+        The spectroscopic redshift must be named 'zspec'.
+        """
+        self.sfile = sfile
+        self.data = ascii.read(sfile, names=names)
+        if 'ra' not in self.data.keys():
+            raise IOError("RA coordinate must be called 'ra'")
+        elif 'dec' not in self.data.keys():
+            raise IOError("DEC coordinate must be called 'dec'")
+        elif 'zspec' not in self.data.keys():
+            raise IOError("Spectroscopic reshift must be 'zspec'")
+        self.skycoords = SkyCoord(self.data['ra'], self.data['dec'], unit=unit)
+        self.zphot = self.skycoords_phot = self.match = None
+
+    def load_zphot(self, ra, dec, zphot, unit='deg'):
+        """Load the photometric informations and match them to the spectro ones.
+
+        :param list ra: List of RA coordinates
+        :param list dec: List of DEC coordinates
+        :param list zphot: List of photometric redshift
+        :param list unit: List of RA coordinates
+
+        All lists must have the same length.
+        """
+        assert len(ra) == len(dec) == len(zphot)
+        self.zphot = Table([ra, dec, zphot], names=['ra', 'dec', 'zphot'])
+        self.skycoords_phot = SkyCoord(ra, dec, unit=unit)
+        self.match = self.skycoords.match_to_catalog_sky(self.skycoords_phot)
+
+    def plot(self, cut=0.05):
+        """Plot a sky-map of the matches.
+
+        TODO:
+
+         - convert degree to mas
+         - apply quality cuts on photometric redshift measurments
+         - bug when loading 0018.zcat
+        """
+        if self.match is None:
+            raise IOError("ERROR: You must load the photometric data first (load_zphot).")
+
+        zspec = self.data['zspec']
+        zphot = self.zphot['zphot'][self.match[0]]
+        sdist = N.array(self.match[1])
+
+        filt = sdist < cut
+        zspec, zphot, sdist = [x[filt] for x in [zspec, zphot, sdist]]
+
+        fig = P.figure(figsize=(15, 8))
+
+        # z-phot as a function of z-spec
+        ax = fig.add_subplot(121, xlabel='Z-spec', ylabel='Z-phot')
+        scat = ax.scatter(zspec, zphot, c=sdist, cmap=(P.cm.copper))
+        cb = fig.colorbar(scat)
+        cb.set_label('On-sky distance (deg)')
+        ax.set_title("%i galaxies" % len(self.match[0]))
+
+        # z-phot - zspec as a function of sources on-sky distances
+        ax = fig.add_subplot(122, xlabel='On-sky distance', ylabel='(Z-phot - Z-spec)')
+        scat = ax.scatter(sdist, zphot - zspec, color='k')
+        ax.set_title("%i galaxies" % len(self.match[0]))
+
+        P.show()

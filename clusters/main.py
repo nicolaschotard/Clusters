@@ -114,11 +114,11 @@ def extinction(argv=None):
 def doplot(data, config, zmin=0, zmax=999):
     """Make a few plots."""
     print "INFO: Making some plots"
-    data.hist('Z_BEST', min=0, nbins=100, xlabel='Photometric redshift',
+    data.hist('Z_BEST', minv=0, nbins=100, xlabel='Photometric redshift',
               figname=config['cluster'],
               title="LEPHARE photo-z for %s (%i sources)" %
               (config['cluster'], data.nsources), zclust=config['redshift'])
-    data.hist('CHI_BEST', nbins=100, max=100, figname=config['cluster'],
+    data.hist('CHI_BEST', nbins=100, maxv=100, figname=config['cluster'],
               title="LEPHARE photo-z for %s (%i sources)" %
               (config['cluster'], data.nsources))
     data.plot('CHI_BEST', 'Z_BEST', miny=0, figname=config['cluster'])
@@ -209,7 +209,9 @@ def photometric_redshift(argv=None):
     print "INFO: LEPHARE data saved in", args.output
 
     if args.plot:
-        doplot(zphot.data_out, config, args)
+        doplot(zphot.data_out, config,
+               float(args.zrange.split(',')[0]),
+               float(args.zrange.split(',')[1]))
 
 
 def getbackground(argv=None):
