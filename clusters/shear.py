@@ -5,11 +5,11 @@ import pylab
 import seaborn
 
 
-def compute_shear(e1r, e2r, e1i, e2i, distx, disty):
+def compute_shear(e1, e2, distx, disty):
     """Compute the shear."""
     phi = numpy.arctan2(disty, distx)
-    gamt = - (e1i * numpy.cos(2.0 * phi) + e2i * numpy.cos(2.0 * phi))
-    gamc = - e1i * numpy.sin(2.0 * phi) + e2i * numpy.cos(2.0 * phi)
+    gamt = - (e1 * numpy.cos(2.0 * phi) + e2 * numpy.cos(2.0 * phi))
+    gamc = - e1 * numpy.sin(2.0 * phi) + e2 * numpy.cos(2.0 * phi)
     dist = numpy.sqrt(distx**2 + disty**2)
     return gamt, gamc, dist
 
@@ -33,17 +33,20 @@ def analysis(table, xclust, yclust):
     disty = table["y_Src"][table['filter'] == 'r'] - yclust
 
     # Quality cuts
-    filt = table['modelfit_CModel_mag'][table['filter'] == 'r'] < 23.5  # magnitude cut
-    filt &= table['ext_shapeHSM_HsmShapeRegauss_resolution'][table['filter'] == 'i'] \
-            > 0.4  # resolution cut
-    filt &= (abs(e1i) < 1) & (abs(e2i) < 1)  # ellipticity cut
-    filt &= (abs(e1r - e1i) < 0.5) & (abs(e2r - e2i) < 0.5)  # er ~= ei
+    # magnitude cut
+    filt = table['modelfit_CModel_mag'][table['filter'] == 'r'] < 23.5
+    # resolution cut
+    filt &= table['ext_shapeHSM_HsmShapeRegauss_resolution'][table['filter'] == 'i'] > 0.4
+    # ellipticity cut
+    filt &= (abs(e1i) < 1) & (abs(e2i) < 1)
+    # er ~= ei
+    filt &= (abs(e1r - e1i) < 0.5) & (abs(e2r - e2i) < 0.5)
 
     # Apply cuts
-    e1r, e2r, e1i, e2i, distx, disty = [x[filt] for x in [e1r, e2r, e1i, e2i, distx, disty]]
+    e1i, e2i, distx, disty = [x[filt] for x in [e1i, e2i, distx, disty]]
 
     # Comput the shear
-    gamt, gamc, dist = compute_shear(e1r, e2r, e1i, e2i, distx, disty)
+    gamt, gamc, dist = compute_shear(e1i, e2i, distx, disty)
 
     # Make some plots
     plot_shear(gamt, gamc, dist)
@@ -54,42 +57,44 @@ def plot_shear(gamt, gamc, dist, drange=(0, 8500), nbins=8):
 
     dval, step = numpy.linspace(drange[0], drange[1], nbins, retstep=True)
 
-    fig = pylab.figure(figsize=(15, 8))
-    ax0 = fig.add_subplot(121, xlabel='Gamt')
-    ax1 = fig.add_subplot(122, xlabel='Gamc')
-    ax0.hist(gamt, bins=200, range=[-2, 2])
-    ax1.hist(gamc, bins=200, range=[-2, 2])
+    plot_hist([gamt, gamc], ['Gamt', 'Gamc'])
+    plot_hist([gamt, gamc], ['Gamt', 'Gamc'], nbins=80, xrange=(-0.2, 0.2))
 
-    fig = pylab.figure(figsize=(15, 8))
-    ax0 = fig.add_subplot(121, xlabel='Gamt')
-    ax1 = fig.add_subplot(122, xlabel='Gamc')
-    ax0.hist(gamt, bins=80, range=[-0.2, 0.2])
-    ax1.hist(gamc, bins=80, range=[-0.2, 0.2])
-
-    fig = pylab.figure(figsize=(15, 8))
-    ax0 = fig.add_subplot(121, xlabel='Dist', ylabel='Gamt')
-    ax1 = fig.add_subplot(122, xlabel='Dist', ylabel='Gamc')
-    ax0.scatter(dist, gamt, s=1, color='b')
-    ax0.set_ylim([-1., 1.])
-    ax1.scatter(dist, gamc, s=1, color='b')
-    ax1.set_ylim([-1., 1.])
+    plot_scatter([dist, dist], [gamt, gamc],
+                 ['Dist', 'Dist'], ['Gamt', 'Gamc'], yrange=(-1, 1))
 
     masks = [(dist > d - step / 2) & (dist <= d + step / 2) for d in dval]
     tshear = [numpy.mean(gamt[mask]) for mask in masks]
     cshear = [numpy.mean(gamc[mask]) for mask in masks]
-    tsheare = [numpy.std(gamt[mask])/numpy.sqrt(len(gamt[mask])) for mask in masks]
-    csheare = [numpy.std(gamc[mask])/numpy.sqrt(len(gamc[mask])) for mask in masks]
+    tsheare = [numpy.std(gamt[mask]) / numpy.sqrt(len(gamt[mask])) for mask in masks]
+    csheare = [numpy.std(gamc[mask]) / numpy.sqrt(len(gamc[mask])) for mask in masks]
 
-    fig = pylab.figure(figsize=(15, 8))
-    ax0 = fig.add_subplot(121, ylabel='Tangential shear',
-                          xlabel='Distance to cluster center (px)')
-    ax1 = fig.add_subplot(122, ylabel='Cross shear',
-                          xlabel='Distance to cluster center (px)')
-    ax0.errorbar(dval, tshear, yerr=tsheare)
-    ax1.errorbar(dval, cshear, yerr=csheare)
-    ax0.set_xlim(-500, 9000)
-    ax0.set_ylim(-0.06, 0.08)
-    ax1.set_xlim(-500, 9000)
-    ax1.set_ylim(-0.06, 0.08)
+    plot_scatter([dval, dval], [tshear, cshear],
+                 ['Distance to cluster center (px)', 'Distance to cluster center (px)'],
+                 ['Tangential shear', 'Cross shear'], yerrs=[tsheare, csheare],
+                 xrange=(-500, 9000), yrange=(-0.06, 0.08))
 
     pylab.show()
+
+
+def plot_hist(xs, labels, nbins=200, xrange=(-2, 2)):
+    """Plot multiple histograms in subplots."""
+    fig = pylab.figure(figsize=(15, 8))
+    for i, x in enumerate(xs):
+        ax = fig.add_subplot(1, len(xs), i+1, xlabel=labels[i])
+        ax.hist(x, bins=nbins, range=xrange)
+
+def plot_scatter(xs, ys, xlabels, ylabels, yerrs=None, xrange=None, yrange=None):
+    """Plot multiple histogramsscatter plots in subplots."""
+    fig = pylab.figure(figsize=(15, 8))
+    for i, x in enumerate(xs):
+        ax = fig.add_subplot(1, len(xs), i+1, xlabel=xlabels[i], ylabel=ylabels[i])
+        ax.axhline(0, color='k', ls=':')
+        ax.scatter(x, ys[i], s=1, color='b')
+        if yerrs is not None:
+            ax.errorbar(x, ys[i], yerr=yerrs[i])
+        if xrange is not None:
+            ax.set_xlim(xrange)
+        if yrange is not None:
+            ax.set_ylim(yrange)
+
