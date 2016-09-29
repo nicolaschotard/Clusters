@@ -3,6 +3,7 @@
 import os
 import yaml
 import sys
+import numpy as N
 from argparse import ArgumentParser
 
 from astropy.table import Table, hstack
@@ -114,7 +115,7 @@ def extinction(argv=None):
 def doplot(data, config, zmin=0, zmax=999):
     """Make a few plots."""
     print "INFO: Making some plots"
-    data.hist('Z_BEST', minv=0, nbins=100, xlabel='Photometric redshift',
+    data.hist('Z_BEST', minv=0, nbins=100, xlabel='Photometric_redshift',
               figname=config['cluster'],
               title="LEPHARE photo-z for %s (%i sources)" %
               (config['cluster'], data.nsources), zclust=config['redshift'])
@@ -145,7 +146,7 @@ def photometric_redshift(argv=None):
     parser.add_argument("--overwrite", action="store_true", default=False,
                         help="Overwrite the output files if they exist already")
     parser.add_argument("--zpara",
-                        help="LEPHARE configuration file (zphot.para)")
+                        help="Comma-separated LEPHARE configuration files (zphot.para)")
     parser.add_argument("--plot", action='store_true', default=False,
                         help="Make some plots")
     parser.add_argument("--zrange", default="0,999",
@@ -167,6 +168,7 @@ def photometric_redshift(argv=None):
         if not args.overwrite and os.path.exists(args.output):
             raise IOError("Output already exists. Remove themit or use --overwrite.")
 
+       
     print "INFO: Working on cluster %s (z=%.4f)" % (config['cluster'], config['redshift'])
     print "INFO: Working on filters", config['filters']
 
@@ -188,30 +190,50 @@ def photometric_redshift(argv=None):
 
     # Run LEPHARE
     print "INFO: LEPHARE will run on", len(data) / len(config['filters']), "sources"
-    zphot = czphot.LEPHARE([data[mag][data['filter'] == f]
-                            for f in config['filters']],
-                           [data[args.mag + "Sigma"][data['filter'] == f]
-                            for f in config['filters']],
-                           config['cluster'], filters=config['filters'], zpara=args.zpara,
-                           RA=data['coord_ra_deg'][data['filter'] == config['filters'][0]],
-                           DEC=data['coord_dec_deg'][data['filter'] == config['filters'][0]],
-                           ID=data['objectId'][data['filter'] == config['filters'][0]])
-    zphot.check_config()
-    zphot.run()
+
+    if args.zpara is None:
+        Nconfig = [0]
+        args.zpara=os.environ["LEPHAREDIR"] + "/config/zphot_megacam.para"
+    else:
+        Nconfig=N.arange(len(args.zpara.split(',')))
+    
+    for i in Nconfig:
+        if (len(Nconfig) == 1):
+            if args.extinction is not None:
+                zpara_id = '_e'
+            else:
+                zpara_id = ''
+        else:
+            if args.extinction is not None:
+                zpara_id = '_'+str(i)+'e'
+            else:
+                zpara_id = '_'+str(i)
+
+        print "Running Config "+zpara_id
+        zphot = czphot.LEPHARE([data[mag][data['filter'] == f]
+                                for f in config['filters']],
+                            [data[args.mag + "Sigma"][data['filter'] == f]
+                                for f in config['filters']],
+                            config['cluster'], filters=config['filters'], zpara=args.zpara.split(',')[i],
+                            RA=data['coord_ra_deg'][data['filter'] == config['filters'][0]],
+                            DEC=data['coord_dec_deg'][data['filter'] == config['filters'][0]],
+                            ID=data['objectId'][data['filter'] == config['filters'][0]], zpara_id=zpara_id)
+        zphot.check_config()
+        zphot.run()
 
     # Create a new table and save it
-    new_tab = hstack([data['objectId',
-                           'coord_ra_deg',
-                           'coord_dec_deg'][data['filter'] == config['filters'][0]],
-                      Table(zphot.data_out.data_dict)], join_type='inner')
-    new_tab.write(args.output, path='zphot', compression=True,
-                  serialize_meta=True, overwrite=args.overwrite)
-    print "INFO: LEPHARE data saved in", args.output
+        new_tab = hstack([data['objectId',
+                                'coord_ra_deg',
+                                'coord_dec_deg'][data['filter'] == config['filters'][0]],
+                            Table(zphot.data_out.data_dict)], join_type='inner')
+        new_tab.write(args.output.split('.hdf5')[0]+zpara_id+'.hdf5', path='zphot', compression=True,
+                        serialize_meta=True, overwrite=args.overwrite)
+        print "INFO: LEPHARE data saved in", args.output
 
-    if args.plot:
-        doplot(zphot.data_out, config,
-               float(args.zrange.split(',')[0]),
-               float(args.zrange.split(',')[1]))
+        if args.plot:
+            doplot(zphot.data_out, config,
+            float(args.zrange.split(',')[0]),
+            float(args.zrange.split(',')[1]))
 
 
 def getbackground(argv=None):

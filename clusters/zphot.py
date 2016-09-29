@@ -17,7 +17,7 @@ class LEPHARE(object):
     """Wrapper to the LEPHARE photometric redshift code."""
 
     def __init__(self, mags, magserr, cname, input_name=None, filters=None,
-                 zpara=None, RA=None, DEC=None, ID=None):
+                 zpara=None, RA=None, DEC=None, ID=None, zpara_id=None):
         """
         Run the LEPHARE progam (zphota).
 
@@ -34,18 +34,20 @@ class LEPHARE(object):
         self.magserr = magserr
         self.cluster_name = cname
         self.filters = filters
-        self.config = os.environ["LEPHAREDIR"] + "/config/zphot_megacam.para" \
-                      if zpara is None else zpara
+        self.config = zpara
+        #self.config = os.environ["LEPHAREDIR"] + "/config/zphot_megacam.para" \
+        #                  if zpara is None else zpara
         self.RA, self.DEC, self.ID = RA, DEC, ID
-
+        if zpara_id is not None:
+            self.zpara_id=zpara_id
         if input_name is not None:
             self.input = input_name
-            self.output = self.input.split(".")[0] + "_zphot.out"
+            self.output = self.input.split(".hdf5")[0] + "_zphot"+self.zpara_id+".out"
         else:
-            self.input = cname + "_zphot.in"
-            self.output = cname + "_zphot.out"
+            self.input = cname + "_zphot"+self.zpara_id+".in"
+            self.output = cname + "_zphot"+self.zpara_id+".out"
         self.allinput = self.input.replace('.in', '.all')
-
+        
         # initialize lephare output variables
         self.lephare_out = None
         self.data_out = None
@@ -208,8 +210,10 @@ class LEPHARO(object):
         if zclust is not None:
             ax.axvline(zclust, color='r', label='Cluster redshift (%.4f)' % zclust)
             ax.legend(loc='best')
-
-        fig.savefig(figname + "_" + xlabel + "_zphot_hist.png")
+        
+        #fig.savefig(figname + "_" + xlabel + "_zphot_hist.png")
+        fig.savefig(self.output.replace('.out','').replace('_zphot','') + "_" + xlabel + "_zphot_hist.png")
+    
 
     def plot(self, px, py, **kwargs):
         """
@@ -250,7 +254,8 @@ class LEPHARO(object):
             ax.set_title(kwargs['title'])
 
         if 'figname' in kwargs and kwargs['figname'] is not None:
-            fig.savefig(kwargs['figname'] + "_%s_vs_%s_zphot.png" % (py, px))
+            fig.savefig(self.output.replace('.out','').replace('_zphot','') + "_%s_vs_%s_zphot.png" % (py, px))
+ #          fig.savefig(kwargs['figname'] + "_%s_vs_%s_zphot.png" % (py, px))
         else:
             fig.savefig("%s_vs_%s_zphot.png" % (py, px))
 
@@ -275,8 +280,9 @@ class LEPHARO(object):
             ax.set_title(title)
         ax.set_xlim(xmin=min(ra) - 0.001, xmax=max(ra) + 0.001)
         ax.set_ylim(ymin=min(dec) - 0.001, ymax=max(dec) + 0.001)
-        fig.savefig(figname + "_redshift_map.png")
-
+        fig.savefig(self.output.replace('.out','').replace('_zphot','') + "_redshift_map.png")
+        #fig.savefig(figname + "_redshift_map.png")
+    
 
 def dict_to_array(d, filters='ugriz'):
     """Transform a dictionnary into a list of arrays."""
