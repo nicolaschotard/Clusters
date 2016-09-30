@@ -126,12 +126,12 @@ have to run in the right order.
 
     clusters_zphot.py config.yaml data.hdf5 (--extinction extinction.hdf) (--output zphot.hdf5)
 
-  The configuration file used in LEPHARE can be given with the option
-   ``--zpara``. The code will loop over the different files and run
-   LEPHARE for each of them. All results are saved in the same
-   ``hdf5`` file. This list of configuration file can also be given in
-   the CONFIG.yaml file (see above). ``--zpara`` will overwrite what
-   is given in the configuration file.
+The configuration file(s) used in LEPHARE can be given with the option
+``--zpara``. The code will loop over the different files and run
+LEPHARE for each of them. All results are saved in the same ``hdf5``
+file. This list of configuration file can also be given in the
+CONFIG.yaml file (see above). ``--zpara`` will overwrite what is given
+in the configuration file.
 
 - Exctract background galaxies from the whole sample: remove the
   cluster galaxies (red sequence) and other foreground galaxies using

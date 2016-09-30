@@ -58,10 +58,10 @@ def plot_shear(gamt, gamc, dist, drange=(0, 8500), nbins=8):
     dval, step = numpy.linspace(drange[0], drange[1], nbins, retstep=True)
 
     plot_hist([gamt, gamc], ['Gamt', 'Gamc'])
-    plot_hist([gamt, gamc], ['Gamt', 'Gamc'], nbins=80, xrange=(-0.2, 0.2))
+    plot_hist([gamt, gamc], ['Gamt', 'Gamc'], nbins=80, xarange=(-0.2, 0.2))
 
     plot_scatter([dist, dist], [gamt, gamc],
-                 ['Dist', 'Dist'], ['Gamt', 'Gamc'], yrange=(-1, 1))
+                 ['Dist', 'Dist'], ['Gamt', 'Gamc'], yarange=(-1, 1))
 
     masks = [(dist > d - step / 2) & (dist <= d + step / 2) for d in dval]
     tshear = [numpy.mean(gamt[mask]) for mask in masks]
@@ -72,19 +72,19 @@ def plot_shear(gamt, gamc, dist, drange=(0, 8500), nbins=8):
     plot_scatter([dval, dval], [tshear, cshear],
                  ['Distance to cluster center (px)', 'Distance to cluster center (px)'],
                  ['Tangential shear', 'Cross shear'], yerrs=[tsheare, csheare],
-                 xrange=(-500, 9000), yrange=(-0.06, 0.08))
+                 xarange=(-500, 9000), yarange=(-0.06, 0.08))
 
     pylab.show()
 
 
-def plot_hist(xs, labels, nbins=200, xrange=(-2, 2)):
+def plot_hist(xs, labels, nbins=200, xarange=(-2, 2)):
     """Plot multiple histograms in subplots."""
     fig = pylab.figure(figsize=(15, 8))
     for i, x in enumerate(xs):
         ax = fig.add_subplot(1, len(xs), i+1, xlabel=labels[i])
-        ax.hist(x, bins=nbins, range=xrange)
+        ax.hist(x, bins=nbins, range=xarange)
 
-def plot_scatter(xs, ys, xlabels, ylabels, yerrs=None, xrange=None, yrange=None):
+def plot_scatter(xs, ys, xlabels, ylabels, yerrs=None, xarange=None, yarange=None):
     """Plot multiple histogramsscatter plots in subplots."""
     fig = pylab.figure(figsize=(15, 8))
     for i, x in enumerate(xs):
@@ -93,8 +93,8 @@ def plot_scatter(xs, ys, xlabels, ylabels, yerrs=None, xrange=None, yrange=None)
         ax.scatter(x, ys[i], s=1, color='b')
         if yerrs is not None:
             ax.errorbar(x, ys[i], yerr=yerrs[i])
-        if xrange is not None:
-            ax.set_xlim(xrange)
-        if yrange is not None:
-            ax.set_ylim(yrange)
+        if xarange is not None:
+            ax.set_xlim(xarange)
+        if yarange is not None:
+            ax.set_ylim(yarange)
 

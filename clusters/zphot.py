@@ -37,8 +37,8 @@ class LEPHARE(object):
         """
         self.data = {'mag': magnitudes, 'err': errors}
         self.kwargs = kwargs
-        self.config = os.environ["LEPHAREDIR"] + "/config/zphot_megacam.para" \
-                      if zpara is None else zpara
+        self.config = os.environ["LEPHAREDIR"] + "/config/zphot_megacam.para" if \
+                      zpara is None else zpara
 
         # Name of created files?
         self.files = {}

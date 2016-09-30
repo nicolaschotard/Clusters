@@ -3,7 +3,6 @@
 import os
 import yaml
 import sys
-import numpy as N
 from argparse import ArgumentParser
 
 from astropy.table import Table, hstack
@@ -127,11 +126,12 @@ def doplot(data, config, zmin=0, zmax=999):
 
 def photometric_redshift(argv=None):
     """Comput photometric redshift using LEPHARE."""
-    description = """Comput photometric redshift using LEPHARE."""
-    prog = "clusters_zphot.py"
-    usage = """%s [options] config input""" % prog
+    info = {}
+    info['description'] = """Comput photometric redshift using LEPHARE."""
+    info['prog'] = "clusters_zphot.py"
+    info['usage'] = """%s [options] config input""" % info['prog']
 
-    parser = ArgumentParser(prog=prog, usage=usage, description=description)
+    parser = ArgumentParser(prog=info['prog'], usage=info['usage'], description=info['description'])
     parser.add_argument('config', help='Configuration (yaml) file')
     parser.add_argument('input', help='Input data file')
     parser.add_argument("--output",
@@ -187,17 +187,16 @@ def photometric_redshift(argv=None):
     print "INFO: LEPHARE will run on", len(data) / len(config['filters']), "sources"
 
     if args.zpara is None:
-        args.zpara = os.environ["LEPHAREDIR"] + "/config/zphot_megacam.para" \
-                     if 'zpara' not in config else config['zpara']
+        args.zpara = os.environ["LEPHAREDIR"] + "/config/zphot_megacam.para" if \
+                     'zpara' not in config else config['zpara']
 
     for i, zpara in enumerate(args.zpara.split(',') if isinstance(args.zpara, str) else args.zpara):
         print "\nINFO: Configuration for LEPHARE from:", zpara
-        current = zpara.split('/')[-1].replace('.para', '')
-        kwargs = {'basename': config['cluster'] + '_' + current,
+        kwargs = {'basename': config['cluster'] + '_' + zpara.split('/')[-1].replace('.para', ''),
                   'filters': config['filters'],
                   'ra': data['coord_ra_deg'][data['filter'] == config['filters'][0]],
                   'dec': data['coord_dec_deg'][data['filter'] == config['filters'][0]],
-                  'id': data['objectId'][data['filter'] == config['filters'][0]],}
+                  'id': data['objectId'][data['filter'] == config['filters'][0]]}
         zphot = czphot.LEPHARE([data[mag][data['filter'] == f] for f in config['filters']],
                                [data[args.mag + "Sigma"][data['filter'] == f]
                                 for f in config['filters']],
@@ -206,16 +205,16 @@ def photometric_redshift(argv=None):
         zphot.run()
 
         # Create a new table and save it
-        path = "zphot_%s" % current
+        path = "zphot_%s" % zpara.split('/')[-1].replace('.para', '')
         new_tab = hstack([data['objectId',
                                'coord_ra_deg',
                                'coord_dec_deg'][data['filter'] == config['filters'][0]],
                           Table(zphot.data_out.data_dict)], join_type='inner')
         if i == 0:
-            new_tab.write(args.output, path=path,compression=True,
+            new_tab.write(args.output, path=path, compression=True,
                           serialize_meta=True, overwrite=args.overwrite)
         else:
-            new_tab.write(args.output, path=path,compression=True,
+            new_tab.write(args.output, path=path, compression=True,
                           serialize_meta=True, append=True)
         print "INFO: LEPHARE data saved in", args.output, "as", path
 
