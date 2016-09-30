@@ -208,6 +208,42 @@ def get_patch_data(butler, p, f):
     return {'meas': meas, 'forced': forced, 'calexp': calexp}
 
 
+def merge_dicts(*dict_args):
+    """Merge two dictionnary.
+
+    Given any number of dicts, shallow copy and merge into a new dict,
+    precedence goes to key value pairs in latter dicts.
+    """
+    result = {}
+    for dictionary in dict_args:
+        result.update(dictionary)
+    return result
+        
+def get_all_ccd_data(path):
+    """."""
+    import lsst.daf.persistence as dafPersist
+    butler = dafPersist.Butler(path)
+    keys = ['ccd', 'date', 'filter', 'object', 'runId', 'visit']
+    print "INFO: Getting list of available data"
+    dids = [merge_dicts(dict(zip(keys, v)), {'tract': 0})
+            for v in butler.queryMetadata("forced_src", format=keys)]
+    dids = [d for d in dids if os.path.exists(path + "/forced/%s/%s/%s/%s/%s/FORCEDSRC-%i-%i.fits"%\
+                                              (d['runId'], d['object'], d['date'], d['filter'],
+                                               d['tract'], d['visit'], d['ccd']))]
+    print "INFO: Getting the data from the butler for %i fits files" % len(dids)
+    tables = []
+    for i, did in enumerate(dids):
+        print i, len(dids)
+        tables.append(get_astropy_table(butler.get("forced_src", dataId=did)))
+    #tables = [get_astropy_table(butler.get("forced_src", dataId=did)) for did in dids]
+    print "INFO: Adding new columns", keys
+    print "later..."
+    print "INFO: Stacking all the astropy tables into a single table"
+    print "later..."
+    #table = vstack(tables)
+    return tables
+
+
 def from_list_to_array(d):
     """Transform lists (of dict of list) into numpy arrays."""
     if isinstance(d, (list, numpy.ndarray)):
