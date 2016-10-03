@@ -1,4 +1,4 @@
-"""Data builder and parser for the Clusters package."""
+e"""Data builder and parser for the Clusters package."""
 
 import os
 import sys
@@ -183,7 +183,7 @@ def pixel_to_skycoord(x, y, wcs):
     return utils.pixel_to_skycoord(x, y, wcs)
 
 
-def get_all_data(path, patches, filters, add_extra=False, keys={}, show=False):
+def get_all_data(path, patches, filters, add_extra=False, keys=None, show=False):
     """
     Get butler data for a list of patches and filters.
 
@@ -219,7 +219,7 @@ def get_all_data(path, patches, filters, add_extra=False, keys={}, show=False):
     return out
 
 
-def get_filter_data(butler, patches, f, keys={}):
+def get_filter_data(butler, patches, f, keys=None):
     """
     Get butler data for a list of patches, for a given filter.
 
@@ -229,8 +229,9 @@ def get_filter_data(butler, patches, f, keys={}):
     return {p: get_patch_data(butler, p, f, keys=keys) for p in patches}
 
 
-def get_patch_data(butler, p, f, keys={}):
+def get_patch_data(butler, p, f, keys=None):
     """Get bulter data for a given set of patch and filter."""
+    keys = {} if keys is None else keys
     print "INFO:   loading patch", p
     mkeys = "*" if 'deepCoadd_meas' not in keys else keys['deepCoadd_meas']
     fkeys = "*" if 'deepCoadd_forced_src' not in keys else keys['deepCoadd_forced_src']

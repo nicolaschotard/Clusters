@@ -49,7 +49,7 @@ def load_data(argv=None):
 
     data = cdata.get_all_data(config['butler'], config['patches'],
                               config['filters'], add_extra=True, show=args.show,
-                              keys=config['keys'] if 'keys' in config else {})
+                              keys=config['keys'] if 'keys' in config else None)
     dataf = cdata.filter_table(data)
     cdata.write_data(data, output, overwrite=args.overwrite)
     cdata.write_data(dataf, output_filtered, overwrite=args.overwrite)
