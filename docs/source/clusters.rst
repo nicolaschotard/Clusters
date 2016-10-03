@@ -4,6 +4,14 @@ clusters package
 Submodules
 ----------
 
+clusters.background module
+--------------------------
+
+.. automodule:: clusters.background
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 clusters.data module
 --------------------
 
@@ -28,10 +36,10 @@ clusters.main module
     :undoc-members:
     :show-inheritance:
 
-clusters.red_sequence module
-----------------------------
+clusters.shear module
+---------------------
 
-.. automodule:: clusters.red_sequence
+.. automodule:: clusters.shear
     :members:
     :undoc-members:
     :show-inheritance:

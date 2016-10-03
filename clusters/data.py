@@ -1,12 +1,13 @@
 """Data builder and parser for the Clusters package."""
 
 import os
+import sys
 import yaml
 import numpy
 from astropy.wcs import WCS, utils
 from astropy.coordinates import SkyCoord, Angle
 from astropy.table import Table, Column, vstack
-
+from progressbar import Bar, ProgressBar, Percentage, ETA
 
 def load_config(config):
     """Load the configuration file, and return the corresponding dictionnary.
@@ -24,14 +25,14 @@ def shorten(doc):
                      for w in doc.split()])
 
 
-def get_astropy_table(cat):
+def get_astropy_table(cat, keys="*", **kwargs):
     """Convert an afw data table into a simple astropy table.
 
     :param cat: an afw data table
     :return: the corresponding astropy.table.Table
     """
     schema = cat.getSchema()
-    dic = cat.getColumnView().extract("*")
+    dic = cat.getColumnView().extract(*keys)
     tab = Table(dic)
     for k in schema.getNames():
         tab[k].description = shorten(schema[k].asField().getDoc())
@@ -39,20 +40,28 @@ def get_astropy_table(cat):
     return tab
 
 
-def get_from_butler(butler, key, filt, patch, **kwargs):
+def get_from_butler(butler, catalog, filt, patch, **kwargs):
     """
-    Return selected data from a butler for a given key, tract, patch and filter.
+    Return selected data from a butler for a given catalog, tract, patch and filter.
+
+    :param string butler: a butler instance
+    :param string catalog: name of a catalog
+    :param string filter: name a a filter
+    :param string patch: name of a patch
 
     Possible kwargs are
-    - tract int: tract in which to look for data (default will be 0)
-    - table bool: If True, an astropy tab le will be returned (default is False)
+
+    :param int tract: tract in which to look for data (default will be 0)
+    :param bool table: If True, an astropy tab le will be returned (default is False)
+    :param list keys: a list of keys to get from the catalog
+
     Either retrun the object or the astropy table version of it
     """
     tract = 0 if 'tract' not in kwargs else kwargs['tract']
     table = False if 'table' not in kwargs else kwargs['table']
     dataid = {'tract': tract, 'filter': filt, 'patch': patch}
-    b = butler.get(key, dataId=dataid)
-    return b if not table else get_astropy_table(b)
+    b = butler.get(catalog, dataId=dataid)
+    return b if not table else get_astropy_table(b, **kwargs)
 
 
 def add_magnitudes(t, getmagnitude):
@@ -174,36 +183,60 @@ def pixel_to_skycoord(x, y, wcs):
     return utils.pixel_to_skycoord(x, y, wcs)
 
 
-def get_all_data(path, patches, filters, add_extra=False):
+def get_all_data(path, patches, filters, add_extra=False, keys={}, show=False):
     """
     Get butler data for a list of patches and filters.
 
     Return a dictionnary with filters as keys
     """
     import lsst.daf.persistence as dafPersist
-    print "INFO: Loading data from", path, " pathes:", patches, " filters:", filters
+    if show:
+        patches = [patches[0]]
+        filters = filters[0]
+    else:
+        print "INFO: Loading data from", path, " pathes:", patches, " filters:", filters
     butler = dafPersist.Butler(path)
-    d = {f: get_filter_data(butler, patches, f) for f in filters}
+    d = {f: get_filter_data(butler, patches, f, keys=keys) for f in filters}
     out = stack_tables(d) if not add_extra else stack_tables(add_extra_info(d))
+    if show:
+        print "INFO: Available list of keys for the deepCoadd_forced_src catalog"
+        table = Table(numpy.transpose([[k, out['forced'][k].description, out['forced'][k].unit]
+                                       for k in sorted(out['forced'].keys())]).tolist(),
+                      names=["Keys", "Description", "Units"])
+        print " -> All saved in deepCoadd_forced_src_keys.txt"
+        table.write("deepCoadd_forced_src_keys.txt", format='ascii', comment="#")
+
+        print "INFO: Available list of keys for the deepCoadd_meas catalog"
+        table = Table(numpy.transpose([[k, out['meas'][k].description, out['meas'][k].unit]
+                                       for k in sorted(out['meas'].keys())]).tolist(),
+                      names=["Keys", "Description", "Units"])
+        print " -> All saved in deepCoadd_meas_keys.txt"
+        table.write("deepCoadd_meas_keys.txt", format='ascii', comment="#")
+
+        sys.exit()
+
     out['wcs'] = get_wcs(d)
     return out
 
 
-def get_filter_data(butler, patches, f):
+def get_filter_data(butler, patches, f, keys={}):
     """
     Get butler data for a list of patches, for a given filter.
 
     Return a dictionnary with patches as keys
     """
     print "INFO: loading filter", f
-    return {p: get_patch_data(butler, p, f) for p in patches}
+    return {p: get_patch_data(butler, p, f, keys=keys) for p in patches}
 
 
-def get_patch_data(butler, p, f):
+def get_patch_data(butler, p, f, keys={}):
     """Get bulter data for a given set of patch and filter."""
     print "INFO:   loading patch", p
-    meas = get_from_butler(butler, 'deepCoadd_meas', f, p, table=True)
-    forced = get_from_butler(butler, 'deepCoadd_forced_src', f, p, table=True)
+    mkeys = "*" if 'deepCoadd_meas' not in keys else keys['deepCoadd_meas']
+    fkeys = "*" if 'deepCoadd_forced_src' not in keys else keys['deepCoadd_forced_src']
+    fkeys = keys['deepCoadd_forced_src'] if 'deepCoadd_forced_src' in keys else "*"
+    meas = get_from_butler(butler, 'deepCoadd_meas', f, p, table=True, keys=mkeys)
+    forced = get_from_butler(butler, 'deepCoadd_forced_src', f, p, table=True, keys=fkeys)
     calexp = get_from_butler(butler, 'deepCoadd_calexp', f, p, table=False)
     return {'meas': meas, 'forced': forced, 'calexp': calexp}
 
@@ -218,9 +251,21 @@ def merge_dicts(*dict_args):
     for dictionary in dict_args:
         result.update(dictionary)
     return result
-        
-def get_all_ccd_data(path):
-    """."""
+
+
+def get_ccd_data(path, save=False, keys="*", show=False):
+    """Get the 'forced_src' catalogs.
+
+    .. todo::
+
+     - add the list of needed keys in the config file for the following catalog:
+
+       - forced_src
+       - deepCoadd_meas
+       - deepCoadd_forced_src
+
+     - clean this function and add it to clusters_data
+    """
     import lsst.daf.persistence as dafPersist
     butler = dafPersist.Butler(path)
     keys = ['ccd', 'date', 'filter', 'object', 'runId', 'visit']
@@ -230,18 +275,64 @@ def get_all_ccd_data(path):
     dids = [d for d in dids if os.path.exists(path + "/forced/%s/%s/%s/%s/%s/FORCEDSRC-%i-%i.fits"%\
                                               (d['runId'], d['object'], d['date'], d['filter'],
                                                d['tract'], d['visit'], d['ccd']))]
+    if show:
+        print "INFO: Available list of keys for the forced_src catalog"
+        table = get_astropy_table(butler.get("forced_src", dataId=dids[0]), keys=keys)
+        table = Table(numpy.transpose([[k, table[k].description, table[k].unit]
+                                       for k in sorted(table.keys())]).tolist(),
+                      names=["Keys", "Description", "Units"])
+        print " -> All saved in forced_src_keys.txt"
+        table.write("forced_src_keys.txt", format='ascii', comment="#")
+        sys.exit()
+
     print "INFO: Getting the data from the butler for %i fits files" % len(dids)
-    tables = []
-    for i, did in enumerate(dids):
-        print i, len(dids)
-        tables.append(get_astropy_table(butler.get("forced_src", dataId=did)))
-    #tables = [get_astropy_table(butler.get("forced_src", dataId=did)) for did in dids]
-    print "INFO: Adding new columns", keys
-    print "later..."
-    print "INFO: Stacking all the astropy tables into a single table"
-    print "later..."
-    #table = vstack(tables)
+    pbar = ProgressBar(widgets=[Percentage(), Bar(), ETA()], maxval=len(dids)).start()
+    def get_tables(did, i):
+        """Get a table and add a few keys."""
+        table = get_astropy_table(butler.get("forced_src", dataId=did), keys=keys)
+        for key in did:
+            table.add_column(Column(name=key, data=[did[key]] * len(table)))
+        pbar.update(i+1)
+        return table
+    tables = [get_tables(did, i) for i, did in enumerate(dids)]
+    pbar.finish()
+    if save:
+        save_tables(tables)
     return tables
+
+
+def save_tables(tables):
+    """Save a list of astropy tables in an hdf5 file."""
+    pbar = ProgressBar(widgets=[Percentage(), Bar(), ETA()], maxval=len(tables)).start()
+    for i, table in enumerate(tables):
+        if i == 0:
+            table.write('forced_src.hdf5', path='%i' % i, compression=True,
+                        serialize_meta=True, overwrite=True)
+        else:
+            table.write('forced_src.hdf5', path='%i' % i, compression=True,
+                        serialize_meta=True, append=True)
+        pbar.update(i+1)
+    pbar.finish()
+
+
+def filter_and_stack_tables(tables, **kwargs):
+    """Apply filter on a list of astropy table and vertically stack the resulting table list."""
+    if len(kwargs) == 0:
+        raise IOError("You should at least give one filter, e.g. **{'objectId': 2199694371871}")
+    for k in kwargs:
+        tables = [tables[i][tables[i][k] == kwargs[k]] for i in range(len(tables))]
+    return vstack(tables)
+
+
+def vstack2(tables):
+    """Verticaly stack large amount of astropy tables."""
+    pbar = ProgressBar(widgets=[Percentage(), Bar(), ETA()], maxval=len(tables)).start()
+    table = tables.pop(0)
+    for i in range(len(tables)): #1, len(tables)/10+2):
+        table = vstack([table] + [tables.pop(0)]) # for i in range(len(tables[:10]))])
+        pbar.update(i+1)
+    pbar.finish()
+    return table
 
 
 def from_list_to_array(d):
@@ -336,14 +427,15 @@ def filter_table(t):
 
 
 def getdata(config, output='all_data.hdf5', output_filtered='filtered_data.hdf5', overwrite=False):
-    """Shortuc function to get all the data from a bulter, fitler them, and save same."""
+    """Shortcut function to get all the data from a bulter, fitler them, and save same."""
     if not overwrite:
         if os.path.exists(output) or os.path.exists(output_filtered):
             raise IOError("Output(s) already exist(s). Remove them or use overwrite=True.")
     if isinstance(config, str):
         config = load_config(config)
     d = get_all_data(config['butler'], config['patches'],
-                     config['filters'], add_extra=True)
+                     config['filters'], add_extra=True,
+                     keys=config['keys'] if 'keys' in config else {})
     write_data(d, output, overwrite=overwrite)
     df = filter_table(d)
     write_data(df, output_filtered, overwrite=overwrite)

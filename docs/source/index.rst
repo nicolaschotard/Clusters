@@ -52,3 +52,8 @@ Welcome to Clusters's documentation!
    :maxdepth: 2
 
    modules
+
+.. toctree::
+   :maxdepth: 2
+
+   todo

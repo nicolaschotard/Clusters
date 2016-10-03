@@ -347,7 +347,7 @@ class ZSPEC(object):
     def plot(self, cut=0.05):
         """Plot a sky-map of the matches.
 
-        TODO:
+        .. todo::
 
          - convert degree to mas
          - apply quality cuts on photometric redshift measurments

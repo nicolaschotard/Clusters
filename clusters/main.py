@@ -26,6 +26,8 @@ def load_data(argv=None):
                         help="Name of the output file (hdf5 file)")
     parser.add_argument("--overwrite", action="store_true", default=False,
                         help="Overwrite the output files if they exist already")
+    parser.add_argument("--show", action="store_true", default=False,
+                        help="Show and save the list of available keys in the catalogs, and exit.")
     args = parser.parse_args(argv)
 
     config = cdata.load_config(args.config)
@@ -46,7 +48,8 @@ def load_data(argv=None):
     print "INFO: Butler located under %s" % config['butler']
 
     data = cdata.get_all_data(config['butler'], config['patches'],
-                              config['filters'], add_extra=True)
+                              config['filters'], add_extra=True, show=args.show,
+                              keys=config['keys'] if 'keys' in config else {})
     dataf = cdata.filter_table(data)
     cdata.write_data(data, output, overwrite=args.overwrite)
     cdata.write_data(dataf, output_filtered, overwrite=args.overwrite)

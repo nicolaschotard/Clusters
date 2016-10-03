@@ -6,3 +6,4 @@ pyyaml
 astropy
 requests
 h5py
+progressbar
