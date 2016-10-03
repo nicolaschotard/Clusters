@@ -1,4 +1,4 @@
-e"""Data builder and parser for the Clusters package."""
+"""Data builder and parser for the Clusters package."""
 
 import os
 import sys
