@@ -101,7 +101,9 @@ for MACSJ2243.3-0935.
 +--------------------+--------+-------------------------------------------------------+
 | ``"patches"``      | list   | List of patches to study                              |
 +--------------------+--------+-------------------------------------------------------+
-| ``"zpara"``        | list   | List of configuration files for zphota (optionnal)    |
+| ``"zpara"`` (opt)  | list   | List of configuration files for zphota                |
++--------------------+--------+-------------------------------------------------------+
+| ``"keys"``  (opt)  | dict   | Dictionnary containing list of keys for the catalogs (see below)  |
 +--------------------+--------+-------------------------------------------------------+
 
 
