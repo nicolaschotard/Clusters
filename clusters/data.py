@@ -125,7 +125,7 @@ def add_extra_info(d):
     # compute all magnitudes and positions
     for f in d:  # loop on filters
         for p in d[f]:  # loop on patches
-            for e in ['meas', 'forced']:  # loop on catalogs
+            for e in ['deepCoadd_meas', 'deepCoadd_forced_src']:  # loop on catalogs
                 print "INFO: adding extra info for", f, p, e
                 add_magnitudes(d[f][p][e], mag)
                 add_filter_column(d[f][p][e], f)
@@ -200,15 +200,17 @@ def get_all_data(path, patches, filters, add_extra=False, keys=None, show=False)
     out = stack_tables(d) if not add_extra else stack_tables(add_extra_info(d))
     if show:
         print "INFO: Available list of keys for the deepCoadd_forced_src catalog"
-        table = Table(numpy.transpose([[k, out['forced'][k].description, out['forced'][k].unit]
-                                       for k in sorted(out['forced'].keys())]).tolist(),
+        table = Table(numpy.transpose([[k, out['deepCoadd_forced_src'][k].description,
+                                        out['deepCoadd_forced_src'][k].unit]
+                                       for k in sorted(out['deepCoadd_forced_src'].keys())]).tolist(),
                       names=["Keys", "Description", "Units"])
         print " -> All saved in deepCoadd_forced_src_keys.txt"
         table.write("deepCoadd_forced_src_keys.txt", format='ascii', comment="#")
 
         print "INFO: Available list of keys for the deepCoadd_meas catalog"
-        table = Table(numpy.transpose([[k, out['meas'][k].description, out['meas'][k].unit]
-                                       for k in sorted(out['meas'].keys())]).tolist(),
+        table = Table(numpy.transpose([[k, out['deepCoadd_meas'][k].description,
+                                        out['deepCoadd_meas'][k].unit]
+                                       for k in sorted(out['deepCoadd_meas'].keys())]).tolist(),
                       names=["Keys", "Description", "Units"])
         print " -> All saved in deepCoadd_meas_keys.txt"
         table.write("deepCoadd_meas_keys.txt", format='ascii', comment="#")
@@ -238,7 +240,7 @@ def get_patch_data(butler, p, f, keys=None):
     meas = get_from_butler(butler, 'deepCoadd_meas', f, p, table=True, keys=mkeys)
     forced = get_from_butler(butler, 'deepCoadd_forced_src', f, p, table=True, keys=fkeys)
     calexp = get_from_butler(butler, 'deepCoadd_calexp', f, p, table=False)
-    return {'meas': meas, 'forced': forced, 'calexp': calexp}
+    return {'deepCoadd_meas': meas, 'deepCoadd_forced_src': forced, 'calexp': calexp}
 
 
 def merge_dicts(*dict_args):
@@ -352,20 +354,22 @@ def stack_tables(d):
     Stack the astropy tables across all patches.
 
     Return a new dictionnary of the form:
-    d = {u: {'forced': table, 'meas': table}, g: {'forced': table, 'meas': table}, ...}
+    d = {u: {'deepCoadd_forced_src': table, 'deepCoadd_meas': table}, 
+         g: {'deepCoadd_forced_src': table, 'deepCoadd_meas': table}, ...}
     """
     print "Info: Stacking the data (patches, filters) into a single astropy table"
-    return {'meas': vstack([vstack([d[f][p]['meas']
-                                    for p in d[f]]) for f in d]),
-            'forced': vstack([vstack([d[f][p]['forced']
-                                      for p in d[f]]) for f in d])}
+    return {'deepCoadd_meas': vstack([vstack([d[f][p]['deepCoadd_meas']
+                                              for p in d[f]]) for f in d]),
+            'deepCoadd_forced_src': vstack([vstack([d[f][p]['deepCoadd_forced_src']
+                                                    for p in d[f]]) for f in d])}
 
 
 def write_data(d, output, overwrite=False):
-    """Write astropy 'forced' and 'meas' tables in an hdf5 file."""
-    d['forced'].write(output, path='forced', compression=True,
-                      serialize_meta=True, overwrite=overwrite)
-    d['meas'].write(output, path='meas', compression=True, append=True, serialize_meta=True)
+    """Write astropy 'deepCoadd_forced_src' and 'deepCoadd_meas' tables in an hdf5 file."""
+    d['deepCoadd_forced_src'].write(output, path='deepCoadd_forced_src', compression=True,
+                                    serialize_meta=True, overwrite=overwrite)
+    d['deepCoadd_meas'].write(output, path='deepCoadd_meas', compression=True,
+                              append=True, serialize_meta=True)
     save_wcs(d['wcs'], output)
 
 
@@ -382,8 +386,8 @@ def read_data(data_file, path=None):
     """
     if path is None:
         try:
-            return {'meas': Table.read(data_file, path='meas'),
-                    'forced': Table.read(data_file, path='forced'),
+            return {'deepCoadd_meas': Table.read(data_file, path='deepCoadd_meas'),
+                    'deepCoadd_forced_src': Table.read(data_file, path='deepCoadd_forced_src'),
                     'wcs': load_wcs(Table.read(data_file, path='wcs'))}
         except IOError:
             return Table.read(data_file)
@@ -394,36 +398,37 @@ def read_data(data_file, path=None):
 def filter_table(t):
     """Apply a few quality filters on the data tables."""
     # Get the initial number of filter
-    nfilt = len(t['meas'].group_by('id').groups[0])
+    nfilt = len(t['deepCoadd_meas'].group_by('id').groups[0])
 
     # Select galaxies (and reject stars)
-    filt = t['meas']['base_ClassificationExtendedness_flag'] == 0  # keep galaxy
-    filt &= t['meas']['base_ClassificationExtendedness_value'] >= 0.5  # keep galaxy
+    filt = t['deepCoadd_meas']['base_ClassificationExtendedness_flag'] == 0  # keep galaxy
+    filt &= t['deepCoadd_meas']['base_ClassificationExtendedness_value'] >= 0.5  # keep galaxy
 
     # Gauss regulerarization flag
-    filt &= t['meas']['ext_shapeHSM_HsmShapeRegauss_flag'] == 0
+    filt &= t['deepCoadd_meas']['ext_shapeHSM_HsmShapeRegauss_flag'] == 0
 
     # Make sure to keep primary sources
-    filt &= t['meas']['detect_isPrimary'] == 1
+    filt &= t['deepCoadd_meas']['detect_isPrimary'] == 1
 
     # Check the flux value, which must be > 0
-    filt &= t['forced']['modelfit_CModel_flux'] > 0
+    filt &= t['deepCoadd_forced_src']['modelfit_CModel_flux'] > 0
 
     # Select sources which have a proper flux value
-    filt &= t['forced']['modelfit_CModel_flag'] == 0
+    filt &= t['deepCoadd_forced_src']['modelfit_CModel_flag'] == 0
 
     # Check the signal to noise (stn) value, which must be > 10
-    filt &= (t['forced']['modelfit_CModel_flux'] /
-             t['forced']['modelfit_CModel_fluxSigma']) > 10
+    filt &= (t['deepCoadd_forced_src']['modelfit_CModel_flux'] /
+             t['deepCoadd_forced_src']['modelfit_CModel_fluxSigma']) > 10
 
     # Only keeps sources with the 5 filters
-    dmg = t['meas'][filt].group_by('id')
-    dfg = t['forced'][filt].group_by('objectId')
+    dmg = t['deepCoadd_meas'][filt].group_by('id')
+    dfg = t['deepCoadd_forced_src'][filt].group_by('objectId')
 
     # Indices difference is a quick way to get the lenght of each group
     filt = (dmg.groups.indices[1:] - dmg.groups.indices[:-1]) == nfilt
 
-    return {'meas': dmg.groups[filt], 'forced': dfg.groups[filt], 'wcs': t['wcs']}
+    return {'deepCoadd_meas': dmg.groups[filt],
+            'deepCoadd_forced_src': dfg.groups[filt], 'wcs': t['wcs']}
 
 
 def getdata(config, output='all_data.hdf5', output_filtered='filtered_data.hdf5', overwrite=False):

@@ -14,8 +14,8 @@ def load_cluster(cluster="MACSJ2243.3-0935", ifilt="i_new"):
     d2 = data.read_data(cluster + "_all_extinction.hdf5", path="extinction")
 
     # correct maggnitude for extinction
-    data.correct_for_extinction(d["forced"], d2, ifilt=ifilt)
-    data.correct_for_extinction(d["meas"], d2, ifilt=ifilt)
+    data.correct_for_extinction(d['deepCoadd_forced_src'], d2, ifilt=ifilt)
+    data.correct_for_extinction(d['deepCoadd_meas'], d2, ifilt=ifilt)
 
     return d
 
@@ -28,8 +28,8 @@ def get_filter_list(table):
 
 def define_selection_filter(d, cat):
     """Define and return a standard quality selection filter."""
-    filt = d['meas']['base_ClassificationExtendedness_flag'] == 0
-    filt &= d['meas']['detect_isPrimary'] == 1
+    filt = d['deepCoadd_meas']['base_ClassificationExtendedness_flag'] == 0
+    filt &= d['deepCoadd_meas']['detect_isPrimary'] == 1
     filt &= d[cat]['modelfit_CModel_flag'] == 0
     filt &= d[cat]['modelfit_CModel_flux'] > 0
 
@@ -41,8 +41,8 @@ def define_selection_filter(d, cat):
 
 def separate_star_gal(d, cat, oid, nfilters, filt=None):
     """Return two clean tables: one for the stars, the other for the galaxies."""
-    filt_star = d['meas']['base_ClassificationExtendedness_value'] < 0.5
-    filt_gal = d['meas']['base_ClassificationExtendedness_value'] > 0.5
+    filt_star = d['deepCoadd_meas']['base_ClassificationExtendedness_value'] < 0.5
+    filt_gal = d['deepCoadd_meas']['base_ClassificationExtendedness_value'] > 0.5
 
     if filt is not None:
         filt_star &= filt
@@ -61,16 +61,16 @@ def separate_star_gal(d, cat, oid, nfilters, filt=None):
     return stars, galaxies
 
 
-def stellarLocus(d, mag_type="modelfit_CModel_mag_extcorr", ifilt="i_new", cat="forced"):
+def stellarLocus(d, mag_type="modelfit_CModel_mag_extcorr", ifilt="i_new", cat='deepCoadd_forced_src'):
     """Plot stellar locus."""
     # Get number of filters in table.
     # For stellar locus we need at least the g, r and i filters
-    filters, nfilters = get_filter_list(d['meas'])
+    filters, nfilters = get_filter_list(d['deepCoadd_meas'])
     assert 'i' in filters and 'g' in filters and 'r' in filters, \
         "filter list must contains gri"
 
     # Get the id
-    oid = 'objectId' if cat == 'forced' else 'id'
+    oid = 'objectId' if cat == 'deepCoadd_forced_src' else 'id'
 
     # Define selection filter
     filt = define_selection_filter(d, cat)
@@ -222,7 +222,7 @@ def compute_elipticities(xx, yy, xy):
     return e1, e2
 
 
-def check_star_elipticities(d, cat='meas', oid='id'):
+def check_star_elipticities(d, cat='deepCoadd_meas', oid='id'):
     """
     Compute star elipticities from second momments and check if psf correction is valid.
 

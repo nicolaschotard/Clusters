@@ -26,6 +26,9 @@ def load_data(argv=None):
                         help="Name of the output file (hdf5 file)")
     parser.add_argument("--overwrite", action="store_true", default=False,
                         help="Overwrite the output files if they exist already")
+    parser.add_argument("--update",
+                        help="hdf5 file to update with new keys. New keys have to be added to the "
+                        "configuration file.")
     parser.add_argument("--show", action="store_true", default=False,
                         help="Show and save the list of available keys in the catalogs, and exit.")
     args = parser.parse_args(argv)
@@ -46,6 +49,10 @@ def load_data(argv=None):
                                                     config['redshift'])
     print "INFO: Working on filters", config['filters']
     print "INFO: Butler located under %s" % config['butler']
+
+    if args.update is not None:
+        udata = cdata.read_data(args.update)
+        
 
     data = cdata.get_all_data(config['butler'], config['patches'],
                               config['filters'], add_extra=True, show=args.show,
@@ -82,7 +89,7 @@ def extinction(argv=None):
     print "INFO: Working on filters", config['filters']
 
     # Load the data
-    data = cdata.read_data(args.input)['forced']
+    data = cdata.read_data(args.input)['deepCoadd_forced_src']
 
     # Query for E(b-v) and compute the extinction
     ebmv = {'ebv_sfd': cextinction.query(data['coord_ra_deg'].tolist(),
@@ -172,7 +179,7 @@ def photometric_redshift(argv=None):
 
     # Load the data
     print "INFO: Loading the data from", args.input
-    data = cdata.read_data(args.input)['forced']
+    data = cdata.read_data(args.input)['deepCoadd_forced_src']
 
     mag = args.mag
     # Compute extinction-corrected magitudes
@@ -255,7 +262,7 @@ def getbackground(argv=None):
     print "INFO: Working on filters", filters
 
     data = cdata.read_data(args.input)
-    background.get_background(data['forced'])
+    background.get_background(data['deepCoadd_forced_src'])
 
 
 def shear(argv=None):
@@ -286,7 +293,7 @@ def shear(argv=None):
 
     # Load the data
     data = cdata.read_data(args.input)
-    meas = data['meas']
+    meas = data['deepCoadd_meas']
     wcs = data['wcs']
     xclust, yclust = cdata.skycoord_to_pixel([config['ra'], config['dec']], wcs)
     cshear.analysis(meas, float(xclust), float(yclust))
