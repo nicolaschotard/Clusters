@@ -25,16 +25,16 @@ def shorten(doc):
                      for w in doc.split()])
 
 
-def get_astropy_table(cat, keys="*", **kwargs):
+def get_astropy_table(cat, **kwargs):
     """Convert an afw data table into a simple astropy table.
 
     :param cat: an afw data table
     :return: the corresponding astropy.table.Table
     """
     schema = cat.getSchema()
-    dic = cat.getColumnView().extract(*keys)
+    dic = cat.getColumnView().extract(*kwargs['keys'] if 'keys' in kwargs else "*")
     tab = Table(dic)
-    for k in schema.getNames():
+    for k in tab.keys():
         tab[k].description = shorten(schema[k].asField().getDoc())
         tab[k].unit = schema[k].asField().getUnits()
     return tab
@@ -235,7 +235,6 @@ def get_patch_data(butler, p, f, keys=None):
     print "INFO:   loading patch", p
     mkeys = "*" if 'deepCoadd_meas' not in keys else keys['deepCoadd_meas']
     fkeys = "*" if 'deepCoadd_forced_src' not in keys else keys['deepCoadd_forced_src']
-    fkeys = keys['deepCoadd_forced_src'] if 'deepCoadd_forced_src' in keys else "*"
     meas = get_from_butler(butler, 'deepCoadd_meas', f, p, table=True, keys=mkeys)
     forced = get_from_butler(butler, 'deepCoadd_forced_src', f, p, table=True, keys=fkeys)
     calexp = get_from_butler(butler, 'deepCoadd_calexp', f, p, table=False)
