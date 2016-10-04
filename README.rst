@@ -134,8 +134,7 @@ have to run in the right order.
     clusters_data config.yaml (--output data.hdf5)
 
 You can adapt the content of the output file using the ``keys``
-parameter of the config.yaml file. To update an existing ``hdf5`` file
-with new keys, you the ``--update`` option.
+parameter of the config.yaml file.
 
 - Correct the data for Milky Way extinction::
 

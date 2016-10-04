@@ -26,9 +26,6 @@ def load_data(argv=None):
                         help="Name of the output file (hdf5 file)")
     parser.add_argument("--overwrite", action="store_true", default=False,
                         help="Overwrite the output files if they exist already")
-    parser.add_argument("--update",
-                        help="hdf5 file to update with new keys. New keys have to be added to the "
-                        "configuration file.")
     parser.add_argument("--show", action="store_true", default=False,
                         help="Show and save the list of available keys in the catalogs, and exit.")
     args = parser.parse_args(argv)
@@ -49,10 +46,6 @@ def load_data(argv=None):
                                                     config['redshift'])
     print "INFO: Working on filters", config['filters']
     print "INFO: Butler located under %s" % config['butler']
-
-    if args.update is not None:
-        udata = cdata.read_data(args.update)
-        
 
     data = cdata.get_all_data(config['butler'], config['patches'],
                               config['filters'], add_extra=True, show=args.show,
