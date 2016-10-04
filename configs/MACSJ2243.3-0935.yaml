@@ -6,8 +6,11 @@
     "filters": "ugriz",
     "butler": "/sps/lsst/data/clusters/MACSJ2243.3-0935/output_v1/coadd_dir",
     "patches": ['1,1', '1,3', '1,2', '1,4', '1,5', '2,1', '2,2', '2,3', '2,4', '2,5', '3,2', '3,3', '3,4'],
-    "keys": {'deepCoadd_meas': ["ext_shapeHSM_HsmPsfMoments*", "merge_footprint*"],
-             'deepCoadd_forced_src': ["base*", "modelfit_CModel_exp_*"],
+    "keys": {'deepCoadd_meas': ["coord*", "id", 'base_ClassificationExtendedness_flag',
+                                'base_ClassificationExtendedness_value',
+                                'ext_shapeHSM_HsmShapeRegauss_flag', 'detect_isPrimary'],
+             'deepCoadd_forced_src': ["coord*", "objectId", 'modelfit_CModel_flux',
+                                      'modelfit_CModel_flag', "modelfit_CModel*"],
              'forced_src': "*"
             }
 }
