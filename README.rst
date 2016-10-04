@@ -101,22 +101,22 @@ for MACSJ2243.3-0935.
 +--------------------+--------+-------------------------------------------------------------------+
 | ``"patches"``      | list   | List of patches to study                                          |
 +--------------------+--------+-------------------------------------------------------------------+
-| ``"zpara"`` (opt)  | list   | List of paths to zphota configuration files (see below)           |
+| ``"zpara"`` (opt)  | list   | List of paths to ``zphota`` configuration files (see below)       |
 +--------------------+--------+-------------------------------------------------------------------+
 | ``"keys"``  (opt)  | dict   | Dictionnary containing list of keys for the catalogs (see below)  |
 +--------------------+--------+-------------------------------------------------------------------+
 
 - ``keys`` is a dictionnary having the name of the different catalgos
-  aslike **deepCoadd_meas**, **deepCoadd_forced_src** and
+  like **deepCoadd_meas**, **deepCoadd_forced_src** and
   **forced_src**. The list of keys for a given catalog can include:
 
-  - the full name of a key, e.g., "modelfit_CModel_flux" for the
-    **deepCoadd_forced_src** catalog;
-  - a part of a key name preceded or followed by a "*", e.g.,
-    "ext_shapeHSM***" or "**\*shapeHSM\***" for the
-    **deepCoadd_meas** catalog;
-  - or a "*" to get all keys, which is the default value for all
-    catalogs.
+  - "the_full_name_of_a_key";
+  - "\*_a_part_of_a_key_name" or "an_other_part_of_a_key_name\*"
+    preceded or followed by a \*;
+  - a combinason of all the above: ["key1", "ke\*", "\*ey"];
+  - or a "*" to get all keys available in a catalog, which is the
+    default value for all catalogs.
+  
     
 
 
@@ -132,6 +132,10 @@ have to run in the right order.
   documentation for detail)::
 
     clusters_data config.yaml (--output data.hdf5)
+
+You can adapt the content of the output file using the ``keys``
+parameter of the config.yaml file. To update an existing ``hdf5`` file
+with new keys, you the ``--update`` option.
 
 - Correct the data for Milky Way extinction::
 
