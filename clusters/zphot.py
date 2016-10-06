@@ -6,6 +6,7 @@ import numpy as N
 import pylab as P
 import seaborn
 import subprocess
+from scipy.optimize import curve_fit
 
 from astropy.io import ascii
 from astropy.table import Table
@@ -344,14 +345,13 @@ class ZSPEC(object):
         self.skycoords_phot = SkyCoord(ra, dec, unit=unit)
         self.match = self.skycoords.match_to_catalog_sky(self.skycoords_phot)
 
-    def plot(self, cut=0.05):
+    def plot(self, zclust=None, cut=0.05):
         """Plot a sky-map of the matches.
 
         .. todo::
 
          - convert degree to mas
          - apply quality cuts on photometric redshift measurments
-         - bug when loading 0018.zcat
         """
         if self.match is None:
             raise IOError("ERROR: You must load the photometric data first (load_zphot).")
@@ -377,4 +377,44 @@ class ZSPEC(object):
         scat = ax.scatter(sdist, zphot - zspec, color='k')
         ax.set_title("%i galaxies" % len(self.match[0]))
 
+        # z-spec distribution and gaussian fit
+        fig = P.figure(figsize=(15, 8))
+        ax = fig.add_subplot(111, xlabel='Z-spec')
+        zspec = self.data['zspec']
+        if zclust is None:
+            ax.hist(zspec, bins=100)
+        else:
+            zspec = zspec[N.abs(zspec - zclust) < 0.1]
+            h = ax.hist(zspec, bins=100)
+            ax.axvline(zclust, color='r', label='Z-cluster (%.3f)' % zclust)
+            zmean = N.mean(zspec)
+            zstd = N.std(zspec)
+
+            # the gaussian fit
+            hist, bin_edges = N.histogram(zspec, bins=200)
+            bin_centres = (bin_edges[:-1] + bin_edges[1:])/2
+            #bin_centers = N.linspace(bin_centres[0], bin_centres[-1], 200),
+            # initial guess for the fitting coefficients (A, mu and sigma above)
+            p0 = [N.max(h[0]), zclust, 0.3]
+            
+            coeff, var_matrix = curve_fit(gauss, bin_centres, hist, p0=p0)
+            
+            # Get the fitted curve
+            hist_fit = gauss(bin_centres, *coeff)
+        
+            #ax.plot(bin_centres, hist, label='Test data')
+            ax.plot(bin_centres, hist_fit*N.max(h[0])/N.max(hist_fit),
+                    label='Gaussian fit (mean, std)=(%.3f, %.3f)' % \
+                    (coeff[1], N.abs(coeff[2])))
+            ax.axvline(zmean, color='k', label='Z-mean (%.3f+/-%.3f)' % \
+                       (zmean, zstd))
+            ax.axvspan(xmin=zmean - 3 * zstd,
+                       xmax=zmean + 3 * zstd, color='k', alpha=0.2)
+            ax.legend(loc='best')
         P.show()
+
+
+def gauss(x, *p):
+    """Model function to be used to fit a gaussian distribution."""
+    A, mu, sigma = p
+    return A * N.exp(- (x - mu) **2 / (2. * sigma ** 2))

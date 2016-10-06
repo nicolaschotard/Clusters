@@ -41,37 +41,47 @@ def color_mag_plot(mags):
     P.show()
 
 
-def fit_red_sequence(diffmag, mag, mindiff=1.0, maxdiff=2.0,
-                     minmag=20.0, maxmag=23.5, inislope=-0.04):
+def fit_red_sequence(color, mag, **kwargs):
     """
     Fit red sequence (RS) band in galaxy color plots, i.e m(i)-m(j) vs. m(k).
 
-    Input :
-    diffmag : mag_i-mag_j axis of the color plot
-    mag : abcissa of the color plot
-    mindiff, maxdiff : select mindiff < diffmag < maxdiff
-    minmag, maxmag : select minmag < mag < maxmag
-    inislope : first guess for the RS band slope
+    :param list color: A list of color mag_i - mag_j (ordinate)
+    :param list mag: List of magnitude (abciss)
+    :param **kwargs:
 
-    Output :
-    slope of the red sequence band
-    ordinate at the origin of the red sequence band +/- 1.5 sigma
+     - minc (float): lower cut on the color axis: color > minc (1.0)
+     - maxc (float): upper cut of the color axis: color < maxc  (2.0)
+     - minm (float): lower cut on the mag axis: mag > minm (20.0)
+     - maxm (float): upper cut of the mag axis: mag < maxm  (23.5)
+     - islope (float): first guess for the red sequence band slope (-0.04)
+
+    :return:
+
+     - slope of the red sequence band,
+     - ordinate at the origin of the red sequence band +/- 1.5 sigma
 
     fitRedSequence is also producing some control plots
     """
-    magref = minmag  # Arbitrary reference magnitude for projection
-    diffref = 0.5 * (mindiff + maxdiff)  # Arbitrary reference ordinate for projection
+    # Set the default
+    minc = kwargs.get('minc', 1.0)
+    maxc = kwargs.get('maxc', 2.0)
+    minm = kwargs.get('minm', 20.0)
+    maxm = kwargs.get('maxm', 23.5)
+    islope = kwargs.get('islope', -0.04)
 
-    # Project diffmag on an axis perpendicular to the RS band and at an
+    magref = minm  # Arbitrary reference magnitude for projection
+    diffref = 0.5 * (minc + maxc)  # Arbitrary reference ordinate for projection
+
+    # Project color on an axis perpendicular to the RS band and at an
     # arbitrary magnitude (magref)
     # The idea is that the projection of the RS band on this axis is a gaussian
     # over some background represented by an Exponentially Modified Gaussian
 
-    alpha = math.atan(inislope)
-    dy = N.cos(alpha) * ((N.asarray(magref) - mag) * inislope + diffmag - diffref)
+    alpha = math.atan(islope)
+    dy = N.cos(alpha) * ((N.asarray(magref) - mag) * islope + color - diffref)
 
     nbins = 40
-    idx = N.where((diffmag > mindiff) & (diffmag < maxdiff) & (mag < maxmag) & (mag > minmag))
+    idx = N.where((color > minc) & (color < maxc) & (mag < maxm) & (mag > minm))
     fig, (ax0) = P.subplots(ncols=1)
     n, bins, patches = ax0.hist(dy[idx], bins=nbins, color='b')
 
@@ -92,7 +102,7 @@ def fit_red_sequence(diffmag, mag, mindiff=1.0, maxdiff=2.0,
     print "mean %f - sigma %f" % (p2[1], p2[2])
     print "Reduced chi2 = ", ss_err / (nbins + 6 - 1)
     print p2
-    # Superimpose fitted curve over diffmag projection
+    # Superimpose fitted curve over color projection
     ax0.plot(bins, func(p2, bins), color='g')
     ax0.tick_params(labelsize=20)
     ax0.set_xlabel("Projected red sequence")
@@ -102,7 +112,7 @@ def fit_red_sequence(diffmag, mag, mindiff=1.0, maxdiff=2.0,
 
     nsteps = 80
     step = 0.001
-    slope = inislope - 0.5 * nsteps * step
+    slope = islope - 0.5 * nsteps * step
 
     val = []
     sigma = []
@@ -118,9 +128,9 @@ def fit_red_sequence(diffmag, mag, mindiff=1.0, maxdiff=2.0,
         if slope > 0.0:
             break
         alpha = math.atan(slope)
-        dy = N.cos(alpha) * ((magref - mag) * slope + diffmag - diffref)
+        dy = N.cos(alpha) * ((magref - mag) * slope + color - diffref)
         nbins = 40
-        idx = N.where((diffmag > mindiff) & (diffmag < maxdiff) & (mag < maxmag) & (mag > minmag))
+        idx = N.where((color > minc) & (color < maxc) & (mag < maxm) & (mag > minm))
         n, bins, = N.histogram(dy[idx], bins=nbins)
 
         x = N.asarray([0.5 * (bins[i + 1] - bins[i]) + bins[i] for i in range(len(n))])
@@ -164,8 +174,8 @@ def fit_red_sequence(diffmag, mag, mindiff=1.0, maxdiff=2.0,
     # Plot RS projection corresponding to the optimal slope
     nbins = 40
     alpha = math.atan(slope)
-    dy = N.cos(alpha) * ((magref - mag) * fitslope + diffmag - diffref)
-    idx = N.where((diffmag > mindiff) & (diffmag < maxdiff) & (mag < maxmag) & (mag > minmag))
+    dy = N.cos(alpha) * ((magref - mag) * fitslope + color - diffref)
+    idx = N.where((color > minc) & (color < maxc) & (mag < maxm) & (mag > minm))
     fig, (ax2) = P.subplots(ncols=1)
     n, bins, patches = ax2.hist(dy[idx], bins=nbins, color='b')
     x = N.asarray([0.5 * (bins[i + 1] - bins[i]) + bins[i] for i in range(len(n))])
@@ -199,10 +209,10 @@ def fit_red_sequence(diffmag, mag, mindiff=1.0, maxdiff=2.0,
 
     # plot fitted RS band over color plot
     fig, (ax3) = P.subplots(ncols=1)
-    ax3.scatter(mag, diffmag, s=1, color='b')
-    ax3.set_xlim([minmag - 3.0, maxmag + 3.0])
-    ax3.set_ylim([mindiff - 1.5, maxdiff + 0.5])
-    x = N.linspace(minmag - 3.0, maxmag + 3.0)
+    ax3.scatter(mag, color, s=1, color='b')
+    ax3.set_xlim([minm - 3.0, maxm + 3.0])
+    ax3.set_ylim([minc - 1.5, maxc + 0.5])
+    x = N.linspace(minm - 3.0, maxm + 3.0)
     ymin = fitslope * x + b1
     ymax = fitslope * x + b2
     ymid = fitslope * x + b0
@@ -213,5 +223,33 @@ def fit_red_sequence(diffmag, mag, mindiff=1.0, maxdiff=2.0,
     P.show()
 
 
-def get_background(data):
-    print "test"
+def zphot_cut(zclust, zdata):
+    """."""
+    zbest = zdata['Z_BEST']
+    cbest = zdata['CHI_BEST']
+    error = (zbest - zdata['Z_BEST68_LOW'] + zdata['Z_BEST68_HIGH']) / 2.
+
+    # basic filters
+    filt = (zbest > 0) & (zbest < 3) & (error < 1) & (cbest < 10)
+    print "INFO: Removing %i obecjt (over %i) from the list" % \
+        (len(zbest[~filt]), len(zbest))
+    print "       - (zbest > 0) & (zbest < 5) & (error < 1) & (cbest < 10)"
+    zbest, cbest, error = [a[filt] for a in [zbest, cbest, error]]
+    fig = P.figure()
+    ax = fig.add_subplot(131, xlabel='ZBEST')
+    ax.hist(zbest, bins=100)
+    ax.axvline(zclust, color='r')
+    ax.set_title("%i galaxies" % len(zbest))
+    ax = fig.add_subplot(132, xlabel='Error')
+    ax.hist(error, bins=100)
+    ax.set_title("%i galaxies" % len(zbest))
+    ax = fig.add_subplot(133, xlabel='CHI_BEST')
+    ax.hist(cbest, bins=100)
+    ax.set_title("%i galaxies" % len(zbest))
+
+    P.show()
+        
+def get_background(config, data, zdata=None):
+    """Apply different cuts to the data in order to get the background galaxies."""
+    if zdata is not None:
+        print "INFO: A redshift cut will be applied."
