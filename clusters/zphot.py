@@ -343,26 +343,25 @@ class ZSPEC(object):
         assert len(ra) == len(dec) == len(zphot)
         self.zphot = Table([ra, dec, zphot], names=['ra', 'dec', 'zphot'])
         self.skycoords_phot = SkyCoord(ra, dec, unit=unit)
-        self.match = self.skycoords.match_to_catalog_sky(self.skycoords_phot)
+        idx, d2d, d3d = self.skycoords.match_to_catalog_sky(self.skycoords_phot)
+        self.match = Table([idx, d2d.marcsec, d3d], names=['idx', 'd2d', 'd3d'],
+                           meta={'description': ['Indices into first catalog.',
+                                                 'On-sky separation between the '
+                                                 'closest match for each element',
+                                                 '3D distance between the closest'
+                                                 'match for each element'],
+                                 'unit': ['', 'marcsec', '']})
 
-    def plot(self, zclust=None, cut=0.05):
-        """Plot a sky-map of the matches.
-
-        .. todo::
-
-         - convert degree to mas
-         - apply quality cuts on photometric redshift measurments
-        """
+    def plot(self, zclust=None, cut=200):
+        """Plot a sky-map of the matches."""
         if self.match is None:
             raise IOError("ERROR: You must load the photometric data first (load_zphot).")
 
         zspec = self.data['zspec']
-        zphot = self.zphot['zphot'][self.match[0]]
-        sdist = N.array(self.match[1])
-
+        zphot = self.zphot['zphot'][self.match['idx']]
+        sdist = N.array(self.match['d2d'])
         filt = sdist < cut
         zspec, zphot, sdist = [x[filt] for x in [zspec, zphot, sdist]]
-
         fig = P.figure(figsize=(15, 8))
 
         # z-phot as a function of z-spec
@@ -376,42 +375,56 @@ class ZSPEC(object):
         ax = fig.add_subplot(122, xlabel='On-sky distance', ylabel='(Z-phot - Z-spec)')
         scat = ax.scatter(sdist, zphot - zspec, color='k')
         ax.set_title("%i galaxies" % len(self.match[0]))
-
-        # z-spec distribution and gaussian fit
-        fig = P.figure(figsize=(15, 8))
-        ax = fig.add_subplot(111, xlabel='Z-spec')
-        zspec = self.data['zspec']
-        if zclust is None:
-            ax.hist(zspec, bins=100)
-        else:
-            zspec = zspec[N.abs(zspec - zclust) < 0.1]
-            h = ax.hist(zspec, bins=100)
-            ax.axvline(zclust, color='r', label='Z-cluster (%.3f)' % zclust)
-            zmean = N.mean(zspec)
-            zstd = N.std(zspec)
-
-            # the gaussian fit
-            hist, bin_edges = N.histogram(zspec, bins=200)
-            bin_centres = (bin_edges[:-1] + bin_edges[1:])/2
-            #bin_centers = N.linspace(bin_centres[0], bin_centres[-1], 200),
-            # initial guess for the fitting coefficients (A, mu and sigma above)
-            p0 = [N.max(h[0]), zclust, 0.3]
-            
-            coeff, var_matrix = curve_fit(gauss, bin_centres, hist, p0=p0)
-            
-            # Get the fitted curve
-            hist_fit = gauss(bin_centres, *coeff)
-        
-            #ax.plot(bin_centres, hist, label='Test data')
-            ax.plot(bin_centres, hist_fit*N.max(h[0])/N.max(hist_fit),
-                    label='Gaussian fit (mean, std)=(%.3f, %.3f)' % \
-                    (coeff[1], N.abs(coeff[2])))
-            ax.axvline(zmean, color='k', label='Z-mean (%.3f+/-%.3f)' % \
-                       (zmean, zstd))
-            ax.axvspan(xmin=zmean - 3 * zstd,
-                       xmax=zmean + 3 * zstd, color='k', alpha=0.2)
-            ax.legend(loc='best')
         P.show()
+
+    def scatter(self, zclust, cluster=None, cut=0.1, stability=False):
+        """Redshift scatter in the cluster.
+
+        Plot the spectroscopic redshift distribution and apply a gaussian fit.
+        """
+        # Apply selection
+        zspec = self.data['zspec'][N.abs(self.data['zspec'] - zclust) < cut]
+
+        # The gaussian fit
+        hist, bin_edges = N.histogram(zspec, bins=len(zspec) / 4)
+        bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
+
+        # Use initial guess for the fitting coefficients (A, mu and sigma above)
+        coeff = curve_fit(gauss, bin_centers, hist, p0=[N.max(hist[0]), zclust, 0.3])[0]
+
+        # Plot
+        title = '' if cluster is None else cluster + \
+                ', %i object included (cut=%.2f)' % (len(zspec), cut)
+        fig = P.figure()
+        ax = fig.add_subplot(111, xlabel='Z-spec', ylabel='#',
+                             title=title)
+        ax.hist(zspec, bins=len(zspec) / 4, histtype='stepfilled')
+        ax.axvline(zclust, color='r', label='Z-cluster (%.3f)' % zclust, lw=2)
+        ax.plot(bin_centers, gauss(bin_centers, *coeff),
+                label='Gaussian fit (mean, std)=(%.3f, %.3f)' % \
+                (coeff[1], N.abs(coeff[2])), lw=2, color='k')
+        ax.legend(loc='best')
+
+        if stability:
+            cuts = [0.5, 0.1, 0.05, 0.03]
+            z, ze = zip(*[self.scatter(zclust, cluster=cluster, cut=c)
+                          for c in cuts])
+            fig = P.figure()
+            ax = fig.add_subplot(111, xlabel='Selection cut around cluste rredshift',
+                                 ylabel='Estimated redshift', title=title)
+            ax.axhline(N.mean(z), label='Average value', color='r', lw=2)
+            ax.errorbar(cuts, z, yerr=ze, label='Individual fits', color='k',
+                        capsize=20, elinewidth=3)
+            ax.legend(loc='best')
+            az, aze = N.mean(z), N.sqrt(N.std(z)**2 + N.mean(ze)**2)
+            print "INFO: Stability over the followed range of selection cuts:"
+            print "       ", cuts
+            print "INFO: Input redshift: %.4f" % zclust
+            print "INFO: Average redshift: %.4f =/- %.4f" % (az, aze)
+            P.show()
+            return az, aze
+        P.show()
+        return coeff[1], N.abs(coeff[2])
 
 
 def gauss(x, *p):

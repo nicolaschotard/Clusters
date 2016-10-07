@@ -231,7 +231,7 @@ def zphot_cut(zclust, zdata):
 
     # basic filters
     filt = (zbest > 0) & (zbest < 3) & (error < 1) & (cbest < 10)
-    print "INFO: Removing %i obecjt (over %i) from the list" % \
+    print "INFO: Removing %i objects (over %i) from the list" % \
         (len(zbest[~filt]), len(zbest))
     print "       - (zbest > 0) & (zbest < 5) & (error < 1) & (cbest < 10)"
     zbest, cbest, error = [a[filt] for a in [zbest, cbest, error]]
@@ -246,9 +246,11 @@ def zphot_cut(zclust, zdata):
     ax = fig.add_subplot(133, xlabel='CHI_BEST')
     ax.hist(cbest, bins=100)
     ax.set_title("%i galaxies" % len(zbest))
-
+    
     P.show()
-        
+
+    return zdata['objectId'][filt]
+
 def get_background(config, data, zdata=None):
     """Apply different cuts to the data in order to get the background galaxies."""
     if zdata is not None:
