@@ -5,9 +5,6 @@ from scipy import special
 import numpy as N
 import pylab as P
 import seaborn
-
-from astropy.coordinates import SkyCoord
-from astropy import units
 import math
 
 
@@ -45,7 +42,7 @@ def color_mag_plot(mags):
 
 
 def fit_red_sequence(color, mag, **kwargs):
-    """
+    r"""
     Fit red sequence (RS) band in galaxy color plots, i.e m(i)-m(j) vs. m(k).
 
     :param list color: A list of color mag_i - mag_j (ordinate)
@@ -256,5 +253,6 @@ def zphot_cut(zclust, zdata):
 
 def get_background(config, data, zdata=None):
     """Apply different cuts to the data in order to get the background galaxies."""
+    print config['cluster'], len(data)
     if zdata is not None:
         print "INFO: A redshift cut will be applied."

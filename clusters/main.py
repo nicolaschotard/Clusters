@@ -255,7 +255,7 @@ def getbackground(argv=None):
     print "INFO: Working on filters", filters
 
     data = cdata.read_data(args.input)
-    background.get_background(data['deepCoadd_forced_src'])
+    background.get_background(config, data['deepCoadd_forced_src'])
 
 
 def shear(argv=None):

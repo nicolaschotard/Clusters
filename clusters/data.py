@@ -506,9 +506,9 @@ def filter_around(data, config, **kwargs):
         separation = getattr(separation, unit)
     else:
         arglist = "\n" + ", ".join(sorted([a for a in dir(separation) if not a.startswith('_')]))
-        raise AttributeError("Angle instance has no attribute %s. Available attributes are: %s" % \
+        raise AttributeError("Angle instance has no attribute %s. Available attributes are: %s" %
                              (unit, arglist))
-    data_around = data[(separation >= kwargs.get('exclude_inner', 0)) & \
+    data_around = data[(separation >= kwargs.get('exclude_inner', 0)) &
                        (separation < kwargs.get('exclude_outer', numpy.inf))]
     if kwargs.get('plot', True):
         title = "%s, %.2f < d < %.2f %s cut" % \

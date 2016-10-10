@@ -352,7 +352,7 @@ class ZSPEC(object):
                                                  'match for each element'],
                                  'unit': ['', 'marcsec', '']})
 
-    def plot(self, zclust=None, cut=200):
+    def plot(self, cut=200):
         """Plot a sky-map of the matches."""
         if self.match is None:
             raise IOError("ERROR: You must load the photometric data first (load_zphot).")
@@ -375,6 +375,11 @@ class ZSPEC(object):
         ax = fig.add_subplot(122, xlabel='On-sky distance', ylabel='(Z-phot - Z-spec)')
         scat = ax.scatter(sdist, zphot - zspec, color='k')
         ax.set_title("%i galaxies" % len(self.match[0]))
+
+        fig = P.figure()
+        ax = fig.add_subplot(111, xlabel='ra', ylabel='dec')
+        ax.scatter(self.skycoords_phot.ra, self.skycoords_phot.dec, color='k', label='Photo-z', s=15)
+        ax.scatter(self.skycoords.ra, self.skycoords.dec, color='r', label='Spectro-z', s=12)
         P.show()
 
     def scatter(self, zclust, cluster=None, cut=0.1, stability=False):

@@ -108,26 +108,26 @@ def stellarLocus(d, mag_type="modelfit_CModel_mag_extcorr", ifilt="i_new", cat='
     # according to Covey et al. 2007 - arXiv:0707.4473
     # The color reference system is SDSS
 
-    uMinusg = N.asarray([1.0636113, -1.6267818, 4.9389572, -3.2809081,
-                         0.8725109, -0.0828035, 0.6994, 0.0149])
+    #uMinusg = N.asarray([1.0636113, -1.6267818, 4.9389572, -3.2809081,
+    #                     0.8725109, -0.0828035, 0.6994, 0.0149])
     gMinusr = N.asarray([0.4290263, -0.8852323, 2.0740616, -1.1091553,
                          0.2397461, -0.0183195, 0.2702, 0.0178])
     rMinusi = N.asarray([-0.4113500, 1.8229991, -1.9989772, 1.0662075,
                          -0.2284455, 0.0172212, 0.2680, 0.0164])
-    iMinusz = N.asarray([-0.2270331, 0.7794558, -0.7350749, 0.3727802,
-                         -0.0735412, 0.0049808, 0.1261, 0.0071])
+    #iMinusz = N.asarray([-0.2270331, 0.7794558, -0.7350749, 0.3727802,
+    #                     -0.0735412, 0.0049808, 0.1261, 0.0071])
     poly_5 = (lambda p, x: p[0] + p[1]*x + p[2]*x**2 + p[3]*x**3 + p[4]*x**4 + p[5]*x**5)
 
     # Color corrections CFHT --> SDSS
-    u_SDSS_ug = lambda u_Mega, g_Mega: u_Mega + 0.181 * (u_Mega - g_Mega)
+    # u_SDSS_ug = lambda u_Mega, g_Mega: u_Mega + 0.181 * (u_Mega - g_Mega)
     g_SDSS_gr = lambda g_Mega, r_Mega: g_Mega + 0.195 * (g_Mega - r_Mega)
-    g_SDSS_gi = lambda g_Mega, i_Mega: g_Mega + 0.103 * (g_Mega - i_Mega)
+    # g_SDSS_gi = lambda g_Mega, i_Mega: g_Mega + 0.103 * (g_Mega - i_Mega)
     r_SDSS_gr = lambda r_Mega, g_Mega: r_Mega + 0.011 * (g_Mega - r_Mega)
     i_SDSS_ri = lambda i_Mega, r_Mega: i_Mega + 0.079 * (r_Mega - i_Mega)
-    i_SDSS_gi = lambda i_Mega, g_Mega: i_Mega + 0.044 * (g_Mega - i_Mega)
+    # i_SDSS_gi = lambda i_Mega, g_Mega: i_Mega + 0.044 * (g_Mega - i_Mega)
     i2_SDSS_ri = lambda i2_Mega, r_Mega: i2_Mega + 0.001 * (r_Mega - i2_Mega)
-    i2_SDSS_gi = lambda i2_Mega, g_Mega: i2_Mega - 0.003 * (g_Mega - i2_Mega)
-    z_SDSS_iz = lambda z_Mega, i_Mega: z_Mega - 0.099 * (i_Mega - z_Mega)
+    # i2_SDSS_gi = lambda i2_Mega, g_Mega: i2_Mega - 0.003 * (g_Mega - i2_Mega)
+    # z_SDSS_iz = lambda z_Mega, i_Mega: z_Mega - 0.099 * (i_Mega - z_Mega)
 
     gSDSS = g_SDSS_gr(mgS, mrS)
     rSDSS = r_SDSS_gr(mrS, mgS)
