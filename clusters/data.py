@@ -497,8 +497,9 @@ def filter_around(data, config, exclude_outer=1, exclude_inner=0, plot=False, un
     if hasattr(separation, unit):
         separation = getattr(separation, unit)
     else:
-        raise AttributeError("Angle instance has no attribute %s. Available attributes are: %s" \
-                             (unit, ",".join(sorted(dir(separation)))))
+        arglist = "\n" + ", ".join(sorted([a for a in dir(separation) if not a.startswith('_')]))
+        raise AttributeError("Angle instance has no attribute %s. Available attributes are: %s" % \
+                             (unit, arglist))
     data_around = data[(separation < exclude_outer) & (separation >= exclude_inner)]
     if plot:
         title = "%s, %.2f < d < %.2f %s cut" % \
