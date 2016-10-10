@@ -481,7 +481,7 @@ def correct_for_extinction(ti, te, mag='modelfit_CModel_mag', ext='sfd', ifilt="
                            (ifilt, ext))])
 
 
-def filter_around(data, config, exclude_outer=1, exclude_inner=0, plot=False):
+def filter_around(data, config, exclude_outer=1, exclude_inner=0, plot=False, unit='degree'):
     """Apply a circulat filter on the catalog around the center of the cluster.
 
     :param table data: The astropy table containing your data
@@ -493,24 +493,27 @@ def filter_around(data, config, exclude_outer=1, exclude_inner=0, plot=False):
     """
     coord = SkyCoord(ra=[config['ra']], dec=[config['dec']], unit='deg')
     coords = SkyCoord(data['coord_ra_deg'], data['coord_dec_deg'], unit='deg')
-    data_around = data[(coord.separation(coords).degree < exclude_outer) & \
-                       (coord.separation(coords).degree >= exclude_inner)]
+    separation = coord.separation(coords)
+    if hasattr(separation, unit):
+        separation = getattr(separation, unit)
+    else:
+        raise AttributeError("Angle instance has no attribute %s. Available attributes are:" % \
+                             (unit, sorted(dir(separation))))
+    data_around = data[(separation < exclude_outer) & (separation >= exclude_inner)]
     if plot:
-        plot_coordinates(data, data_around, cut=exclude_outer,
-                         cluster_coord=(config['ra'], config['dec']),
-                         title="%s, %.2f < d < %.2f degree cut" % \
-                         (config['cluster'], exclude_inner, exclude_outer))
+        title = "%s, %.2f < d < %.2f %s cut" % (config['cluster'], exclude_inner, exclude_outer, unit)
+        plot_coordinates(data, data_around, cluster_coord=(config['ra'], config['dec']), title=title)
     return data_around
 
 
-def plot_coordinates(all_data, filtered_data, cut=None, cluster_coord=None, title=None):
+def plot_coordinates(all_data, filtered_data, cluster_coord=None, title=None):
     """Plot a map of coordinates before and after a circular cut around the cluster center."""
     import pylab
     fig = pylab.figure()
     ax = fig.add_subplot(111, xlabel='ra', ylabel='dec')
     ax.scatter(all_data['coord_ra_deg'], all_data['coord_dec_deg'], color='k', label='All data')
-    ax.scatter(filtered_data['coord_ra_deg'], filtered_data['coord_dec_deg'],
-               color='r', label=('%.2f degree around cluster' % cut) if cut is not None else None)
+    ax.scatter(filtered_data['coord_ra_deg'], filtered_data['coord_dec_deg'], color='r',
+               label="Filtered data")
     if cluster_coord is not None:
         ax.scatter([cluster_coord[0]], [cluster_coord[1]], color='b', label='Cluster center')
     if title is not None:
