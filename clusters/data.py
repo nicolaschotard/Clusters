@@ -497,12 +497,14 @@ def filter_around(data, config, exclude_outer=1, exclude_inner=0, plot=False, un
     if hasattr(separation, unit):
         separation = getattr(separation, unit)
     else:
-        raise AttributeError("Angle instance has no attribute %s. Available attributes are:" % \
-                             (unit, sorted(dir(separation))))
+        raise AttributeError("Angle instance has no attribute %s. Available attributes are: %s" \
+                             (unit, ",".join(sorted(dir(separation)))))
     data_around = data[(separation < exclude_outer) & (separation >= exclude_inner)]
     if plot:
-        title = "%s, %.2f < d < %.2f %s cut" % (config['cluster'], exclude_inner, exclude_outer, unit)
-        plot_coordinates(data, data_around, cluster_coord=(config['ra'], config['dec']), title=title)
+        title = "%s, %.2f < d < %.2f %s cut" % \
+                (config['cluster'], exclude_inner, exclude_outer, unit)
+        plot_coordinates(data, data_around,
+                         cluster_coord=(config['ra'], config['dec']), title=title)
     return data_around
 
 
@@ -511,11 +513,13 @@ def plot_coordinates(all_data, filtered_data, cluster_coord=None, title=None):
     import pylab
     fig = pylab.figure()
     ax = fig.add_subplot(111, xlabel='ra', ylabel='dec')
-    ax.scatter(all_data['coord_ra_deg'], all_data['coord_dec_deg'], color='k', label='All data')
-    ax.scatter(filtered_data['coord_ra_deg'], filtered_data['coord_dec_deg'], color='r',
-               label="Filtered data")
+    ax.scatter(all_data['coord_ra_deg'], all_data['coord_dec_deg'],
+               color='k', label='All data', s=10)
+    ax.scatter(filtered_data['coord_ra_deg'], filtered_data['coord_dec_deg'], color='b',
+               label="Filtered data", s=10)
     if cluster_coord is not None:
-        ax.scatter([cluster_coord[0]], [cluster_coord[1]], color='b', label='Cluster center')
+        ax.scatter([cluster_coord[0]], [cluster_coord[1]], color='r', label='Cluster center',
+                   marker='x', s=50)
     if title is not None:
         ax.set_title(title)
     ax.legend(loc='lower left', scatterpoints=1, frameon=False)
