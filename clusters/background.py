@@ -5,6 +5,9 @@ from scipy import special
 import numpy as N
 import pylab as P
 import seaborn
+
+from astropy.coordinates import SkyCoord
+from astropy import units
 import math
 
 
@@ -255,18 +258,3 @@ def get_background(config, data, zdata=None):
     """Apply different cuts to the data in order to get the background galaxies."""
     if zdata is not None:
         print "INFO: A redshift cut will be applied."
-
-
-def filter_around(ra_clust, dec_clust, cut=1):
-    """Filter galaxy. cut ! deg for exemple"""
-    from . import data
-    from astropy.coordinates import SkyCoord
-    from astropy import unit as u
-    zd = data.read_data('MACSJ2243.3-0935_filtered_data_zphot.hdf5')
-    c = SkyCoord(ra=[config['ra']], dec=[config['dec']], unit=u.deg)
-    config = data.load_config('MACSJ2243.3-0935.yaml')
-    skycoords = SkyCoord(zd['coord_ra_deg'], zd['coord_dec_deg'], unit='deg')
-    #idxc, idxcatalog, d2d, d3d = c.search_around_sky(c, 1*u.deg)
-    d2d = c.separation(skycoords)
-    filt = d2d < cut
-    return filt

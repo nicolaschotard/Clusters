@@ -31,6 +31,10 @@ repositories:
 - A collection of `notebooks <https://github.com/lsst-france/LSST_notebooks>`_ for LSST
 - The `ReprocessingTaskForce <https://github.com/DarkEnergyScienceCollaboration/ReprocessingTaskForce>`_ repository
 
+See also the private `Trello board
+<https://trello.com/b/Lhg6VAq2/clusters>`_ that we use to share our
+work.
+
 Installation
 ------------
 
