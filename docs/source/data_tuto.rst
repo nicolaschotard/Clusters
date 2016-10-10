@@ -11,9 +11,9 @@ Load the table
 ~~~~~~~~~~~~~~
 
 The ``Astropy`` tables created by the ``clusters_data`` step are saved
-in an ``hdf5`` file, and contains two tables, corresponding to two
+in an ``hdf5`` file, and contains two main tables, corresponding to two
 output catalogs of the data processing using the DM stack. As an
-example, we will use here the ``forced`` catalog, corresponding to the
+example, we will use here the ``deepCoadd_forced_src`` catalog, corresponding to the
 forced photometry processing (`some details
 <https://confluence.lsstcorp.org/display/DM/S15+Multi-Band+Coadd+Processing+Prototype>`_).
 
@@ -21,16 +21,16 @@ If you want to start an analysis with an existing ``hdf5`` file containing catal
 
   /sps/lsst/data/clusters/MACSJ2243.3-0935/analysis/output_v1/MACSJ2243.3-0935_data.hdf5
 
-To load the ``forced`` catalog, do:
+To load the ``deepCoadd_forced_src`` catalog, do:
 
 .. code:: python
 
     from Clusters import data
     f = "/sps/lsst/data/clusters/MACSJ2243.3-0935/analysis/output_v1/MACSJ2243.3-0935_data.hdf5"
     d = data.read_data(f)
-    fc = d['forced']
+    fc = d['deepCoadd_forced_src']
 
-``d`` is a dictionnary containing the 'forced' and 'meas' catalogs
+``d`` is a dictionnary containing the 'deepCoadd_forced_src', the 'deepCoadd_meas' catalogs and the 'wcs' object. 
 
 .. code:: python
 
@@ -39,7 +39,7 @@ To load the ``forced`` catalog, do:
 
 .. parsed-literal::
 
-    ['forced', 'meas', 'wcs']
+    ['deepCoadd_forced_src', 'wcs', 'deepCoadd_meas']
 
 
 and ``fc`` is an astropy table
@@ -51,30 +51,30 @@ and ``fc`` is an astropy table
 
 .. parsed-literal::
 
-    base_CircularApertureFlux_70_0_flux ... coord_dec_deg 
-                     ct                 ...      deg      
-    ----------------------------------- ... --------------
-                                    nan ... -9.50417299504
-                                    nan ... -9.50631091083
-                                    nan ... -9.50631273401
-                                    nan ... -9.50632589495
-                                    nan ...  -9.5063327395
-                                    nan ...  -9.5062460577
-                                    nan ... -9.50629874096
-                                    nan ... -9.50635437897
-                                    nan ... -9.50600120865
-                                    nan ... -9.50549567214
-                                    ... ...            ...
-                          1.50556364615 ... -9.73333093082
-                          3.38628042737 ... -9.73388006895
-                          34.7225751682 ...  -9.7302761071
-                          34.9437715002 ... -9.73010079525
-                          33.6814404931 ... -9.72701283749
-                          30.9058971442 ...  -9.7273114286
-                         -57.1279619848 ... -9.91085559972
-                          -8.0121195399 ... -9.91084514606
-                         -7.38991968287 ...  -9.8851539436
-                         -20.8298629206 ... -9.88578472829
+    base_CircularApertureFlux_3_0_flag_sincCoeffsTruncated ... coord_dec_deg 
+                                                           ...      deg      
+    ------------------------------------------------------ ... --------------
+                                                     False ... -9.50417299504
+                                                      True ... -9.50631091083
+                                                      True ... -9.50631273401
+                                                      True ... -9.50632589495
+                                                      True ...  -9.5063327395
+                                                     False ...  -9.5062460577
+                                                      True ... -9.50629874096
+                                                      True ... -9.50635437897
+                                                     False ... -9.50600120865
+                                                     False ... -9.50549567214
+                                                       ... ...            ...
+                                                     False ... -9.73333093082
+                                                     False ... -9.73388006895
+                                                     False ...  -9.7302761071
+                                                     False ... -9.73010079525
+                                                     False ... -9.72701283749
+                                                     False ...  -9.7273114286
+                                                     False ... -9.91085559972
+                                                     False ... -9.91084514606
+                                                     False ...  -9.8851539436
+                                                     False ... -9.88578472829
     Length = 1050500 rows
 
 
@@ -129,7 +129,7 @@ The number of columns corresponding to the number of keys available in the catal
 
 .. parsed-literal::
 
-    195 columns
+    207 columns
     base_CircularApertureFlux_12_0_flag
     base_CircularApertureFlux_12_0_flag_apertureTruncated
     base_CircularApertureFlux_12_0_flux
@@ -172,7 +172,7 @@ and plot them against each other
 
 .. parsed-literal::
 
-    <matplotlib.text.Text at 0x7f740ee46090>
+    <matplotlib.text.Text at 0x7f304d91ad10>
 
 
 
@@ -190,7 +190,7 @@ A few standard filters have been implemented in ``data`` and can be used directl
 .. code:: python
 
     data_filtered = data.filter_table(d)
-    fc_filtered = data_filtered['forced']
+    fc_filtered = data_filtered['deepCoadd_forced_src']
 
 The same plot as in the above example now looks like
 
@@ -208,7 +208,7 @@ The same plot as in the above example now looks like
 
 .. parsed-literal::
 
-    <matplotlib.text.Text at 0x7f740f87f490>
+    <matplotlib.text.Text at 0x7f319f02ce10>
 
 
 
@@ -255,7 +255,7 @@ Add it to the initial table and plot it against the initial magnitude (for the `
 
 .. parsed-literal::
 
-    <matplotlib.text.Text at 0x7f740f002910>
+    <matplotlib.text.Text at 0x7f3159784290>
 
 
 
@@ -264,3 +264,20 @@ Add it to the initial table and plot it against the initial magnitude (for the `
 
 
 You can also add several columns using ``fc.add_columns([Columns(...), Columns(...), etc])``.
+
+Filter around the cluter center
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you only want to work on a sample of galaxies center around the cluster at a certain radius, do:
+
+.. code:: python
+
+    config = data.load_config('/sps/lsst/data/clusters/MACSJ2243.3-0935/analysis/output_v1/MACSJ2243.3-0935.yaml') 
+    fc_filtered_2 = data.filter_around(fc_filtered, config, exclude_outer=25, exclude_inner=3, plot=True, unit='arcmin')
+
+
+
+.. image:: data_tuto_files/data_tuto_32_0.png
+
+
+The output of ``filter_around`` is a filtered data table.
