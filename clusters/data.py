@@ -60,39 +60,40 @@ def get_from_butler(butler, catalog, filt, patch, **kwargs):
     tract = 0 if 'tract' not in kwargs else kwargs['tract']
     table = False if 'table' not in kwargs else kwargs['table']
     dataid = {'tract': tract, 'filter': filt, 'patch': patch}
-    b = butler.get(catalog, dataId=dataid)
-    return b if not table else get_astropy_table(b, **kwargs)
+    afwt = butler.get(catalog, dataId=dataid)
+    return afwt if not table else get_astropy_table(afwt, **kwargs)
 
 
-def add_magnitudes(t, getmagnitude):
+def add_magnitudes(table, getmagnitude):
     """Compute magns for all fluxes of a given table. Add the corresponding new columns."""
-    kfluxes = [k for k in t.columns if k.endswith('_flux')]
+    kfluxes = [k for k in table.columns if k.endswith('_flux')]
     ksigmas = [k + 'Sigma' for k in kfluxes]
-    for kf, ks in zip(kfluxes, ksigmas):
-        m, dm = numpy.array([getmagnitude(f, s) for f, s in zip(t[kf], t[ks])]).T
-        t.add_columns([Column(name=kf.replace('_flux', '_mag'), data=m,
-                              description='Magnitude', unit='mag'),
-                       Column(name=ks.replace('_fluxSigma', '_magSigma'), data=dm,
-                              description='Magnitude error', unit='mag')])
+    for kflux, ksigma in zip(kfluxes, ksigmas):
+        mag, dmag = numpy.array([getmagnitude(f, s)
+                                 for f, s in zip(table[kflux], table[ksigma])]).T
+        table.add_columns([Column(name=kflux.replace('_flux', '_mag'), data=mag,
+                                  description='Magnitude', unit='mag'),
+                           Column(name=ksigma.replace('_fluxSigma', '_magSigma'), data=dmag,
+                                  description='Magnitude error', unit='mag')])
 
 
-def add_position_and_deg(t, wcs):
+def add_position_and_deg(table, wcs):
     """Compute the x/y position in pixel for all sources. Add new columns to the table."""
     # Add the x / y position in pixel
-    x, y = skycoord_to_pixel(SkyCoord(t["coord_ra"].tolist(),
-                                      t["coord_dec"].tolist(), unit='rad'), wcs)
-    t.add_columns([Column(name='x_Src', data=x,
-                          description='x coordinate', unit='pixel'),
-                   Column(name='y_Src', data=y,
-                          description='y coordinate', unit='pixel')])
+    xsrc, ysrc = skycoord_to_pixel(SkyCoord(table["coord_ra"].tolist(),
+                                            table["coord_dec"].tolist(), unit='rad'), wcs)
+    table.add_columns([Column(name='x_Src', data=xsrc,
+                              description='x coordinate', unit='pixel'),
+                       Column(name='y_Src', data=ysrc,
+                              description='y coordinate', unit='pixel')])
 
     # Add a new column to have to coordinates in degree
-    t.add_columns([Column(name='coord_ra_deg',
-                          data=Angle(t['coord_ra'].tolist(), unit='rad').degree,
-                          description='RA coordinate', unit='degree'),
-                   Column(name='coord_dec_deg',
-                          data=Angle(t['coord_dec'].tolist(), unit='rad').degree,
-                          description='DEC coordinate', unit='degree')])
+    table.add_columns([Column(name='coord_ra_deg',
+                              data=Angle(table['coord_ra'].tolist(), unit='rad').degree,
+                              description='RA coordinate', unit='degree'),
+                       Column(name='coord_dec_deg',
+                              data=Angle(table['coord_dec'].tolist(), unit='rad').degree,
+                              description='DEC coordinate', unit='degree')])
 
 
 def add_filter_column(table, filt):
@@ -105,15 +106,15 @@ def add_patch_column(table, patch):
     table.add_column(Column(name='patch', data=[patch] * len(table), description='Patch name'))
 
 
-def add_extra_info(d):
+def add_extra_info(data):
     """Add magnitude and position to all tables."""
     # get the wcs
-    wcs = WCS(get_wcs(d))
+    wcs = WCS(get_wcs(data))
 
     # Shorcut to magnitude function
-    filt = d.keys()[0]
-    patch = d[filt].keys()[0]
-    getmag = d[filt][patch]['calexp'].getCalib().getMagnitude
+    filt = data.keys()[0]
+    patch = data[filt].keys()[0]
+    getmag = data[filt][patch]['calexp'].getCalib().getMagnitude
 
     def mag(flux, sigma):
         """Redefine the magnitude function. Negative flux or sigma possible."""
@@ -123,16 +124,16 @@ def add_extra_info(d):
             return getmag(flux, sigma)
 
     # compute all magnitudes and positions
-    for f in d:  # loop on filters
-        for p in d[f]:  # loop on patches
-            for e in ['deepCoadd_meas', 'deepCoadd_forced_src']:  # loop on catalogs
-                print "INFO: adding extra info for", f, p, e
-                add_magnitudes(d[f][p][e], mag)
-                add_filter_column(d[f][p][e], f)
-                add_patch_column(d[f][p][e], p)
-                add_position_and_deg(d[f][p][e], wcs)
+    for filt in data:  # loop on filters
+        for patch in data[filt]:  # loop on patches
+            for cat in ['deepCoadd_meas', 'deepCoadd_forced_src']:  # loop on catalogs
+                print "INFO: adding extra info for", filt, patch, cat
+                add_magnitudes(data[filt][patch][cat], mag)
+                add_filter_column(data[filt][patch][cat], filt)
+                add_patch_column(data[filt][patch][cat], patch)
+                add_position_and_deg(data[filt][patch][cat], wcs)
 
-    return d
+    return data
 
 
 def get_wcs(d):
@@ -172,7 +173,7 @@ def skycoord_to_pixel(coords, wcs, unit='deg'):
     return utils.skycoord_to_pixel(coords, wcs)
 
 
-def pixel_to_skycoord(x, y, wcs):
+def pixel_to_skycoord(xsrc, ysrc, wcs):
     """Transform pixel coordinates (x, y) to sky coordinates (ra, dec in deg) given a wcs.
 
     :param float x: x coordinate
@@ -180,7 +181,7 @@ def pixel_to_skycoord(x, y, wcs):
     :param wcs: an astropy.wcs.WCS object
     :return: an astropy.coordinates.SkyCoord object.
     """
-    return utils.pixel_to_skycoord(x, y, wcs)
+    return utils.pixel_to_skycoord(xsrc, ysrc, wcs)
 
 
 def get_all_data(path, patches, filters, add_extra=False, keys=None, show=False):
@@ -221,14 +222,14 @@ def get_all_data(path, patches, filters, add_extra=False, keys=None, show=False)
     return out
 
 
-def get_filter_data(butler, patches, f, keys=None):
+def get_filter_data(butler, patches, filt, keys=None):
     """
     Get butler data for a list of patches, for a given filter.
 
     Return a dictionnary with patches as keys
     """
-    print "INFO: loading filter", f
-    return {p: get_patch_data(butler, p, f, keys=keys) for p in patches}
+    print "INFO: loading filter", filt
+    return {patch: get_patch_data(butler, patch, filt, keys=keys) for patch in patches}
 
 
 def get_patch_data(butler, p, f, keys=None):
@@ -349,19 +350,21 @@ def from_list_to_array(d):
     return d
 
 
-def stack_tables(d):
+def stack_tables(data):
     """
     Stack the astropy tables across all patches.
 
     Return a new dictionnary of the form:
-    d = {u: {'deepCoadd_forced_src': table, 'deepCoadd_meas': table}, 
-         g: {'deepCoadd_forced_src': table, 'deepCoadd_meas': table}, ...}
+    d = {
+    u: {'deepCoadd_forced_src': table, 'deepCoadd_meas': table},
+    g: {'deepCoadd_forced_src': table, 'deepCoadd_meas': table}, ...
+    }
     """
     print "Info: Stacking the data (patches, filters) into a single astropy table"
-    return {'deepCoadd_meas': vstack([vstack([d[f][p]['deepCoadd_meas']
-                                              for p in d[f]]) for f in d]),
-            'deepCoadd_forced_src': vstack([vstack([d[f][p]['deepCoadd_forced_src']
-                                                    for p in d[f]]) for f in d])}
+    return {'deepCoadd_meas': vstack([vstack([data[filt][patch]['deepCoadd_meas']
+                                              for patch in data[filt]]) for filt in data]),
+            'deepCoadd_forced_src': vstack([vstack([data[filt][patch]['deepCoadd_forced_src']
+                                                    for patch in data[filt]]) for filt in data])}
 
 
 def write_data(d, output, overwrite=False):
@@ -481,29 +484,36 @@ def correct_for_extinction(ti, te, mag='modelfit_CModel_mag', ext='sfd', ifilt="
                            (ifilt, ext))])
 
 
-def filter_around(data, config, exclude_outer=1, exclude_inner=0, plot=False, unit='degree'):
+def filter_around(data, config, **kwargs):
     """Apply a circulat filter on the catalog around the center of the cluster.
 
     :param table data: The astropy table containing your data
     :param dict config: The analysis configuration file, which must contains the cluster coordinates
-    :param float exclude_inner: Cut galaxies inside this radius (degree)
-    :param float exclude_outer: Cut galaxies outside this radius (degree)
-    :param bool plot: Produce a figure if set to True
+
+    List of available kwargs:
+
+    :param float exclude_inner: Cut galaxies inside this radius [0]
+    :param float exclude_outer: Cut galaxies outside this radius [inf]
+    :param str unit: Unit of the input cuts [degree]
+    :param bool plot: Do not produce a figure if set to False
     :return: A filter data table containing galaxie inside [exclude_inner, exclude_outer]
     """
     coord = SkyCoord(ra=[config['ra']], dec=[config['dec']], unit='deg')
     coords = SkyCoord(data['coord_ra_deg'], data['coord_dec_deg'], unit='deg')
     separation = coord.separation(coords)
+    unit = kwargs.get('unit', 'degree')
     if hasattr(separation, unit):
         separation = getattr(separation, unit)
     else:
         arglist = "\n" + ", ".join(sorted([a for a in dir(separation) if not a.startswith('_')]))
         raise AttributeError("Angle instance has no attribute %s. Available attributes are: %s" % \
                              (unit, arglist))
-    data_around = data[(separation < exclude_outer) & (separation >= exclude_inner)]
-    if plot:
+    data_around = data[(separation >= kwargs.get('exclude_inner', 0)) & \
+                       (separation < kwargs.get('exclude_outer', numpy.inf))]
+    if kwargs.get('plot', True):
         title = "%s, %.2f < d < %.2f %s cut" % \
-                (config['cluster'], exclude_inner, exclude_outer, unit)
+                (config['cluster'], kwargs.get('exclude_inner', 0),
+                 kwargs.get('exclude_outer', numpy.inf), unit)
         plot_coordinates(data, data_around,
                          cluster_coord=(config['ra'], config['dec']), title=title)
     return data_around
@@ -520,8 +530,8 @@ def plot_coordinates(all_data, filtered_data, cluster_coord=None, title=None):
                label="Filtered data", s=10)
     if cluster_coord is not None:
         ax.scatter([cluster_coord[0]], [cluster_coord[1]], color='r', label='Cluster center',
-                   marker='x', s=50)
+                   marker='x', s=60)
     if title is not None:
         ax.set_title(title)
-    ax.legend(loc='lower left', scatterpoints=1, frameon=False)
+    ax.legend(loc='lower left', scatterpoints=1, frameon=False, fontsize='small')
     pylab.show()

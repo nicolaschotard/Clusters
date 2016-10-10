@@ -50,7 +50,7 @@ def fit_red_sequence(color, mag, **kwargs):
 
     :param list color: A list of color mag_i - mag_j (ordinate)
     :param list mag: List of magnitude (abciss)
-    :param **kwargs:
+    :param \*\*kwargs:
 
      - minc (float): lower cut on the color axis: color > minc (1.0)
      - maxc (float): upper cut of the color axis: color < maxc  (2.0)

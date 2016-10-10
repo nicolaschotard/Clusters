@@ -172,7 +172,7 @@ and plot them against each other
 
 .. parsed-literal::
 
-    <matplotlib.text.Text at 0x7f304d91ad10>
+    <matplotlib.text.Text at 0x7f55453994d0>
 
 
 
@@ -208,7 +208,7 @@ The same plot as in the above example now looks like
 
 .. parsed-literal::
 
-    <matplotlib.text.Text at 0x7f319f02ce10>
+    <matplotlib.text.Text at 0x7f55451f92d0>
 
 
 
@@ -255,7 +255,7 @@ Add it to the initial table and plot it against the initial magnitude (for the `
 
 .. parsed-literal::
 
-    <matplotlib.text.Text at 0x7f3159784290>
+    <matplotlib.text.Text at 0x7f55449552d0>
 
 
 
@@ -272,12 +272,22 @@ If you only want to work on a sample of galaxies center around the cluster at a 
 
 .. code:: python
 
-    config = data.load_config('/sps/lsst/data/clusters/MACSJ2243.3-0935/analysis/output_v1/MACSJ2243.3-0935.yaml') 
-    fc_filtered_2 = data.filter_around(fc_filtered, config, exclude_outer=25, exclude_inner=3, plot=True, unit='arcmin')
+    confile = '/sps/lsst/data/clusters/MACSJ2243.3-0935/analysis/output_v1/MACSJ2243.3-0935.yaml'
+    config = data.load_config(confile) 
+    output = data.filter_around(fc_filtered, config, exclude_outer=20, exclude_inner=3, unit='arcmin')
 
 
 
 .. image:: data_tuto_files/data_tuto_32_0.png
 
 
-The output of ``filter_around`` is a filtered data table.
+The output of ``filter_around`` is a filtered data table. You can also choose a different unit:
+
+.. code:: python
+
+    output = data.filter_around(fc_filtered, config, exclude_outer=0.3, exclude_inner=0.1, unit='degree')
+
+
+
+.. image:: data_tuto_files/data_tuto_34_0.png
+
