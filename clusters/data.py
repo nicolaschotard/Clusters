@@ -334,7 +334,7 @@ def vstack2(tables):
     """Verticaly stack large amount of astropy tables."""
     pbar = ProgressBar(widgets=[Percentage(), Bar(), ETA()], maxval=len(tables)).start()
     table = tables.pop(0)
-    for i in range(len(tables))::
+    for i in range(len(tables)):
         table = vstack([table] + [tables.pop(0)])
         pbar.update(i + 1)
     pbar.finish()
