@@ -210,7 +210,7 @@ class LEPHARO(object):
         """
         # Get the data and apply some cut if asked
         pval = self.data_dict[param]
-        filt = N.array([1]*len(pval), dtype='bool')
+        filt = N.array([1] * len(pval), dtype='bool')
         if 'minv' in kwargs:
             filt &= (pval >= kwargs['minv'])
         if 'maxv' in kwargs:
@@ -232,7 +232,6 @@ class LEPHARO(object):
 
         # Save the figure
         fig.savefig(self.files['output'].replace('.out', '') + "_" + xlabel + "_zphot_hist.png")
-
 
     def plot(self, px, py, **kwargs):
         """
@@ -306,6 +305,7 @@ def dict_to_array(d, filters='ugriz'):
 
 
 class ZSPEC(object):
+
     """Compare spectroscopic and photometric redshifts."""
 
     def __init__(self, sfile, names, unit='deg'):
@@ -378,7 +378,8 @@ class ZSPEC(object):
 
         fig = P.figure()
         ax = fig.add_subplot(111, xlabel='ra', ylabel='dec')
-        ax.scatter(self.skycoords_phot.ra, self.skycoords_phot.dec, color='k', label='Photo-z', s=15)
+        ax.scatter(self.skycoords_phot.ra, self.skycoords_phot.dec,
+                   color='k', label='Photo-z', s=15)
         ax.scatter(self.skycoords.ra, self.skycoords.dec, color='r', label='Spectro-z', s=12)
         P.show()
 
@@ -398,15 +399,14 @@ class ZSPEC(object):
         coeff = curve_fit(gauss, bin_centers, hist, p0=[N.max(hist[0]), zclust, 0.3])[0]
 
         # Plot
-        title = '' if cluster is None else cluster + \
-                ', %i object included (cut=%.2f)' % (len(zspec), cut)
         fig = P.figure()
         ax = fig.add_subplot(111, xlabel='Z-spec', ylabel='#',
-                             title=title)
+                             title='' if cluster is None else cluster + \
+                             ', %i object included (cut=%.2f)' % (len(zspec), cut))
         ax.hist(zspec, bins=len(zspec) / 4, histtype='stepfilled')
         ax.axvline(zclust, color='r', label='Z-cluster (%.3f)' % zclust, lw=2)
         ax.plot(bin_centers, gauss(bin_centers, *coeff),
-                label='Gaussian fit (mean, std)=(%.3f, %.3f)' % \
+                label='Gaussian fit (mean, std)=(%.3f, %.3f)' %
                 (coeff[1], N.abs(coeff[2])), lw=2, color='k')
         ax.legend(loc='best')
 
@@ -421,13 +421,13 @@ class ZSPEC(object):
             ax.errorbar(cuts, z, yerr=ze, label='Individual fits', color='k',
                         capsize=20, elinewidth=3)
             ax.legend(loc='best')
-            az, aze = N.mean(z), N.sqrt(N.std(z)**2 + N.mean(ze)**2)
             print "INFO: Stability over the followed range of selection cuts:"
             print "       ", cuts
             print "INFO: Input redshift: %.4f" % zclust
-            print "INFO: Average redshift: %.4f =/- %.4f" % (az, aze)
+            print "INFO: Average redshift: %.4f =/- %.4f" % \
+                (N.mean(z), N.sqrt(N.std(z)**2 + N.mean(ze)**2))
             P.show()
-            return az, aze
+            return N.mean(z), N.sqrt(N.std(z)**2 + N.mean(ze)**2)
         P.show()
         return coeff[1], N.abs(coeff[2])
 
@@ -435,4 +435,4 @@ class ZSPEC(object):
 def gauss(x, *p):
     """Model function to be used to fit a gaussian distribution."""
     A, mu, sigma = p
-    return A * N.exp(- (x - mu) **2 / (2. * sigma ** 2))
+    return A * N.exp(- (x - mu) ** 2 / (2. * sigma ** 2))

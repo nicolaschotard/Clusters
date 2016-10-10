@@ -54,7 +54,6 @@ def analysis(table, xclust, yclust):
 
 def plot_shear(gamt, gamc, dist, drange=(0, 8500), nbins=8):
     """Plot shear."""
-
     dval, step = numpy.linspace(drange[0], drange[1], nbins, retstep=True)
 
     plot_hist([gamt, gamc], ['Gamt', 'Gamc'])
@@ -81,20 +80,32 @@ def plot_hist(xs, labels, nbins=200, xarange=(-2, 2)):
     """Plot multiple histograms in subplots."""
     fig = pylab.figure(figsize=(15, 8))
     for i, x in enumerate(xs):
-        ax = fig.add_subplot(1, len(xs), i+1, xlabel=labels[i])
+        ax = fig.add_subplot(1, len(xs), i + 1, xlabel=labels[i])
         ax.hist(x, bins=nbins, range=xarange)
 
-def plot_scatter(xs, ys, xlabels, ylabels, yerrs=None, xarange=None, yarange=None):
-    """Plot multiple histogramsscatter plots in subplots."""
+
+def plot_scatter(xs, ys, xlabels, ylabels, **kwargs):
+    """Plot multiple scatter plots in subplots.
+
+    :param list xs: List of arrays for x axis
+    :param list ys: List of arrays for y axis
+    :param str xlabels: List of x labels
+    :param str ylabels: List of y labels
+
+    List of available kwargs:
+    :param list yerrs: List of arrays, error on the y axis
+    :param list xarange: Range for x axis (min,max)
+    :param list yarange: Range for y axis (min,max)
+    """
     fig = pylab.figure(figsize=(15, 8))
     for i, x in enumerate(xs):
-        ax = fig.add_subplot(1, len(xs), i+1, xlabel=xlabels[i], ylabel=ylabels[i])
+        ax = fig.add_subplot(1, len(xs), i + 1, xlabel=xlabels[i], ylabel=ylabels[i])
         ax.axhline(0, color='k', ls=':')
         ax.scatter(x, ys[i], s=1, color='b')
-        if yerrs is not None:
-            ax.errorbar(x, ys[i], yerr=yerrs[i])
-        if xarange is not None:
-            ax.set_xlim(xarange)
-        if yarange is not None:
-            ax.set_ylim(yarange)
+        if 'yerrs' in kwargs:
+            ax.errorbar(x, ys[i], yerr=kwargs['yerrs'][i])
+        if 'xarange' in kwargs:
+            ax.set_xlim(kwargs['xarange'])
+        if 'xarange' in kwargs:
+            ax.set_ylim(kwargs['yarange'])
 

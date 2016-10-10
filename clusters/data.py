@@ -9,6 +9,7 @@ from astropy.coordinates import SkyCoord, Angle
 from astropy.table import Table, Column, vstack
 from progressbar import Bar, ProgressBar, Percentage, ETA
 
+
 def load_config(config):
     """Load the configuration file, and return the corresponding dictionnary.
 
@@ -202,8 +203,8 @@ def get_all_data(path, patches, filters, add_extra=False, keys=None, show=False)
     if show:
         print "INFO: Available list of keys for the deepCoadd_forced_src catalog"
         table = Table(numpy.transpose([[k, out['deepCoadd_forced_src'][k].description,
-                                        out['deepCoadd_forced_src'][k].unit]
-                                       for k in sorted(out['deepCoadd_forced_src'].keys())]).tolist(),
+                                        out['deepCoadd_forced_src'][k].unit] for k in
+                                       sorted(out['deepCoadd_forced_src'].keys())]).tolist(),
                       names=["Keys", "Description", "Units"])
         print " -> All saved in deepCoadd_forced_src_keys.txt"
         table.write("deepCoadd_forced_src_keys.txt", format='ascii', comment="#")
@@ -271,11 +272,11 @@ def get_ccd_data(path, save=False, keys="*", show=False):
     """
     import lsst.daf.persistence as dafPersist
     butler = dafPersist.Butler(path)
-    keys = ['ccd', 'date', 'filter', 'object', 'runId', 'visit']
+    nkeys = ['ccd', 'date', 'filter', 'object', 'runId', 'visit']
     print "INFO: Getting list of available data"
-    dids = [merge_dicts(dict(zip(keys, v)), {'tract': 0})
-            for v in butler.queryMetadata("forced_src", format=keys)]
-    dids = [d for d in dids if os.path.exists(path + "/forced/%s/%s/%s/%s/%s/FORCEDSRC-%i-%i.fits"%\
+    dids = [merge_dicts(dict(zip(nkeys, v)), {'tract': 0})
+            for v in butler.queryMetadata("forced_src", format=nkeys)]
+    dids = [d for d in dids if os.path.exists(path + "/forced/%s/%s/%s/%s/%s/FORCEDSRC-%i-%i.fits" %
                                               (d['runId'], d['object'], d['date'], d['filter'],
                                                d['tract'], d['visit'], d['ccd']))]
     if show:
@@ -290,13 +291,15 @@ def get_ccd_data(path, save=False, keys="*", show=False):
 
     print "INFO: Getting the data from the butler for %i fits files" % len(dids)
     pbar = ProgressBar(widgets=[Percentage(), Bar(), ETA()], maxval=len(dids)).start()
+
     def get_tables(did, i):
         """Get a table and add a few keys."""
         table = get_astropy_table(butler.get("forced_src", dataId=did), keys=keys)
         for key in did:
             table.add_column(Column(name=key, data=[did[key]] * len(table)))
-        pbar.update(i+1)
+        pbar.update(i + 1)
         return table
+
     tables = [get_tables(did, i) for i, did in enumerate(dids)]
     pbar.finish()
     if save:
@@ -314,7 +317,7 @@ def save_tables(tables):
         else:
             table.write('forced_src.hdf5', path='%i' % i, compression=True,
                         serialize_meta=True, append=True)
-        pbar.update(i+1)
+        pbar.update(i + 1)
     pbar.finish()
 
 
@@ -331,9 +334,9 @@ def vstack2(tables):
     """Verticaly stack large amount of astropy tables."""
     pbar = ProgressBar(widgets=[Percentage(), Bar(), ETA()], maxval=len(tables)).start()
     table = tables.pop(0)
-    for i in range(len(tables)): #1, len(tables)/10+2):
-        table = vstack([table] + [tables.pop(0)]) # for i in range(len(tables[:10]))])
-        pbar.update(i+1)
+    for i in range(len(tables))::
+        table = vstack([table] + [tables.pop(0)])
+        pbar.update(i + 1)
     pbar.finish()
     return table
 
