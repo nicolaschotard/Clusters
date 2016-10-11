@@ -272,10 +272,10 @@ def get_ccd_data(path, save=False, keys="*", show=False):
     """
     import lsst.daf.persistence as dafPersist
     butler = dafPersist.Butler(path)
-    nkeys = ['ccd', 'date', 'filter', 'object', 'runId', 'visit']
+    idkeys = ['ccd', 'date', 'filter', 'object', 'runId', 'visit']
     print "INFO: Getting list of available data"
-    dids = [merge_dicts(dict(zip(nkeys, v)), {'tract': 0})
-            for v in butler.queryMetadata("forced_src", format=nkeys)]
+    dids = [merge_dicts(dict(zip(idkeys, v)), {'tract': 0})
+            for v in butler.queryMetadata("forced_src", format=idkeys)]
     dids = [d for d in dids if os.path.exists(path + "/forced/%s/%s/%s/%s/%s/FORCEDSRC-%i-%i.fits" %
                                               (d['runId'], d['object'], d['date'], d['filter'],
                                                d['tract'], d['visit'], d['ccd']))]

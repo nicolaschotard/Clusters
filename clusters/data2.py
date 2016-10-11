@@ -10,7 +10,7 @@ from astropy.table import Table, Column, vstack
 from progressbar import Bar, ProgressBar, Percentage, ETA
 
 
-class Data(object):
+class Catalogs(object):
 
     """Load data from a LSST stack butler path"""
 
@@ -18,6 +18,10 @@ class Data(object):
         """."""
         self.path = path
         self.butler = self._load_butler()
+        self.dataids = {}
+        self.catalogs = {}
+        self.pbar = None
+        self.keys = {}
 
     def _load_butler(self):
         """Load the butler."""
@@ -25,24 +29,66 @@ class Data(object):
         print "INFO: Loading data from", self.path
         return dafPersist.Butler(self.path)
 
-    def load_catalog(self, catalog, dataid, astropy_table=True, **kwargs):
+    def _load_dataids(self, catalog):
+        """Get the 'forced_src' catalogs."""
+        print "INFO: Getting list of available data"
+        keys = self.butler.getKeys(catalog)
+        keys.pop('tract')
+        dataids = [merge_dicts(dict(zip(keys, v)), {'tract': 0})
+                   for v in self.butler.queryMetadata("forced_src", format=keys)]
+        self.dataids[catalog] = [dataid for dataid in dataids if
+                                 self.butler.datasetExists(catalog, dataId=dataid)]
+
+
+    def _load_catalog_dataid(self, catalog, dataid, astropy_table=True, **kwargs):
         """Load a catalog from a 'dataId' set of parameter."""
         b = self.butler.get(catalog, dataId=dataid)
         return b if not astropy_table else get_astropy_table(b, **kwargs)
 
-    def get_astropy_table(self, cat, **kwargs):
-        """Convert an afw data table into a simple astropy table.
+    def _progressbar(self, n):
+        self.pbar = ProgressBar(widgets=[Percentage(), Bar(), ETA()], maxval=n).start()
 
-        :param cat: an afw data table
-        :return: the corresponding astropy.table.Table
-        """
-        schema = cat.getSchema()
-        dic = cat.getColumnView().extract(*kwargs['keys'] if 'keys' in kwargs else "*")
-        tab = Table(dic)
-        for k in tab.keys():
-            tab[k].description = shorten(schema[k].asField().getDoc())
-            tab[k].unit = schema[k].asField().getUnits()
-        return tab
+    def _load_catalog(self, catalog):
+        self._load_dataids(catalog)
+        print "INFO: Getting the data from the butler for %i fits files" % \
+            len(self.dataids[catalog])
+        self._progressbar(len(self.dataids[catalog]))
+        tables = [self._get_tables(catalog, did, i) for i, did in enumerate(self.dataids[catalog])]
+        self.pbar.finish()
+        print "INFO: Stacking the tables together"
+        self.catalogs[catalog] = vstack2(tables)
+
+    def _get_tables(self, catalog, did, i):
+        """Get a table and add a few keys."""
+        table = self._load_catalog_dataid(catalog, did, **{'keys': self.keys[catalog]})
+        for key in did:
+            table.add_column(Column(name=key, data=[did[key]] * len(table)))
+        self.pbar.update(i + 1)
+        return table
+
+    def load_catalogs(self, catalogs, **keys):
+        """Load a list of catalogs, e.g.,
+
+        ['deepCoadd_meas', 'deepCoadd_forced_src', 'deepCoadd_calexp', 'forced_src']"""
+        catalogs = [catalogs] if isinstance(catalogs, str) else catalogs
+        for catalog in catalogs:
+            self.keys[catalog] = keys.get(catalog, "*")
+            self._load_catalog(catalog)
+
+        #self.catalogs['wcs'] = d[filt][patch]['calexp'].getWcs().getFitsMetadata().toDict()
+
+    def wcs(self):
+        return WCS({k: self.catalogs['wcs'][k].item() for k in self.catalogs['wcs'].keys()})
+
+    def show_keys(self):
+        for catalog in self.catalogs:
+            print "INFO: Available list of keys for the %s catalog" % catalog
+            table = get_astropy_table(self.butler.get(catalog, dataId=did), keys="*")
+            ktable = Table(numpy.transpose([[k, table[k].description, table[k].unit]
+                                            for k in sorted(table.keys())]).tolist(),
+                           names=["Keys", "Description", "Units"])
+            print " -> All saved in %s_keys.txt" % catalog
+            ktable.write("%s_keys.txt" % catalog, format='ascii', comment="#")
 
 
 def load_config(config):
