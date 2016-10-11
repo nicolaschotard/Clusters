@@ -419,7 +419,7 @@ class ZSPEC(object):
             ax = fig.add_subplot(111, xlabel='Selection cut around cluste rredshift',
                                  ylabel='Estimated redshift',
                                  title='' if cluster is None else cluster +
-                                 ', %i object included (cut=%.2f)' % (len(zspec), cut)))
+                                 ', %i object included (cut=%.2f)' % (len(zspec), cut))
             ax.axhline(N.mean(z), label='Average value', color='r', lw=2)
             ax.errorbar(cuts, z, yerr=ze, label='Individual fits', color='k',
                         capsize=20, elinewidth=3)
