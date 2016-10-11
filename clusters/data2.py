@@ -9,10 +9,11 @@ from astropy.coordinates import SkyCoord, Angle
 from astropy.table import Table, Column, vstack
 from progressbar import Bar, ProgressBar, Percentage, ETA
 
+
 class Data(object):
 
     """Load data from a LSST stack butler path"""
-    
+
     def __init__(self, path):
         """."""
         self.path = path
@@ -42,6 +43,7 @@ class Data(object):
             tab[k].description = shorten(schema[k].asField().getDoc())
             tab[k].unit = schema[k].asField().getUnits()
         return tab
+
 
 def load_config(config):
     """Load the configuration file, and return the corresponding dictionnary.

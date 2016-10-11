@@ -54,6 +54,7 @@ def fit_red_sequence(color, mag, **kwargs):
      - minm (float): lower cut on the mag axis: mag > minm (20.0)
      - maxm (float): upper cut of the mag axis: mag < maxm  (23.5)
      - islope (float): first guess for the red sequence band slope (-0.04)
+     - nbins (int): Number of bins used in the fits (40)
 
     :return:
 
@@ -68,6 +69,7 @@ def fit_red_sequence(color, mag, **kwargs):
     minm = kwargs.get('minm', 20.0)
     maxm = kwargs.get('maxm', 23.5)
     islope = kwargs.get('islope', -0.04)
+    nbins = kwargs.get('nbins', 40)
 
     magref = minm  # Arbitrary reference magnitude for projection
     diffref = 0.5 * (minc + maxc)  # Arbitrary reference ordinate for projection
@@ -80,7 +82,6 @@ def fit_red_sequence(color, mag, **kwargs):
     alpha = math.atan(islope)
     dy = N.cos(alpha) * ((N.asarray(magref) - mag) * islope + color - diffref)
 
-    nbins = 40
     idx = N.where((color > minc) & (color < maxc) & (mag < maxm) & (mag > minm))
     fig, (ax0) = P.subplots(ncols=1)
     n, bins, patches = ax0.hist(dy[idx], bins=nbins, color='b')
@@ -95,7 +96,9 @@ def fit_red_sequence(color, mag, **kwargs):
             p[6] * p[5] * N.exp(0.5 * p[5] * (2 * p[3] + p[5] * p[4]**2 - 2 * z)) * \
             special.erfc((p[3] + p[5] * p[4] ** 2 - z) / (math.sqrt(2) * p[4]))
 
-    dist = lambda p, z, y: (func(p, z) - y) / (N.sqrt(y) + 1.)
+    def dist(p, z, y):
+        return (func(p, z) - y) / (N.sqrt(y) + 1.)
+
     p0 = [n.max(), 0.2, 0.1, -3.0, 1., 1., 40.]  # Initial parameter values
     p2, cov, infodict, mesg, ier = optimize.leastsq(dist, p0[:], args=(x, n), full_output=True)
     ss_err = (infodict['fvec']**2).sum()
@@ -118,24 +121,27 @@ def fit_red_sequence(color, mag, **kwargs):
     sigma = []
     sigmamin = 999.0
 
-    lfunc = lambda p, z: p[0] * N.exp(-(p[1] - z) ** 2 / (2 * p[2] ** 2)) + \
+    def lfunc(p, z):
+        return p[0] * N.exp(-(p[1] - z) ** 2 / (2 * p[2] ** 2)) + \
             p[6] * p[5] * N.exp(0.5 * p[5] * (2 * p[3] + p[5] * p[4] ** 2 - 2 * z)) * \
             special.erfc((p[3] + p[5] * p[4] ** 2 - z) / (math.sqrt(2) * p[4]))
-    dist = lambda p, z, y: (lfunc(p, z) - y) / (N.sqrt(y) + 1.)
+
+    def ldist(p, z, y):
+        return (lfunc(p, z) - y) / (N.sqrt(y) + 1.)
+
     for i in range(nsteps):
-        slope = slope + step
+        slope += step
         # RS slope is always negative
         if slope > 0.0:
             break
         alpha = math.atan(slope)
         dy = N.cos(alpha) * ((magref - mag) * slope + color - diffref)
-        nbins = 40
         idx = N.where((color > minc) & (color < maxc) & (mag < maxm) & (mag > minm))
         n, bins, = N.histogram(dy[idx], bins=nbins)
 
         x = N.asarray([0.5 * (bins[i + 1] - bins[i]) + bins[i] for i in range(len(n))])
         p0 = p2  # Start fit with parameters fitted at the previous step
-        p1, cov, infodict, mesg, ier = optimize.leastsq(dist, p0[:], args=(x, n), full_output=True)
+        p1, cov, infodict, mesg, ier = optimize.leastsq(ldist, p0[:], args=(x, n), full_output=True)
         val.append(slope)
         sigma.append(p1[2])
         if p1[2] < sigmamin:
@@ -148,13 +154,17 @@ def fit_red_sequence(color, mag, **kwargs):
 
     # Fit a parabola on the (slope, sigma) distribution to find the RS slope
     # corresponding to the minimum sigma
-    parabola = lambda p, z: p[0] * z * z + p[1] * z + p[2]
-    dist = lambda p, z, y: (parabola(p, z) - y)
+    def parabola(p, z):
+        return p[0] * z * z + p[1] * z + p[2]
+
+    def pdist(p, z, y):
+        return parabola(p, z) - y
+
     p0 = [1., 1., 1.]
-    p1, cov, infodict1, mesg, ier = optimize.leastsq(dist, p0[:],
+    p1, cov, infodict1, mesg, ier = optimize.leastsq(pdist, p0[:],
                                                      args=(N.asarray(val),
                                                            N.asarray(sigma)),
-                                                 full_output=True)
+                                                     full_output=True)
     fitslope = -0.5 * p1[1] / p1[0]
 
     ax0.plot(N.asarray(val), parabola(p1, N.asarray(val)), color='r')
@@ -172,7 +182,6 @@ def fit_red_sequence(color, mag, **kwargs):
     print "Fitted minimum: %f" % fitslope
 
     # Plot RS projection corresponding to the optimal slope
-    nbins = 40
     alpha = math.atan(slope)
     dy = N.cos(alpha) * ((magref - mag) * fitslope + color - diffref)
     idx = N.where((color > minc) & (color < maxc) & (mag < maxm) & (mag > minm))
@@ -186,9 +195,11 @@ def fit_red_sequence(color, mag, **kwargs):
             p[6] * p[5] * N.exp(0.5 * p[5] * (2 * p[3] + p[5] * p[4] ** 2 - 2 * z)) * \
             special.erfc((p[3] + p[5] * p[4] ** 2 - z) / (math.sqrt(2) * p[4]))
 
-    dist = lambda p, z, y: (hfunc(p, z) - y) / (N.sqrt(y) + 1.)
+    def hdist(p, z, y):
+        return (hfunc(p, z) - y) / (N.sqrt(y) + 1.)
+
     p0 = param
-    p1, cov, infodict, mesg, ier = optimize.leastsq(dist, p0[:], args=(x, n), full_output=True)
+    p1, cov, infodict, mesg, ier = optimize.leastsq(hdist, p0[:], args=(x, n), full_output=True)
     ss_err = (infodict['fvec']**2).sum()
     ss_tot = ((n - n.mean()) ** 2).sum()
     rsquared = 1 - (ss_err / ss_tot)
@@ -250,6 +261,7 @@ def zphot_cut(zclust, zdata):
     P.show()
 
     return zdata['objectId'][filt]
+
 
 def get_background(config, data, zdata=None):
     """Apply different cuts to the data in order to get the background galaxies."""

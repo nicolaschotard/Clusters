@@ -38,8 +38,8 @@ class LEPHARE(object):
         """
         self.data = {'mag': magnitudes, 'err': errors}
         self.kwargs = kwargs
-        self.config = os.environ["LEPHAREDIR"] + "/config/zphot_megacam.para" if \
-                      zpara is None else zpara
+        self.config = os.environ["LEPHAREDIR"] + \
+                      "/config/zphot_megacam.para" if zpara is None else zpara
 
         # Name of created files?
         self.files = {}
@@ -116,11 +116,11 @@ class LEPHARE(object):
                 for f in os.listdir(path_to_lib):
                     if f.endswith(".bin"):
                         print f
-                print "--> Correct the ZPHOTLIB variable in %s or generate the missing LePhare SED libraries" % self.config
+                        print "--> Correct the ZPHOTLIB variable in %s" % self.config + \
+                            "or generate the missing LePhare SED libraries"
                 sys.exit()
 
-        counter = 0
-        for lib in libs:
+        for counter, lib in enumerate(libs):
             lib_tmp = path_to_lib + lib + ".doc"
             with open(lib_tmp) as f:
                 for line in f:
@@ -129,9 +129,10 @@ class LEPHARE(object):
                         if counter == 0:
                             filt_ref = filt_tmp
                         if filt_tmp != filt_ref:
-                            print "\nERROR: Requested SED libraries %s have been built using different filters. Either change the requested libraries or re-generate them accordingly." % libs
+                            print "\nERROR: Requested SED libraries %s" % libs + \
+                                " have been built using different filters. Either change the " + \
+                                "requested libraries or re-generate them accordingly."
                             sys.exit()
-            counter += 1
 
         path_to_filt = os.environ["LEPHAREWORK"] + "/filt/"
         if not os.path.exists(path_to_filt + filt_ref):
@@ -401,7 +402,7 @@ class ZSPEC(object):
         # Plot
         fig = P.figure()
         ax = fig.add_subplot(111, xlabel='Z-spec', ylabel='#',
-                             title='' if cluster is None else cluster + \
+                             title='' if cluster is None else cluster +
                              ', %i object included (cut=%.2f)' % (len(zspec), cut))
         ax.hist(zspec, bins=len(zspec) / 4, histtype='stepfilled')
         ax.axvline(zclust, color='r', label='Z-cluster (%.3f)' % zclust, lw=2)
@@ -416,7 +417,9 @@ class ZSPEC(object):
                           for c in cuts])
             fig = P.figure()
             ax = fig.add_subplot(111, xlabel='Selection cut around cluste rredshift',
-                                 ylabel='Estimated redshift', title=title)
+                                 ylabel='Estimated redshift',
+                                 title='' if cluster is None else cluster +
+                                 ', %i object included (cut=%.2f)' % (len(zspec), cut)))
             ax.axhline(N.mean(z), label='Average value', color='r', lw=2)
             ax.errorbar(cuts, z, yerr=ze, label='Individual fits', color='k',
                         capsize=20, elinewidth=3)

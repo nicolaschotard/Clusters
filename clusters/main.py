@@ -190,8 +190,8 @@ def photometric_redshift(argv=None):
     print "INFO: LEPHARE will run on", len(data) / len(config['filters']), "sources"
 
     if args.zpara is None:
-        args.zpara = os.environ["LEPHAREDIR"] + "/config/zphot_megacam.para" if \
-                     'zpara' not in config else config['zpara']
+        args.zpara = os.environ["LEPHAREDIR"] + \
+                     "/config/zphot_megacam.para" if 'zpara' not in config else config['zpara']
 
     for i, zpara in enumerate(args.zpara.split(',') if isinstance(args.zpara, str) else args.zpara):
         print "\nINFO: Configuration for LEPHARE from:", zpara
