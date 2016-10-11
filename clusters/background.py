@@ -7,6 +7,7 @@ import pylab as P
 import seaborn
 import math
 
+from . import data as cdata
 
 def color_histo(mags):
     """Plot color histograms."""
@@ -263,8 +264,22 @@ def zphot_cut(zclust, zdata):
     return zdata['objectId'][filt]
 
 
-def get_background(config, data, zdata=None):
+def get_background(config, data, zdata=None, zspec=None):
     """Apply different cuts to the data in order to get the background galaxies."""
     print config['cluster'], len(data)
+
+    # Cut data futher than a given radius around the center of the cluster
+    cdata.filter_around(data, config, exclude_outer=20, exclude_inner=3, unit='arcmin')
+
+    # Red sequence
+    print "INFO; Getting red sequence"
+
+    # Spectroscopic against photometric redshifts
+    if zspec is not None:
+        print "INFO: Checking photo/spectro redshifts consitancy"
+
+    # Photometric redshift cut
     if zdata is not None:
+        zdata = cdata.read_data(zdata)
         print "INFO: A redshift cut will be applied."
+        zphot_cut(config['redshift'], zdata)

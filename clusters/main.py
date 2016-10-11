@@ -241,6 +241,8 @@ def getbackground(argv=None):
     parser.add_argument('input', help='Input data file')
     parser.add_argument("--output",
                         help="Name of the output file (hdf5 file)")
+    parser.add_argument("--zdata",
+                        help="Photometric redshift data (hdf5 output of clusters_zphot)")
     args = parser.parse_args(argv)
 
     config = yaml.load(open(args.config))
@@ -255,7 +257,7 @@ def getbackground(argv=None):
     print "INFO: Working on filters", filters
 
     data = cdata.read_data(args.input)
-    background.get_background(config, data['deepCoadd_forced_src'])
+    background.get_background(config, data['deepCoadd_forced_src'], zdata=args.zdata)
 
 
 def shear(argv=None):
