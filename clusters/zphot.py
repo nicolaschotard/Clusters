@@ -3,6 +3,7 @@
 import os
 import sys
 import numpy as N
+import pdb
 import pylab as P
 import seaborn
 import subprocess
@@ -17,7 +18,7 @@ class LEPHARE(object):
 
     """Wrapper to the LEPHARE photometric redshift code."""
 
-    def __init__(self, magnitudes, errors, zpara=None, **kwargs):
+    def __init__(self, magnitudes, errors, zpara=None, spectro_file=None, **kwargs):
         """
         Run the LEPHARE progam (zphota).
 
@@ -41,6 +42,7 @@ class LEPHARE(object):
         self.config = os.environ["LEPHAREDIR"] + \
                       "/config/zphot_megacam.para" if zpara is None else zpara
 
+        self.spectro_file = spectro_file
         # Name of created files?
         self.files = {}
         if 'basename' in kwargs:
@@ -65,18 +67,42 @@ class LEPHARE(object):
         Create and write files needed to run LEPHARE.
 
         - the input data file for LEPHARE
-        - a similare file containing the soruces ID along with their RA DEC.
+        - a similar file containing the sources ID along with their RA DEC.
         """
         f = open(self.files['input'], 'w')
-        if 'filters' in self.kwargs:
-            f.write("# id " + " ".join(["mag_%s" % filt for filt in self.kwargs['filters']]) +
-                    " " + " ".join(["err_mag_%s" % filt for filt in self.kwargs['filters']]) +
-                    "\n")
-        for i, mags in enumerate(N.concatenate([self.data['mag'], self.data['err']]).T):
-            f.write("%i %s\n" % (i, " ".join(["%.3f" % m for m in mags])))
-        f.close()
-        print "INFO: Input data saved in", self.files['input']
+        if self.spectro_file is None:
+            # No spectroscopic redshift file provided in config.yaml
+            # --> only need the SHORT format for LePhare input file    
+            if 'filters' in self.kwargs:
+                f.write("# id " + " ".join(["mag_%s" % filt for filt in self.kwargs['filters']]) +
+                        " " + " ".join(["err_mag_%s" % filt for filt in self.kwargs['filters']]) +
+                        "\n")
+                for i, mags in enumerate(N.concatenate([self.data['mag'], self.data['err']]).T):
+                    f.write("%i %s\n" % (i, " ".join(["%.3f" % m for m in mags])))
 
+                f.close()
+                print "INFO: Input data saved in", self.files['input']
+        else:
+            # Spectroscopic redshift file provided in config.yaml
+            # --> Need to write LePhare input file in the LONG format,
+            # i.e with 'context' and spectroz of matching galaxies
+            zspec = ZSPEC(self.spectro_file, names=['object', 'ra', 'dec', 'zspec'])
+            zspec.skycoords = SkyCoord(zspec.data['ra'], zspec.data['dec'], unit='deg')
+            skycoords_cat = SkyCoord(self.kwargs['ra'], self.kwargs['dec'], unit='deg')
+            idx, d2d, d3d = zspec.skycoords.match_to_catalog_sky(skycoords_cat)
+            bad = N.where(d2d.mas > 100) # identify galaxies with bad match, i.e. dist > 100 mas
+            idx = N.delete(idx,bad) # idx of good galaxies in catalogue
+            idx_zp = N.delete(N.arange(len(zspec.data['ra'])),bad) # idx of good galaxies spectroz sample
+            zp = N.zeros(len(skycoords_cat))-99.
+            zp[idx] = zspec.data['zspec'][idx_zp]
+            if 'filters' in self.kwargs:
+                f.write("# id " + " ".join(["mag_%s" % filt for filt in self.kwargs['filters']]) +
+                        " " + " ".join(["err_mag_%s" % filt for filt in self.kwargs['filters']]) +
+                        " context" + " zspec" + "\n")
+                for i, mags in enumerate(N.concatenate([self.data['mag'], self.data['err']]).T):
+                    f.write("%i %s %s\n" % (i, " ".join(["%.3f" % m for m in mags]), " ".join(("31","%.3f" % zp[i]))))
+            f.close()
+        
         if 'ra' in self.kwargs:
             f = open(self.files['all_input'], 'w')
             if 'filters' in self.kwargs is not None:

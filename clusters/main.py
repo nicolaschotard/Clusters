@@ -193,6 +193,9 @@ def photometric_redshift(argv=None):
         args.zpara = os.environ["LEPHAREDIR"] + \
                      "/config/zphot_megacam.para" if 'zpara' not in config else config['zpara']
 
+    # If a spectroscopic sample is provided, LEPHARE will run using the adaptative method (zero points determination) 
+    spectro_file = None if 'zspectro_file' not in config else config['zspectro_file']
+    
     for i, zpara in enumerate(args.zpara.split(',') if isinstance(args.zpara, str) else args.zpara):
         print "\nINFO: Configuration for LEPHARE from:", zpara
         kwargs = {'basename': config['cluster'] + '_' + zpara.split('/')[-1].replace('.para', ''),
@@ -203,7 +206,7 @@ def photometric_redshift(argv=None):
         zphot = czphot.LEPHARE([data[mag][data['filter'] == f] for f in config['filters']],
                                [data[args.mag + "Sigma"][data['filter'] == f]
                                 for f in config['filters']],
-                               zpara=zpara, **kwargs)
+                               zpara=zpara, spectro_file=spectro_file, **kwargs)
         zphot.check_config()
         zphot.run()
 
