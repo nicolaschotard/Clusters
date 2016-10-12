@@ -16,79 +16,201 @@ class Catalogs(object):
 
     def __init__(self, path):
         """."""
-        self.path = path
-        self.butler = self._load_butler()
+        # Load the bulter
+        import lsst.daf.persistence as dafPersist
+        print "INFO: Loading data from", path
+        self.butler = dafPersist.Butler(path)
+
+        # Initialize data dictionnaries
         self.dataids = {}
         self.catalogs = {}
-        self.pbar = None
         self.keys = {}
+        self._getmag = self.wcs = None
 
-    def _load_butler(self):
-        """Load the butler."""
-        import lsst.daf.persistence as dafPersist
-        print "INFO: Loading data from", self.path
-        return dafPersist.Butler(self.path)
-
-    def _load_dataids(self, catalog):
+    def _load_dataids(self, catalog, **kwargs):
         """Get the 'forced_src' catalogs."""
-        print "INFO: Getting list of available data"
-        keys = self.butler.getKeys(catalog)
-        keys.pop('tract')
-        dataids = [merge_dicts(dict(zip(keys, v)), {'tract': 0})
-                   for v in self.butler.queryMetadata("forced_src", format=keys)]
+        print "INFO: Getting list of available data for", catalog
+
+        if 'deepCoadd' in catalog:  # The deep_coadd* catalogs
+            skymap = self.butler.get("deepCoadd_skyMap")
+            dataids = [dict(tract=tract.getId(), patch="%d,%d" % patch.getIndex(), filter=f)
+                       for tract in skymap for patch in tract for f in 'ugriz']
+        else:  # The other catalogs
+            keys = self.butler.getKeys(catalog)
+            if 'tract' in keys:
+                keys.pop('tract')
+            dataids = [merge_dicts(dict(zip(keys, v)), {'tract': 0})
+                       for v in self.butler.queryMetadata("forced_src", format=keys)]
+
+        if len(dataids) == 0:
+            raise IOError("No dataIds. Check the catalog, the config file, and path to the bulter.")
+
+        # Select the ccd/visit according to the input list of patch if given
+        if 'deepCoadd' not in catalog:
+            if 'patch' in kwargs and 'filter' in kwargs:
+                coadds = [self.butler.get('deepCoadd', {'filter': filt, 'patch': patch, 'tract': 0})
+                          for filt in kwargs['filter'] for patch in kwargs['patch']]
+                ccds = [coadd.getInfo().getCoaddInputs().ccds for coadd in coadds]
+                ccds_visits = [numpy.transpose([ccd.get('visit'), ccd.get('ccd')]) for ccd in ccds]
+                ccds_visits = numpy.concatenate(ccds_visits)
+                dataids = [dataid for dataid in dataids
+                           if (dataid['visit'], dataid['ccd']) in ccds_visits]
+
+        # Specific selection make by the user?
+        for kwarg in kwargs:
+            if not kwarg in dataids[0]:
+                continue
+            if not isinstance(kwargs[kwarg], list):
+                kwargs[kwarg] = [kwargs[kwarg]]
+                dataids = [dataid for dataid in dataids if dataid[kwarg] in kwargs[kwarg]]
+
+        # Only keep dataids with data
         self.dataids[catalog] = [dataid for dataid in dataids if
                                  self.butler.datasetExists(catalog, dataId=dataid)]
 
 
     def _load_catalog_dataid(self, catalog, dataid, astropy_table=True, **kwargs):
         """Load a catalog from a 'dataId' set of parameter."""
-        b = self.butler.get(catalog, dataId=dataid)
-        return b if not astropy_table else get_astropy_table(b, **kwargs)
+        butler = self.butler.get(catalog, dataId=dataid)
+        return butler if not astropy_table else get_astropy_table(butler, **kwargs)
 
-    def _progressbar(self, n):
-        self.pbar = ProgressBar(widgets=[Percentage(), Bar(), ETA()], maxval=n).start()
-
-    def _load_catalog(self, catalog):
-        self._load_dataids(catalog)
+    def _load_catalog(self, catalog, **kwargs):
+        """Load a given catalog."""
+        self._load_dataids(catalog, **kwargs)
         print "INFO: Getting the data from the butler for %i fits files" % \
             len(self.dataids[catalog])
-        self._progressbar(len(self.dataids[catalog]))
-        tables = [self._get_tables(catalog, did, i) for i, did in enumerate(self.dataids[catalog])]
-        self.pbar.finish()
-        print "INFO: Stacking the tables together"
+        if 'radius' in kwargs:
+            radius = float(kwargs['radius'].split()[0])
+            unit = kwargs['radius'].split()[1]
+            coord = SkyCoord(ra=[config['ra']], dec=[config['dec']], unit='deg')
+            coords = SkyCoord(ra=list(data['coord_ra']), dec=list(data['coord_dec']), unit='rad')
+        pbar = progressbar(len(self.dataids[catalog]))
+        tables = [self._get_tables(catalog, did, i, pbar)
+                  for i, did in enumerate(self.dataids[catalog])]
+        pbar.finish()
+        #if 'radius' in kwargs:
+        #    print "INFO: Filter out galaxies outside a radius of %s around the cluster center" % \
+        #        kwargs['radius']
+        #    pbar = progressbar(len(self.dataids[catalog]))
+        #    radius = float(kwargs['radius'].split()[0])
+        #    unit = kwargs['radius'].split()[1]
+        #    tables = [filter_around(table, kwargs, exclude_outer=radius, unit=unit, pbar=pbar, i=i)
+        #              for i, table in enumerate(tables)]
+        #    tables = [table for table in tables if len(table) != 0]
+        #    pbar.finish()
+        #
+        #    coord = SkyCoord(ra=[config['ra']], dec=[config['dec']], unit='deg')
+        #    coords = SkyCoord(ra=list(data['coord_ra']), dec=list(data['coord_dec']), unit='rad')
+        #    separation = coord.separation(coords)
+        #    data[coord.separation(coords) < radius]
+
+        print "INFO: Stacking the %i tables together" % len(tables)
         self.catalogs[catalog] = vstack2(tables)
 
-    def _get_tables(self, catalog, did, i):
+    def _get_tables(self, catalog, did, i, pbar):
         """Get a table and add a few keys."""
         table = self._load_catalog_dataid(catalog, did, **{'keys': self.keys[catalog]})
         for key in did:
             table.add_column(Column(name=key, data=[did[key]] * len(table)))
-        self.pbar.update(i + 1)
+        pbar.update(i + 1)
         return table
 
-    def load_catalogs(self, catalogs, **keys):
+    def load_catalogs(self, catalogs, keys=None, show=False, **kwargs):
         """Load a list of catalogs, e.g.,
 
         ['deepCoadd_meas', 'deepCoadd_forced_src', 'deepCoadd_calexp', 'forced_src']"""
+        if show:
+            self.show_keys(catalogs)
+            return
+        keys = {} if keys is None else keys
         catalogs = [catalogs] if isinstance(catalogs, str) else catalogs
         for catalog in catalogs:
+            if 'calexp' in catalog:
+                print "WARNING: Skipping %s. This is not a regular catalog (no schema).\n" % catalog
+                continue
+            print "INFO: Loading the %s catalog" % catalog
             self.keys[catalog] = keys.get(catalog, "*")
-            self._load_catalog(catalog)
+            self._load_catalog(catalog, **kwargs)
+            print "INFO: %s loaded.\n" % catalog
+        self._load_calexp()
+        self._add_new_columns()
+        print "\nINFO: Done loading the data."
 
-        #self.catalogs['wcs'] = d[filt][patch]['calexp'].getWcs().getFitsMetadata().toDict()
-
-    def wcs(self):
-        return WCS({k: self.catalogs['wcs'][k].item() for k in self.catalogs['wcs'].keys()})
-
-    def show_keys(self):
+    def _add_new_columns(self):
+        """Compute magns for all fluxes of a given table. Add the corresponding new columns.
+        Compute the x/y position in pixel for all sources. Add new columns to the table."""
         for catalog in self.catalogs:
-            print "INFO: Available list of keys for the %s catalog" % catalog
-            table = get_astropy_table(self.butler.get(catalog, dataId=did), keys="*")
+            # skip wcs key
+            if catalog == 'wcs':
+                continue
+            # Shortuc to the table
+            table = self.catalogs[catalog]
+
+            # Add magnitudes
+            kfluxes = [k for k in table.columns if k.endswith('_flux')]
+            ksigmas = [k + 'Sigma' for k in kfluxes]
+            for kflux, ksigma in zip(kfluxes, ksigmas):
+                mag, dmag = numpy.array([self.getmag(f, s)
+                                         for f, s in zip(table[kflux], table[ksigma])]).T
+                table.add_columns([Column(name=kflux.replace('_flux', '_mag'), data=mag,
+                                          description='Magnitude', unit='mag'),
+                                   Column(name=ksigma.replace('_fluxSigma', '_magSigma'), data=dmag,
+                                          description='Magnitude error', unit='mag')])
+
+            # Add the x / y position in pixel
+            xsrc, ysrc = skycoord_to_pixel(SkyCoord(table["coord_ra"].tolist(),
+                                                    table["coord_dec"].tolist(), unit='rad'),
+                                           self.wcs)
+            table.add_columns([Column(name='x_Src', data=xsrc,
+                                      description='x coordinate', unit='pixel'),
+                               Column(name='y_Src', data=ysrc,
+                                      description='y coordinate', unit='pixel')])
+
+            # Add a new column to have to coordinates in degree
+            table.add_columns([Column(name='coord_ra_deg',
+                                      data=Angle(table['coord_ra'].tolist(), unit='rad').degree,
+                                      description='RA coordinate', unit='degree'),
+                               Column(name='coord_dec_deg',
+                                      data=Angle(table['coord_dec'].tolist(), unit='rad').degree,
+                                      description='DEC coordinate', unit='degree')])
+
+    def _load_calexp(self):
+        """Load the 'calexp' info in order to get the WCS and the magnitudes."""
+        print "INFO: Loading the 'calexp' info in order to get the WCS and the magnitudes"
+        calcat = 'deepCoadd_calexp'
+        self._load_dataids(calcat)
+        calexp = self._load_catalog_dataid(calcat, self.dataids[calcat][0], astropy_table=False)
+        self._getmag = calexp.getCalib().getMagnitude
+        self.catalogs['wcs'] = calexp.getWcs().getFitsMetadata().toDict()
+        self.wcs = WCS(self.catalogs['wcs'])
+
+    def getmag(self, flux, sigma):
+        """Redefine the magnitude function. Negative flux or sigma accepted."""
+        return (numpy.nan, numpy.nan) if (flux <= 0 or sigma <= 0) else self._getmag(flux, sigma)
+
+    def show_keys(self, catalogs=None):
+        """Show all the available keys."""
+        if catalogs is None:
+            catalogs = self.catalogs.keys()
+        catalogs = [catalogs] if isinstance(catalogs, str) else catalogs
+        if len(catalogs) == 0:
+            print "WARNING: No catalog loaded nor given."
+            return
+        for cat in catalogs:
+            print "INFO: Available list of keys for the %s catalog" % cat
+            if cat not in self.dataids:
+                self._load_dataids(cat)
+            table = get_astropy_table(self.butler.get(cat, dataId=self.dataids[cat][0]), keys="*")
             ktable = Table(numpy.transpose([[k, table[k].description, table[k].unit]
                                             for k in sorted(table.keys())]).tolist(),
                            names=["Keys", "Description", "Units"])
-            print " -> All saved in %s_keys.txt" % catalog
-            ktable.write("%s_keys.txt" % catalog, format='ascii', comment="#")
+            print " -> All saved in %s_keys.txt" % cat
+            ktable.write("%s_keys.txt" % cat, format='ascii', comment="#")
+
+
+def progressbar(maxnumber):
+    """Create and return a standard progress bar."""
+    return ProgressBar(widgets=[Percentage(), Bar(), ETA()], maxval=maxnumber).start()
 
 
 def load_config(config):
@@ -122,30 +244,6 @@ def get_astropy_table(cat, **kwargs):
     return tab
 
 
-def get_from_butler(butler, catalog, filt, patch, **kwargs):
-    """
-    Return selected data from a butler for a given catalog, tract, patch and filter.
-
-    :param string butler: a butler instance
-    :param string catalog: name of a catalog
-    :param string filter: name a a filter
-    :param string patch: name of a patch
-
-    Possible kwargs are
-
-    :param int tract: tract in which to look for data (default will be 0)
-    :param bool table: If True, an astropy tab le will be returned (default is False)
-    :param list keys: a list of keys to get from the catalog
-
-    Either retrun the object or the astropy table version of it
-    """
-    tract = 0 if 'tract' not in kwargs else kwargs['tract']
-    table = False if 'table' not in kwargs else kwargs['table']
-    dataid = {'tract': tract, 'filter': filt, 'patch': patch}
-    b = butler.get(catalog, dataId=dataid)
-    return b if not table else get_astropy_table(b, **kwargs)
-
-
 def add_magnitudes(t, getmagnitude):
     """Compute magns for all fluxes of a given table. Add the corresponding new columns."""
     kfluxes = [k for k in t.columns if k.endswith('_flux')]
@@ -177,14 +275,14 @@ def add_position_and_deg(t, wcs):
                           description='DEC coordinate', unit='degree')])
 
 
-def add_filter_column(table, filt):
-    """Add a new column containing the filter name."""
-    table.add_column(Column(name='filter', data=[filt] * len(table), description='Filter name'))
+#def add_filter_column(table, filt):
+#    """Add a new column containing the filter name."""
+#    table.add_column(Column(name='filter', data=[filt] * len(table), description='Filter name'))
 
 
-def add_patch_column(table, patch):
-    """Add a new column containing the patch name."""
-    table.add_column(Column(name='patch', data=[patch] * len(table), description='Patch name'))
+#def add_patch_column(table, patch):
+#    """Add a new column containing the patch name."""
+#    table.add_column(Column(name='patch', data=[patch] * len(table), description='Patch name'))
 
 
 def add_extra_info(d):
@@ -210,8 +308,8 @@ def add_extra_info(d):
             for e in ['deepCoadd_meas', 'deepCoadd_forced_src']:  # loop on catalogs
                 print "INFO: adding extra info for", f, p, e
                 add_magnitudes(d[f][p][e], mag)
-                add_filter_column(d[f][p][e], f)
-                add_patch_column(d[f][p][e], p)
+                #add_filter_column(d[f][p][e], f)
+                #add_patch_column(d[f][p][e], p)
                 add_position_and_deg(d[f][p][e], wcs)
 
     return d
@@ -265,66 +363,6 @@ def pixel_to_skycoord(x, y, wcs):
     return utils.pixel_to_skycoord(x, y, wcs)
 
 
-def get_all_data(path, patches, filters, add_extra=False, keys=None, show=False):
-    """
-    Get butler data for a list of patches and filters.
-
-    Return a dictionnary with filters as keys
-    """
-    import lsst.daf.persistence as dafPersist
-    if show:
-        patches = [patches[0]]
-        filters = filters[0]
-    else:
-        print "INFO: Loading data from", path, " pathes:", patches, " filters:", filters
-    butler = dafPersist.Butler(path)
-    d = {f: get_filter_data(butler, patches, f, keys=keys) for f in filters}
-    out = stack_tables(d) if not add_extra else stack_tables(add_extra_info(d))
-    if show:
-        print "INFO: Available list of keys for the deepCoadd_forced_src catalog"
-        table = Table(numpy.transpose([[k, out['deepCoadd_forced_src'][k].description,
-                                        out['deepCoadd_forced_src'][k].unit]
-                                       for k in sorted(out['deepCoadd_forced_src'].keys())]).tolist(),
-                      names=["Keys", "Description", "Units"])
-        print " -> All saved in deepCoadd_forced_src_keys.txt"
-        table.write("deepCoadd_forced_src_keys.txt", format='ascii', comment="#")
-
-        print "INFO: Available list of keys for the deepCoadd_meas catalog"
-        table = Table(numpy.transpose([[k, out['deepCoadd_meas'][k].description,
-                                        out['deepCoadd_meas'][k].unit]
-                                       for k in sorted(out['deepCoadd_meas'].keys())]).tolist(),
-                      names=["Keys", "Description", "Units"])
-        print " -> All saved in deepCoadd_meas_keys.txt"
-        table.write("deepCoadd_meas_keys.txt", format='ascii', comment="#")
-
-        sys.exit()
-
-    out['wcs'] = get_wcs(d)
-    return out
-
-
-def get_filter_data(butler, patches, f, keys=None):
-    """
-    Get butler data for a list of patches, for a given filter.
-
-    Return a dictionnary with patches as keys
-    """
-    print "INFO: loading filter", f
-    return {p: get_patch_data(butler, p, f, keys=keys) for p in patches}
-
-
-def get_patch_data(butler, p, f, keys=None):
-    """Get bulter data for a given set of patch and filter."""
-    keys = {} if keys is None else keys
-    print "INFO:   loading patch", p
-    mkeys = "*" if 'deepCoadd_meas' not in keys else keys['deepCoadd_meas']
-    fkeys = "*" if 'deepCoadd_forced_src' not in keys else keys['deepCoadd_forced_src']
-    meas = get_from_butler(butler, 'deepCoadd_meas', f, p, table=True, keys=mkeys)
-    forced = get_from_butler(butler, 'deepCoadd_forced_src', f, p, table=True, keys=fkeys)
-    calexp = get_from_butler(butler, 'deepCoadd_calexp', f, p, table=False)
-    return {'deepCoadd_meas': meas, 'deepCoadd_forced_src': forced, 'calexp': calexp}
-
-
 def merge_dicts(*dict_args):
     """Merge two dictionnary.
 
@@ -337,57 +375,9 @@ def merge_dicts(*dict_args):
     return result
 
 
-def get_ccd_data(path, save=False, keys="*", show=False):
-    """Get the 'forced_src' catalogs.
-
-    .. todo::
-
-     - add the list of needed keys in the config file for the following catalog:
-
-       - forced_src
-       - deepCoadd_meas
-       - deepCoadd_forced_src
-
-     - clean this function and add it to clusters_data
-    """
-    import lsst.daf.persistence as dafPersist
-    butler = dafPersist.Butler(path)
-    keys = ['ccd', 'date', 'filter', 'object', 'runId', 'visit']
-    print "INFO: Getting list of available data"
-    dids = [merge_dicts(dict(zip(keys, v)), {'tract': 0})
-            for v in butler.queryMetadata("forced_src", format=keys)]
-    dids = [d for d in dids if os.path.exists(path + "/forced/%s/%s/%s/%s/%s/FORCEDSRC-%i-%i.fits"%\
-                                              (d['runId'], d['object'], d['date'], d['filter'],
-                                               d['tract'], d['visit'], d['ccd']))]
-    if show:
-        print "INFO: Available list of keys for the forced_src catalog"
-        table = get_astropy_table(butler.get("forced_src", dataId=dids[0]), keys=keys)
-        table = Table(numpy.transpose([[k, table[k].description, table[k].unit]
-                                       for k in sorted(table.keys())]).tolist(),
-                      names=["Keys", "Description", "Units"])
-        print " -> All saved in forced_src_keys.txt"
-        table.write("forced_src_keys.txt", format='ascii', comment="#")
-        sys.exit()
-
-    print "INFO: Getting the data from the butler for %i fits files" % len(dids)
-    pbar = ProgressBar(widgets=[Percentage(), Bar(), ETA()], maxval=len(dids)).start()
-    def get_tables(did, i):
-        """Get a table and add a few keys."""
-        table = get_astropy_table(butler.get("forced_src", dataId=did), keys=keys)
-        for key in did:
-            table.add_column(Column(name=key, data=[did[key]] * len(table)))
-        pbar.update(i+1)
-        return table
-    tables = [get_tables(did, i) for i, did in enumerate(dids)]
-    pbar.finish()
-    if save:
-        save_tables(tables)
-    return tables
-
-
 def save_tables(tables):
     """Save a list of astropy tables in an hdf5 file."""
-    pbar = ProgressBar(widgets=[Percentage(), Bar(), ETA()], maxval=len(tables)).start()
+    pbar = progressbar(len(tables))
     for i, table in enumerate(tables):
         if i == 0:
             table.write('forced_src.hdf5', path='%i' % i, compression=True,
@@ -395,7 +385,7 @@ def save_tables(tables):
         else:
             table.write('forced_src.hdf5', path='%i' % i, compression=True,
                         serialize_meta=True, append=True)
-        pbar.update(i+1)
+        pbar.update(i + 1)
     pbar.finish()
 
 
@@ -410,11 +400,11 @@ def filter_and_stack_tables(tables, **kwargs):
 
 def vstack2(tables):
     """Verticaly stack large amount of astropy tables."""
-    pbar = ProgressBar(widgets=[Percentage(), Bar(), ETA()], maxval=len(tables)).start()
+    pbar = progressbar(len(tables))
     table = tables.pop(0)
-    for i in range(len(tables)): #1, len(tables)/10+2):
-        table = vstack([table] + [tables.pop(0)]) # for i in range(len(tables[:10]))])
-        pbar.update(i+1)
+    for i in range(len(tables)):
+        table = vstack([table] + [tables.pop(0)])
+        pbar.update(i + 1)
     pbar.finish()
     return table
 
@@ -429,21 +419,6 @@ def from_list_to_array(d):
         elif isinstance(d[k], dict):
             from_list_to_array(d[k])
     return d
-
-
-def stack_tables(d):
-    """
-    Stack the astropy tables across all patches.
-
-    Return a new dictionnary of the form:
-    d = {u: {'deepCoadd_forced_src': table, 'deepCoadd_meas': table}, 
-         g: {'deepCoadd_forced_src': table, 'deepCoadd_meas': table}, ...}
-    """
-    print "Info: Stacking the data (patches, filters) into a single astropy table"
-    return {'deepCoadd_meas': vstack([vstack([d[f][p]['deepCoadd_meas']
-                                              for p in d[f]]) for f in d]),
-            'deepCoadd_forced_src': vstack([vstack([d[f][p]['deepCoadd_forced_src']
-                                                    for p in d[f]]) for f in d])}
 
 
 def write_data(d, output, overwrite=False):
@@ -561,3 +536,58 @@ def correct_for_extinction(ti, te, mag='modelfit_CModel_mag', ext='sfd', ifilt="
     ti.add_columns([Column(name=magext, data=mcorr, unit='mag',
                            description='Extinction corrected magnitude (i=%s, ext=%s)' %
                            (ifilt, ext))])
+
+
+def filter_around(data, config, **kwargs):
+    """Apply a circulat filter on the catalog around the center of the cluster.
+
+    :param table data: The astropy table containing your data
+    :param dict config: The analysis configuration file, which must contains the cluster coordinates
+
+    List of available kwargs:
+
+    :param float exclude_inner: Cut galaxies inside this radius [0]
+    :param float exclude_outer: Cut galaxies outside this radius [inf]
+    :param str unit: Unit of the input cuts [degree]
+    :param bool plot: Produce a figure if set to False
+    :return: A filter data table containing galaxie inside [exclude_inner, exclude_outer]
+    """
+    coord = SkyCoord(ra=[config['ra']], dec=[config['dec']], unit='deg')
+    coords = SkyCoord(ra=list(data['coord_ra']), dec=list(data['coord_dec']), unit='rad')
+    separation = coord.separation(coords)
+    unit = kwargs.get('unit', 'degree')
+    if hasattr(separation, unit):
+        separation = getattr(separation, unit)
+    else:
+        arglist = "\n" + ", ".join(sorted([a for a in dir(separation) if not a.startswith('_')]))
+        raise AttributeError("Angle instance has no attribute %s. Available attributes are: %s" %
+                             (unit, arglist))
+    data_around = data[(separation >= kwargs.get('exclude_inner', 0)) &
+                       (separation < kwargs.get('exclude_outer', numpy.inf))]
+    if kwargs.get('plot', False):
+        title = "%s, %.2f < d < %.2f %s cut" % \
+                (config['cluster'], kwargs.get('exclude_inner', 0),
+                 kwargs.get('exclude_outer', numpy.inf), unit)
+        plot_coordinates(data, data_around,
+                         cluster_coord=(config['ra'], config['dec']), title=title)
+    if 'pbar' in kwargs:
+        kwargs['pbar'].update(kwargs['i'] + 1)
+    return data_around
+
+
+def plot_coordinates(all_data, filtered_data, cluster_coord=None, title=None):
+    """Plot a map of coordinates before and after a circular cut around the cluster center."""
+    import pylab
+    fig = pylab.figure()
+    ax = fig.add_subplot(111, xlabel='ra', ylabel='dec')
+    ax.scatter(all_data['coord_ra_deg'], all_data['coord_dec_deg'],
+               color='k', label='All data', s=10)
+    ax.scatter(filtered_data['coord_ra_deg'], filtered_data['coord_dec_deg'], color='b',
+               label="Filtered data", s=10)
+    if cluster_coord is not None:
+        ax.scatter([cluster_coord[0]], [cluster_coord[1]], color='r', label='Cluster center',
+                   marker='x', s=60)
+    if title is not None:
+        ax.set_title(title)
+    ax.legend(loc='lower left', scatterpoints=1, frameon=False, fontsize='small')
+    pylab.show()
