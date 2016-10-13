@@ -1,9 +1,9 @@
 """Data builder and parser for the Clusters package."""
 
 import os
-import sys
 import yaml
 import numpy
+import h5py
 from astropy.wcs import WCS, utils
 from astropy.coordinates import SkyCoord, Angle
 from astropy.table import Table, Column, vstack
@@ -30,11 +30,15 @@ class Catalogs(object):
     def _load_dataids(self, catalog, **kwargs):
         """Get the 'forced_src' catalogs."""
         print "INFO: Getting list of available data for", catalog
-
-        if 'deepCoadd' in catalog:  # The deep_coadd* catalogs
-            skymap = self.butler.get("deepCoadd_skyMap")
-            dataids = [dict(tract=tract.getId(), patch="%d,%d" % patch.getIndex(), filter=f)
-                       for tract in skymap for patch in tract for f in 'ugriz']
+        if 'deepCoadd' in catalog:  # The deepCoadd* catalogs
+            deepcoadd = [cat for cat in self.dataids if 'deepCoadd' in cat]
+            if len(deepcoadd):
+                dataids = self.dataids[deepcoadd[0]]
+            else:
+                filters = kwargs.get('filter', ['u', 'g', 'r', 'i', 'i2', 'z'])
+                skymap = self.butler.get("deepCoadd_skyMap")
+                dataids = [dict(tract=tract.getId(), patch="%d,%d" % patch.getIndex(), filter=f)
+                           for tract in skymap for patch in tract for f in filters]
         else:  # The other catalogs
             keys = self.butler.getKeys(catalog)
             if 'tract' in keys:
@@ -45,24 +49,30 @@ class Catalogs(object):
         if len(dataids) == 0:
             raise IOError("No dataIds. Check the catalog, the config file, and path to the bulter.")
 
-        # Select the ccd/visit according to the input list of patch if given
-        if 'deepCoadd' not in catalog:
-            if 'patch' in kwargs and 'filter' in kwargs:
-                coadds = [self.butler.get('deepCoadd', {'filter': filt, 'patch': patch, 'tract': 0})
-                          for filt in kwargs['filter'] for patch in kwargs['patch']]
-                ccds = [coadd.getInfo().getCoaddInputs().ccds for coadd in coadds]
-                ccds_visits = [numpy.transpose([ccd.get('visit'), ccd.get('ccd')]) for ccd in ccds]
-                ccds_visits = numpy.concatenate(ccds_visits)
-                dataids = [dataid for dataid in dataids
-                           if (dataid['visit'], dataid['ccd']) in ccds_visits]
-
         # Specific selection make by the user?
         for kwarg in kwargs:
             if not kwarg in dataids[0]:
                 continue
+            print "INFO: Selecting data ids according to the %s selection" % kwarg
+            print "       - input: %i data ids" % len(dataids)
             if not isinstance(kwargs[kwarg], list):
                 kwargs[kwarg] = [kwargs[kwarg]]
-                dataids = [dataid for dataid in dataids if dataid[kwarg] in kwargs[kwarg]]
+            dataids = [dataid for dataid in dataids if dataid[kwarg] in kwargs[kwarg]]
+            print "       - selected: %i data ids" % len(dataids)
+
+        # Select the ccd/visit according to the input list of patch if given
+        if 'deepCoadd' not in catalog:
+            if 'patch' in kwargs and 'filter' in kwargs:
+                print "INFO: Selecting visit/ccd according to the input list of patches"
+                print "       - input: %i data ids" % len(dataids)
+                coadds = [self.butler.get('deepCoadd', {'filter': filt, 'patch': patch, 'tract': 0})
+                          for filt in kwargs['filter'] for patch in kwargs['patch']]
+                ccds = [coadd.getInfo().getCoaddInputs().ccds for coadd in coadds]
+                ccds_visits = [numpy.transpose([ccd.get('visit'), ccd.get('ccd')]) for ccd in ccds]
+                ccds_visits = [list(c) for c in numpy.concatenate(ccds_visits)]
+                dataids = [dataid for dataid in dataids
+                           if [dataid['visit'], dataid['ccd']] in ccds_visits]
+                print "       - selected: %i data ids" % len(dataids)
 
         # Only keep dataids with data
         self.dataids[catalog] = [dataid for dataid in dataids if
@@ -79,30 +89,21 @@ class Catalogs(object):
         self._load_dataids(catalog, **kwargs)
         print "INFO: Getting the data from the butler for %i fits files" % \
             len(self.dataids[catalog])
-        if 'radius' in kwargs:
-            radius = float(kwargs['radius'].split()[0])
-            unit = kwargs['radius'].split()[1]
-            coord = SkyCoord(ra=[config['ra']], dec=[config['dec']], unit='deg')
-            coords = SkyCoord(ra=list(data['coord_ra']), dec=list(data['coord_dec']), unit='rad')
         pbar = progressbar(len(self.dataids[catalog]))
         tables = [self._get_tables(catalog, did, i, pbar)
                   for i, did in enumerate(self.dataids[catalog])]
         pbar.finish()
-        #if 'radius' in kwargs:
-        #    print "INFO: Filter out galaxies outside a radius of %s around the cluster center" % \
-        #        kwargs['radius']
-        #    pbar = progressbar(len(self.dataids[catalog]))
-        #    radius = float(kwargs['radius'].split()[0])
-        #    unit = kwargs['radius'].split()[1]
-        #    tables = [filter_around(table, kwargs, exclude_outer=radius, unit=unit, pbar=pbar, i=i)
-        #              for i, table in enumerate(tables)]
-        #    tables = [table for table in tables if len(table) != 0]
-        #    pbar.finish()
-        #
-        #    coord = SkyCoord(ra=[config['ra']], dec=[config['dec']], unit='deg')
-        #    coords = SkyCoord(ra=list(data['coord_ra']), dec=list(data['coord_dec']), unit='rad')
-        #    separation = coord.separation(coords)
-        #    data[coord.separation(coords) < radius]
+
+        if 'radius' in kwargs:
+            print "INFO: Filter out galaxies outside a radius of %s around the cluster center" % \
+                kwargs['radius']
+            pbar = progressbar(len(self.dataids[catalog]))
+            radius = float(kwargs['radius'].split()[0])
+            unit = kwargs['radius'].split()[1]
+            tables = [filter_around(table, kwargs, exclude_outer=radius, unit=unit, pbar=pbar, i=i)
+                      for i, table in enumerate(tables)]
+            pbar.finish()
+            tables = [table for table in tables if len(table) != 0]
 
         print "INFO: Stacking the %i tables together" % len(tables)
         self.catalogs[catalog] = vstack2(tables)
@@ -115,26 +116,18 @@ class Catalogs(object):
         pbar.update(i + 1)
         return table
 
-    def load_catalogs(self, catalogs, keys=None, show=False, **kwargs):
-        """Load a list of catalogs, e.g.,
-
-        ['deepCoadd_meas', 'deepCoadd_forced_src', 'deepCoadd_calexp', 'forced_src']"""
-        if show:
-            self.show_keys(catalogs)
-            return
-        keys = {} if keys is None else keys
-        catalogs = [catalogs] if isinstance(catalogs, str) else catalogs
-        for catalog in catalogs:
-            if 'calexp' in catalog:
-                print "WARNING: Skipping %s. This is not a regular catalog (no schema).\n" % catalog
-                continue
-            print "INFO: Loading the %s catalog" % catalog
-            self.keys[catalog] = keys.get(catalog, "*")
-            self._load_catalog(catalog, **kwargs)
-            print "INFO: %s loaded.\n" % catalog
-        self._load_calexp()
-        self._add_new_columns()
-        print "\nINFO: Done loading the data."
+    def _match_ids(self):
+        """Select in the 'forced_src' catalog the source that are in the deepCoad catalogs"""
+        deepcoadd = [cat for cat in self.catalogs if 'deepCoadd' in cat]
+        if len(deepcoadd):
+            if 'forced_src' in self.catalogs:
+                filt = numpy.array([idobj in self.catalogs[deepcoadd[0]]['id']
+                                    for idobj in self.catalogs['forced_src']['objectId']])
+                self.catalogs['forced_src'] = self.catalogs['forced_src'][filt]
+            else:
+                print "WARNING: forced_src catalogs not loaded. No match possible"
+        else:
+            print "WARNING: No deepCoadd* catalogs loaded. No match possible"
 
     def _add_new_columns(self):
         """Compute magns for all fluxes of a given table. Add the corresponding new columns.
@@ -150,13 +143,17 @@ class Catalogs(object):
             kfluxes = [k for k in table.columns if k.endswith('_flux')]
             ksigmas = [k + 'Sigma' for k in kfluxes]
             for kflux, ksigma in zip(kfluxes, ksigmas):
-                mag, dmag = numpy.array([self.getmag(f, s)
+                mag, dmag = numpy.array([self._mag(f, s)
                                          for f, s in zip(table[kflux], table[ksigma])]).T
+                if kflux.replace('_flux', '_mag') in table.keys():
+                    continue
                 table.add_columns([Column(name=kflux.replace('_flux', '_mag'), data=mag,
                                           description='Magnitude', unit='mag'),
                                    Column(name=ksigma.replace('_fluxSigma', '_magSigma'), data=dmag,
                                           description='Magnitude error', unit='mag')])
 
+            if 'x_Src' in table:
+                return
             # Add the x / y position in pixel
             xsrc, ysrc = skycoord_to_pixel(SkyCoord(table["coord_ra"].tolist(),
                                                     table["coord_dec"].tolist(), unit='rad'),
@@ -174,19 +171,65 @@ class Catalogs(object):
                                       data=Angle(table['coord_dec'].tolist(), unit='rad').degree,
                                       description='DEC coordinate', unit='degree')])
 
-    def _load_calexp(self):
+    def _load_calexp(self, **kwargs):
         """Load the 'calexp' info in order to get the WCS and the magnitudes."""
-        print "INFO: Loading the 'calexp' info in order to get the WCS and the magnitudes"
+        print "INFO: ============ Loading the 'calexp' info ============"
         calcat = 'deepCoadd_calexp'
-        self._load_dataids(calcat)
+        self._load_dataids(calcat, **kwargs)
+        print "INFO: Getting the %s catalog for one dataId" % calcat
         calexp = self._load_catalog_dataid(calcat, self.dataids[calcat][0], astropy_table=False)
+        print "INFO: Getting the magnitude function"
         self._getmag = calexp.getCalib().getMagnitude
-        self.catalogs['wcs'] = calexp.getWcs().getFitsMetadata().toDict()
-        self.wcs = WCS(self.catalogs['wcs'])
+        print "INFO: Getting the wcs function"
+        wcs = calexp.getWcs().getFitsMetadata().toDict()
+        self.wcs = WCS(wcs)
+        self.catalogs['wcs'] = Table({k: [wcs[k]] for k in wcs})
 
-    def getmag(self, flux, sigma):
+    def _mag(self, flux, sigma):
         """Redefine the magnitude function. Negative flux or sigma accepted."""
         return (numpy.nan, numpy.nan) if (flux <= 0 or sigma <= 0) else self._getmag(flux, sigma)
+
+    def load_catalogs(self, catalogs, keys=None, **kwargs):
+        """Load a list of catalogs, e.g.,
+        
+        :param str/list catalogs: A catalog name, or a list of catalogs (see below)
+        :param dict keys: A dictionnary of keys to load for each catalog
+
+        Available kwargs are:
+
+        :param bool update: Set to True if you want to update an already loaded catalog
+        :param bool show: Set to True to get all available keys of a (list of) catalog(s)
+        :param bool matchid: Will only keep objects which are in the deepCoad catalogs (to be used
+                             when loading the forced_src and deepCoadd catalogs)
+
+        Examples of catalogs that you can load:
+
+         - 'deepCoadd_meas',
+         - 'deepCoadd_forced_src',
+         - 'deepCoadd_calexp',
+         - 'forced_src'
+        """
+        if 'show' in kwargs:
+            self.show_keys(catalogs)
+            return
+        keys = {} if keys is None else keys
+        catalogs = [catalogs] if isinstance(catalogs, str) else catalogs
+        for catalog in catalogs:
+            if catalog in self.catalogs and 'update' not in kwargs:
+                print "WARNING: %s is already loaded. Use 'update' to reload it." % catalog
+                continue
+            if 'calexp' in catalog:
+                print "WARNING: Skipping %s. This is not a regular catalog (no schema).\n" % catalog
+                continue
+            print "INFO: ============ Loading the %s catalog ============" % catalog
+            self.keys[catalog] = keys.get(catalog, "*")
+            self._load_catalog(catalog, **kwargs)
+            print "INFO: %s loaded.\n" % catalog
+        self._load_calexp(**kwargs)
+        self._add_new_columns()
+        if 'matchid' in kwargs:
+            self._match_ids()
+        print "\nINFO: Done loading the data."
 
     def show_keys(self, catalogs=None):
         """Show all the available keys."""
@@ -206,6 +249,25 @@ class Catalogs(object):
                            names=["Keys", "Description", "Units"])
             print " -> All saved in %s_keys.txt" % cat
             ktable.write("%s_keys.txt" % cat, format='ascii', comment="#")
+
+    def save_catalogs(self, output_name):
+        """Save the catalogs into an hdf5 file."""
+        if not output_name.endswith('.hdf5'):
+            output_name += '.hdf5'
+        print "INFO: Saving the catalogs in", output_name
+        pbar = progressbar(len(self.catalogs))
+        for i, cat in enumerate(self.catalogs):
+            print "      - saving" % cat
+            if i == 0:
+                self.catalogs[cat].write(output_name, path=cat, compression=True,
+                                         serialize_meta=True, overwrite=True)
+            else:
+                self.catalogs[cat].write(output_name, path=cat, compression=True,
+                                         serialize_meta=True, append=True)
+            pbar.update(i + 1)
+        print "INFO: Saving done."
+        pbar.finish()
+
 
 
 def progressbar(maxnumber):
@@ -430,26 +492,30 @@ def write_data(d, output, overwrite=False):
     save_wcs(d['wcs'], output)
 
 
-def read_data(data_file, path=None):
+def read_hdf5(hdf5_file, path=None):
     """Read astropy tables from an hdf5 file.
 
-    :param string data_file: Name of the hdf5 file to load
-    :param string path: Path (key) of the table to load
-    :return: A dictionnary containing the following keys and values:
-
-     - meas: the 'deepCoadd_meas' catalog (an astropy table)
-     - forced: the 'deepCoad_forced_src' catalog (an astropy table)
-     - wcs: the 'wcs' of these catalogs (an ``astropy.wcs.WCS`` object)
+    :param string data_file: Name of the hdf5 file to load.
+    :param string path: Path (key) of the table to load.
+    :return: A dictionnary containing the table(s). Keys are the path names.
     """
     if path is None:
-        try:
-            return {'deepCoadd_meas': Table.read(data_file, path='deepCoadd_meas'),
-                    'deepCoadd_forced_src': Table.read(data_file, path='deepCoadd_forced_src'),
-                    'wcs': load_wcs(Table.read(data_file, path='wcs'))}
-        except IOError:
-            return Table.read(data_file)
+        paths = hdf5_paths(hdf5_file)
+        return {path: Table.read(hdf5_file, path=path) for path in paths}
     else:
-        return Table.read(data_file, path=path)
+        return {path: Table.read(hdf5_file, path=path)}
+
+
+def hdf5_paths(hdf5_file):
+    """Get all the available paths of an hdf5 file.
+
+    :param str hdf5_file: Name of the hdf5 file to load
+    :return: The available list of paths in the input hdf5 file
+    """
+    hdf5_content = h5py.File(hdf5_file, 'r')
+    paths = hdf5_content.keys()
+    hdf5_content.close()
+    return paths
 
 
 def filter_table(t):

@@ -3,7 +3,8 @@
 import numpy
 import pylab
 import seaborn
-
+from astropy.table import Column
+from . import data as cdata
 
 def compute_shear(e1, e2, distx, disty):
     """Compute the shear."""
@@ -50,6 +51,34 @@ def analysis(table, xclust, yclust):
 
     # Make some plots
     plot_shear(gamt, gamc, dist)
+
+
+def xy_clust(config, wcs):
+    return cdata.skycoord_to_pixel([config['ra'], config['dec']], wcs)
+        
+def compare_shear(forced_src, deepCoadd_meas, xclust, yclust):
+    """Compare shear mesured on the coadd and shear measured on indivial ccd."""
+
+    # Compute shear and distance for all srouces in both catalogs
+    # And add that info into the tables
+    tables = []
+    for cat in [forced_src, deepCoadd_meas]:
+        if 'objectId' in cat:
+            objectids = cat["objectId"][cat['filter'] == 'i']
+        else:
+            objectids = cat["id"][cat['filter'] == 'i']
+        e1i = cat["ext_shapeHSM_HsmShapeRegauss_e1"][cat['filter'] == 'i']
+        e2i = cat["ext_shapeHSM_HsmShapeRegauss_e2"][cat['filter'] == 'i']
+        distx = cat["x_Src"][cat['filter'] == 'i'] - xclust
+        disty = cat["y_Src"][cat['filter'] == 'i'] - yclust
+
+        tshear, cshear, dist = compute_shear(e1i, e2i, distx, disty)
+
+        tables.append(Table([Column(name='Tshear', data=tshear, description='Tangential shear'),
+                             Column(name='Cshear', data=cshear, description='Cross shear'),
+                             Column(name='Distance', data=dist, description='Distance to center'),
+                             Column(name='objectId', data=objectids, description='Object ID')]))
+        return tables
 
 
 def plot_shear(gamt, gamc, dist, drange=(0, 8500), nbins=8):
