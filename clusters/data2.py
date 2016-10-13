@@ -65,8 +65,12 @@ class Catalogs(object):
             if 'patch' in kwargs and 'filter' in kwargs:
                 print "INFO: Selecting visit/ccd according to the input list of patches"
                 print "       - input: %i data ids" % len(dataids)
-                coadds = [self.butler.get('deepCoadd', {'filter': filt, 'patch': patch, 'tract': 0})
-                          for filt in kwargs['filter'] for patch in kwargs['patch']]
+                dids = [{'filter': filt, 'patch': patch, 'tract': 0}
+                        for filt in kwargs['filter'] for patch in kwargs['patch']
+                        if self.butler.datasetExists('deepCoadd',
+                                                     dataId={'filter': filt, 'patch':
+                                                            patch, 'tract': 0})]
+                coadds = [self.butler.get('deepCoadd', did) for did in dids]
                 ccds = [coadd.getInfo().getCoaddInputs().ccds for coadd in coadds]
                 ccds_visits = [numpy.transpose([ccd.get('visit'), ccd.get('ccd')]) for ccd in ccds]
                 ccds_visits = [list(c) for c in numpy.concatenate(ccds_visits)]
@@ -257,7 +261,7 @@ class Catalogs(object):
         print "INFO: Saving the catalogs in", output_name
         pbar = progressbar(len(self.catalogs))
         for i, cat in enumerate(self.catalogs):
-            print "      - saving" % cat
+            print "      - saving", cat
             if i == 0:
                 self.catalogs[cat].write(output_name, path=cat, compression=True,
                                          serialize_meta=True, overwrite=True)
@@ -337,46 +341,6 @@ def add_position_and_deg(t, wcs):
                           description='DEC coordinate', unit='degree')])
 
 
-#def add_filter_column(table, filt):
-#    """Add a new column containing the filter name."""
-#    table.add_column(Column(name='filter', data=[filt] * len(table), description='Filter name'))
-
-
-#def add_patch_column(table, patch):
-#    """Add a new column containing the patch name."""
-#    table.add_column(Column(name='patch', data=[patch] * len(table), description='Patch name'))
-
-
-def add_extra_info(d):
-    """Add magnitude and position to all tables."""
-    # get the wcs
-    wcs = WCS(get_wcs(d))
-
-    # Shorcut to magnitude function
-    filt = d.keys()[0]
-    patch = d[filt].keys()[0]
-    getmag = d[filt][patch]['calexp'].getCalib().getMagnitude
-
-    def mag(flux, sigma):
-        """Redefine the magnitude function. Negative flux or sigma possible."""
-        if flux <= 0 or sigma <= 0:
-            return numpy.nan, numpy.nan
-        else:
-            return getmag(flux, sigma)
-
-    # compute all magnitudes and positions
-    for f in d:  # loop on filters
-        for p in d[f]:  # loop on patches
-            for e in ['deepCoadd_meas', 'deepCoadd_forced_src']:  # loop on catalogs
-                print "INFO: adding extra info for", f, p, e
-                add_magnitudes(d[f][p][e], mag)
-                #add_filter_column(d[f][p][e], f)
-                #add_patch_column(d[f][p][e], p)
-                add_position_and_deg(d[f][p][e], wcs)
-
-    return d
-
-
 def get_wcs(d):
     """Get the wcs dictionnary from the butler."""
     # take the first filter, and the first patch
@@ -435,29 +399,6 @@ def merge_dicts(*dict_args):
     for dictionary in dict_args:
         result.update(dictionary)
     return result
-
-
-def save_tables(tables):
-    """Save a list of astropy tables in an hdf5 file."""
-    pbar = progressbar(len(tables))
-    for i, table in enumerate(tables):
-        if i == 0:
-            table.write('forced_src.hdf5', path='%i' % i, compression=True,
-                        serialize_meta=True, overwrite=True)
-        else:
-            table.write('forced_src.hdf5', path='%i' % i, compression=True,
-                        serialize_meta=True, append=True)
-        pbar.update(i + 1)
-    pbar.finish()
-
-
-def filter_and_stack_tables(tables, **kwargs):
-    """Apply filter on a list of astropy table and vertically stack the resulting table list."""
-    if len(kwargs) == 0:
-        raise IOError("You should at least give one filter, e.g. **{'objectId': 2199694371871}")
-    for k in kwargs:
-        tables = [tables[i][tables[i][k] == kwargs[k]] for i in range(len(tables))]
-    return vstack(tables)
 
 
 def vstack2(tables):
@@ -561,6 +502,7 @@ def getdata(config, output='all_data.hdf5', output_filtered='filtered_data.hdf5'
             raise IOError("Output(s) already exist(s). Remove them or use overwrite=True.")
     if isinstance(config, str):
         config = load_config(config)
+    
     d = get_all_data(config['butler'], config['patches'],
                      config['filters'], add_extra=True,
                      keys=config['keys'] if 'keys' in config else {})

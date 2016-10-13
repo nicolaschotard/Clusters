@@ -3,7 +3,7 @@
 import numpy
 import pylab
 import seaborn
-from astropy.table import Column
+from astropy.table import Table, Column
 from . import data as cdata
 
 def compute_shear(e1, e2, distx, disty):
@@ -56,13 +56,23 @@ def analysis(table, xclust, yclust):
 def xy_clust(config, wcs):
     return cdata.skycoord_to_pixel([config['ra'], config['dec']], wcs)
         
-def compare_shear(forced_src, deepCoadd_meas, xclust, yclust):
-    """Compare shear mesured on the coadd and shear measured on indivial ccd."""
+def compare_shear(catalogs, xclust, yclust):
+    """Compare shear mesured on the coadd and shear measured on indivial ccd.
+
+    For now, do:
+    from Clusters import data2
+    from Clusters import shear
+    config = data2.load_config('MACSJ2243.3-0935.yaml')
+    catalogs = data2.read_hdf5('test_data2.hdf5')
+    xc, yc = shear.xy_clust(config, data2.load_wcs(catalogs['wcs']))
+    tables = shear.compare_shear([catalogs['deepCoadd_meas'], catalogs['forced_src']], xc, yc)
+    """
 
     # Compute shear and distance for all srouces in both catalogs
     # And add that info into the tables
     tables = []
-    for cat in [forced_src, deepCoadd_meas]:
+    for cat in catalogs:
+        print 'objectId' in cat.keys(), "id" in cat.keys()
         if 'objectId' in cat:
             objectids = cat["objectId"][cat['filter'] == 'i']
         else:
@@ -78,7 +88,7 @@ def compare_shear(forced_src, deepCoadd_meas, xclust, yclust):
                              Column(name='Cshear', data=cshear, description='Cross shear'),
                              Column(name='Distance', data=dist, description='Distance to center'),
                              Column(name='objectId', data=objectids, description='Object ID')]))
-        return tables
+    return tables
 
 
 def plot_shear(gamt, gamc, dist, drange=(0, 8500), nbins=8):
