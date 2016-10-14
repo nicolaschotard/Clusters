@@ -56,7 +56,7 @@ def analysis(table, xclust, yclust):
 def xy_clust(config, wcs):
     return cdata.skycoord_to_pixel([config['ra'], config['dec']], wcs)
         
-def compare_shear(catalogs, xclust, yclust):
+def compare_shear(catalogs, xclust, yclust, qcut=None):
     """Compare shear mesured on the coadd and shear measured on indivial ccd.
 
     For now, do:
@@ -71,16 +71,35 @@ def compare_shear(catalogs, xclust, yclust):
     # Compute shear and distance for all srouces in both catalogs
     # And add that info into the tables
     tables = []
-    for cat in catalogs:
-        print 'objectId' in cat.keys(), "id" in cat.keys()
-        if 'objectId' in cat:
-            objectids = cat["objectId"][cat['filter'] == 'i']
+    print "INFO: %i catalogs to load" % len(catalogs)
+    for i, cat in enumerate(catalogs):
+        filtr = cat['filter'] == 'r'
+        filti = (cat['filter'] == 'i') | (cat['filter'] == 'i2')
+        if 'objectId' in cat.keys():
+            objectids = cat["objectId"][filti]
         else:
-            objectids = cat["id"][cat['filter'] == 'i']
-        e1i = cat["ext_shapeHSM_HsmShapeRegauss_e1"][cat['filter'] == 'i']
-        e2i = cat["ext_shapeHSM_HsmShapeRegauss_e2"][cat['filter'] == 'i']
-        distx = cat["x_Src"][cat['filter'] == 'i'] - xclust
-        disty = cat["y_Src"][cat['filter'] == 'i'] - yclust
+            objectids = cat["id"][filti]
+        e1i = cat["ext_shapeHSM_HsmShapeRegauss_e1"][filti]
+        e2i = cat["ext_shapeHSM_HsmShapeRegauss_e2"][filti]
+        e1r = cat["ext_shapeHSM_HsmShapeRegauss_e1"][filtr]
+        e2r = cat["ext_shapeHSM_HsmShapeRegauss_e2"][filtr]
+        distx = cat["x_Src"][filti] - xclust
+        disty = cat["y_Src"][filti] - yclust
+
+        # Quality cuts
+        # resolution cut
+        filt = cat['ext_shapeHSM_HsmShapeRegauss_resolution'][filti] > 0.3
+        # ellipticity cut
+        filt &= (abs(e1i) < 1) & (abs(e2i) < 1)
+        if qcut is not None and qcut[i] is True:
+            # magnitude cut
+            filt &= cat['modelfit_CModel_mag'][filtr] < 23.5
+            # er ~= ei
+            filt &= (abs(e1r - e1i) < 0.5) & (abs(e2r - e2i) < 0.5)
+
+        # Apply cuts
+        e1i, e2i, distx, disty, objectids = [x[filt] for x in [e1i, e2i, distx,
+                                                               disty, objectids]]
 
         tshear, cshear, dist = compute_shear(e1i, e2i, distx, disty)
 
@@ -88,6 +107,25 @@ def compare_shear(catalogs, xclust, yclust):
                              Column(name='Cshear', data=cshear, description='Cross shear'),
                              Column(name='Distance', data=dist, description='Distance to center'),
                              Column(name='objectId', data=objectids, description='Object ID')]))
+    print "INFO: Done loading shear data"
+
+    ids = tables[0]['objectId'][numpy.argsort(tables[0]['objectId'])].tolist()
+    tshear_coadd = tables[0]['Tshear'][numpy.argsort(tables[0]['objectId'])].tolist()
+    tshear_ccds = [tables[1]['Tshear'][tables[1]['objectId'] == oid].tolist() for oid in ids]
+    
+    fig = pylab.figure()
+    ax = fig.add_subplot(111, xlabel='Distance', ylabel='T-shear')
+    ax.scatter(tables[1]['Distance'], tables[1]['Tshear'], color='k')
+    ax.scatter(tables[0]['Distance'], tables[0]['Tshear'], color='r')
+
+    fig = pylab.figure()
+    ax = fig.add_subplot(111, xlabel='T-shear (coadd)', ylabel='T-shear (ccd)')
+    for i, tshear_ccd in enumerate(tshear_ccds):
+        ax.scatter([tshear_coadd[i]] * len(tshear_ccd), tshear_ccd, color='k')
+    ax.scatter(tshear_coadd, [numpy.mean(tshear_ccd) for tshear_ccd in tshear_ccds], color='r')
+    ax.plot([numpy.min(tshear_coadd), numpy.max(tshear_coadd)],
+            [numpy.min(tshear_coadd), numpy.max(tshear_coadd)])
+    pylab.show()
     return tables
 
 

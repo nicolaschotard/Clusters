@@ -69,7 +69,7 @@ class Catalogs(object):
                         for filt in kwargs['filter'] for patch in kwargs['patch']
                         if self.butler.datasetExists('deepCoadd',
                                                      dataId={'filter': filt, 'patch':
-                                                            patch, 'tract': 0})]
+                                                             patch, 'tract': 0})]
                 coadds = [self.butler.get('deepCoadd', did) for did in dids]
                 ccds = [coadd.getInfo().getCoaddInputs().ccds for coadd in coadds]
                 ccds_visits = [numpy.transpose([ccd.get('visit'), ccd.get('ccd')]) for ccd in ccds]
@@ -85,8 +85,8 @@ class Catalogs(object):
 
     def _load_catalog_dataid(self, catalog, dataid, astropy_table=True, **kwargs):
         """Load a catalog from a 'dataId' set of parameter."""
-        butler = self.butler.get(catalog, dataId=dataid)
-        return butler if not astropy_table else get_astropy_table(butler, **kwargs)
+        cat = self.butler.get(catalog, dataId=dataid)
+        return cat if not astropy_table else get_astropy_table(cat, **kwargs)
 
     def _load_catalog(self, catalog, **kwargs):
         """Load a given catalog."""
@@ -97,18 +97,6 @@ class Catalogs(object):
         tables = [self._get_tables(catalog, did, i, pbar)
                   for i, did in enumerate(self.dataids[catalog])]
         pbar.finish()
-
-        if 'radius' in kwargs:
-            print "INFO: Filter out galaxies outside a radius of %s around the cluster center" % \
-                kwargs['radius']
-            pbar = progressbar(len(self.dataids[catalog]))
-            radius = float(kwargs['radius'].split()[0])
-            unit = kwargs['radius'].split()[1]
-            tables = [filter_around(table, kwargs, exclude_outer=radius, unit=unit, pbar=pbar, i=i)
-                      for i, table in enumerate(tables)]
-            pbar.finish()
-            tables = [table for table in tables if len(table) != 0]
-
         print "INFO: Stacking the %i tables together" % len(tables)
         self.catalogs[catalog] = vstack2(tables)
 
@@ -125,8 +113,11 @@ class Catalogs(object):
         deepcoadd = [cat for cat in self.catalogs if 'deepCoadd' in cat]
         if len(deepcoadd):
             if 'forced_src' in self.catalogs:
-                filt = numpy.array([idobj in self.catalogs[deepcoadd[0]]['id']
-                                    for idobj in self.catalogs['forced_src']['objectId']])
+                print "Matching 'forced_src' and 'deepCoadd' catalogs"
+                filt = numpy.where(numpy.in1d(self.catalogs['forced_src']['objectId'],
+                                              self.catalogs[deepcoadd[0]]['id']))[0]
+                #filt = numpy.array([idobj in self.catalogs[deepcoadd[0]]['id']
+                #                    for idobj in self.catalogs['forced_src']['objectId']])
                 self.catalogs['forced_src'] = self.catalogs['forced_src'][filt]
             else:
                 print "WARNING: forced_src catalogs not loaded. No match possible"
@@ -136,7 +127,9 @@ class Catalogs(object):
     def _add_new_columns(self):
         """Compute magns for all fluxes of a given table. Add the corresponding new columns.
         Compute the x/y position in pixel for all sources. Add new columns to the table."""
+        print "INFO: Adding magnitude and coordinates columns to all catalog tables"
         for catalog in self.catalogs:
+            print "  - for", catalog
             # skip wcs key
             if catalog == 'wcs':
                 continue
@@ -146,19 +139,21 @@ class Catalogs(object):
             # Add magnitudes
             kfluxes = [k for k in table.columns if k.endswith('_flux')]
             ksigmas = [k + 'Sigma' for k in kfluxes]
-            for kflux, ksigma in zip(kfluxes, ksigmas):
-                mag, dmag = numpy.array([self._mag(f, s)
-                                         for f, s in zip(table[kflux], table[ksigma])]).T
+            print "    -> getting magnitudes"
+            for i, kflux, ksigma in zip(range(len(kfluxes)), kfluxes, ksigmas):
                 if kflux.replace('_flux', '_mag') in table.keys():
                     continue
+                mag, dmag = numpy.array([self._mag(f, s)
+                                         for f, s in zip(table[kflux], table[ksigma])]).T
                 table.add_columns([Column(name=kflux.replace('_flux', '_mag'), data=mag,
                                           description='Magnitude', unit='mag'),
                                    Column(name=ksigma.replace('_fluxSigma', '_magSigma'), data=dmag,
                                           description='Magnitude error', unit='mag')])
 
-            if 'x_Src' in table:
+            if 'x_Src' in table.keys():
                 return
             # Add the x / y position in pixel
+            print "    -> getting pixel coordinates"
             xsrc, ysrc = skycoord_to_pixel(SkyCoord(table["coord_ra"].tolist(),
                                                     table["coord_dec"].tolist(), unit='rad'),
                                            self.wcs)
@@ -168,6 +163,7 @@ class Catalogs(object):
                                       description='y coordinate', unit='pixel')])
 
             # Add a new column to have to coordinates in degree
+            print "    -> getting degree coordinates"
             table.add_columns([Column(name='coord_ra_deg',
                                       data=Angle(table['coord_ra'].tolist(), unit='rad').degree,
                                       description='RA coordinate', unit='degree'),
@@ -229,11 +225,24 @@ class Catalogs(object):
             self.keys[catalog] = keys.get(catalog, "*")
             self._load_catalog(catalog, **kwargs)
             print "INFO: %s loaded.\n" % catalog
+        self._filter_around(**kwargs)
         self._load_calexp(**kwargs)
         self._add_new_columns()
         if 'matchid' in kwargs:
             self._match_ids()
         print "\nINFO: Done loading the data."
+
+    def _filter_around(self, **kwargs):
+        if not 'radius' in kwargs:
+            return
+        print "INFO: Filter out galaxies outside a radius of %s around the cluster center" % \
+            kwargs['radius']
+        radius = float(kwargs['radius'].split()[0])
+        unit = kwargs['radius'].split()[1]
+        for catalog in self.catalogs:
+            print "   -", catalog
+            self.catalogs[catalog] = filter_around(self.catalogs[catalog], kwargs,
+                                                   exclude_outer=radius, unit=unit)
 
     def show_keys(self, catalogs=None):
         """Show all the available keys."""
@@ -254,24 +263,20 @@ class Catalogs(object):
             print " -> All saved in %s_keys.txt" % cat
             ktable.write("%s_keys.txt" % cat, format='ascii', comment="#")
 
-    def save_catalogs(self, output_name):
+    def save_catalogs(self, output_name, overwrite=False):
         """Save the catalogs into an hdf5 file."""
         if not output_name.endswith('.hdf5'):
             output_name += '.hdf5'
         print "INFO: Saving the catalogs in", output_name
-        pbar = progressbar(len(self.catalogs))
         for i, cat in enumerate(self.catalogs):
             print "      - saving", cat
             if i == 0:
                 self.catalogs[cat].write(output_name, path=cat, compression=True,
-                                         serialize_meta=True, overwrite=True)
+                                         serialize_meta=True, overwrite=overwrite)
             else:
                 self.catalogs[cat].write(output_name, path=cat, compression=True,
                                          serialize_meta=True, append=True)
-            pbar.update(i + 1)
         print "INFO: Saving done."
-        pbar.finish()
-
 
 
 def progressbar(maxnumber):
@@ -561,7 +566,15 @@ def filter_around(data, config, **kwargs):
     :return: A filter data table containing galaxie inside [exclude_inner, exclude_outer]
     """
     coord = SkyCoord(ra=[config['ra']], dec=[config['dec']], unit='deg')
-    coords = SkyCoord(ra=list(data['coord_ra']), dec=list(data['coord_dec']), unit='rad')
+    datag = data.group_by('filter')
+    same_length = len(set([len(g) for g in datag.groups])) == 1
+    if same_length:
+        print "INFO: filter have same lenght"
+        coords = SkyCoord(ra=list(datag.groups[0]['coord_ra']),
+                          dec=list(datag.groups[0]['coord_dec']), unit='rad')
+    else:
+        coords = SkyCoord(ra=list(numpy.round(data['coord_ra'], 3)),
+                          dec=list(numpy.round(data['coord_dec'], 3)), unit='rad')
     separation = coord.separation(coords)
     unit = kwargs.get('unit', 'degree')
     if hasattr(separation, unit):
@@ -570,8 +583,9 @@ def filter_around(data, config, **kwargs):
         arglist = "\n" + ", ".join(sorted([a for a in dir(separation) if not a.startswith('_')]))
         raise AttributeError("Angle instance has no attribute %s. Available attributes are: %s" %
                              (unit, arglist))
-    data_around = data[(separation >= kwargs.get('exclude_inner', 0)) &
-                       (separation < kwargs.get('exclude_outer', numpy.inf))]
+    filt = (separation >= kwargs.get('exclude_inner', 0)) & \
+           (separation < kwargs.get('exclude_outer', numpy.inf))
+    data_around = vstack([group[filt] for group in datag.groups]) if same_length else data[filt]
     if kwargs.get('plot', False):
         title = "%s, %.2f < d < %.2f %s cut" % \
                 (config['cluster'], kwargs.get('exclude_inner', 0),
