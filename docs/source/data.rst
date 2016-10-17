@@ -6,11 +6,11 @@ Overview
 
 The data format used in all scripts is based on the `Astropy Table
 <http://docs.astropy.org/en/stable/table/>`_ format. In the `Build the
-table`_ section, we show how these Astropy Tables are create from the
-DM bulter. This work is automaticaly done for the ``meas`` and
+table`_ section, we show how these Astropy Tables are created from the
+DM butler. This work is automatically done for the ``meas`` and
 ``forced`` catalogs, and then saved together in one single ``hdf5``
 <http://www.h5py.org/>`_ file. The procedures to write and read these
-files, and work with the loaded tables, are describe in the `Work with
+files, and work with the loaded tables, are described in the `Work with
 the table`_ section.
 
 
@@ -25,17 +25,17 @@ diagram [#]_ below:
    :alt: Data table construction
    :align: center
 
-For each filter ``f``, an Astropy Table is create for all available
-patches ``p1``, ``p2``, etc. Since we have the same amount of patches
-for all filters, which contain the exact same amount of sources, all
+For each filter ``f``, an Astropy Table is created for all available
+patches ``p1``, ``p2``, etc. Since we have the same number of patches
+for all filters, which contain the exact same number of sources, all
 table (1,p), (2,p), etc., created from a patch will be of the same
 size for all filter. The Astropy Tables created from all individual
-filters/pathes set will then be verticaly stacked. This means that if
-we respecively have ``N1``, ``N2`` and ``N3`` sources for the patches
+filters/patches set will then be vertically stacked. This means that if
+we respectively have ``N1``, ``N2`` and ``N3`` sources for the patches
 1, 2 and 3, the output table will contains ``N1`` + ``N2`` + ``N3``
 sources. After the first stack, we end up with one table per filter,
 all containing the same number of sources. These per-filter tables are
-finaly stacked together to form the final table shown on the
+finally stacked together to form the final table shown on the
 right-hand side of the diagram.
 
 --------
@@ -50,7 +50,7 @@ WCS
 The WCS computed during the data processing is also stored in the
 ``hdf5`` file in the ``wcs`` path. If you load the data using the
 `read_data <clusters.html#clusters.data.read_data>`_ function, the
-output will be a dictionnary containg a ``wcs`` key, which referes to
+output will be a dictionary containing a ``wcs`` key, which refers to
 an `astropy.wcs.WCS
 <http://docs.astropy.org/en/stable/api/astropy.wcs.WCS.html#astropy.wcs.WCS>`_
 object. The `skycoord_to_pixel
@@ -66,7 +66,7 @@ The ``meas`` and ``forced`` tables already contain three coordinates columns:
 - ``x_Src`` and ``y_Src``: they are the (x, y) position in pixel.
 
 
-Work with the table
+Working with the table
 -------------------
 
 .. include:: data_tuto.rst

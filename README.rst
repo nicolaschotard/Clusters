@@ -63,7 +63,7 @@ Also works with the master::
 
 In the future, release versions will be listed at this `location
 <http://github.com/nicolaschotard/Clusters/releases>`_.
-    
+
 
 Dependencies
 ------------
@@ -79,10 +79,10 @@ Configuration file
 ------------------
 
 All the scripts will take the same input YAML file, which contains
-necessary information for the analysis or simply for plotting purpose,
+necessary informations for the analysis or simply for plotting purpose,
 such as the name of the studied cluster. Keys are listed below and are
 case-sensitive. Additional keys are simply ignored. You can find
-examples of these comfiguration files in the `config
+examples of these configuration files in the `config
 <https://github.com/nicolaschotard/Clusters/blob/master/configs>`_
 directory, or clicking `here
 <https://github.com/nicolaschotard/Clusters/blob/master/configs/MACSJ2243.3-0935.yaml>`_
@@ -97,9 +97,9 @@ for MACSJ2243.3-0935.
 +--------------------+--------+-------------------------------------------------------------------+
 | ``"dec"``          | float  | DEC coordinate of the cluster **[deg]**                           |
 +--------------------+--------+-------------------------------------------------------------------+
-| ``"redshift"``     | float  | Redshift the cluster                                              |
+| ``"redshift"``     | float  | Cluster redshift                                                  |
 +--------------------+--------+-------------------------------------------------------------------+
-| ``"filters"``      | string | Filter list to study, e.g., 'ugriz' (Megacam filters)             |
+| ``"filters"``      | string | List of filters to be considered, e.g., 'ugriz' (Megacam filters) |
 +--------------------+--------+-------------------------------------------------------------------+
 | ``"butler"``       | string | Absolute path to the intput data (butler)                         |
 +--------------------+--------+-------------------------------------------------------------------+
@@ -110,27 +110,27 @@ for MACSJ2243.3-0935.
 | ``"keys"``  (opt)  | dict   | Dictionnary containing list of keys for the catalogs (see below)  |
 +--------------------+--------+-------------------------------------------------------------------+
 
-- ``keys`` is a dictionnary having the name of the different catalgos
+- ``keys`` is a dictionary having the name of the different catalogs
   like **deepCoadd_meas**, **deepCoadd_forced_src** and
   **forced_src**. The list of keys for a given catalog can include:
 
   - "the_full_name_of_a_key";
   - "\*_a_part_of_a_key_name" or "an_other_part_of_a_key_name\*"
     preceded or followed by a \*;
-  - a combinason of all the above: ["key1", "ke\*", "\*ey"];
+  - a combination of all the above: ["key1", "ke\*", "\*ey"];
   - or a "*" to get all keys available in a catalog, which is the
     default value for all catalogs.
-  
-    
+
+
 
 
 General usage
 -------------
 
-``Clusters`` consists of several command-line executables that you
+``Clusters`` consists in several command-line executables that you
 have to run in the right order.
 
-- Get the input data and dump them in an hdf5 file containing astropy
+- Get the input data and dump them in a hdf5 file containing astropy
   tables (see the `data format section
   <http://clusters.readthedocs.io/en/latest/data.html>`_ of the
   documentation for detail)::
@@ -155,7 +155,7 @@ file. This list of configuration files can also be given in the
 CONFIG.yaml file (see above). ``--zpara`` will overwrite what is given
 in the configuration file.
 
-- Exctract background galaxies from the whole sample: remove the
+- Extract background galaxies from the whole sample: remove the
   cluster galaxies (red sequence) and other foreground galaxies using
   the photometric redshifts::
 
