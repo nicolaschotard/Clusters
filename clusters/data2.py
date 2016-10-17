@@ -95,7 +95,7 @@ class Catalogs(object):
         self._load_dataids(catalog, **kwargs)
         print "INFO: Getting the data from the butler for %i fits files" % \
             len(self.dataids[catalog])
-        pbar = progressbar(len(self.dataids[catalog]))
+        pbar = progressbar(len(self.dataids[catalog]), prefix='stacking')
         tables = [self._get_tables(catalog, did, i, pbar)
                   for i, did in enumerate(self.dataids[catalog])]
         pbar.finish()
@@ -144,7 +144,7 @@ class Catalogs(object):
             kfluxes = [k for k in table.columns if k.endswith('_flux')]
             ksigmas = [k + 'Sigma' for k in kfluxes]
             print "    -> getting magnitudes"
-            for i, kflux, ksigma in zip(range(len(kfluxes)), kfluxes, ksigmas):
+            for kflux, ksigma in zip(kfluxes, ksigmas):
                 if kflux.replace('_flux', '_mag') in table.keys():
                     continue
                 mag, dmag = numpy.array([self._mag(f, s)
@@ -195,7 +195,7 @@ class Catalogs(object):
 
     def load_catalogs(self, catalogs, keys=None, **kwargs):
         """Load a list of catalogs, e.g.,
-        
+
         :param str/list catalogs: A catalog name, or a list of catalogs (see below)
         :param dict keys: A dictionnary of keys to load for each catalog
 
@@ -228,19 +228,20 @@ class Catalogs(object):
             print colored("INFO: Loading the %s catalog" % catalog, 'green')
             self.keys[catalog] = keys.get(catalog, "*")
             self._load_catalog(catalog, **kwargs)
-            print "INFO: %s loaded.\n" % catalog
+            print "INFO: %s loaded." % catalog
         self._filter_around(**kwargs)
         if 'matchid' in kwargs:
-            self._match_ids()    
+            self._match_ids()
         self._load_calexp(**kwargs)
         self._add_new_columns()
         print "\nINFO: Done loading the data."
 
     def _filter_around(self, **kwargs):
+        """Filter out galaxies outside a given radius."""
         if not 'radius' in kwargs:
             return
-        print "INFO: Filter out galaxies outside a radius of %s around the cluster center" % \
-            kwargs['radius']
+        print colored("\nINFO: Select galaxies inside a radius of %s around cluster center" % \
+                      kwargs['radius'], "green")
         radius = float(kwargs['radius'].split()[0])
         unit = kwargs['radius'].split()[1]
         for catalog in self.catalogs:
@@ -283,9 +284,9 @@ class Catalogs(object):
         print "INFO: Saving done."
 
 
-def progressbar(maxnumber):
+def progressbar(maxnumber, prefix='loading'):
     """Create and return a standard progress bar."""
-    return ProgressBar(widgets=['  - loading ', Percentage(), Bar(marker='>'), ETA()],
+    return ProgressBar(widgets=['  - %s ' % prefix, Percentage(), Bar(marker='>'), ETA()],
                        term_width=60, maxval=maxnumber).start()
 
 
@@ -574,7 +575,6 @@ def filter_around(data, config, **kwargs):
     datag = data.group_by('filter')
     same_length = len(set([len(g) for g in datag.groups])) == 1
     if same_length:
-        print "INFO: filter have same lenght"
         coords = SkyCoord(ra=list(datag.groups[0]['coord_ra']),
                           dec=list(datag.groups[0]['coord_dec']), unit='rad')
     else:
