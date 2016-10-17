@@ -71,8 +71,11 @@ class Catalogs(object):
                         if self.butler.datasetExists('deepCoadd',
                                                      dataId={'filter': filt, 'patch':
                                                              patch, 'tract': 0})]
+                print dids
                 coadds = [self.butler.get('deepCoadd', did) for did in dids]
+                print coadds
                 ccds = [coadd.getInfo().getCoaddInputs().ccds for coadd in coadds]
+                print ccds
                 ccds_visits = [numpy.transpose([ccd.get('visit'), ccd.get('ccd')]) for ccd in ccds]
                 ccds_visits = [list(c) for c in numpy.concatenate(ccds_visits)]
                 dataids = [dataid for dataid in dataids
@@ -116,14 +119,12 @@ class Catalogs(object):
             if 'forced_src' in self.catalogs:
                 print "  Matching 'forced_src' and 'deepCoadd' catalogs"
                 filt = numpy.where(numpy.in1d(self.catalogs['forced_src']['objectId'],
-                                              self.catalogs[deepcoadd[0]]['id']))[0]
-                #filt = numpy.array([idobj in self.catalogs[deepcoadd[0]]['id']
-                #                    for idobj in self.catalogs['forced_src']['objectId']])
+                                              self.catalogs[deepcoadd[0]]['id']))[0]            
                 self.catalogs['forced_src'] = self.catalogs['forced_src'][filt]
             else:
-                print "WARNING: forced_src catalogs not loaded. No match possible"
+                print "WARNING: forced_src catalogs not loaded. No match possible."
         else:
-            print "WARNING: No deepCoadd* catalogs loaded. No match possible"
+            print "WARNING: No deepCoadd* catalog loaded. No match possible."
 
     def _add_new_columns(self):
         """Compute magns for all fluxes of a given table. Add the corresponding new columns.
