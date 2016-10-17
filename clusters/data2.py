@@ -8,6 +8,7 @@ from astropy.wcs import WCS, utils
 from astropy.coordinates import SkyCoord, Angle
 from astropy.table import Table, Column, vstack
 from progressbar import Bar, ProgressBar, Percentage, ETA
+from termcolor import colored
 
 
 class Catalogs(object):
@@ -54,17 +55,17 @@ class Catalogs(object):
             if not kwarg in dataids[0]:
                 continue
             print "INFO: Selecting data ids according to the %s selection" % kwarg
-            print "       - input: %i data ids" % len(dataids)
+            print "  - input: %i data ids" % len(dataids)
             if not isinstance(kwargs[kwarg], list):
                 kwargs[kwarg] = [kwargs[kwarg]]
             dataids = [dataid for dataid in dataids if dataid[kwarg] in kwargs[kwarg]]
-            print "       - selected: %i data ids" % len(dataids)
+            print "  - selected: %i data ids" % len(dataids)
 
         # Select the ccd/visit according to the input list of patch if given
         if 'deepCoadd' not in catalog:
             if 'patch' in kwargs and 'filter' in kwargs:
                 print "INFO: Selecting visit/ccd according to the input list of patches"
-                print "       - input: %i data ids" % len(dataids)
+                print "  - input: %i data ids" % len(dataids)
                 dids = [{'filter': filt, 'patch': patch, 'tract': 0}
                         for filt in kwargs['filter'] for patch in kwargs['patch']
                         if self.butler.datasetExists('deepCoadd',
@@ -76,7 +77,7 @@ class Catalogs(object):
                 ccds_visits = [list(c) for c in numpy.concatenate(ccds_visits)]
                 dataids = [dataid for dataid in dataids
                            if [dataid['visit'], dataid['ccd']] in ccds_visits]
-                print "       - selected: %i data ids" % len(dataids)
+                print "  - selected: %i data ids" % len(dataids)
 
         # Only keep dataids with data
         self.dataids[catalog] = [dataid for dataid in dataids if
@@ -113,7 +114,7 @@ class Catalogs(object):
         deepcoadd = [cat for cat in self.catalogs if 'deepCoadd' in cat]
         if len(deepcoadd):
             if 'forced_src' in self.catalogs:
-                print "Matching 'forced_src' and 'deepCoadd' catalogs"
+                print "  Matching 'forced_src' and 'deepCoadd' catalogs"
                 filt = numpy.where(numpy.in1d(self.catalogs['forced_src']['objectId'],
                                               self.catalogs[deepcoadd[0]]['id']))[0]
                 #filt = numpy.array([idobj in self.catalogs[deepcoadd[0]]['id']
@@ -173,7 +174,7 @@ class Catalogs(object):
 
     def _load_calexp(self, **kwargs):
         """Load the 'calexp' info in order to get the WCS and the magnitudes."""
-        print "INFO: ============ Loading the 'calexp' info ============"
+        print colored("INFO: Loading the 'calexp' info", 'green')
         calcat = 'deepCoadd_calexp'
         self._load_dataids(calcat, **kwargs)
         print "INFO: Getting the %s catalog for one dataId" % calcat
@@ -221,7 +222,7 @@ class Catalogs(object):
             if 'calexp' in catalog:
                 print "WARNING: Skipping %s. This is not a regular catalog (no schema).\n" % catalog
                 continue
-            print "INFO: ============ Loading the %s catalog ============" % catalog
+            print colored("INFO: Loading the %s catalog" % catalog, 'green')
             self.keys[catalog] = keys.get(catalog, "*")
             self._load_catalog(catalog, **kwargs)
             print "INFO: %s loaded.\n" % catalog
@@ -240,7 +241,7 @@ class Catalogs(object):
         radius = float(kwargs['radius'].split()[0])
         unit = kwargs['radius'].split()[1]
         for catalog in self.catalogs:
-            print "   -", catalog
+            print "  -", catalog
             self.catalogs[catalog] = filter_around(self.catalogs[catalog], kwargs,
                                                    exclude_outer=radius, unit=unit)
 
@@ -260,7 +261,7 @@ class Catalogs(object):
             ktable = Table(numpy.transpose([[k, table[k].description, table[k].unit]
                                             for k in sorted(table.keys())]).tolist(),
                            names=["Keys", "Description", "Units"])
-            print " -> All saved in %s_keys.txt" % cat
+            print "  -> All saved in %s_keys.txt" % cat
             ktable.write("%s_keys.txt" % cat, format='ascii', comment="#")
 
     def save_catalogs(self, output_name, overwrite=False):
@@ -269,7 +270,7 @@ class Catalogs(object):
             output_name += '.hdf5'
         print "INFO: Saving the catalogs in", output_name
         for i, cat in enumerate(self.catalogs):
-            print "      - saving", cat
+            print "  - saving", cat
             if i == 0:
                 self.catalogs[cat].write(output_name, path=cat, compression=True,
                                          serialize_meta=True, overwrite=overwrite)
@@ -281,7 +282,8 @@ class Catalogs(object):
 
 def progressbar(maxnumber):
     """Create and return a standard progress bar."""
-    return ProgressBar(widgets=[Percentage(), Bar(), ETA()], maxval=maxnumber).start()
+    return ProgressBar(widgets=['  - loading ', Percentage(), Bar(marker='>'), ETA()],
+                       term_width=60, maxval=maxnumber).start()
 
 
 def load_config(config):

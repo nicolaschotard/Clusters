@@ -7,3 +7,4 @@ astropy
 requests
 h5py
 progressbar
+termcolor
