@@ -89,11 +89,24 @@ def compare_shear(catalogs, xclust, yclust, qcut=None):
         # Quality cuts
         # resolution cut
         filt = cat['ext_shapeHSM_HsmShapeRegauss_resolution'][filti] > 0.3
+
         # ellipticity cut
         filt &= (abs(e1i) < 1) & (abs(e2i) < 1)
+
         if qcut is not None and qcut[i] is True:
+            # Select galaxies (and reject stars)
+            filt &= cat['base_ClassificationExtendedness_flag'][filti] == 0  # keep galaxy
+            filt &= cat['base_ClassificationExtendedness_value'][filti] >= 0.5  # keep galaxy
+
+            # Gauss regulerarization flag
+            filt &= cat['ext_shapeHSM_HsmShapeRegauss_flag'][filti] == 0
+
+            # Make sure to keep primary sources
+            filt &= cat['detect_isPrimary'][filti] == 1
+
             # magnitude cut
             filt &= cat['modelfit_CModel_mag'][filtr] < 23.5
+
             # er ~= ei
             filt &= (abs(e1r - e1i) < 0.5) & (abs(e2r - e2i) < 0.5)
 
@@ -110,21 +123,30 @@ def compare_shear(catalogs, xclust, yclust, qcut=None):
     print "INFO: Done loading shear data"
 
     ids = tables[0]['objectId'][numpy.argsort(tables[0]['objectId'])].tolist()
-    tshear_coadd = tables[0]['Tshear'][numpy.argsort(tables[0]['objectId'])].tolist()
+    tshear_coadd = numpy.array(tables[0]['Tshear'][numpy.argsort(tables[0]['objectId'])].tolist())
     tshear_ccds = [tables[1]['Tshear'][tables[1]['objectId'] == oid].tolist() for oid in ids]
     
     fig = pylab.figure()
     ax = fig.add_subplot(111, xlabel='Distance', ylabel='T-shear')
     ax.scatter(tables[1]['Distance'], tables[1]['Tshear'], color='k')
     ax.scatter(tables[0]['Distance'], tables[0]['Tshear'], color='r')
+    ax.set_title("%i sources" % len(tables[0]['Distance']))
 
     fig = pylab.figure()
     ax = fig.add_subplot(111, xlabel='T-shear (coadd)', ylabel='T-shear (ccd)')
     for i, tshear_ccd in enumerate(tshear_ccds):
         ax.scatter([tshear_coadd[i]] * len(tshear_ccd), tshear_ccd, color='k')
-    ax.scatter(tshear_coadd, [numpy.mean(tshear_ccd) for tshear_ccd in tshear_ccds], color='r')
+    means = numpy.array([numpy.mean(tshear_ccd) for tshear_ccd in tshear_ccds])
+    stds = numpy.array([numpy.std(tshear_ccd) for tshear_ccd in tshear_ccds])
+    ax.scatter(tshear_coadd, means, color='r')
+    ax.errorbar(tshear_coadd, means, yerr=stds, color='r', ls='None', capsize=20)
     ax.plot([numpy.min(tshear_coadd), numpy.max(tshear_coadd)],
             [numpy.min(tshear_coadd), numpy.max(tshear_coadd)])
+    filt = numpy.isfinite(means) & numpy.isfinite(stds) & numpy.isfinite(tshear_coadd)
+    stds = numpy.array([(s if s != 0. else numpy.median(stds[filt])) for s in stds])
+    chi2 = sum((means[filt] - tshear_coadd[filt])**2 / stds[filt]**2)
+    print chi2 / sum(filt)
+    ax.set_title("%i sources" % len(tables[0]['Distance']))
     pylab.show()
     return tables
 

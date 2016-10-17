@@ -54,7 +54,7 @@ class Catalogs(object):
         for kwarg in kwargs:
             if not kwarg in dataids[0]:
                 continue
-            print "INFO: Selecting data ids according to the %s selection" % kwarg
+            print "INFO: Selecting data ids according to the '%s' selection" % kwarg
             print "  - input: %i data ids" % len(dataids)
             if not isinstance(kwargs[kwarg], list):
                 kwargs[kwarg] = [kwargs[kwarg]]
@@ -95,7 +95,7 @@ class Catalogs(object):
         self._load_dataids(catalog, **kwargs)
         print "INFO: Getting the data from the butler for %i fits files" % \
             len(self.dataids[catalog])
-        pbar = progressbar(len(self.dataids[catalog]), prefix='stacking')
+        pbar = progressbar(len(self.dataids[catalog]))
         tables = [self._get_tables(catalog, did, i, pbar)
                   for i, did in enumerate(self.dataids[catalog])]
         pbar.finish()
@@ -177,7 +177,7 @@ class Catalogs(object):
 
     def _load_calexp(self, **kwargs):
         """Load the 'calexp' info in order to get the WCS and the magnitudes."""
-        print colored("INFO: Loading the 'calexp' info", 'green')
+        print colored("\nINFO: Loading the 'calexp' info", 'green')
         calcat = 'deepCoadd_calexp'
         self._load_dataids(calcat, **kwargs)
         print "INFO: Getting the %s catalog for one dataId" % calcat
@@ -414,7 +414,7 @@ def merge_dicts(*dict_args):
 
 def vstack2(tables):
     """Verticaly stack large amount of astropy tables."""
-    pbar = progressbar(len(tables))
+    pbar = progressbar(len(tables), prefix='stacking')
     table = tables.pop(0)
     for i in range(len(tables)):
         table = vstack([table] + [tables.pop(0)])
@@ -617,4 +617,24 @@ def plot_coordinates(all_data, filtered_data, cluster_coord=None, title=None):
     if title is not None:
         ax.set_title(title)
     ax.legend(loc='lower left', scatterpoints=1, frameon=False, fontsize='small')
+    pylab.show()
+
+
+def plot_patches(catalog, clust_coords=None):
+    import pylab
+    colors = pylab.cm.jet(pylab.linspace(0, 1, len(set(catalog['patch']))))
+    fig = pylab.figure()
+    ax = fig.add_subplot(111, xlabel="RA", ylabel="DEC")
+    for i, path in enumerate(sorted(set(catalog['patch']))):
+        filt = catalog['patch'] == path
+        ra = catalog['coord_ra_deg'][filt]
+        dec = catalog['coord_dec_deg'][filt]
+        ax.scatter(ra, dec, color=colors[i], label=path, s=10)
+        ax.vlines(min(ra), min(dec), max(dec), color='k')
+        ax.vlines(max(ra), min(dec), max(dec), color='k')
+        ax.hlines(min(dec), min(ra), max(ra), color='k')
+        ax.hlines(max(dec), min(ra), max(ra), color='k')
+        ax.legend(loc='best', numpoints=1, frameon=False)
+    if clust_coords is not None:
+        ax.scatter(clust_coords['ra'], clust_coords['dec'], s=100, marker='s', color='k')
     pylab.show()
