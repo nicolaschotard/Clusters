@@ -71,11 +71,8 @@ class Catalogs(object):
                         if self.butler.datasetExists('deepCoadd',
                                                      dataId={'filter': filt, 'patch':
                                                              patch, 'tract': 0})]
-                print dids
                 coadds = [self.butler.get('deepCoadd', did) for did in dids]
-                print coadds
                 ccds = [coadd.getInfo().getCoaddInputs().ccds for coadd in coadds]
-                print ccds
                 ccds_visits = [numpy.transpose([ccd.get('visit'), ccd.get('ccd')]) for ccd in ccds]
                 ccds_visits = [list(c) for c in numpy.concatenate(ccds_visits)]
                 dataids = [dataid for dataid in dataids
@@ -85,6 +82,7 @@ class Catalogs(object):
         # Only keep dataids with data
         self.dataids[catalog] = [dataid for dataid in dataids if
                                  self.butler.datasetExists(catalog, dataId=dataid)]
+        print "INFO: %i data ids finally kept" % len(self.dataids[catalog])
 
 
     def _load_catalog_dataid(self, catalog, dataid, astropy_table=True, **kwargs):
@@ -117,10 +115,14 @@ class Catalogs(object):
         deepcoadd = [cat for cat in self.catalogs if 'deepCoadd' in cat]
         if len(deepcoadd):
             if 'forced_src' in self.catalogs:
-                print "  Matching 'forced_src' and 'deepCoadd' catalogs"
+                print colored("INFO: Matching 'forced_src' and 'deepCoadd' catalogs", "green")
+                print "  - Initially %i sources in the forced-src catalog" % \
+                    len(self.catalogs['forced_src'])
                 filt = numpy.where(numpy.in1d(self.catalogs['forced_src']['objectId'],
-                                              self.catalogs[deepcoadd[0]]['id']))[0]            
+                                              self.catalogs[deepcoadd[0]]['id']))[0]
                 self.catalogs['forced_src'] = self.catalogs['forced_src'][filt]
+                print "  - %i sources in the forced-src catalog after selection\n" % \
+                    len(self.catalogs['forced_src'])
             else:
                 print "WARNING: forced_src catalogs not loaded. No match possible."
         else:
@@ -228,10 +230,10 @@ class Catalogs(object):
             self._load_catalog(catalog, **kwargs)
             print "INFO: %s loaded.\n" % catalog
         self._filter_around(**kwargs)
+        if 'matchid' in kwargs:
+            self._match_ids()    
         self._load_calexp(**kwargs)
         self._add_new_columns()
-        if 'matchid' in kwargs:
-            self._match_ids()
         print "\nINFO: Done loading the data."
 
     def _filter_around(self, **kwargs):
