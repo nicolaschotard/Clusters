@@ -91,7 +91,7 @@ class LEPHARE(object):
             skycoords_cat = SkyCoord(self.kwargs['ra'], self.kwargs['dec'], unit='deg')
             idx, d2d, d3d = skycoords_cat.match_to_catalog_sky(zspec.skycoords)
             zp = zspec.data['zspec'][idx]
-            bad = N.where(d2d.mas > 1000)  # identify galaxies with bad match, i.e. dist > 100 mas
+            bad = N.where(d2d.mas > 100)  # identify galaxies with bad match, i.e. dist > 100 mas
             zp[bad] = -99
             print "INFO: Using " + str(len(idx)-N.size(bad)) + " galaxies for spectroz training"
             if 'filters' in self.kwargs:
