@@ -64,6 +64,10 @@ Also works with the master::
 In the future, release versions will be listed at this `location
 <http://github.com/nicolaschotard/Clusters/releases>`_.
 
+To install dependencies, simply do::
+
+  pip install -r requirements.txt
+
 
 Dependencies
 ------------
