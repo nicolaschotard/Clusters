@@ -56,7 +56,7 @@ def analysis(table, xclust, yclust):
 def xy_clust(config, wcs):
     return cdata.skycoord_to_pixel([config['ra'], config['dec']], wcs)
         
-def compare_shear(catalogs, xclust, yclust, qcut=None):
+def compare_shear(catalogs, xclust, yclust, qcut=None, shear='Tshear'):
     """Compare shear mesured on the coadd and shear measured on indivial ccd.
 
     For now, do:
@@ -83,14 +83,16 @@ def compare_shear(catalogs, xclust, yclust, qcut=None):
         e2i = cat["ext_shapeHSM_HsmShapeRegauss_e2"][filti]
         e1r = cat["ext_shapeHSM_HsmShapeRegauss_e1"][filtr]
         e2r = cat["ext_shapeHSM_HsmShapeRegauss_e2"][filtr]
-        xsrc = cat["x_Src"][filti]
-        ysrc = cat["y_Src"][filti]
-        distx = xsrc - xclust
-        disty = ysrc - yclust
+        distx = cat["x_Src"][filti] - xclust
+        disty = cat["y_Src"][filti] - yclust
 
         # Quality cuts
         # resolution cut
         filt = cat['ext_shapeHSM_HsmShapeRegauss_resolution'][filti] > 0.3
+
+        # sigma cut
+        filt &= cat['ext_shapeHSM_HsmShapeRegauss_sigma'][filti] < 1
+        filt &= cat['ext_shapeHSM_HsmShapeRegauss_sigma'][filti] >= 0
 
         # ellipticity cut
         filt &= (abs(e1i) < 1) & (abs(e2i) < 1)
@@ -110,12 +112,15 @@ def compare_shear(catalogs, xclust, yclust, qcut=None):
             filt &= cat['modelfit_CModel_mag'][filti] < 23
             filt &= cat['modelfit_CModel_mag'][filtr] < 23
 
+            # Check the signal to noise (stn) value, which must be > 10
+            filt &= (cat['modelfit_CModel_flux'][filti] /
+                     cat['modelfit_CModel_fluxSigma'][filti]) > 10
+
             # er ~= ei
             filt &= (abs(e1r - e1i) < 0.5) & (abs(e2r - e2i) < 0.5)
 
         # Apply cuts
-        e1i, e2i, distx, disty, objectids, xsrc, ysrc = [x[filt] for x in [e1i, e2i, distx, disty,
-                                                                           objectids, xsrc, ysrc]]
+        e1i, e2i, distx, disty, objectids = [x[filt] for x in [e1i, e2i, distx, disty, objectids]]
         filters.append(filt)
 
         tshear, cshear, dist = compute_shear(e1i, e2i, distx, disty)
@@ -123,68 +128,59 @@ def compare_shear(catalogs, xclust, yclust, qcut=None):
         tables.append(Table([Column(name='Tshear', data=tshear, description='Tangential shear'),
                              Column(name='Cshear', data=cshear, description='Cross shear'),
                              Column(name='Distance', data=dist, description='Distance to center'),
-                             Column(name='objectId', data=objectids, description='Object ID'),
-                             Column(name='xsrc', data=xsrc, description='X-src in pixel'),
-                             Column(name='ysrc', data=ysrc, description='Y-src in pixel')]))
+                             Column(name='objectId', data=objectids, description='Object ID')]))
     print "INFO: Done loading shear data"
 
     ids = tables[0]['objectId'][numpy.argsort(tables[0]['objectId'])].tolist()
-    tshear_coadd = numpy.array(tables[0]['Tshear'][numpy.argsort(tables[0]['objectId'])].tolist())
-    tshear_ccds = [tables[1]['Tshear'][tables[1]['objectId'] == oid].tolist() for oid in ids]
-    xsrc_coadd = numpy.array(tables[0]['xsrc'][numpy.argsort(tables[0]['objectId'])].tolist())
-    ysrc_coadd = numpy.array(tables[0]['ysrc'][numpy.argsort(tables[0]['objectId'])].tolist())
-    xsrc_ccds = numpy.array([numpy.array(tables[1]['xsrc'][tables[1]['objectId'] == oid].tolist())
-                             for oid in ids])
-    ysrc_ccds = numpy.array([numpy.array(tables[1]['ysrc'][tables[1]['objectId'] == oid].tolist())
-                             for oid in ids])
-    print (xsrc_ccds - xsrc_coadd)**2 + (ysrc_ccds - ysrc_coadd)**2
-    distances = numpy.sqrt((xsrc_ccds - xsrc_coadd)**2 + (ysrc_ccds - ysrc_coadd)**2)
+    shear_coadd = numpy.array(tables[0][shear][numpy.argsort(tables[0]['objectId'])].tolist())
+    shear_ccds = [tables[1][shear][tables[1]['objectId'] == oid].tolist() for oid in ids]
 
     fig = pylab.figure()
-    ax = fig.add_subplot(111, xlabel='Distance', ylabel='T-shear')
-    ax.scatter(tables[1]['Distance'], tables[1]['Tshear'], color='k')
-    ax.scatter(tables[0]['Distance'], tables[0]['Tshear'], color='r')
+    ax = fig.add_subplot(111, xlabel='Distance', ylabel=shear)
+    ax.scatter(tables[1]['Distance'], tables[1][shear], color='k')
+    ax.scatter(tables[0]['Distance'], tables[0][shear], color='r')
     ax.set_title("%i sources" % len(tables[0]['Distance']))
 
     fig = pylab.figure()
-    ax = fig.add_subplot(111, xlabel='T-shear (coadd)', ylabel='T-shear (ccd)')
-    for i, tshear_ccd in enumerate(tshear_ccds):
-        ax.scatter([tshear_coadd[i]] * len(tshear_ccd), tshear_ccd, color='k')
-    nums = numpy.array([len(tshear_ccd) for tshear_ccd in tshear_ccds])
-    means = numpy.array([numpy.mean(tshear_ccd) for tshear_ccd in tshear_ccds])
-    stds = numpy.array([numpy.std(tshear_ccd) for tshear_ccd in tshear_ccds])
-    ax.scatter(tshear_coadd, means, color='r')
-    ax.errorbar(tshear_coadd, means, yerr=stds, color='r', ls='None', capsize=20)
-    ax.plot([numpy.min(tshear_coadd), numpy.max(tshear_coadd)],
-            [numpy.min(tshear_coadd), numpy.max(tshear_coadd)], color='b')
-    filt = numpy.isfinite(means) & numpy.isfinite(stds) & numpy.isfinite(tshear_coadd)
+    ax = fig.add_subplot(111, xlabel='%s (coadd)' % shear, ylabel='%s (ccd)' % shear)
+    for i, shear_ccd in enumerate(shear_ccds):
+        if i == 0:
+            ax.scatter([shear_coadd[i]] * len(shear_ccd), shear_ccd,
+                       color='k', label='Individual CCD')
+        else:
+            ax.scatter([shear_coadd[i]] * len(shear_ccd), shear_ccd, color='k')
+    nums = numpy.array([len(shear_ccd) for shear_ccd in shear_ccds])
+    means = numpy.array([numpy.mean(shear_ccd) for shear_ccd in shear_ccds])
+    stds = numpy.array([numpy.std(shear_ccd) for shear_ccd in shear_ccds])
+    ax.scatter(shear_coadd, means, color='r', label='Averaged over CCDs (per-object)')
+    ax.errorbar(shear_coadd, means, yerr=stds, color='r', ls='None', capsize=20)
+    ax.plot([numpy.min(shear_coadd), numpy.max(shear_coadd)],
+            [numpy.min(shear_coadd), numpy.max(shear_coadd)], color='b', label='Slope=1')
+    filt = numpy.isfinite(means) & numpy.isfinite(stds) & numpy.isfinite(shear_coadd)
     stds = numpy.array([(s if s != 0. else numpy.median(stds[filt])) for s in stds])
-    chi2 = sum((means[filt] - tshear_coadd[filt])**2 / stds[filt]**2) / len(means[filt])
-    std = numpy.std(means[filt] - tshear_coadd[filt])
+    chi2 = sum((means[filt] - shear_coadd[filt])**2 / stds[filt]**2) / len(means[filt])
+    std = numpy.std(means[filt] - shear_coadd[filt])
     for i, ls in zip([1,2,3], ['--', '-.', ':']):
-        ax.plot([numpy.min(tshear_coadd), numpy.max(tshear_coadd)],
-                [numpy.min(tshear_coadd) + i * std,
-                 numpy.max(tshear_coadd) + i * std], color='b', ls=ls)
-        ax.plot([numpy.min(tshear_coadd), numpy.max(tshear_coadd)],
-                [numpy.min(tshear_coadd) - i * std,
-                 numpy.max(tshear_coadd) - i * std], color='b', ls=ls)
-    ax.set_title("%i sources" % len(tables[0]['Distance']))
+        ax.plot([numpy.min(shear_coadd), numpy.max(shear_coadd)],
+                [numpy.min(shear_coadd) + i * std,
+                 numpy.max(shear_coadd) + i * std], color='b', ls=ls)
+        ax.plot([numpy.min(shear_coadd), numpy.max(shear_coadd)],
+                [numpy.min(shear_coadd) - i * std,
+                 numpy.max(shear_coadd) - i * std], color='b', ls=ls)
+    ax.set_title("%i sources, CHI2=%.3f, STD=%.3f" % (len(tables[0]['Distance']), chi2, std))
+    ax.legend(loc='best', frameon=False, numpoints=1)
     print "CHI2:", chi2
     print "STD:", std
     filti = (catalogs[0]['filter'] == 'i') | (catalogs[0]['filter'] == 'i2')
-    for p in ['ext_shapeHSM_HsmShapeRegauss_resolution', 'modelfit_CModel_mag']:
+    for p in ['ext_shapeHSM_HsmShapeRegauss_resolution', 'modelfit_CModel_mag',
+              'ext_shapeHSM_HsmShapeRegauss_sigma']:
         print p
         pylab.figure()
         allvalues = catalogs[0][p][filti][filters[0]]
-        filteredvalues = allvalues[abs(means[filt] - tshear_coadd[filt]) > 2 * std]
+        filteredvalues = allvalues[abs(means[filt] - shear_coadd[filt]) > 2 * std]
         pylab.hist(allvalues, bins=100, color='k')
         pylab.hist(filteredvalues, bins=100, color='r')
         pylab.title(p)
-    pylab.figure()
-    pylab.scatter(nums[filt], abs(means[filt] - tshear_coadd[filt]), color='k')
-    pylab.show()
-    pylab.figure()
-    pylab.scatter(distances[filt], abs(means[filt] - tshear_coadd[filt]), color='k')
     pylab.show()
     return tables
 
