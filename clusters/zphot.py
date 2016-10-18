@@ -85,25 +85,25 @@ class LEPHARE(object):
         else:
             # Spectroscopic redshift file provided in config.yaml
             # --> Need to write LePhare input file in the LONG format,
-            # i.e with 'context' and spectroz of matching galaxies
+            # i.e with 'context' and 'spectroz' of matching galaxies
             zspec = ZSPEC(self.spectro_file, names=['object', 'ra', 'dec', 'zspec'])
             zspec.skycoords = SkyCoord(zspec.data['ra'], zspec.data['dec'], unit='deg')
             skycoords_cat = SkyCoord(self.kwargs['ra'], self.kwargs['dec'], unit='deg')
-            idx, d2d, d3d = zspec.skycoords.match_to_catalog_sky(skycoords_cat)
-            bad = N.where(d2d.mas > 100) # identify galaxies with bad match, i.e. dist > 100 mas
-            idx = N.delete(idx,bad) # idx of good galaxies in catalogue
-            idx_zp = N.delete(N.arange(len(zspec.data['ra'])),bad) # idx of good galaxies spectroz sample
-            zp = N.zeros(len(skycoords_cat))-99.
-            zp[idx] = zspec.data['zspec'][idx_zp]
+            idx, d2d, d3d = skycoords_cat.match_to_catalog_sky(zspec.skycoords)
+            zp = zspec.data['zspec'][idx]
+            bad = N.where(d2d.mas > 100)  # identify galaxies with bad match, i.e. dist > 100 mas
+            zp[bad] = -99
+            print "INFO: Using " + str(len(idx)-N.size(bad)) + " galaxies for spectroz training"
             if 'filters' in self.kwargs:
                 f.write("# id " + " ".join(["mag_%s" % filt for filt in self.kwargs['filters']]) +
                         " " + " ".join(["err_mag_%s" % filt for filt in self.kwargs['filters']]) +
                         " context" + " zspec" + "\n")
+                context = 31  # tells LePhare to run using the u, g, r, i and z bands.
                 for i, mags in enumerate(N.concatenate([self.data['mag'], self.data['err']]).T):
-                    f.write("%i %s %s\n" % (i, " ".join(["%.3f" % m for m in mags]), " ".join(("31","%.3f" % zp[i]))))
+                    f.write("%i %s %s\n" % (i, " ".join(["%.3f" % m for m in mags]), " ".join(("%i" % context,"%.3f" % zp[i]))))
             f.close()
-        
-        if 'ra' in self.kwargs:
+          
+        if 'ra' in self.kwargs: 
             f = open(self.files['all_input'], 'w')
             if 'filters' in self.kwargs is not None:
                 f.write("# id ID RA DEC " +
@@ -395,7 +395,7 @@ class ZSPEC(object):
         ax = fig.add_subplot(121, xlabel='Z-spec', ylabel='Z-phot')
         scat = ax.scatter(zspec, zphot, c=sdist, cmap=(P.cm.copper))
         cb = fig.colorbar(scat)
-        cb.set_label('On-sky distance (deg)')
+        cb.set_label('On-sky distance (marcsec)')
         ax.set_title("%i galaxies" % len(self.match[0]))
 
         # z-phot - zspec as a function of sources on-sky distances
