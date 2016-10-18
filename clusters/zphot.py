@@ -87,6 +87,7 @@ class LEPHARE(object):
             # --> Need to write LePhare input file in the LONG format,
             # i.e with 'context' and 'spectroz' of matching galaxies
             zspec = ZSPEC(self.spectro_file, names=['object', 'ra', 'dec', 'zspec'])
+            zspec.check_duplicate()
             zspec.skycoords = SkyCoord(zspec.data['ra'], zspec.data['dec'], unit='deg')
             skycoords_cat = SkyCoord(self.kwargs['ra'], self.kwargs['dec'], unit='deg')
             idx, d2d, d3d = skycoords_cat.match_to_catalog_sky(zspec.skycoords)
@@ -357,6 +358,15 @@ class ZSPEC(object):
         self.skycoords = SkyCoord(self.data['ra'], self.data['dec'], unit=unit)
         self.zphot = self.skycoords_phot = self.match = None
 
+    def check_duplicate(self):
+        """Check whether duplicate galaxies exist in the spectroz sample"""
+        ra=['{:.9}'.format(x) for x in self.data['ra']]
+        dec=['{:.9}'.format(x) for x in self.data['dec']]
+        radec = N.core.defchararray.add(ra, dec) 
+        unique_radec = N.unique(radec)
+        if (len(unique_radec) < len(radec)):
+            print "INFO: There are " + str(len(radec) - len(unique_radec)) + " duplicate galaxies in spectroz sample"
+        
     def load_zphot(self, ra, dec, zphot, unit='deg'):
         """Load the photometric informations and match them to the spectro ones.
 
