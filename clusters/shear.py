@@ -37,7 +37,7 @@ def analysis(table, xclust, yclust):
     # magnitude cut
     filt = table['modelfit_CModel_mag'][table['filter'] == 'r'] < 23.5
     # resolution cut
-    filt &= table['ext_shapeHSM_HsmShapeRegauss_resolution'][table['filter'] == 'i'] > 0.4
+    filt &= table['ext_shapeHSM_HsmShapeRegauss_resolution'][table['filter'] == 'i'] > 0.3
     # ellipticity cut
     filt &= (abs(e1i) < 1) & (abs(e2i) < 1)
     # er ~= ei
@@ -56,7 +56,7 @@ def analysis(table, xclust, yclust):
 def xy_clust(config, wcs):
     return cdata.skycoord_to_pixel([config['ra'], config['dec']], wcs)
         
-def compare_shear(catalogs, xclust, yclust, qcut=None, shear='Tshear'):
+def compare_shear(catalogs, xclust, yclust, qcut=None, param='Tshear'):
     """Compare shear mesured on the coadd and shear measured on indivial ccd.
 
     For now, do:
@@ -128,21 +128,25 @@ def compare_shear(catalogs, xclust, yclust, qcut=None, shear='Tshear'):
         tables.append(Table([Column(name='Tshear', data=tshear, description='Tangential shear'),
                              Column(name='Cshear', data=cshear, description='Cross shear'),
                              Column(name='Distance', data=dist, description='Distance to center'),
-                             Column(name='objectId', data=objectids, description='Object ID')]))
+                             Column(name='objectId', data=objectids, description='Object ID'),
+                             Column(name='e1i', data=e1i, description='Ellipticities 1 i'),
+                             Column(name='e2i', data=e2i, description='Ellipticities 2 i'),
+                         ]))
     print "INFO: Done loading shear data"
 
     ids = tables[0]['objectId'][numpy.argsort(tables[0]['objectId'])].tolist()
-    shear_coadd = numpy.array(tables[0][shear][numpy.argsort(tables[0]['objectId'])].tolist())
-    shear_ccds = [tables[1][shear][tables[1]['objectId'] == oid].tolist() for oid in ids]
+    shear_coadd = numpy.array(tables[0][param][numpy.argsort(tables[0]['objectId'])].tolist())
+    shear_ccds = [tables[1][param][tables[1]['objectId'] == oid].tolist() for oid in ids]
+    distance = numpy.array(tables[0]["Distance"][numpy.argsort(tables[0]['objectId'])].tolist())
 
     fig = pylab.figure()
-    ax = fig.add_subplot(111, xlabel='Distance', ylabel=shear)
-    ax.scatter(tables[1]['Distance'], tables[1][shear], color='k')
-    ax.scatter(tables[0]['Distance'], tables[0][shear], color='r')
+    ax = fig.add_subplot(111, xlabel='Distance', ylabel=param)
+    ax.scatter(tables[1]['Distance'], tables[1][param], color='k')
+    ax.scatter(tables[0]['Distance'], tables[0][param], color='r')
     ax.set_title("%i sources" % len(tables[0]['Distance']))
 
     fig = pylab.figure()
-    ax = fig.add_subplot(111, xlabel='%s (coadd)' % shear, ylabel='%s (ccd)' % shear)
+    ax = fig.add_subplot(111, xlabel='%s (coadd)' % param, ylabel='%s (ccd)' % param)
     for i, shear_ccd in enumerate(shear_ccds):
         if i == 0:
             ax.scatter([shear_coadd[i]] * len(shear_ccd), shear_ccd,
@@ -171,16 +175,20 @@ def compare_shear(catalogs, xclust, yclust, qcut=None, shear='Tshear'):
     ax.legend(loc='best', frameon=False, numpoints=1)
     print "CHI2:", chi2
     print "STD:", std
-    filti = (catalogs[0]['filter'] == 'i') | (catalogs[0]['filter'] == 'i2')
-    for p in ['ext_shapeHSM_HsmShapeRegauss_resolution', 'modelfit_CModel_mag',
+    cc = 0
+    filti = (catalogs[cc]['filter'] == 'i') | (catalogs[cc]['filter'] == 'i2')
+    for p in ['ext_shapeHSM_HsmShapeRegauss_resolution', #'modelfit_CModel_mag',
               'ext_shapeHSM_HsmShapeRegauss_sigma']:
         print p
         pylab.figure()
-        allvalues = catalogs[0][p][filti][filters[0]]
+        allvalues = catalogs[cc][p][filti][filters[cc]]
         filteredvalues = allvalues[abs(means[filt] - shear_coadd[filt]) > 2 * std]
         pylab.hist(allvalues, bins=100, color='k')
         pylab.hist(filteredvalues, bins=100, color='r')
         pylab.title(p)
+    pylab.figure()
+    pylab.scatter(distance[filt], abs(means[filt] - shear_coadd[filt]), color='k')
+    pylab.title(p)
     pylab.show()
     return tables
 
