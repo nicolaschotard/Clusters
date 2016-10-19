@@ -95,15 +95,15 @@ class LEPHARE(object):
             bad = N.where(d2d.mas > 100)  # identify galaxies with bad match, i.e. dist > 100 mas
             zp[bad] = -99
             print "INFO: Using " + str(len(idx)-N.size(bad)) + " galaxies for spectroz training"
-            if 'filter' in self.kwargs:
-                f.write("# id " + " ".join(["mag_%s" % filt for filt in self.kwargs['filter']]) +
-                        " " + " ".join(["err_mag_%s" % filt for filt in self.kwargs['filter']]) +
+            if 'filters' in self.kwargs:
+                f.write("# id " + " ".join(["mag_%s" % filt for filt in self.kwargs['filters']]) +
+                        " " + " ".join(["err_mag_%s" % filt for filt in self.kwargs['filters']]) +
                         " context" + " zspec" + "\n")
                 context = 31  # tells LePhare to run using the u, g, r, i and z bands.
                 for i, mags in enumerate(N.concatenate([self.data['mag'], self.data['err']]).T):
                     f.write("%i %s %s\n" % (i, " ".join(["%.3f" % m for m in mags]), " ".join(("%i" % context,"%.3f" % zp[i]))))
-            f.close()
-          
+                f.close()
+            
         if 'ra' in self.kwargs: 
             f = open(self.files['all_input'], 'w')
             if 'filter' in self.kwargs is not None:
@@ -315,7 +315,7 @@ class LEPHARO(object):
         filt = (redshift >= zmin) & (redshift < zmax)
         ra, dec, redshift = ra[filt], dec[filt], redshift[filt]
 
-        fig = P.figure()
+        fig = P.figure() 
         ax = fig.add_subplot(111, xlabel='RA (deg)', ylabel='DEC (deg)')
         scat = ax.scatter(ra, dec, c=redshift, cmap=(P.cm.jet))
         cb = fig.colorbar(scat)
@@ -367,7 +367,7 @@ class ZSPEC(object):
         if (len(unique_radec) < len(radec)):
             print "INFO: There are " + str(len(radec) - len(unique_radec)) + " duplicate galaxies in spectroz sample"
         
-    def load_zphot(self, ra, dec, zphot, unit='deg'):
+    def load_zphot(self, ra, dec, zphot, unit='deg'): 
         """Load the photometric informations and match them to the spectro ones.
 
         :param list ra: List of RA coordinates
