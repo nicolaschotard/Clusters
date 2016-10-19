@@ -444,8 +444,8 @@ def getdata(config, output='all_data.hdf5', output_filtered='filtered_data.hdf5'
             raise IOError("Output(s) already exist(s). Remove them or use overwrite=True.")
     if isinstance(config, str):
         config = load_config(config)
-    d = get_all_data(config['butler'], config['patches'],
-                     config['filters'], add_extra=True,
+    d = get_all_data(config['butler'], config['patch'],
+                     config['filter'], add_extra=True,
                      keys=config['keys'] if 'keys' in config else {})
     write_data(d, output, overwrite=overwrite)
     df = filter_table(d)

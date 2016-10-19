@@ -44,11 +44,11 @@ def load_data(argv=None):
 
     print "INFO: Working on cluster %s (z=%.4f)" % (config['cluster'],
                                                     config['redshift'])
-    print "INFO: Working on filters", config['filters']
+    print "INFO: Working on filters", config['filter']
     print "INFO: Butler located under %s" % config['butler']
 
-    data = cdata.get_all_data(config['butler'], config['patches'],
-                              config['filters'], add_extra=True, show=args.show,
+    data = cdata.get_all_data(config['butler'], config['patch'],
+                              config['filter'], add_extra=True, show=args.show,
                               keys=config['keys'] if 'keys' in config else None)
     dataf = cdata.filter_table(data)
     cdata.write_data(data, output, overwrite=args.overwrite)
@@ -79,7 +79,7 @@ def extinction(argv=None):
             raise IOError("Output already exists. Remove them or use --overwrite.")
 
     print "INFO: Working on cluster %s (z=%.4f)" % (config['cluster'], config['redshift'])
-    print "INFO: Working on filters", config['filters']
+    print "INFO: Working on filters", config['filter']
 
     # Load the data
     data = cdata.read_data(args.input)['deepCoadd_forced_src']
@@ -104,7 +104,7 @@ def extinction(argv=None):
     # Make some plots if asked
     if args.plot:
         print "INFO: Making some plots"
-        filt = new_tab['filter'] == config['filters'][0]
+        filt = new_tab['filter'] == config['filter'][0]
         cextinction.plots(new_tab['coord_ra'][filt],
                           new_tab['coord_dec'][filt],
                           new_tab['ebv_sfd'], albds['albd_sfd'][filt],
@@ -168,7 +168,7 @@ def photometric_redshift(argv=None):
             raise IOError("Output already exists. Remove themit or use --overwrite.")
 
     print "INFO: Working on cluster %s (z=%.4f)" % (config['cluster'], config['redshift'])
-    print "INFO: Working on filters", config['filters']
+    print "INFO: Working on filters", config['filter']
 
     # Load the data
     print "INFO: Loading the data from", args.input
@@ -187,7 +187,7 @@ def photometric_redshift(argv=None):
         raise IOError("%s is not a column of the input table" % mag)
 
     # Run LEPHARE
-    print "INFO: LEPHARE will run on", len(data) / len(config['filters']), "sources"
+    print "INFO: LEPHARE will run on", len(data) / len(config['filter']), "sources"
 
     if args.zpara is None:
         args.zpara = os.environ["LEPHAREDIR"] + \
@@ -199,13 +199,13 @@ def photometric_redshift(argv=None):
     for i, zpara in enumerate(args.zpara.split(',') if isinstance(args.zpara, str) else args.zpara):
         print "\nINFO: Configuration for LEPHARE from:", zpara
         kwargs = {'basename': config['cluster'] + '_' + zpara.split('/')[-1].replace('.para', ''),
-                  'filters': config['filters'],
-                  'ra': data['coord_ra_deg'][data['filter'] == config['filters'][0]],
-                  'dec': data['coord_dec_deg'][data['filter'] == config['filters'][0]],
-                  'id': data['objectId'][data['filter'] == config['filters'][0]]}
-        zphot = czphot.LEPHARE([data[mag][data['filter'] == f] for f in config['filters']],
+                  'filters': config['filter'],
+                  'ra': data['coord_ra_deg'][data['filter'] == config['filter'][0]],
+                  'dec': data['coord_dec_deg'][data['filter'] == config['filter'][0]],
+                  'id': data['objectId'][data['filter'] == config['filter'][0]]}
+        zphot = czphot.LEPHARE([data[mag][data['filter'] == f] for f in config['filter']],
                                [data[args.mag + "Sigma"][data['filter'] == f]
-                                for f in config['filters']],
+                                for f in config['filter']],
                                zpara=zpara, spectro_file=spectro_file, **kwargs)
         zphot.check_config()
         zphot.run()
@@ -214,7 +214,7 @@ def photometric_redshift(argv=None):
         path = "zphot_%s" % zpara.split('/')[-1].replace('.para', '')
         new_tab = hstack([data['objectId',
                                'coord_ra_deg',
-                               'coord_dec_deg'][data['filter'] == config['filters'][0]],
+                               'coord_dec_deg'][data['filter'] == config['filter'][0]],
                           Table(zphot.data_out.data_dict)], join_type='inner')
         if i == 0:
             new_tab.write(args.output, path=path, compression=True,
@@ -253,7 +253,7 @@ def getbackground(argv=None):
         args.output = os.path.basename(args.config).replace('.yaml',
                                                             '_background.hdf5')
 
-    filters = config['filters']
+    filters = config['filter']
 
     print "INFO: Working on cluster %s (z=%.4f)" % (config['cluster'],
                                                     config['redshift'])
@@ -287,7 +287,7 @@ def shear(argv=None):
             raise IOError("Output already exists. Remove them or use --overwrite.")
 
     print "INFO: Working on cluster %s (z=%.4f)" % (config['cluster'], config['redshift'])
-    print "INFO: Working on filters", config['filters']
+    print "INFO: Working on filters", config['filter']
 
     # Load the data
     data = cdata.read_data(args.input)

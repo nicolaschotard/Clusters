@@ -73,9 +73,9 @@ class LEPHARE(object):
         if self.spectro_file is None:
             # No spectroscopic redshift file provided in config.yaml
             # --> only need the SHORT format for LePhare input file    
-            if 'filters' in self.kwargs:
-                f.write("# id " + " ".join(["mag_%s" % filt for filt in self.kwargs['filters']]) +
-                        " " + " ".join(["err_mag_%s" % filt for filt in self.kwargs['filters']]) +
+            if 'filter' in self.kwargs:
+                f.write("# id " + " ".join(["mag_%s" % filt for filt in self.kwargs['filter']]) +
+                        " " + " ".join(["err_mag_%s" % filt for filt in self.kwargs['filter']]) +
                         "\n")
                 for i, mags in enumerate(N.concatenate([self.data['mag'], self.data['err']]).T):
                     f.write("%i %s\n" % (i, " ".join(["%.3f" % m for m in mags])))
@@ -95,9 +95,9 @@ class LEPHARE(object):
             bad = N.where(d2d.mas > 100)  # identify galaxies with bad match, i.e. dist > 100 mas
             zp[bad] = -99
             print "INFO: Using " + str(len(idx)-N.size(bad)) + " galaxies for spectroz training"
-            if 'filters' in self.kwargs:
-                f.write("# id " + " ".join(["mag_%s" % filt for filt in self.kwargs['filters']]) +
-                        " " + " ".join(["err_mag_%s" % filt for filt in self.kwargs['filters']]) +
+            if 'filter' in self.kwargs:
+                f.write("# id " + " ".join(["mag_%s" % filt for filt in self.kwargs['filter']]) +
+                        " " + " ".join(["err_mag_%s" % filt for filt in self.kwargs['filter']]) +
                         " context" + " zspec" + "\n")
                 context = 31  # tells LePhare to run using the u, g, r, i and z bands.
                 for i, mags in enumerate(N.concatenate([self.data['mag'], self.data['err']]).T):
@@ -106,10 +106,10 @@ class LEPHARE(object):
           
         if 'ra' in self.kwargs: 
             f = open(self.files['all_input'], 'w')
-            if 'filters' in self.kwargs is not None:
+            if 'filter' in self.kwargs is not None:
                 f.write("# id ID RA DEC " +
-                        " ".join(["mag_%s" % filt for filt in self.kwargs['filters']]) + " " +
-                        " ".join(["err_mag_%s" % filt for filt in self.kwargs['filters']]) +
+                        " ".join(["mag_%s" % filt for filt in self.kwargs['filter']]) + " " +
+                        " ".join(["err_mag_%s" % filt for filt in self.kwargs['filter']]) +
                         "\n")
             for i, mags in enumerate(N.concatenate([self.data['mag'], self.data['err']]).T):
                 f.write("%i %i %f %f %s\n" % (i, self.kwargs['id'][i],

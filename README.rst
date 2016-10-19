@@ -93,7 +93,7 @@ directory, or clicking `here
 for MACSJ2243.3-0935.
 
 +--------------------+--------+-------------------------------------------------------------------+
-| Parameter          | Type   | Description [units]                                               |
+| General keys       | Type   | Description [units]                                               |
 +====================+========+===================================================================+
 | ``"cluster"``      | string | Name of the cluster                                               |
 +--------------------+--------+-------------------------------------------------------------------+
@@ -103,16 +103,26 @@ for MACSJ2243.3-0935.
 +--------------------+--------+-------------------------------------------------------------------+
 | ``"redshift"``     | float  | Cluster redshift                                                  |
 +--------------------+--------+-------------------------------------------------------------------+
-| ``"filters"``      | string | List of filters to be considered, e.g., 'ugriz' (Megacam filters) |
-+--------------------+--------+-------------------------------------------------------------------+
 | ``"butler"``       | string | Absolute path to the intput data (butler)                         |
 +--------------------+--------+-------------------------------------------------------------------+
-| ``"patches"``      | list   | List of patches to study                                          |
+| ``"filter"``       | list   | List of filters to be considered, e.g., 'ugriz' (Megacam filters) |
 +--------------------+--------+-------------------------------------------------------------------+
-| ``"zpara"`` (opt)  | list   | List of paths to ``zphota`` configuration files (see below)       |
+| ``"patch"``        | list   | List of patches to study                                          |
 +--------------------+--------+-------------------------------------------------------------------+
-| ``"keys"``  (opt)  | dict   | Dictionnary containing list of keys for the catalogs (see below)  |
-+--------------------+--------+-------------------------------------------------------------------+
+
+The following list of optional keys can also be added to the
+configuration file. Their correspond to specific configurations of the
+different steps of the analysis. While the previous list will most
+likely stay unchanged, the following one will be completed with new
+keys as this analysis will progress.
+
++---------------+--------+------------------------------------------------------------------+
+| Optional keys | Type   | Description [units]                                              |
++===============+========+==================================================================+
+| ``"keys"``    | dict   | Dictionnary containing list of keys for the catalogs (see below) |
++---------------+--------+------------------------------------------------------------------+
+| ``"zpara"``   | list   | List of paths to ``zphota`` configuration files (see below)      |
++---------------+--------+------------------------------------------------------------------+
 
 - ``keys`` is a dictionary having the name of the different catalogs
   like **deepCoadd_meas**, **deepCoadd_forced_src** and

@@ -506,21 +506,21 @@ def filter_table(t):
             'deepCoadd_forced_src': dfg.groups[filt], 'wcs': t['wcs']}
 
 
-def getdata(config, output='all_data.hdf5', output_filtered='filtered_data.hdf5', overwrite=False):
-    """Shortcut function to get all the data from a bulter, fitler them, and save same."""
-    if not overwrite:
-        if os.path.exists(output) or os.path.exists(output_filtered):
-            raise IOError("Output(s) already exist(s). Remove them or use overwrite=True.")
-    if isinstance(config, str):
-        config = load_config(config)
-    
-    d = get_all_data(config['butler'], config['patches'],
-                     config['filters'], add_extra=True,
-                     keys=config['keys'] if 'keys' in config else {})
-    write_data(d, output, overwrite=overwrite)
-    df = filter_table(d)
-    write_data(df, output_filtered, overwrite=overwrite)
-    return d, df
+#def getdata(config, output='all_data.hdf5', output_filtered='filtered_data.hdf5', overwrite=False):
+#    """Shortcut function to get all the data from a bulter, fitler them, and save same."""
+#    if not overwrite:
+#        if os.path.exists(output) or os.path.exists(output_filtered):
+#            raise IOError("Output(s) already exist(s). Remove them or use overwrite=True.")
+"    if isinstance(config, str):
+#        config = load_config(config)
+#    
+#    d = get_all_data(config['butler'], config['patch'],
+#                     config['filter'], add_extra=True,
+#                     keys=config['keys'] if 'keys' in config else {})
+#    write_data(d, output, overwrite=overwrite)
+#    df = filter_table(d)
+#    write_data(df, output_filtered, overwrite=overwrite)
+#    return d, df
 
 
 def correct_for_extinction(ti, te, mag='modelfit_CModel_mag', ext='sfd', ifilt="i_new"):
