@@ -111,7 +111,7 @@ for MACSJ2243.3-0935.
 +--------------------+--------+-------------------------------------------------------------------+
 
 The following list of optional keys can also be added to the
-configuration file. Their correspond to specific configurations of the
+configuration file. They correspond to specific configurations of the
 different steps of the analysis. While the previous list will most
 likely stay unchanged, the following one will be completed with new
 keys as this analysis will progress.
@@ -199,12 +199,13 @@ the config file (if you have your own data). You could also mount sps
 on your personal computer (see this `how to
 <http://lsstnotes.readthedocs.io/en/latest/sshfs.html>`_).
 
-The first step of the ``Clusters`` package if ``clusters_data.py``,
-which will get the data from the DM butler and convert them into an
-``astropy`` table. To do so, you need the LSST DM stack to be
-installed. If you want to skip this part and try the code whithout
-having to install the DM stack, you could also use the output of this
-first step for MACSJ2243.3-0935 that we have stored under::
+The first step of the ``Clusters`` package is ``clusters_data.py``,
+which will get the data from the DM butler, convert them into a
+``astropy`` tables and save them in a single ``hdf5`` file. To do so,
+you need the LSST DM stack to be installed. If you want to skip this
+part and try the code whithout having to install the DM stack, you
+could also use the output of this first step for MACSJ2243.3-0935 that
+we have stored under::
 
   /sps/lsst/data/clusters/MACSJ2243.3-0935/analysis/output_v1/MACSJ2243.3-0935_data.hdf5
 

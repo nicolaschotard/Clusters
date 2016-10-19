@@ -13,7 +13,7 @@ from termcolor import colored
 
 class Catalogs(object):
 
-    """Load data from a LSST stack butler path"""
+    """Load data from a LSST stack butler path."""
 
     def __init__(self, path):
         """."""
@@ -52,7 +52,7 @@ class Catalogs(object):
 
         # Specific selection make by the user?
         for kwarg in kwargs:
-            if not kwarg in dataids[0]:
+            if kwarg not in dataids[0]:
                 continue
             print "INFO: Selecting data ids according to the '%s' selection" % kwarg
             print "  - input: %i data ids" % len(dataids)
@@ -84,7 +84,6 @@ class Catalogs(object):
                                  self.butler.datasetExists(catalog, dataId=dataid)]
         print "INFO: %i data ids finally kept" % len(self.dataids[catalog])
 
-
     def _load_catalog_dataid(self, catalog, dataid, astropy_table=True, **kwargs):
         """Load a catalog from a 'dataId' set of parameter."""
         cat = self.butler.get(catalog, dataId=dataid)
@@ -111,7 +110,7 @@ class Catalogs(object):
         return table
 
     def _match_ids(self):
-        """Select in the 'forced_src' catalog the source that are in the deepCoad catalogs"""
+        """Select in the 'forced_src' catalog the source that are in the deepCoad catalogs."""
         deepcoadd = [cat for cat in self.catalogs if 'deepCoadd' in cat]
         if len(deepcoadd):
             if 'forced_src' in self.catalogs:
@@ -194,7 +193,7 @@ class Catalogs(object):
         return (numpy.nan, numpy.nan) if (flux <= 0 or sigma <= 0) else self._getmag(flux, sigma)
 
     def load_catalogs(self, catalogs, keys=None, **kwargs):
-        """Load a list of catalogs, e.g.,
+        """Load a list of catalogs.
 
         :param str/list catalogs: A catalog name, or a list of catalogs (see below)
         :param dict keys: A dictionnary of keys to load for each catalog
@@ -238,9 +237,9 @@ class Catalogs(object):
 
     def _filter_around(self, **kwargs):
         """Filter out galaxies outside a given radius."""
-        if not 'radius' in kwargs:
+        if 'radius' not in kwargs:
             return
-        print colored("\nINFO: Select galaxies inside a radius of %s around cluster center" % \
+        print colored("\nINFO: Select galaxies inside a radius of %s around cluster center" %
                       kwargs['radius'], "green")
         radius = float(kwargs['radius'].split()[0])
         unit = kwargs['radius'].split()[1]
@@ -511,7 +510,7 @@ def filter_table(t):
 #    if not overwrite:
 #        if os.path.exists(output) or os.path.exists(output_filtered):
 #            raise IOError("Output(s) already exist(s). Remove them or use overwrite=True.")
-"    if isinstance(config, str):
+#    if isinstance(config, str):
 #        config = load_config(config)
 #    
 #    d = get_all_data(config['butler'], config['patch'],
@@ -621,6 +620,7 @@ def plot_coordinates(all_data, filtered_data, cluster_coord=None, title=None):
 
 
 def plot_patches(catalog, clust_coords=None):
+    """Plot patches in the RA/DEC parameter space."""    
     import pylab
     colors = pylab.cm.jet(pylab.linspace(0, 1, len(set(catalog['patch']))))
     fig = pylab.figure()
