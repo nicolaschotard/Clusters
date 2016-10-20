@@ -116,15 +116,15 @@ different steps of the analysis. While the previous list will most
 likely stay unchanged, the following one will be completed with new
 keys as this analysis will progress.
 
-+---------------+--------+------------------------------------------------------------------+
-| Optional keys | Type   | Description [units]                                              |
-+===============+========+==================================================================+
-| ``"keys"``    | dict   | Dictionnary containing list of keys for the catalogs (see below) |
-+---------------+--------+------------------------------------------------------------------+
-| ``"zpara"``   | list   | List of paths to ``zphota`` configuration files (see below)      |
-+---------------+--------+------------------------------------------------------------------+
-| ``"zspectro_file"``   | string  |File containing spectroz sample for LePhare training     |
-+---------------+--------+------------------------------------------------------------------+
++----------------------+--------+------------------------------------------------------------------+
+| Optional keys        | Type   | Description [units]                                              |
++======================+========+==================================================================+
+| ``"keys"``           | dict   | Dictionnary containing list of keys for the catalogs (see below) |
++----------------------+--------+------------------------------------------------------------------+
+| ``"zpara"``          | list   | List of paths to ``zphota`` configuration files (see below)      |
++----------------------+--------+------------------------------------------------------------------+
+| ``"zspectro_file"``  | string | File containing spectroz sample for LePhare training             |
++----------------------+--------+------------------------------------------------------------------+
 
 - ``keys`` is a dictionary having the name of the different catalogs
   like **deepCoadd_meas**, **deepCoadd_forced_src** and
