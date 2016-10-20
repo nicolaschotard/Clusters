@@ -280,6 +280,6 @@ def get_background(config, data, zdata=None, zspec=None):
 
     # Photometric redshift cut
     if zdata is not None:
-        zdata = cdata.read_data(zdata)
+        zdata = cdata.read_hdf5(zdata)
         print "INFO: A redshift cut will be applied."
         zphot_cut(config['redshift'], zdata)

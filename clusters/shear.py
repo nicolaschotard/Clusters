@@ -60,11 +60,11 @@ def compare_shear(catalogs, xclust, yclust, qcut=None, param='Tshear'):
     """Compare shear mesured on the coadd and shear measured on indivial ccd.
 
     For now, do:
-    from Clusters import data2
+    from Clusters import data
     from Clusters import shear
-    config = data2.load_config('MACSJ2243.3-0935.yaml')
-    catalogs = data2.read_hdf5('test_data2.hdf5')
-    xc, yc = shear.xy_clust(config, data2.load_wcs(catalogs['wcs']))
+    config = data.load_config('MACSJ2243.3-0935.yaml')
+    catalogs = data.read_hdf5('test_data2.hdf5')
+    xc, yc = shear.xy_clust(config, data.load_wcs(catalogs['wcs']))
     tables = shear.compare_shear([catalogs['deepCoadd_meas'], catalogs['forced_src']], xc, yc)
     """
 
