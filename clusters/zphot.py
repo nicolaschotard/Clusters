@@ -73,9 +73,9 @@ class LEPHARE(object):
         if self.spectro_file is None:
             # No spectroscopic redshift file provided in config.yaml
             # --> only need the SHORT format for LePhare input file    
-            if 'filter' in self.kwargs:
-                f.write("# id " + " ".join(["mag_%s" % filt for filt in self.kwargs['filter']]) +
-                        " " + " ".join(["err_mag_%s" % filt for filt in self.kwargs['filter']]) +
+            if 'filters' in self.kwargs:
+                f.write("# id " + " ".join(["mag_%s" % filt for filt in self.kwargs['filters']]) +
+                        " " + " ".join(["err_mag_%s" % filt for filt in self.kwargs['filters']]) +
                         "\n")
                 for i, mags in enumerate(N.concatenate([self.data['mag'], self.data['err']]).T):
                     f.write("%i %s\n" % (i, " ".join(["%.3f" % m for m in mags])))
@@ -87,12 +87,11 @@ class LEPHARE(object):
             # --> Need to write LePhare input file in the LONG format,
             # i.e with 'context' and 'spectroz' of matching galaxies
             zspec = ZSPEC(self.spectro_file, names=['object', 'ra', 'dec', 'zspec'])
-            zspec.check_duplicate()
             zspec.skycoords = SkyCoord(zspec.data['ra'], zspec.data['dec'], unit='deg')
             skycoords_cat = SkyCoord(self.kwargs['ra'], self.kwargs['dec'], unit='deg')
             idx, d2d, d3d = skycoords_cat.match_to_catalog_sky(zspec.skycoords)
             zp = zspec.data['zspec'][idx]
-            bad = N.where(d2d.mas > 100)  # identify galaxies with bad match, i.e. dist > 100 mas
+            bad = N.where(d2d.mas > 300)  # identify galaxies with bad match, i.e. dist > 300 mas
             zp[bad] = -99
             print "INFO: Using " + str(len(idx)-N.size(bad)) + " galaxies for spectroz training"
             if 'filters' in self.kwargs:
@@ -103,13 +102,12 @@ class LEPHARE(object):
                 for i, mags in enumerate(N.concatenate([self.data['mag'], self.data['err']]).T):
                     f.write("%i %s %s\n" % (i, " ".join(["%.3f" % m for m in mags]), " ".join(("%i" % context,"%.3f" % zp[i]))))
                 f.close()
-            
         if 'ra' in self.kwargs: 
             f = open(self.files['all_input'], 'w')
-            if 'filter' in self.kwargs is not None:
+            if 'filters' in self.kwargs is not None:
                 f.write("# id ID RA DEC " +
-                        " ".join(["mag_%s" % filt for filt in self.kwargs['filter']]) + " " +
-                        " ".join(["err_mag_%s" % filt for filt in self.kwargs['filter']]) +
+                        " ".join(["mag_%s" % filt for filt in self.kwargs['filters']]) + " " +
+                        " ".join(["err_mag_%s" % filt for filt in self.kwargs['filters']]) +
                         "\n")
             for i, mags in enumerate(N.concatenate([self.data['mag'], self.data['err']]).T):
                 f.write("%i %i %f %f %s\n" % (i, self.kwargs['id'][i],
@@ -355,17 +353,21 @@ class ZSPEC(object):
             raise IOError("DEC coordinate must be called 'dec'")
         elif 'zspec' not in self.data.keys():
             raise IOError("Spectroscopic reshift must be 'zspec'")
-        self.skycoords = SkyCoord(self.data['ra'], self.data['dec'], unit=unit)
-        self.zphot = self.skycoords_phot = self.match = None
 
-    def check_duplicate(self):
-        """Check whether duplicate galaxies exist in the spectroz sample"""
+        # Check whether duplicate galaxies exist in the spectroz sample
+        # and remove them. Ideally would average out the various occurances.
+        # (To be done later)
         ra=['{:.9}'.format(x) for x in self.data['ra']]
         dec=['{:.9}'.format(x) for x in self.data['dec']]
         radec = N.core.defchararray.add(ra, dec) 
-        unique_radec = N.unique(radec)
+        unique_radec, good = N.unique(radec, return_index=True)
         if (len(unique_radec) < len(radec)):
-            print "INFO: There are " + str(len(radec) - len(unique_radec)) + " duplicate galaxies in spectroz sample"
+            print "INFO: There are " + str(len(radec) - len(unique_radec)) + " duplicate galaxies in spectroz sample. They are removed."
+        bad=N.delete(N.arange(len(self.data)),good)
+        self.data.remove_rows(bad)
+
+        self.skycoords = SkyCoord(self.data['ra'], self.data['dec'], unit=unit)
+        self.zphot = self.skycoords_phot = self.match = None
         
     def load_zphot(self, ra, dec, zphot, unit='deg'): 
         """Load the photometric informations and match them to the spectro ones.
@@ -389,7 +391,7 @@ class ZSPEC(object):
                                                  'match for each element'],
                                  'unit': ['', 'marcsec', '']})
 
-    def plot(self, cut=200):
+    def plot(self, cut=300):
         """Plot a sky-map of the matches."""
         if self.match is None:
             raise IOError("ERROR: You must load the photometric data first (load_zphot).")
@@ -399,27 +401,40 @@ class ZSPEC(object):
         sdist = N.array(self.match['d2d'])
         filt = sdist < cut
         zspec, zphot, sdist = [x[filt] for x in [zspec, zphot, sdist]]
+
         fig = P.figure(figsize=(15, 8))
 
         # z-phot as a function of z-spec
         ax = fig.add_subplot(121, xlabel='Z-spec', ylabel='Z-phot')
         scat = ax.scatter(zspec, zphot, c=sdist, cmap=(P.cm.copper))
+        ax.plot(N.arange(int(max(zspec+1))),N.arange(int(max(zspec+1))), c='red')
         cb = fig.colorbar(scat)
         cb.set_label('On-sky distance (marcsec)')
-        ax.set_title("%i galaxies" % len(self.match[0]))
+        ax.set_title("%i galaxies" % len(self.match[filt]))
 
         # z-phot - zspec as a function of sources on-sky distances
         ax = fig.add_subplot(122, xlabel='On-sky distance', ylabel='(Z-phot - Z-spec)')
         scat = ax.scatter(sdist, zphot - zspec, color='k')
-        ax.set_title("%i galaxies" % len(self.match[0]))
+        ax.set_title("%i galaxies" % len(self.match[filt]))
+        ax.set_xscale('log')
+        ax.set_xlim([1.,1.e6])
 
         fig = P.figure()
-        ax = fig.add_subplot(111, xlabel='ra', ylabel='dec')
+
+        # radec scatter plot of all catalogue and zspec galaxies
+        ax = fig.add_subplot(121, xlabel='ra', ylabel='dec')
         ax.scatter(self.skycoords_phot.ra, self.skycoords_phot.dec,
                    color='k', label='Photo-z', s=15)
         ax.scatter(self.skycoords.ra, self.skycoords.dec, color='r', label='Spectro-z', s=12)
-        P.show()
 
+        # radec scatter plot of matched catalogue and zspec galaxies, within the cut criterion
+        ax = fig.add_subplot(122, xlabel='ra', ylabel='dec')
+        ax.scatter(self.skycoords_phot.ra[self.match['idx'][filt]], self.skycoords_phot.dec[self.match['idx'][filt]],
+                   color='k', label='Photo-z', s=15)
+        ax.scatter(self.skycoords.ra[filt], self.skycoords.dec[filt], color='r', label='Spectro-z', s=12)
+
+        P.show()
+        
     def scatter(self, zclust, cluster=None, cut=0.1, stability=False):
         """Redshift scatter in the cluster.
 
