@@ -123,6 +123,8 @@ keys as this analysis will progress.
 +---------------+--------+------------------------------------------------------------------+
 | ``"zpara"``   | list   | List of paths to ``zphota`` configuration files (see below)      |
 +---------------+--------+------------------------------------------------------------------+
+|``"zspectro_file"``    | string   | File containing spectroz sample for LePhare training [obj_id, ra, dec, z_spectro]. |
++---------------+--------+------------------------------------------------------------------+
 
 - ``keys`` is a dictionary having the name of the different catalogs
   like **deepCoadd_meas**, **deepCoadd_forced_src** and
