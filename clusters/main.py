@@ -3,7 +3,7 @@
 import os
 import yaml
 import sys
-from argparse import ArgumentParser
+from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 
 from astropy.table import Table, hstack
 
@@ -20,10 +20,14 @@ def load_data(argv=None):
     prog = "clusters_data.py"
     usage = """%s [options] config""" % prog
 
-    parser = ArgumentParser(prog=prog, usage=usage, description=description)
+    parser = ArgumentParser(prog=prog, usage=usage, description=description,
+                            formatter_class=ArgumentDefaultsHelpFormatter)
     parser.add_argument('config', help='Configuration (yaml) file')
     parser.add_argument("--output",
                         help="Name of the output file (hdf5 file)")
+    parser.add_argument("--catalogs",
+                        default='forced_src,deepCoadd_meas,deepCoadd_forced_src',
+                        help="List of catalogs to load (coma separated)")
     parser.add_argument("--overwrite", action="store_true", default=False,
                         help="Overwrite the output files if they exist already")
     parser.add_argument("--show", action="store_true", default=False,
@@ -42,17 +46,18 @@ def load_data(argv=None):
     if not args.overwrite and (os.path.exists(output) or os.path.exists(output_filtered)):
         raise IOError("Output(s) already exist(s). Remove them or use overwrite=True.")
 
-    print "INFO: Working on cluster %s (z=%.4f)" % (config['cluster'],
-                                                    config['redshift'])
-    print "INFO: Working on filters", config['filter']
+    print "INFO: Working on:"
+    print "  - cluster %s (z=%.4f)" % (config['cluster'], config['redshift'])
+    print "  - filters", config['filter']
+    print "  - patches", config['patch']
     print "INFO: Butler located under %s" % config['butler']
 
-    data = cdata.get_all_data(config['butler'], config['patch'],
-                              config['filter'], add_extra=True, show=args.show,
-                              keys=config['keys'] if 'keys' in config else None)
-    dataf = cdata.filter_table(data)
-    cdata.write_data(data, output, overwrite=args.overwrite)
-    cdata.write_data(dataf, output_filtered, overwrite=args.overwrite)
+    data = cdata.Catalogs(config['butler'])
+    data.load_catalogs(args.catalogs.split(','), matchid=True, **config)
+    data.save_catalogs(output, overwrite=args.overwrite)
+    print "\nINFO: Applying filters on the data to keep a clean sample of galaxies"
+    data.catalogs = cdata.filter_table(data.catalogs)
+    data.save_catalogs(output_filtered, overwrite=args.overwrite)
 
 
 def extinction(argv=None):
@@ -61,7 +66,8 @@ def extinction(argv=None):
     prog = "clusters_extinction.py"
     usage = """%s [options] config input""" % prog
 
-    parser = ArgumentParser(prog=prog, usage=usage, description=description)
+    parser = ArgumentParser(prog=prog, usage=usage, description=description,
+                            formatter_class=ArgumentDefaultsHelpFormatter)
     parser.add_argument('config', help='Configuration (yaml) file')
     parser.add_argument('input', help='Input data file: output of clusters_data.py, i.e, hdf5 file')
     parser.add_argument("--output",
@@ -82,7 +88,7 @@ def extinction(argv=None):
     print "INFO: Working on filters", config['filter']
 
     # Load the data
-    data = cdata.read_data(args.input)['deepCoadd_forced_src']
+    data = cdata.read_hdf5(args.input)['deepCoadd_forced_src']
 
     # Query for E(b-v) and compute the extinction
     ebmv = {'ebv_sfd': cextinction.query(data['coord_ra_deg'].tolist(),
@@ -134,7 +140,8 @@ def photometric_redshift(argv=None):
     info['prog'] = "clusters_zphot.py"
     info['usage'] = """%s [options] config input""" % info['prog']
 
-    parser = ArgumentParser(prog=info['prog'], usage=info['usage'], description=info['description'])
+    parser = ArgumentParser(prog=info['prog'], usage=info['usage'], description=info['description'],
+                            formatter_class=ArgumentDefaultsHelpFormatter)
     parser.add_argument('config', help='Configuration (yaml) file')
     parser.add_argument('input', help='Input data file')
     parser.add_argument("--output",
@@ -172,13 +179,13 @@ def photometric_redshift(argv=None):
 
     # Load the data
     print "INFO: Loading the data from", args.input
-    data = cdata.read_data(args.input)['deepCoadd_forced_src']
+    data = cdata.read_hdf5(args.input)['deepCoadd_forced_src']
 
     mag = args.mag
     # Compute extinction-corrected magitudes
     if args.extinction is not None:
         print "INFO: Computing extinction-corrected magnitude for", args.mag
-        edata = cdata.read_data(args.extinction, path='extinction')
+        edata = cdata.read_hdf5(args.extinction)['extinction']
         cdata.correct_for_extinction(data, edata, mag=args.mag)
         mag += "_extcorr"
 
@@ -239,7 +246,8 @@ def getbackground(argv=None):
     prog = "clusters_getbackground.py"
     usage = """%s [options] config input""" % prog
 
-    parser = ArgumentParser(prog=prog, usage=usage, description=description)
+    parser = ArgumentParser(prog=prog, usage=usage, description=description,
+                            formatter_class=ArgumentDefaultsHelpFormatter)
     parser.add_argument('config', help='Configuration (yaml) file')
     parser.add_argument('input', help='Input data file')
     parser.add_argument("--output",
@@ -259,8 +267,8 @@ def getbackground(argv=None):
                                                     config['redshift'])
     print "INFO: Working on filters", filters
 
-    data = cdata.read_data(args.input)
-    background.get_background(config, data['deepCoadd_forced_src'], zdata=args.zdata)
+    data = cdata.read_hdf5(args.input)['deepCoadd_forced_src']
+    background.get_background(config, data, zdata=args.zdata)
 
 
 def shear(argv=None):
@@ -269,7 +277,8 @@ def shear(argv=None):
     prog = "clusters_shear.py"
     usage = """%s [options] config input""" % prog
 
-    parser = ArgumentParser(prog=prog, usage=usage, description=description)
+    parser = ArgumentParser(prog=prog, usage=usage, description=description,
+                            formatter_class=ArgumentDefaultsHelpFormatter)
     parser.add_argument('config', help='Configuration (yaml) file')
     parser.add_argument('input', help='Input data file: output of clusters_data.py, i.e, hdf5 file')
     parser.add_argument("--output",
@@ -303,7 +312,8 @@ def pipeline(argv=None):
     prog = "clusters_pipeline.py"
     usage = """%s [options] config""" % prog
 
-    parser = ArgumentParser(prog=prog, usage=usage, description=description)
+    parser = ArgumentParser(prog=prog, usage=usage, description=description,
+                            formatter_class=ArgumentDefaultsHelpFormatter)
     parser.add_argument('config', help='Configuration (yaml) file')
     parser.add_argument("--output",
                         help="Name of the output file (hdf5 file)")
