@@ -27,7 +27,7 @@ class Catalogs(object):
         self.dataids = {}
         self.catalogs = {}
         self.keys = {}
-        self._getmag = self.wcs = None
+        self._getmag = self.wcs = self.schema = None
 
     def _load_dataids(self, catalog, **kwargs):
         """Get the 'forced_src' catalogs."""
@@ -63,8 +63,7 @@ class Catalogs(object):
             print "  - selected: %i data ids" % len(dataids)
 
         # Select the ccd/visit according to the input list of patch if given
-        if 'deepCoadd' not in catalog:
-            if 'patch' in kwargs and 'filter' in kwargs:
+        if 'deepCoadd' not in catalog and 'patch' in kwargs and 'filter' in kwargs:
                 print "INFO: Selecting visit/ccd according to the input list of patches"
                 print "  - input: %i data ids" % len(dataids)
                 dids = [{'filter': filt, 'patch': patch, 'tract': 0}
@@ -88,7 +87,9 @@ class Catalogs(object):
     def _load_catalog_dataid(self, catalog, dataid, astropy_table=True, **kwargs):
         """Load a catalog from a 'dataId' set of parameter."""
         cat = self.butler.get(catalog, dataId=dataid)
-        return cat if not astropy_table else get_astropy_table(cat, **kwargs)
+        if self.schema is None:
+            self.schema = cat.getSchema()
+        return cat if not astropy_table else get_astropy_table(cat, schema=self.schema, **kwargs)
 
     def _load_catalog(self, catalog, **kwargs):
         """Load a given catalog."""
@@ -100,13 +101,18 @@ class Catalogs(object):
                   for i, did in enumerate(self.dataids[catalog])]
         pbar.finish()
         print "INFO: Stacking the %i tables together" % len(tables)
-        self.catalogs[catalog] = vstack2(tables)
+        table = vstack2(tables)
+        for k in tables.keys():
+            if k in self.schema:
+                table[k].description = shorten(self.schema[k].asField().getDoc())
+                table[k].unit = self.schema[k].asField().getUnits()
+        self.schema = None
+        self.catalogs[catalog] = table
 
     def _get_tables(self, catalog, did, i, pbar):
         """Get a table and add a few keys."""
         table = self._load_catalog_dataid(catalog, did, **{'keys': self.keys[catalog]})
-        for key in did:
-            table.add_column(Column(name=key, data=[did[key]] * len(table)))
+        table.add_columns([Column(name=key, data=[did[key]] * len(table)) for key in did])
         pbar.update(i + 1)
         return table
 
@@ -314,12 +320,13 @@ def get_astropy_table(cat, **kwargs):
     :param cat: an afw data table
     :return: the corresponding astropy.table.Table
     """
-    schema = cat.getSchema()
+    schema = kwargs['schema'] if "schema" in kwargs else cat.getSchema()
     dic = cat.getColumnView().extract(*kwargs['keys'] if 'keys' in kwargs else "*")
     tab = Table(dic)
-    for k in tab.keys():
-        tab[k].description = shorten(schema[k].asField().getDoc())
-        tab[k].unit = schema[k].asField().getUnits()
+    if "get_info" in kwargs:
+        for k in tab.keys():
+            tab[k].description = shorten(schema[k].asField().getDoc())
+            tab[k].unit = schema[k].asField().getUnits()
     return tab
 
 
