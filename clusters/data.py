@@ -6,6 +6,7 @@ import h5py
 from astropy.wcs import WCS, utils
 from astropy.coordinates import SkyCoord, Angle
 from astropy.table import Table, Column, vstack
+from astropy import units
 from progressbar import Bar, ProgressBar, Percentage, ETA
 from termcolor import colored
 
@@ -64,22 +65,23 @@ class Catalogs(object):
 
         # Select the ccd/visit according to the input list of patch if given
         if 'deepCoadd' not in catalog and 'patch' in kwargs and 'filter' in kwargs:
-                print "INFO: Selecting visit/ccd according to the input list of patches"
-                print "  - input: %i data ids" % len(dataids)
-                dids = [{'filter': filt, 'patch': patch, 'tract': 0}
-                        for filt in kwargs['filter'] for patch in kwargs['patch']
-                        if self.butler.datasetExists('deepCoadd',
-                                                     dataId={'filter': filt, 'patch':
-                                                             patch, 'tract': 0})]
-                coadds = [self.butler.get('deepCoadd', did) for did in dids]
-                ccds = [coadd.getInfo().getCoaddInputs().ccds for coadd in coadds]
-                ccds_visits = [numpy.transpose([ccd.get('visit'), ccd.get('ccd')]) for ccd in ccds]
-                ccds_visits = [list(c) for c in numpy.concatenate(ccds_visits)]
-                dataids = [dataid for dataid in dataids
-                           if [dataid['visit'], dataid['ccd']] in ccds_visits]
-                print "  - selected: %i data ids" % len(dataids)
+            print "INFO: Selecting visit/ccd according to the input list of patches"
+            print "  - input: %i data ids" % len(dataids)
+            dids = [{'filter': filt, 'patch': patch, 'tract': 0}
+                    for filt in kwargs['filter'] for patch in kwargs['patch']
+                    if self.butler.datasetExists('deepCoadd',
+                                                 dataId={'filter': filt, 'patch':
+                                                         patch, 'tract': 0})]
+            coadds = [self.butler.get('deepCoadd', did) for did in dids]
+            ccds = [coadd.getInfo().getCoaddInputs().ccds for coadd in coadds]
+            ccds_visits = [numpy.transpose([ccd.get('visit'), ccd.get('ccd')]) for ccd in ccds]
+            ccds_visits = [list(c) for c in numpy.concatenate(ccds_visits)]
+            dataids = [dataid for dataid in dataids
+                       if [dataid['visit'], dataid['ccd']] in ccds_visits]
+            print "  - selected: %i data ids" % len(dataids)
 
         # Only keep dataids with data
+        print "INFO: Keep data IDs with data on disk"
         self.dataids[catalog] = [dataid for dataid in dataids if
                                  self.butler.datasetExists(catalog, dataId=dataid)]
         print "INFO: %i data ids finally kept" % len(self.dataids[catalog])
@@ -87,7 +89,7 @@ class Catalogs(object):
     def _load_catalog_dataid(self, catalog, dataid, astropy_table=True, **kwargs):
         """Load a catalog from a 'dataId' set of parameter."""
         cat = self.butler.get(catalog, dataId=dataid)
-        if self.schema is None:
+        if astropy_table and self.schema is None:
             self.schema = cat.getSchema()
         return cat if not astropy_table else get_astropy_table(cat, schema=self.schema, **kwargs)
 
@@ -101,8 +103,8 @@ class Catalogs(object):
                   for i, did in enumerate(self.dataids[catalog])]
         pbar.finish()
         print "INFO: Stacking the %i tables together" % len(tables)
-        table = vstack2(tables)
-        for k in tables.keys():
+        table = vstack(tables)
+        for k in table.keys():
             if k in self.schema:
                 table[k].description = shorten(self.schema[k].asField().getDoc())
                 table[k].unit = self.schema[k].asField().getUnits()
@@ -147,6 +149,7 @@ class Catalogs(object):
             print "  - for", catalog
             # Shortuc to the table
             table = self.catalogs[catalog]
+            columns = []
 
             # Add magnitudes
             kfluxes = [k for k in table.columns if k.endswith('_flux')]
@@ -155,33 +158,35 @@ class Catalogs(object):
             for kflux, ksigma in zip(kfluxes, ksigmas):
                 if kflux.replace('_flux', '_mag') in table.keys():
                     continue
-                mag, dmag = numpy.array([self._mag(f, s)
-                                         for f, s in zip(table[kflux], table[ksigma])]).T
-                table.add_columns([Column(name=kflux.replace('_flux', '_mag'), data=mag,
-                                          description='Magnitude', unit='mag'),
-                                   Column(name=ksigma.replace('_fluxSigma', '_magSigma'), data=dmag,
-                                          description='Magnitude error', unit='mag')])
+                mag, dmag = self._getmag(numpy.array(table[kflux], dtype='float'),
+                                         numpy.array(table[ksigma], dtype='float'))
+                columns.append(Column(name=kflux.replace('_flux', '_mag'), data=mag,
+                                      description='Magnitude', unit='mag'))
+                columns.append(Column(name=ksigma.replace('_fluxSigma', '_magSigma'), data=dmag,
+                                      description='Magnitude error', unit='mag'))
 
             if 'x_Src' in table.keys():
                 return
-            # Add the x / y position in pixel
+            # Get the x / y position in pixel
             print "    -> getting pixel coordinates"
-            xsrc, ysrc = skycoord_to_pixel(SkyCoord(table["coord_ra"].tolist(),
-                                                    table["coord_dec"].tolist(), unit='rad'),
-                                           self.wcs)
-            table.add_columns([Column(name='x_Src', data=xsrc,
-                                      description='x coordinate', unit='pixel'),
-                               Column(name='y_Src', data=ysrc,
-                                      description='y coordinate', unit='pixel')])
+            ra = units.Quantity(table["coord_ra"].tolist(), 'rad')
+            dec = units.Quantity(table["coord_dec"].tolist(), 'rad')
+            xsrc, ysrc = SkyCoord(ra, dec).to_pixel(self.wcs)
+            columns.append(Column(name='x_Src', data=xsrc,
+                                  description='x coordinate', unit='pixel'))
+            columns.append(Column(name='y_Src', data=ysrc,
+                                  description='y coordinate', unit='pixel'))
 
-            # Add a new column to have to coordinates in degree
+            # Get coordinates in degree
             print "    -> getting degree coordinates"
-            table.add_columns([Column(name='coord_ra_deg',
-                                      data=Angle(table['coord_ra'].tolist(), unit='rad').degree,
-                                      description='RA coordinate', unit='degree'),
-                               Column(name='coord_dec_deg',
-                                      data=Angle(table['coord_dec'].tolist(), unit='rad').degree,
-                                      description='DEC coordinate', unit='degree')])
+            columns.append(Column(name='coord_ra_deg', data=Angle(ra).degree,
+                                  description='RA coordinate', unit='degree'))
+            columns.append(Column(name='coord_dec_deg', data=Angle(dec).degree,
+                                  description='DEC coordinate', unit='degree'))
+
+            # Adding all new columns
+            print "INFO: Adding all the new columns"
+            table.add_columns(columns)
 
     def _load_calexp(self, **kwargs):
         """Load the deepCoadd_calexp info in order to get the WCS and the magnitudes."""
@@ -191,15 +196,13 @@ class Catalogs(object):
         print "INFO: Getting the %s catalog for one dataId" % calcat
         calexp = self._load_catalog_dataid(calcat, self.dataids[calcat][0], astropy_table=False)
         print "INFO: Getting the magnitude function"
-        self._getmag = calexp.getCalib().getMagnitude
+        calib = calexp.getCalib()
+        calib.setThrowOnNegativeFlux(False)
+        self._getmag = calib.getMagnitude
         print "INFO: Getting the wcs function"
         wcs = calexp.getWcs().getFitsMetadata().toDict()
         self.wcs = WCS(wcs)
         self.catalogs['wcs'] = Table({k: [wcs[k]] for k in wcs})
-
-    def _mag(self, flux, sigma):
-        """Redefine the magnitude function. Negative flux or sigma accepted."""
-        return (numpy.nan, numpy.nan) if (flux <= 0 or sigma <= 0) else self._getmag(flux, sigma)
 
     def load_catalogs(self, catalogs, keys=None, **kwargs):
         """Load a list of catalogs.
@@ -236,7 +239,7 @@ class Catalogs(object):
             print colored("\nINFO: Loading the %s catalog" % catalog, 'green')
             self.keys[catalog] = keys.get(catalog, "*")
             self._load_catalog(catalog, **kwargs)
-            print "INFO: %s loaded." % catalog
+            print "INFO: %s catalog loaded." % catalog
         self._filter_around(**kwargs)
         if 'matchid' in kwargs:
             self._match_ids()
@@ -321,8 +324,7 @@ def get_astropy_table(cat, **kwargs):
     :return: the corresponding astropy.table.Table
     """
     schema = kwargs['schema'] if "schema" in kwargs else cat.getSchema()
-    dic = cat.getColumnView().extract(*kwargs['keys'] if 'keys' in kwargs else "*")
-    tab = Table(dic)
+    tab = Table(cat.getColumnView().extract(*kwargs['keys'] if 'keys' in kwargs else "*"))
     if "get_info" in kwargs:
         for k in tab.keys():
             tab[k].description = shorten(schema[k].asField().getDoc())
