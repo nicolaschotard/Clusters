@@ -7,11 +7,11 @@ Overview
 The data format used in all scripts is based on the `Astropy Table
 <http://docs.astropy.org/en/stable/table/>`_ format. In the `Build the
 table`_ section, we show how these Astropy Tables are created from the
-DM butler. This work is automatically done for the ``meas`` and
-``forced`` catalogs, and then saved together in one single ``hdf5``
-<http://www.h5py.org/>`_ file. The procedures to write and read these
-files, and work with the loaded tables, are described in the `Working with
-the table`_ section.
+DM butler. This work is automatically done for the ``deepCoadd_meas``,
+``deepCoadd_forced_src``, and ``forced_src`` catalogs, and then saved
+together in one single `hdf5 <http://www.h5py.org/>`_ file. The
+procedures to write and read these files, and work with the loaded
+tables, are described in the `Working with the table`_ section.
 
 
 Build the table
@@ -49,7 +49,7 @@ WCS
 
 The WCS computed during the data processing is also stored in the
 ``hdf5`` file in the ``wcs`` path. If you load the data using the
-`read_data <clusters.html#clusters.data.read_data>`_ function, the
+`read_hdf5 <clusters.html#clusters.data.read_hdf5>`_ function, the
 output will be a dictionary containing a ``wcs`` key, which refers to
 an `astropy.wcs.WCS
 <http://docs.astropy.org/en/stable/api/astropy.wcs.WCS.html#astropy.wcs.WCS>`_
@@ -59,7 +59,8 @@ object. The `skycoord_to_pixel
 functions take this ``wcs`` object to convert the input coordinates
 into an output format (sky <-> pixel).
 
-The ``meas`` and ``forced`` tables already contain three coordinates columns:
+All the tables (correspondig to the catalogs listed previously)
+already contain three coordinates columns:
 
 - ``coord_ra`` and ``coord_dec``: they are the (ra, dec) coordinates in radian;
 - ``coord_ra_deg`` and ``coord_dec``: they are the (ra, dec) coordinates in degree;
