@@ -10,7 +10,7 @@ table`_ section, we show how these Astropy Tables are created from the
 DM butler. This work is automatically done for the ``meas`` and
 ``forced`` catalogs, and then saved together in one single ``hdf5``
 <http://www.h5py.org/>`_ file. The procedures to write and read these
-files, and work with the loaded tables, are described in the `Work with
+files, and work with the loaded tables, are described in the `Working with
 the table`_ section.
 
 
@@ -67,6 +67,6 @@ The ``meas`` and ``forced`` tables already contain three coordinates columns:
 
 
 Working with the table
--------------------
+----------------------
 
 .. include:: data_tuto.rst

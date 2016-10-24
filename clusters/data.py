@@ -459,6 +459,9 @@ def filter_table(t):
               'deepCoadd_forced_src': dfg.groups[filt], 'wcs': t['wcs']}
 
     ## Filter the forced_src catalog: only keep objects present in the other catalogs
+    if "forced_src" not in t:
+        return output
+
     filt = numpy.where(numpy.in1d(t['forced_src']['objectId'],
                                   output['deepCoadd_meas']['id']))[0]
     output['forced_src'] = t['forced_src'][filt]

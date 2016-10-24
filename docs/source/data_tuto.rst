@@ -27,7 +27,7 @@ To load the ``deepCoadd_forced_src`` catalog, do:
 
     from Clusters import data
     f = "/sps/lsst/data/clusters/MACSJ2243.3-0935/analysis/output_v1/MACSJ2243.3-0935_data.hdf5"
-    d = data.read_data(f)
+    d = data.read_hdf5(f)
     fc = d['deepCoadd_forced_src']
 
 ``d`` is a dictionnary containing the 'deepCoadd_forced_src', the 'deepCoadd_meas' catalogs and the 'wcs' object. 
@@ -265,8 +265,8 @@ Add it to the initial table and plot it against the initial magnitude (for the `
 
 You can also add several columns using ``fc.add_columns([Columns(...), Columns(...), etc])``.
 
-Filter around the cluter center
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Filter around the cluster center
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 If you only want to work on a sample of galaxies center around the cluster at a certain radius, do:
 
@@ -274,7 +274,7 @@ If you only want to work on a sample of galaxies center around the cluster at a 
 
     confile = '/sps/lsst/data/clusters/MACSJ2243.3-0935/analysis/output_v1/MACSJ2243.3-0935.yaml'
     config = data.load_config(confile) 
-    output = data.filter_around(fc_filtered, config, exclude_outer=20, exclude_inner=3, unit='arcmin')
+    output = data.filter_around(fc_filtered, config, exclude_outer=20, exclude_inner=3, unit='arcmin', plot=True)
 
 
 
@@ -285,7 +285,7 @@ The output of ``filter_around`` is a filtered data table. You can also choose a 
 
 .. code:: python
 
-    output = data.filter_around(fc_filtered, config, exclude_outer=0.3, exclude_inner=0.1, unit='degree')
+    output = data.filter_around(fc_filtered, config, exclude_outer=0.3, exclude_inner=0.1, unit='degree', plot=True)
 
 
 
