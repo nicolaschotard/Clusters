@@ -8,3 +8,4 @@ requests
 h5py
 progressbar
 termcolor
+fitsio

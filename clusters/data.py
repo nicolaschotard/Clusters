@@ -3,10 +3,11 @@
 import yaml
 import numpy
 import h5py
+import fitsio
 from astropy.wcs import WCS, utils
 from astropy.coordinates import SkyCoord, Angle
 from astropy.table import Table, Column, vstack
-from astropy import units
+from astropy.units import Quantity
 from progressbar import Bar, ProgressBar, Percentage, ETA
 from termcolor import colored
 
@@ -72,12 +73,14 @@ class Catalogs(object):
                     if self.butler.datasetExists('deepCoadd',
                                                  dataId={'filter': filt, 'patch':
                                                          patch, 'tract': 0})]
-            coadds = [self.butler.get('deepCoadd', did) for did in dids]
-            ccds = [coadd.getInfo().getCoaddInputs().ccds for coadd in coadds]
-            ccds_visits = [numpy.transpose([ccd.get('visit'), ccd.get('ccd')]) for ccd in ccds]
-            ccds_visits = [list(c) for c in numpy.concatenate(ccds_visits)]
-            dataids = [dataid for dataid in dataids
-                       if [dataid['visit'], dataid['ccd']] in ccds_visits]
+            filenames = [kwargs['butler'] + '/deepCoadd' + "/%s/%i/%s.fits" % \
+                         (did['filter'], did['tract'], did['patch']) for did in dids]
+            ccds_visits = numpy.concatenate([fitsio.read(filename,
+                                                         columns=['ccd', 'visit'],
+                                                         ext=7)
+                                             for filename in filenames])
+            dataids = [dataid for dataid in dataids if
+                       (dataid['ccd'], dataid['visit']) in ccds_visits.tolist()]
             print "  - selected: %i data ids" % len(dataids)
 
         # Only keep dataids with data
@@ -169,8 +172,8 @@ class Catalogs(object):
                 return
             # Get the x / y position in pixel
             print "    -> getting pixel coordinates"
-            ra = units.Quantity(table["coord_ra"].tolist(), 'rad')
-            dec = units.Quantity(table["coord_dec"].tolist(), 'rad')
+            ra = Quantity(table["coord_ra"].tolist(), 'rad')
+            dec = Quantity(table["coord_dec"].tolist(), 'rad')
             xsrc, ysrc = SkyCoord(ra, dec).to_pixel(self.wcs)
             columns.append(Column(name='x_Src', data=xsrc,
                                   description='x coordinate', unit='pixel'))
@@ -517,25 +520,25 @@ def filter_around(data, config, **kwargs):
     :param bool plot: Produce a figure if set to False
     :return: A filter data table containing galaxie inside [exclude_inner, exclude_outer]
     """
-    coord = SkyCoord(ra=[config['ra']], dec=[config['dec']], unit='deg')
     datag = data.group_by('filter')
     same_length = len(set([len(g) for g in datag.groups])) == 1
     if same_length:
-        coords = SkyCoord(ra=list(datag.groups[0]['coord_ra']),
-                          dec=list(datag.groups[0]['coord_dec']), unit='rad')
+        ra = Quantity(datag.groups[0]['coord_ra'].tolist(), 'rad')
+        dec = Quantity(datag.groups[0]['coord_dec'].tolist(), 'rad')
     else:
-        coords = SkyCoord(ra=list(numpy.round(data['coord_ra'], 3)),
-                          dec=list(numpy.round(data['coord_dec'], 3)), unit='rad')
-    separation = coord.separation(coords)
+        ra = Quantity(numpy.round(data['coord_ra'].tolist(), 3), 'rad')
+        dec = Quantity(numpy.round(data['coord_dec'].tolist(), 3), 'rad')
+    sep = SkyCoord(Quantity([config['ra']], 'deg'),
+                   Quantity([config['dec']], 'deg')).separation(SkyCoord(ra, dec))
     unit = kwargs.get('unit', 'degree')
-    if hasattr(separation, unit):
-        separation = getattr(separation, unit)
+    if hasattr(sep, unit):
+        sep = getattr(sep, unit)
     else:
-        arglist = "\n" + ", ".join(sorted([a for a in dir(separation) if not a.startswith('_')]))
+        arglist = "\n" + ", ".join(sorted([a for a in dir(sep) if not a.startswith('_')]))
         raise AttributeError("Angle instance has no attribute %s. Available attributes are: %s" %
                              (unit, arglist))
-    filt = (separation >= kwargs.get('exclude_inner', 0)) & \
-           (separation < kwargs.get('exclude_outer', numpy.inf))
+    filt = (sep >= kwargs.get('exclude_inner', 0)) & \
+           (sep < kwargs.get('exclude_outer', numpy.inf))
     data_around = vstack([group[filt] for group in datag.groups]) if same_length else data[filt]
     if kwargs.get('plot', False):
         title = "%s, %.2f < d < %.2f %s cut" % \
