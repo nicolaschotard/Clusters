@@ -29,6 +29,7 @@ class Catalogs(object):
         self.dataids = {}
         self.catalogs = {}
         self.keys = {}
+        self.missing = {}
         self._getmag = self.wcs = self.schema = None
 
     def _load_dataids(self, catalog, **kwargs):
@@ -85,8 +86,15 @@ class Catalogs(object):
 
         # Only keep dataids with data
         print "INFO: Keep data IDs with data on disk"
+        print "  - input: %i data ids" % len(dataids)
         self.dataids[catalog] = [dataid for dataid in dataids if
                                  self.butler.datasetExists(catalog, dataId=dataid)]
+        self.missing[catalog] = [dataid for dataid in dataids if not
+                                 self.butler.datasetExists(catalog, dataId=dataid)]
+        print "  - selected: %i data ids" % len(dataids)
+        if len(self.missing[catalog]):
+            print "  - missing: %i data ids (list available in 'self.missing[catalog]':" % \
+                len(self.missing[catalog])
         print "INFO: %i data ids finally kept" % len(self.dataids[catalog])
 
     def _load_catalog_dataid(self, catalog, dataid, astropy_table=True, **kwargs):
@@ -102,11 +110,12 @@ class Catalogs(object):
         print "INFO: Getting the data from the butler for %i fits files" % \
             len(self.dataids[catalog])
         pbar = progressbar(len(self.dataids[catalog]))
-        tables = [self._get_tables(catalog, did, i, pbar)
-                  for i, did in enumerate(self.dataids[catalog])]
+        for  i, did in enumerate(self.dataids[catalog]):
+            if i == 0:
+                table = self._get_tables(catalog, did, i, pbar)
+            else:
+                table = vstack([table, self._get_tables(catalog, did, i, pbar)])
         pbar.finish()
-        print "INFO: Stacking the %i tables together" % len(tables)
-        table = vstack(tables)
         for k in table.keys():
             if k in self.schema:
                 table[k].description = shorten(self.schema[k].asField().getDoc())
@@ -121,6 +130,22 @@ class Catalogs(object):
         pbar.update(i + 1)
         return table
 
+    def _match_deepcoadd_catalogs(self):
+        """In case of missing data for one catalog, remove corresonding data from the other."""
+        if 'deepCoadd_meas' in self.catalogs and 'deepCoadd_forced_src' in self.catalogs:
+            if len(self.catalogs['deepCoadd_meas']) == len(self.catalogs['deepCoadd_forced_src']):
+                return
+            print colored("\nINFO: matching 'deepCoadd_meas' and 'deepCoadd_forced_src' catalogs",
+                          'green')
+            for dataid in self.missing['deepCoadd_meas']:
+                filt = (self.catalogs['deepCoadd_forced_src']['filter'] == dataid['filter']) & \
+                       (self.catalogs['deepCoadd_forced_src']['patch'] == dataid['patch'])
+                self.catalogs['deepCoadd_forced_src'] = self.catalogs['deepCoadd_forced_src'][~filt]
+            for dataid in self.missing['deepCoadd_forced_src']:
+                filt = (self.catalogs['deepCoadd_meas']['filter'] == dataid['filter']) & \
+                       (self.catalogs['deepCoadd_meas']['patch'] == dataid['patch'])
+                self.catalogs['deepCoadd_meas'] = self.catalogs['deepCoadd_meas'][~filt]
+
     def _match_ids(self):
         """Select in the 'forced_src' catalog the source that are in the deepCoad catalogs."""
         deepcoadd = [cat for cat in self.catalogs if 'deepCoadd' in cat]
@@ -129,16 +154,18 @@ class Catalogs(object):
                 print colored("\nINFO: Matching 'forced_src' and 'deepCoadd' catalogs", "green")
                 print "  - %i sources in the forced-src catalog before selection" % \
                     len(self.catalogs['forced_src'])
-                coaddid = 'id' if 'id' in self.catalogs[deepcoadd[0]] else 'objectId'
+                coaddid = 'id' if 'id' in self.catalogs[deepcoadd[0]].keys() else 'objectId'
                 filt = numpy.where(numpy.in1d(self.catalogs['forced_src']['objectId'],
                                               self.catalogs[deepcoadd[0]][coaddid]))[0]
                 self.catalogs['forced_src'] = self.catalogs['forced_src'][filt]
                 print "  - %i sources in the forced-src catalog after selection" % \
                     len(self.catalogs['forced_src'])
             else:
-                print "WARNING: forced_src catalogs not loaded. No match possible."
+                print colored("\nWARNING: forced_src catalogs not loaded. No match possible.",
+                              "yellow")
         else:
-            print "WARNING: No deepCoadd* catalog loaded. No match possible."
+            print colored("\nWARNING: No deepCoadd* catalog loaded. No match possible.",
+                          "yellow")
 
     def _add_new_columns(self):
         """Compute magns for all fluxes of a given table. Add the corresponding new columns.
@@ -188,7 +215,7 @@ class Catalogs(object):
                                   description='DEC coordinate', unit='degree'))
 
             # Adding all new columns
-            print "INFO: Adding all the new columns"
+            print "    -> adding all the new columns"
             table.add_columns(columns)
 
     def _load_calexp(self, **kwargs):
@@ -234,34 +261,43 @@ class Catalogs(object):
         catalogs = [catalogs] if isinstance(catalogs, str) else catalogs
         for catalog in catalogs:
             if catalog in self.catalogs and 'update' not in kwargs:
-                print "WARNING: %s is already loaded. Use 'update' to reload it." % catalog
+                print colored("\nWARNING: %s is already loaded. Use 'update' to reload it." % \
+                              catalog, "yellow")
                 continue
             if 'calexp' in catalog:
-                print "WARNING: Skipping %s. This is not a regular catalog (no schema).\n" % catalog
+                print colored("\nWARNING: Skipping %s. Not a regular catalog (no schema).\n" % \
+                              catalog, "yellow")
                 continue
             print colored("\nINFO: Loading the %s catalog" % catalog, 'green')
             self.keys[catalog] = keys.get(catalog, "*")
             self._load_catalog(catalog, **kwargs)
-            print "INFO: %s catalog loaded." % catalog
-        self._filter_around(**kwargs)
+            print "INFO: %s catalog loaded (%i sources, %i columns)" % \
+                (catalog, len(self.catalogs[catalog]), len(self.catalogs[catalog].keys()))
+        self._match_deepcoadd_catalogs()
         if 'matchid' in kwargs:
             self._match_ids()
+        if 'radius' in kwargs:
+            self.filter_around(**kwargs)
         self._load_calexp(**kwargs)
         self._add_new_columns()
-        print "\nINFO: Done loading the data."
+        print colored("\nINFO: Done loading the data.", "green")
 
-    def _filter_around(self, **kwargs):
+    def filter_around(self, **kwargs):
         """Filter out galaxies outside a given radius."""
-        if 'radius' not in kwargs:
-            return
         print colored("\nINFO: Select galaxies inside a radius of %s around cluster center" %
                       kwargs['radius'], "green")
         radius = float(kwargs['radius'].split()[0])
         unit = kwargs['radius'].split()[1]
         for catalog in self.catalogs:
+            if catalog == "wcs":
+                continue
             print "  -", catalog
+            print "   -> %i sources before selection" % \
+                len(self.catalogs[catalog])
             self.catalogs[catalog] = filter_around(self.catalogs[catalog], kwargs,
                                                    exclude_outer=radius, unit=unit)
+            print "   -> %i sources after selection" % \
+                len(self.catalogs[catalog])
 
     def show_keys(self, catalogs=None):
         """Show all the available keys."""
@@ -269,10 +305,10 @@ class Catalogs(object):
             catalogs = self.catalogs.keys()
         catalogs = [catalogs] if isinstance(catalogs, str) else catalogs
         if len(catalogs) == 0:
-            print "WARNING: No catalog loaded nor given."
+            print colored("\nWARNING: No catalog loaded nor given.", "yellow")
             return
         for cat in catalogs:
-            print "INFO: Available list of keys for the %s catalog" % cat
+            print colored("\nINFO: Available list of keys for the %s catalog" % cat, "green")
             if cat not in self.dataids:
                 self._load_dataids(cat)
             table = get_astropy_table(self.butler.get(cat, dataId=self.dataids[cat][0]), keys="*")
