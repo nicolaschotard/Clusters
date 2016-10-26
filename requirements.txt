@@ -1,4 +1,5 @@
 numpy
+fitsio
 scipy
 matplotlib
 seaborn
