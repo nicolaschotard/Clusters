@@ -1,6 +1,6 @@
 numpy
-fitsio
 scipy
+cython
 matplotlib
 seaborn
 pyyaml
