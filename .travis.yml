@@ -22,7 +22,6 @@ install:
   - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION
   - source activate test-environment
   - pip install pytest codecov coveralls
-  - pip install numpy fitsio
   - pip install -r requirements.txt
   - python setup.py install
 
