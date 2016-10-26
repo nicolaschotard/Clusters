@@ -22,7 +22,7 @@ install:
   - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION
   - source activate test-environment
   - pip install pytest codecov coveralls
-  - pip install -r requirements.txt
+  - pip install --upgrade -r requirements.txt
   - python setup.py install
 
 # command to run tests
