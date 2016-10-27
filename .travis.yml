@@ -2,6 +2,9 @@ language: python
 
 cache:
   - pip
+  directories:
+  - $HOME/miniconda.tarball
+
 
 python:
   # We don't actually use the Travis Python, but this keeps it organized.
