@@ -23,7 +23,7 @@ install:
   - conda create -q -n lsst python=$TRAVIS_PYTHON_VERSION
   - source activate lsst
   # install lsst stack
-  - conda install lsst-distrib lsst-sims
+  - conda install lsst-distrib
   - source eups-setups.sh
   # install standard python packages
   - pip install pytest codecov coveralls
