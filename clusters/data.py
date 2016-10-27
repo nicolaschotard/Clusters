@@ -91,18 +91,19 @@ class Catalogs(object):
                                  self.butler.datasetExists(catalog, dataId=dataid)]
         self.missing[catalog] = [dataid for dataid in dataids if not
                                  self.butler.datasetExists(catalog, dataId=dataid)]
-        print "  - selected: %i data ids" % len(dataids)
+        print "  - selected: %i data ids" % len(self.dataids[catalog])
         if len(self.missing[catalog]):
             print "  - missing: %i data ids (list available in 'self.missing[catalog]':" % \
                 len(self.missing[catalog])
         print "INFO: %i data ids finally kept" % len(self.dataids[catalog])
 
-    def _load_catalog_dataid(self, catalog, dataid, astropy_table=True, **kwargs):
+    def _load_catalog_dataid(self, catalog, dataid, table=True, **kwargs):
         """Load a catalog from a 'dataId' set of parameter."""
         cat = self.butler.get(catalog, dataId=dataid)
-        if astropy_table and self.schema is None:
+        if self.schema is None and hasattr(cat, 'getSchema'):
             self.schema = cat.getSchema()
-        return cat if not astropy_table else get_astropy_table(cat, schema=self.schema, **kwargs)
+        return cat.getColumnView().extract(*kwargs['keys'] if 'keys' in kwargs else "*",
+                                           copy=True, ordered=True) if table else cat
 
     def _load_catalog(self, catalog, **kwargs):
         """Load a given catalog."""
@@ -110,12 +111,10 @@ class Catalogs(object):
         print "INFO: Getting the data from the butler for %i fits files" % \
             len(self.dataids[catalog])
         pbar = progressbar(len(self.dataids[catalog]))
-        for  i, did in enumerate(self.dataids[catalog]):
-            if i == 0:
-                table = self._get_tables(catalog, did, i, pbar)
-            else:
-                table = vstack([table, self._get_tables(catalog, did, i, pbar)])
+        table = Table(concatenate_dicts(*[self._get_tables(catalog, did, i, pbar)
+                                          for  i, did in enumerate(self.dataids[catalog])]))
         pbar.finish()
+
         for k in table.keys():
             if k in self.schema:
                 table[k].description = shorten(self.schema[k].asField().getDoc())
@@ -126,7 +125,7 @@ class Catalogs(object):
     def _get_tables(self, catalog, did, i, pbar):
         """Get a table and add a few keys."""
         table = self._load_catalog_dataid(catalog, did, **{'keys': self.keys[catalog]})
-        table.add_columns([Column(name=key, data=[did[key]] * len(table)) for key in did])
+        table.update({key: [did[key]] * len(table[table.keys()[0]]) for key in did})
         pbar.update(i + 1)
         return table
 
@@ -224,7 +223,7 @@ class Catalogs(object):
         calcat = 'deepCoadd_calexp'
         self._load_dataids(calcat, **kwargs)
         print "INFO: Getting the %s catalog for one dataId" % calcat
-        calexp = self._load_catalog_dataid(calcat, self.dataids[calcat][0], astropy_table=False)
+        calexp = self._load_catalog_dataid(calcat, self.dataids[calcat][0], table=False)
         print "INFO: Getting the magnitude function"
         calib = calexp.getCalib()
         calib.setThrowOnNegativeFlux(False)
@@ -271,8 +270,8 @@ class Catalogs(object):
             print colored("\nINFO: Loading the %s catalog" % catalog, 'green')
             self.keys[catalog] = keys.get(catalog, "*")
             self._load_catalog(catalog, **kwargs)
-            print "INFO: %s catalog loaded (%i sources, %i columns)" % \
-                (catalog, len(self.catalogs[catalog]), len(self.catalogs[catalog].keys()))
+            print "INFO: %s catalog loaded (%i sources)" % \
+                (catalog, len(self.catalogs[catalog]))
         self._match_deepcoadd_catalogs()
         if 'matchid' in kwargs:
             self._match_ids()
@@ -362,9 +361,9 @@ def get_astropy_table(cat, **kwargs):
     :param cat: an afw data table
     :return: the corresponding astropy.table.Table
     """
-    schema = kwargs['schema'] if "schema" in kwargs else cat.getSchema()
     tab = Table(cat.getColumnView().extract(*kwargs['keys'] if 'keys' in kwargs else "*"))
     if "get_info" in kwargs:
+        schema = kwargs['schema'] if "schema" in kwargs else cat.getSchema()
         for k in tab.keys():
             tab[k].description = shorten(schema[k].asField().getDoc())
             tab[k].unit = schema[k].asField().getUnits()
@@ -421,6 +420,11 @@ def merge_dicts(*dict_args):
     for dictionary in dict_args:
         result.update(dictionary)
     return result
+
+
+def concatenate_dicts(*dicts):
+    """Concatenate dictionnaries containing numpy arrays."""
+    return {k: numpy.concatenate([d.pop(k) for d in dicts]) for k in dicts[0].keys()}
 
 
 def vstack2(tables):
