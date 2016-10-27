@@ -19,8 +19,13 @@ install:
   - conda update -q conda
   # Useful for debugging any issues with conda
   - conda info -a
-  - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION
-  - source activate test-environment
+  - conda config --add channels http://conda.lsst.codes/stack
+  - conda create -q -n lsst python=$TRAVIS_PYTHON_VERSION
+  - source activate lsst
+  # install lsst stack
+  - conda install lsst-distrib lsst-sims
+  - source eups-setups.sh
+  # install standard python packages
   - pip install pytest codecov coveralls
   - pip install -r requirements.txt
   - pip install .
