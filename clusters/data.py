@@ -14,6 +14,7 @@ from termcolor import colored
 import warnings
 warnings.filterwarnings("ignore")
 
+
 class Catalogs(object):
 
     """Load data from a LSST stack butler path."""
@@ -30,7 +31,8 @@ class Catalogs(object):
         self.catalogs = {}
         self.keys = {}
         self.missing = {}
-        self._getmag = self.wcs = self.schema = None
+        self.calexpf = {'getmag': None, 'wcs': None}
+        self.schema = None
 
     def _load_dataids(self, catalog, **kwargs):
         """Get the 'forced_src' catalogs."""
@@ -40,10 +42,10 @@ class Catalogs(object):
             if len(deepcoadd):
                 dataids = self.dataids[deepcoadd[0]]
             else:
-                filters = kwargs.get('filter', ['u', 'g', 'r', 'i', 'i2', 'z'])
-                skymap = self.butler.get("deepCoadd_skyMap")
-                dataids = [dict(tract=tract.getId(), patch="%d,%d" % patch.getIndex(), filter=f)
-                           for tract in skymap for patch in tract for f in filters]
+                dataids = [dict(tract=tract.getId(), patch="%d,%d" % patch.getIndex(), filter=filt)
+                           for tract in self.butler.get("deepCoadd_skyMap")
+                           for patch in tract
+                           for filt in kwargs.get('filter', ['u', 'g', 'r', 'i', 'i2', 'z'])]
         else:  # The other catalogs
             keys = self.butler.getKeys(catalog)
             if 'tract' in keys:
@@ -69,19 +71,8 @@ class Catalogs(object):
         if 'deepCoadd' not in catalog and 'patch' in kwargs and 'filter' in kwargs:
             print "INFO: Selecting visit/ccd according to the input list of patches"
             print "  - input: %i data ids" % len(dataids)
-            dids = [{'filter': filt, 'patch': patch, 'tract': 0}
-                    for filt in kwargs['filter'] for patch in kwargs['patch']
-                    if self.butler.datasetExists('deepCoadd',
-                                                 dataId={'filter': filt, 'patch':
-                                                         patch, 'tract': 0})]
-            filenames = [kwargs['butler'] + '/deepCoadd' + "/%s/%i/%s.fits" % \
-                         (did['filter'], did['tract'], did['patch']) for did in dids]
-            ccds_visits = numpy.concatenate([fitsio.read(filename,
-                                                         columns=['ccd', 'visit'],
-                                                         ext=7)
-                                             for filename in filenames])
             dataids = [dataid for dataid in dataids if
-                       (dataid['ccd'], dataid['visit']) in ccds_visits.tolist()]
+                       (dataid['ccd'], dataid['visit']) in self._get_ccd_visits(**kwargs)]
             print "  - selected: %i data ids" % len(dataids)
 
         # Only keep dataids with data
@@ -95,7 +86,18 @@ class Catalogs(object):
         if len(self.missing[catalog]):
             print "  - missing: %i data ids (list available in 'self.missing[catalog]':" % \
                 len(self.missing[catalog])
-        print "INFO: %i data ids finally kept" % len(self.dataids[catalog])
+            print "INFO: %i data ids finally kept" % len(self.dataids[catalog])
+
+    def _get_ccd_visits(self, **kwargs):
+        """Return the available ccd/visit according to the input list of patch."""
+        dids = [{'filter': filt, 'patch': patch, 'tract': 0}
+                for filt in kwargs['filter'] for patch in kwargs['patch']
+                if self.butler.datasetExists('deepCoadd',
+                                             dataId={'filter': filt, 'patch': patch, 'tract': 0})]
+        filenames = [kwargs['butler'] + '/deepCoadd' + "/%s/%i/%s.fits" %
+                     (did['filter'], did['tract'], did['patch']) for did in dids]
+        return numpy.concatenate([fitsio.read(filename, columns=['ccd', 'visit'], ext=7)
+                                  for filename in filenames]).tolist()
 
     def _load_catalog_dataid(self, catalog, dataid, table=True, **kwargs):
         """Load a catalog from a 'dataId' set of parameter."""
@@ -110,9 +112,10 @@ class Catalogs(object):
         self._load_dataids(catalog, **kwargs)
         print "INFO: Getting the data from the butler for %i fits files" % \
             len(self.dataids[catalog])
+
         pbar = progressbar(len(self.dataids[catalog]))
         table = Table(concatenate_dicts(*[self._get_tables(catalog, did, i, pbar)
-                                          for  i, did in enumerate(self.dataids[catalog])]))
+                                          for i, did in enumerate(self.dataids[catalog])]))
         pbar.finish()
 
         for k in table.keys():
@@ -168,7 +171,9 @@ class Catalogs(object):
 
     def _add_new_columns(self):
         """Compute magns for all fluxes of a given table. Add the corresponding new columns.
-        Compute the x/y position in pixel for all sources. Add new columns to the table."""
+
+        Compute the x/y position in pixel for all sources. Add new columns to the table.
+        """
         print colored("\nINFO: Adding magnitude and coordinates columns to all catalog tables",
                       "green")
         for catalog in self.catalogs:
@@ -187,8 +192,8 @@ class Catalogs(object):
             for kflux, ksigma in zip(kfluxes, ksigmas):
                 if kflux.replace('_flux', '_mag') in table.keys():
                     continue
-                mag, dmag = self._getmag(numpy.array(table[kflux], dtype='float'),
-                                         numpy.array(table[ksigma], dtype='float'))
+                mag, dmag = self.calexpf['getmag'](numpy.array(table[kflux], dtype='float'),
+                                                   numpy.array(table[ksigma], dtype='float'))
                 columns.append(Column(name=kflux.replace('_flux', '_mag'), data=mag,
                                       description='Magnitude', unit='mag'))
                 columns.append(Column(name=ksigma.replace('_fluxSigma', '_magSigma'), data=dmag,
@@ -200,7 +205,7 @@ class Catalogs(object):
             print "    -> getting pixel coordinates"
             ra = Quantity(table["coord_ra"].tolist(), 'rad')
             dec = Quantity(table["coord_dec"].tolist(), 'rad')
-            xsrc, ysrc = SkyCoord(ra, dec).to_pixel(self.wcs)
+            xsrc, ysrc = SkyCoord(ra, dec).to_pixel(self.calexpf['wcs'])
             columns.append(Column(name='x_Src', data=xsrc,
                                   description='x coordinate', unit='pixel'))
             columns.append(Column(name='y_Src', data=ysrc,
@@ -227,10 +232,10 @@ class Catalogs(object):
         print "INFO: Getting the magnitude function"
         calib = calexp.getCalib()
         calib.setThrowOnNegativeFlux(False)
-        self._getmag = calib.getMagnitude
+        self.calexpf['getmag'] = calib.getMagnitude
         print "INFO: Getting the wcs function"
         wcs = calexp.getWcs().getFitsMetadata().toDict()
-        self.wcs = WCS(wcs)
+        self.calexpf['wcs'] = WCS(wcs)
         self.catalogs['wcs'] = Table({k: [wcs[k]] for k in wcs})
 
     def load_catalogs(self, catalogs, keys=None, **kwargs):
@@ -260,11 +265,11 @@ class Catalogs(object):
         catalogs = [catalogs] if isinstance(catalogs, str) else catalogs
         for catalog in catalogs:
             if catalog in self.catalogs and 'update' not in kwargs:
-                print colored("\nWARNING: %s is already loaded. Use 'update' to reload it." % \
+                print colored("\nWARNING: %s is already loaded. Use 'update' to reload it." %
                               catalog, "yellow")
                 continue
             if 'calexp' in catalog:
-                print colored("\nWARNING: Skipping %s. Not a regular catalog (no schema).\n" % \
+                print colored("\nWARNING: Skipping %s. Not a regular catalog (no schema).\n" %
                               catalog, "yellow")
                 continue
             print colored("\nINFO: Loading the %s catalog" % catalog, 'green')
@@ -307,15 +312,18 @@ class Catalogs(object):
             print colored("\nWARNING: No catalog loaded nor given.", "yellow")
             return
         for cat in catalogs:
-            print colored("\nINFO: Available list of keys for the %s catalog" % cat, "green")
             if cat not in self.dataids:
+                print colored("\nINFO: Get the available data IDs", "green")
                 self._load_dataids(cat)
-            table = get_astropy_table(self.butler.get(cat, dataId=self.dataids[cat][0]), keys="*")
+            print colored("\nINFO: Available list of keys for the %s catalog" % cat, "green")
+            table = get_astropy_table(self.butler.get(cat, dataId=self.dataids[cat][0]),
+                                      keys="*", get_info=True)
             ktable = Table(numpy.transpose([[k, table[k].description, table[k].unit]
                                             for k in sorted(table.keys())]).tolist(),
                            names=["Keys", "Description", "Units"])
+            print "  -> %i keys available for %s" % (len(ktable), cat)
             print "  -> All saved in %s_keys.txt" % cat
-            ktable.write("%s_keys.txt" % cat, format='ascii', comment="#")
+            ktable.write("%s_keys.txt" % cat, format='ascii')
 
     def save_catalogs(self, output_name, overwrite=False):
         """Save the catalogs into an hdf5 file."""
@@ -464,50 +472,50 @@ def hdf5_paths(hdf5_file):
     return paths
 
 
-def filter_table(t):
+def filter_table(cats):
     """Apply a few quality filters on the data tables."""
-    ## Get the initial number of filter
-    nfilt = len(t['deepCoadd_meas'].group_by('id').groups[0])
+    # == Get the initial number of filter
+    nfilt = len(cats['deepCoadd_meas'].group_by('id').groups[0])
 
-    ## Filter the deepCoadd catalogs
+    # == Filter the deepCoadd catalogs
 
     # Select galaxies (and reject stars)
-    filt = t['deepCoadd_meas']['base_ClassificationExtendedness_flag'] == 0  # keep galaxy
-    filt &= t['deepCoadd_meas']['base_ClassificationExtendedness_value'] >= 0.5  # keep galaxy
+    filt = cats['deepCoadd_meas']['base_ClassificationExtendedness_flag'] == 0  # keep galaxy
+    filt &= cats['deepCoadd_meas']['base_ClassificationExtendedness_value'] >= 0.5  # keep galaxy
 
     # Gauss regulerarization flag
-    filt &= t['deepCoadd_meas']['ext_shapeHSM_HsmShapeRegauss_flag'] == 0
+    filt &= cats['deepCoadd_meas']['ext_shapeHSM_HsmShapeRegauss_flag'] == 0
 
     # Make sure to keep primary sources
-    filt &= t['deepCoadd_meas']['detect_isPrimary'] == 1
+    filt &= cats['deepCoadd_meas']['detect_isPrimary'] == 1
 
     # Check the flux value, which must be > 0
-    filt &= t['deepCoadd_forced_src']['modelfit_CModel_flux'] > 0
+    filt &= cats['deepCoadd_forced_src']['modelfit_CModel_flux'] > 0
 
     # Select sources which have a proper flux value
-    filt &= t['deepCoadd_forced_src']['modelfit_CModel_flag'] == 0
+    filt &= cats['deepCoadd_forced_src']['modelfit_CModel_flag'] == 0
 
     # Check the signal to noise (stn) value, which must be > 10
-    filt &= (t['deepCoadd_forced_src']['modelfit_CModel_flux'] /
-             t['deepCoadd_forced_src']['modelfit_CModel_fluxSigma']) > 10
+    filt &= (cats['deepCoadd_forced_src']['modelfit_CModel_flux'] /
+             cats['deepCoadd_forced_src']['modelfit_CModel_fluxSigma']) > 10
 
-    ## Only keeps sources with the 'nfilt' filters
-    dmg = t['deepCoadd_meas'][filt].group_by('id')
-    dfg = t['deepCoadd_forced_src'][filt].group_by('objectId')
+    # == Only keeps sources with the 'nfilt' filters
+    dmg = cats['deepCoadd_meas'][filt].group_by('id')
+    dfg = cats['deepCoadd_forced_src'][filt].group_by('objectId')
 
     # Indices difference is a quick way to get the lenght of each group
     filt = (dmg.groups.indices[1:] - dmg.groups.indices[:-1]) == nfilt
 
     output = {'deepCoadd_meas': dmg.groups[filt],
-              'deepCoadd_forced_src': dfg.groups[filt], 'wcs': t['wcs']}
+              'deepCoadd_forced_src': dfg.groups[filt], 'wcs': cats['wcs']}
 
-    ## Filter the forced_src catalog: only keep objects present in the other catalogs
-    if "forced_src" not in t:
+    # == Filter the forced_src catalog: only keep objects present in the other catalogs
+    if "forced_src" not in cats.keys():
         return output
 
-    filt = numpy.where(numpy.in1d(t['forced_src']['objectId'],
+    filt = numpy.where(numpy.in1d(cats['forced_src']['objectId'],
                                   output['deepCoadd_meas']['id']))[0]
-    output['forced_src'] = t['forced_src'][filt]
+    output['forced_src'] = cats['forced_src'][filt]
 
     return output
 
@@ -574,9 +582,9 @@ def filter_around(data, config, **kwargs):
     if hasattr(sep, unit):
         sep = getattr(sep, unit)
     else:
-        arglist = "\n" + ", ".join(sorted([a for a in dir(sep) if not a.startswith('_')]))
         raise AttributeError("Angle instance has no attribute %s. Available attributes are: %s" %
-                             (unit, arglist))
+                             (unit, "\n" + ", ".join(sorted([a for a in dir(sep)
+                                                             if not a.startswith('_')]))))
     filt = (sep >= kwargs.get('exclude_inner', 0)) & \
            (sep < kwargs.get('exclude_outer', numpy.inf))
     data_around = vstack([group[filt] for group in datag.groups]) if same_length else data[filt]

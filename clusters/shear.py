@@ -6,6 +6,7 @@ import seaborn
 from astropy.table import Table, Column
 from . import data as cdata
 
+
 def compute_shear(e1, e2, distx, disty):
     """Compute the shear."""
     phi = numpy.arctan2(disty, distx)
@@ -54,8 +55,10 @@ def analysis(table, xclust, yclust):
 
 
 def xy_clust(config, wcs):
+    """Return xy coordinate (pixel)."""
     return cdata.skycoord_to_pixel([config['ra'], config['dec']], wcs)
-        
+
+
 def compare_shear(catalogs, xclust, yclust, qcut=None, param='Tshear'):
     """Compare shear mesured on the coadd and shear measured on indivial ccd.
 
@@ -67,7 +70,6 @@ def compare_shear(catalogs, xclust, yclust, qcut=None, param='Tshear'):
     xc, yc = shear.xy_clust(config, data.load_wcs(catalogs['wcs']))
     tables = shear.compare_shear([catalogs['deepCoadd_meas'], catalogs['forced_src']], xc, yc)
     """
-
     # Compute shear and distance for all srouces in both catalogs
     # And add that info into the tables
     tables, filters = [], []
@@ -130,8 +132,7 @@ def compare_shear(catalogs, xclust, yclust, qcut=None, param='Tshear'):
                              Column(name='Distance', data=dist, description='Distance to center'),
                              Column(name='objectId', data=objectids, description='Object ID'),
                              Column(name='e1i', data=e1i, description='Ellipticities 1 i'),
-                             Column(name='e2i', data=e2i, description='Ellipticities 2 i'),
-                         ]))
+                             Column(name='e2i', data=e2i, description='Ellipticities 2 i')]))
     print "INFO: Done loading shear data"
 
     ids = tables[0]['objectId'][numpy.argsort(tables[0]['objectId'])].tolist()
@@ -153,7 +154,7 @@ def compare_shear(catalogs, xclust, yclust, qcut=None, param='Tshear'):
                        color='k', label='Individual CCD')
         else:
             ax.scatter([shear_coadd[i]] * len(shear_ccd), shear_ccd, color='k')
-    nums = numpy.array([len(shear_ccd) for shear_ccd in shear_ccds])
+    # nums = numpy.array([len(shear_ccd) for shear_ccd in shear_ccds])
     means = numpy.array([numpy.mean(shear_ccd) for shear_ccd in shear_ccds])
     stds = numpy.array([numpy.std(shear_ccd) for shear_ccd in shear_ccds])
     ax.scatter(shear_coadd, means, color='r', label='Averaged over CCDs (per-object)')
@@ -164,7 +165,7 @@ def compare_shear(catalogs, xclust, yclust, qcut=None, param='Tshear'):
     stds = numpy.array([(s if s != 0. else numpy.median(stds[filt])) for s in stds])
     chi2 = sum((means[filt] - shear_coadd[filt])**2 / stds[filt]**2) / len(means[filt])
     std = numpy.std(means[filt] - shear_coadd[filt])
-    for i, ls in zip([1,2,3], ['--', '-.', ':']):
+    for i, ls in zip([1, 2, 3], ['--', '-.', ':']):
         ax.plot([numpy.min(shear_coadd), numpy.max(shear_coadd)],
                 [numpy.min(shear_coadd) + i * std,
                  numpy.max(shear_coadd) + i * std], color='b', ls=ls)
@@ -177,7 +178,7 @@ def compare_shear(catalogs, xclust, yclust, qcut=None, param='Tshear'):
     print "STD:", std
     cc = 0
     filti = (catalogs[cc]['filter'] == 'i') | (catalogs[cc]['filter'] == 'i2')
-    for p in ['ext_shapeHSM_HsmShapeRegauss_resolution', #'modelfit_CModel_mag',
+    for p in ['ext_shapeHSM_HsmShapeRegauss_resolution',  # 'modelfit_CModel_mag',
               'ext_shapeHSM_HsmShapeRegauss_sigma']:
         print p
         pylab.figure()
@@ -188,7 +189,6 @@ def compare_shear(catalogs, xclust, yclust, qcut=None, param='Tshear'):
         pylab.title(p)
     pylab.figure()
     pylab.scatter(distance[filt], abs(means[filt] - shear_coadd[filt]), color='k')
-    pylab.title(p)
     pylab.show()
     return tables
 
