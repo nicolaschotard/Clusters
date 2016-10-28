@@ -36,7 +36,7 @@ install:
   - git clone https://github.com/lsst/obs_base.git
   - cd obs_base
   - setup -k -r .
-  - scons opt=3 -std=c++0x
+  - scons opt=3 std=c++0x
   - eups declare -r . -t travis
   - setup obs_base -t travis
   - cd ..
@@ -44,7 +44,7 @@ install:
   - git clone https://github.com/lsst/obs_cfht.git
   - cd obs_cfht
   - setup -k -r .
-  - scons opt=3 -std=c++0x
+  - scons opt=3 std=c++0x
   - eups declare -r . -t travis
   - setup obs_cfht -t travis
   - cd ../..
