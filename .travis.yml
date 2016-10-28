@@ -26,6 +26,9 @@ install:
   - conda config --add channels http://conda.lsst.codes/stack
   - conda create -q -n lsst python=$TRAVIS_PYTHON_VERSION
   - source activate lsst
+  # Install standard python packages
+  - pip install pytest codecov coveralls
+  - pip install -r requirements.txt
   # Install needed parts of the lsst stack
   - conda install -q gcc lsst-daf-persistence lsst-log lsst-afw lsst-skypix lsst-meas-algorithms lsst-pipe-tasks
   - source eups-setups.sh
@@ -40,9 +43,7 @@ install:
   - scons opt=3
   - eups declare -r . -t travis
   - cd ../..
-  # Install standard python packages
-  - pip install pytest codecov coveralls
-  - pip install -r requirements.txt
+  # Install Clusters
   - pip install .
 
 # command to run tests

@@ -437,17 +437,6 @@ def concatenate_dicts(*dicts):
     return {k: numpy.concatenate([d.pop(k) for d in dicts]) for k in dicts[0].keys()}
 
 
-def vstack2(tables):
-    """Verticaly stack large amount of astropy tables."""
-    pbar = progressbar(len(tables), prefix='stacking')
-    table = tables.pop(0)
-    for i in range(len(tables)):
-        table = vstack([table] + [tables.pop(0)])
-        pbar.update(i + 1)
-    pbar.finish()
-    return table
-
-
 def read_hdf5(hdf5_file, path=None):
     """Read astropy tables from an hdf5 file.
 
