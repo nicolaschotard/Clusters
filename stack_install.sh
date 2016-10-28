@@ -12,7 +12,7 @@ if [[ -z $1 ]]; then
 fi
 
 MINICONDA_VERSION=${MINICONDA_VERSION:-"latest"}		# you can use "latest" if you don't care
-CHANNEL=${CHANNEL:-"http://research.majuric.org/conda/stable"}	# the URL to the conda channel where LSST conda packages reside
+CHANNEL=${CHANNEL:-"http://conda.lsst.codes/stack"}	# the URL to the conda channel where LSST conda packages reside
 
 ########################################################################################################
 
