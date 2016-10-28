@@ -25,7 +25,7 @@ install:
   - conda config --add channels http://conda.lsst.codes/stack
   - conda create -q -n lsst python=$TRAVIS_PYTHON_VERSION
   - source activate lsst
-  # Install lsst stack
+  # Install needed parts of the lsst stack
   - conda install lsst-daf-persistence lsst-log lsst-afw lsst-skypix
   - source eups-setups.sh
   - setup daf_persistence
@@ -35,7 +35,7 @@ install:
   - git clone https://github.com/lsst/obs_base.git
   - cd obs_base
   - setup -k -r .
-  - scons opt=3
+  #- scons opt=3
   - eups declare -r . -t travis
   - setup obs_base -t travis
   - cd ..
