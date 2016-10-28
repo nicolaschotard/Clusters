@@ -26,19 +26,27 @@ install:
   - conda create -q -n lsst python=$TRAVIS_PYTHON_VERSION
   - source activate lsst
   # Install lsst stack
-  - conda install lsst-daf-persistence
+  - conda install lsst-daf-persistence lsst-obs-base
   - source eups-setups.sh
   - setup daf_persistence
-  # Install obs_cfht
   - mkdir my_packages
   - cd my_packages
+  # Install obs_base
+  - git clone https://github.com/lsst/obs_base.git
+  - cd obs_base
+  - setup -k -r .
+  - scons opt=3
+  - eups declare -r . -t travis
+  - setup obs_base -t travis
+  - cd ..
+  # Install obs_cfht
   - git clone https://github.com/lsst/obs_cfht.git
   - cd obs_cfht
-  - git checkout w.2016.41
   - setup -k -r .
   - scons opt=3
   - eups declare -r . -t travis
   - setup obs_cfht -t travis
+  - cd ..
   # Install standard python packages
   - pip install pytest codecov coveralls
   - pip install -r requirements.txt
