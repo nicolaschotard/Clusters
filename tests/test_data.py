@@ -43,5 +43,7 @@ def test_data_functions(datafile="travis_data.hdf5"):
     wcs = data.load_wcs(fcatalogs['wcs'])
 
     # Transformations: coordinates <-> pixel
-    data.pixel_to_skycoord(data.skycoord_to_pixel([ra, dec], wcs), wcs)
+    x, y = data.skycoord_to_pixel([ra, dec], wcs, unit='rad')
+    data.pixel_to_skycoord(x, y, wcs)
+
     
