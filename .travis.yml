@@ -26,7 +26,7 @@ install:
   - conda create -q -n lsst python=$TRAVIS_PYTHON_VERSION
   - source activate lsst
   # Install lsst stack
-  - conda install lsst-daf-persistence
+  - conda install lsst-daf-persistence lsst-log
   - source eups-setups.sh
   - setup daf_persistence
   - mkdir my_packages
