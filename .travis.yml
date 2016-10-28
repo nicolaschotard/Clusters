@@ -30,16 +30,9 @@ install:
   - conda install -q gcc lsst-daf-persistence lsst-log lsst-afw lsst-skypix lsst-meas-algorithms lsst-pipe-tasks
   - source eups-setups.sh
   - setup daf_persistence
+  # Install obs_cfht
   - mkdir my_packages
   - cd my_packages
-  ## Install obs_base
-  #- git clone https://github.com/lsst/obs_base.git
-  #- cd obs_base
-  #- setup -k -r .
-  #- scons opt=3
-  #- eups declare -r . -t travis
-  #- cd ..
-  # Install obs_cfht
   - git clone https://github.com/lsst/obs_cfht.git
   - cd obs_cfht
   - git checkout b7ab2c4
@@ -57,7 +50,6 @@ script:
   - export PATH="$HOME/miniconda/bin:$PATH"
   - source eups-setups.sh
   - setup daf_persistence
-  - setup obs_base -t travis
   - setup obs_cfht -t travis
   # Get the test data
   - wget https://lapp-owncloud.in2p3.fr/index.php/s/xG2AoS2jggbmP0k/download
