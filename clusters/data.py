@@ -71,8 +71,9 @@ class Catalogs(object):
         if 'deepCoadd' not in catalog and 'patch' in kwargs and 'filter' in kwargs:
             print "INFO: Selecting visit/ccd according to the input list of patches"
             print "  - input: %i data ids" % len(dataids)
+            ccds_visits = self._get_ccd_visits(**kwargs)
             dataids = [dataid for dataid in dataids if
-                       (dataid['ccd'], dataid['visit']) in self._get_ccd_visits(**kwargs)]
+                       (dataid['ccd'], dataid['visit']) in ccds_visits]
             print "  - selected: %i data ids" % len(dataids)
 
         # Only keep dataids with data
@@ -94,6 +95,7 @@ class Catalogs(object):
                 for filt in kwargs['filter'] for patch in kwargs['patch']
                 if self.butler.datasetExists('deepCoadd',
                                              dataId={'filter': filt, 'patch': patch, 'tract': 0})]
+        print dids
         filenames = [kwargs['butler'] + '/deepCoadd' + "/%s/%i/%s.fits" %
                      (did['filter'], did['tract'], did['patch']) for did in dids]
         return numpy.concatenate([fitsio.read(filename, columns=['ccd', 'visit'], ext=7)

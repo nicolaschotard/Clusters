@@ -35,6 +35,11 @@ install:
 
 # command to run tests
 script:
+  # Get the test data
+  - wget https://lapp-owncloud.in2p3.fr/index.php/s/xG2AoS2jggbmP0k/download
+  - tar zxvf download
+  - rm -f download
+  # Run the tests
   - coverage run --source="Clusters" setup.py test
   
 after_success:
