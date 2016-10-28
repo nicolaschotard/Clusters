@@ -11,7 +11,7 @@ if [[ -z $1 ]]; then
 	exit -1
 fi
 
-MINICONDA_VERSION=${MINICONDA_VERSION:-"latest"}			# you can use "latest" if you don't care
+MINICONDA_VERSION=${MINICONDA_VERSION:-"latest"}		# you can use "latest" if you don't care
 CHANNEL=${CHANNEL:-"http://research.majuric.org/conda/stable"}	# the URL to the conda channel where LSST conda packages reside
 
 ########################################################################################################
