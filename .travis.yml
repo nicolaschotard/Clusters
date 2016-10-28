@@ -28,6 +28,7 @@ install:
   # install lsst stack
   - conda install lsst-daf-persistence
   - source eups-setups.sh
+  - setup daf_persistence
   # install standard python packages
   - pip install pytest codecov coveralls
   - pip install -r requirements.txt
