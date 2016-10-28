@@ -2,7 +2,6 @@ language: python
 
 cache:
   - pip
-  - miniconda
   - directories:
     - $HOME/miniconda.tarball
 
@@ -13,41 +12,40 @@ python:
 
 install:
   - sudo apt-get update
+  - CHANNEL=http://eupsforge.net/conda/dev ./ci/install.sh gcc lsst-distrib pandas nose
   # We do this conditionally because it saves us some downloading if the
   # version is the same.
-  - wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh
-  - bash miniconda.sh -b -p $HOME/miniconda
-  - export PATH="$HOME/miniconda/bin:$PATH"
-  - hash -r
-  - conda config --set always_yes yes --set changeps1 no
-  - conda update -q conda
-  # Useful for debugging any issues with conda
-  - conda info -a
-  - conda config --add channels http://conda.lsst.codes/stack
-  - conda create -q -n lsst python=$TRAVIS_PYTHON_VERSION
-  - source activate lsst
-  # Install needed parts of the lsst stack
-  - conda install -q lsst-daf-persistence lsst-log lsst-afw lsst-skypix lsst-meas-algorithms lsst-pipe-tasks
-  - source eups-setups.sh
-  - setup daf_persistence
-  - mkdir my_packages
-  - cd my_packages
-  # Install obs_base
-  - git clone https://github.com/lsst/obs_base.git
-  - cd obs_base
-  - setup -k -r .
-  - scons opt=3 std=c++0x
-  - eups declare -r . -t travis
-  - setup obs_base -t travis
-  - cd ..
-  # Install obs_cfht
-  - git clone https://github.com/lsst/obs_cfht.git
-  - cd obs_cfht
-  - setup -k -r .
-  - scons opt=3 std=c++0x
-  - eups declare -r . -t travis
-  - setup obs_cfht -t travis
-  - cd ../..
+  #- wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh
+  #- bash miniconda.sh -b -p $HOME/miniconda
+  #- export PATH="$HOME/miniconda/bin:$PATH"
+  #- hash -r
+  #- conda config --set always_yes yes --set changeps1 no
+  #- conda update -q conda
+  ## Useful for debugging any issues with conda
+  #- conda info -a
+  #- conda config --add channels http://conda.lsst.codes/stack
+  #- conda create -q -n lsst python=$TRAVIS_PYTHON_VERSION
+  #- source activate lsst
+  ## Install needed parts of the lsst stack
+  #- conda install -q lsst-daf-persistence lsst-log lsst-afw lsst-skypix lsst-meas-algorithms lsst-pipe-tasks
+  #- source eups-setups.sh
+  #- setup daf_persistence
+  #- mkdir my_packages
+  #- cd my_packages
+  ## Install obs_base
+  #- git clone https://github.com/lsst/obs_base.git
+  #- cd obs_base
+  #- setup -k -r .
+  #- scons opt=3
+  #- eups declare -r . -t travis
+  #- cd ..
+  ## Install obs_cfht
+  #- git clone https://github.com/lsst/obs_cfht.git
+  #- cd obs_cfht
+  #- setup -k -r .
+  #- scons opt=3
+  #- eups declare -r . -t travis
+  #- cd ../..
   # Install standard python packages
   - pip install pytest codecov coveralls
   - pip install -r requirements.txt
@@ -55,6 +53,11 @@ install:
 
 # command to run tests
 script:
+  - export PATH="$HOME/miniconda/bin:$PATH"
+  - source eups-setups.sh
+  - setup daf_persistence
+  - setup obs_base -t travis
+  - setup obs_cfht -t travis
   # Get the test data
   - wget https://lapp-owncloud.in2p3.fr/index.php/s/xG2AoS2jggbmP0k/download
   - tar zxvf download
