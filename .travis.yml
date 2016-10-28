@@ -44,7 +44,7 @@ install:
   - git clone https://github.com/lsst/obs_cfht.git
   - cd obs_cfht
   - setup -k -r .
-  - scons opt=3
+  #- scons opt=3
   - eups declare -r . -t travis
   - setup obs_cfht -t travis
   - cd ..
