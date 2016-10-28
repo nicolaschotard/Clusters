@@ -26,7 +26,7 @@ install:
   - conda create -q -n lsst python=$TRAVIS_PYTHON_VERSION
   - source activate lsst
   # Install lsst stack
-  - conda install lsst-daf-persistence lsst-obs-base
+  - conda install lsst-daf-persistence
   - source eups-setups.sh
   - setup daf_persistence
   # Install obs_cfht
@@ -34,6 +34,7 @@ install:
   - cd my_packages
   - git clone https://github.com/lsst/obs_cfht.git
   - cd obs_cfht
+  - git checkout w.2016.41
   - setup -k -r .
   - scons opt=3
   - eups declare -r . -t travis
