@@ -38,8 +38,8 @@ def test_data_functions(datafile="travis_data.hdf5"):
     fcatalogs = data.filter_table(catalogs)
 
     # Make sure we can get data from the filtered catalogs
-    ra = fcatalogs['deepCoadd_forced_src']['coord_ra']
-    dec = fcatalogs['deepCoadd_forced_src']['coord_dec']
+    ra = fcatalogs['deepCoadd_forced_src']['coord_ra'].tolist()
+    dec = fcatalogs['deepCoadd_forced_src']['coord_dec'].tolist()
     wcs = data.load_wcs(fcatalogs['wcs'])
 
     # Transformations: coordinates <-> pixel
