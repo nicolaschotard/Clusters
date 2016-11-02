@@ -53,13 +53,13 @@ else
 
  # Pack for caching. We pack here as Travis tends to time out if it can't pack
  # the whole directory in ~180 seconds.
- rm -rf "$CACHE_DIR" "$CACHE_DIR_TMP"
- mkdir "$CACHE_DIR_TMP"
- tar czf "$CACHE_DIR_TMP/$CACHE_TARBALL_NAME" -C "$HOME" miniconda
- mv "$HOME/info.txt" "$CACHE_DIR_TMP"
+ #rm -rf "$CACHE_DIR" "$CACHE_DIR_TMP"
+ #mkdir "$CACHE_DIR_TMP"
+ #tar czf "$CACHE_DIR_TMP/$CACHE_TARBALL_NAME" -C "$HOME" miniconda
+ #mv "$HOME/info.txt" "$CACHE_DIR_TMP"
 
- mv "$CACHE_DIR_TMP" "$CACHE_DIR"	# Atomic rename
- ls -l "$CACHE_DIR"
+ #mv "$CACHE_DIR_TMP" "$CACHE_DIR"	# Atomic rename
+ #ls -l "$CACHE_DIR"
 fi
 
 # Source
