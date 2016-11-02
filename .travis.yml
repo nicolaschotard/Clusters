@@ -14,7 +14,7 @@ install:
   # Updates and install
   - rm -rf $HOME/miniconda.tarball
   - sudo apt-get update
-  - ./stack_install.sh gcc lsst-daf-persistence lsst-log lsst-afw lsst-skypix lsst-meas-algorithms lsst-pipe-tasks
+  - ./stack_install.sh
   ## We do this conditionally because it saves us some downloading if the
   ## version is the same.
   #- wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh
@@ -27,10 +27,10 @@ install:
   #- conda info -a
   #- conda config --add channels http://conda.lsst.codes/stack
   #- conda create -q -n lsst python=$TRAVIS_PYTHON_VERSION
-  #- source activate lsst
+  - source activate lsst
   ## Install needed parts of the lsst stack
   #- conda install -q gcc lsst-daf-persistence lsst-log lsst-afw lsst-skypix lsst-meas-algorithms lsst-pipe-tasks
-  #- source eups-setups.sh
+  - source eups-setups.sh
   #- setup daf_persistence
   ## Install obs_cfht
   #- git clone https://github.com/lsst/obs_cfht.git
