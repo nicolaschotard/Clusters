@@ -4,6 +4,8 @@ cache:
   - pip
   - directories:
     - $HOME/miniconda.tarball
+    - $HOME/testdata
+    - $HOME/lephare
 
 
 python:
@@ -11,6 +13,7 @@ python:
   - "2.7"
 
 install:
+  # Updates and install
   - sudo apt-get update
   #- CHANNEL=http://eupsforge.net/conda/dev ./stack_install.sh gcc lsst-daf-persistence lsst-log lsst-afw lsst-skypix lsst-meas-algorithms lsst-pipe-tasks
   # We do this conditionally because it saves us some downloading if the
@@ -56,6 +59,13 @@ script:
   - wget https://lapp-owncloud.in2p3.fr/index.php/s/xG2AoS2jggbmP0k/download
   - tar zxvf download
   - rm -f download
+  # Get LEPHARE
+  - wget https://lapp-owncloud.in2p3.fr/index.php/s/MDaXObLSD9IVQ1B/download
+  - tar zxvf download
+  - rm -f download
+  # LEPHARE env. var.
+  - export LEPHAREWORK="$HOME/lephare/lephare_work"
+  - export LEPHAREDIR="$HOME/lephare/lephare_dev"
   # Run the tests
   - coverage run --source="Clusters" setup.py test
   
