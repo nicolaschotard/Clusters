@@ -50,7 +50,7 @@ else
 	conda update -q conda
 	
 	# Disable MKL. The stack doesn't play nice with it (symbol collisions)
-	conda install --yes nomkl
+	#conda install --yes nomkl
 
 	# Stack install
 	conda config --add channels "$CHANNEL"
@@ -73,7 +73,7 @@ else
 	cd $HOME
 
 	# Minimize our on-disk footprint
-	conda clean -iltp --yes
+	#conda clean -iltp --yes
 
 	#
 	# Pack for caching. We pack here as Travis tends to time out if it can't pack

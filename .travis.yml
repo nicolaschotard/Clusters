@@ -35,15 +35,13 @@ install:
   #- source eups-setups.sh
   #- setup daf_persistence
   ## Install obs_cfht
-  #- mkdir my_packages
-  #- cd my_packages
   #- git clone https://github.com/lsst/obs_cfht.git
   #- cd obs_cfht
   #- git checkout b7ab2c4
   #- setup -k -r .
   #- scons opt=3
   #- eups declare -r . -t travis
-  #- cd ../..
+  #- cd $HOME
   # Install standard python packages
   - pip install pytest codecov coveralls
   - pip install -r requirements.txt
