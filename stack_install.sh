@@ -58,6 +58,8 @@ else
 	# Stack install
 	#
 	conda config --add channels "$CHANNEL"
+	conda create -q -n lsst python=$TRAVIS_PYTHON_VERSION
+	source activate lsst
 	conda install -q "$@" # -q is needed, otherwise TravisCI kills the job due too much output in the log (4MB)
 
 	# Source
@@ -65,15 +67,13 @@ else
 	setup daf_persistence
 	
 	# Install obs_cfht
-	mkdir my_packages
-        cd my_packages
-	git clone https://github.com/lsst/obs_cfht.git
-	cd obs_cfht
+	git clone https://github.com/lsst/obs_cfht.git $CACHE_DIR/obs_cfht
+	cd $CACHE_DIR/obs_cfht
 	git checkout b7ab2c4
 	setup -k -r .
 	scons opt=3
 	eups declare -r . -t travis
-	cd ../..
+	cd $HOME
 
 	# Minimize our on-disk footprint
 	conda clean -iltp --yes
