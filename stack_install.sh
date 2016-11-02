@@ -1,4 +1,4 @@
-#!/bin/bash -xe
+#!/bin/bash -e #-xe
 #
 # A script to setup the Travis build environment with Miniconda
 # and install the LSST stack into it.
@@ -41,7 +41,7 @@ if [[ -f "$CACHE_TARBALL_PATH" ]] && cmp "$HOME/info.txt" "$CACHE_DIR/info.txt";
 else
 	# Miniconda install
 	# Install Python 2.7 Miniconda
-	rm -rf "$HOME/miniconda"
+	#rm -rf "$HOME/miniconda"
 	wget https://repo.continuum.io/miniconda/Miniconda2-$MINICONDA_VERSION-Linux-x86_64.sh -O miniconda.sh
 	bash miniconda.sh -b -p $HOME/miniconda
 	export PATH="$HOME/miniconda/bin:$PATH"
@@ -49,18 +49,15 @@ else
 	conda config --set always_yes yes --set changeps1 no
 	conda update -q conda
 	
-	#
 	# Disable MKL. The stack doesn't play nice with it (symbol collisions)
-	#
 	conda install --yes nomkl
 
-	#
 	# Stack install
-	#
 	conda config --add channels "$CHANNEL"
 	conda create -q -n lsst python=$TRAVIS_PYTHON_VERSION
 	source activate lsst
-	conda install -q "$@" # -q is needed, otherwise TravisCI kills the job due too much output in the log (4MB)
+	# -q is needed, otherwise TravisCI kills the job due too much output in the log (4MB)
+	conda install -q "$@" 
 
 	# Source
 	source eups-setups.sh

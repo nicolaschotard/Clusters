@@ -53,6 +53,7 @@ install:
 # command to run tests
 script:
   - export PATH="$HOME/miniconda/bin:$PATH"
+  - source activate lsst
   - source eups-setups.sh
   - setup daf_persistence
   - setup obs_cfht -t travis
