@@ -21,7 +21,9 @@ cat > "$HOME/info.txt" <<-EOT
 	PACKAGES=$PACKAGES
 EOT
 cat "$HOME/info.txt"
-
+ls -l $HOME
+ls -l $CACHE_DIR
+ls -l $CACHE_TARBALL_PATH
 if [ -f "$CACHE_TARBALL_PATH" ] && cmp "$HOME/info.txt" "$CACHE_DIR/info.txt"; then
  # Restore from cached tarball
  tar xzf "$CACHE_TARBALL_PATH" -C "$HOME"
