@@ -11,17 +11,17 @@ if [[ -z $1 ]]; then
 	exit -1
 fi
 
-MINICONDA_VERSION=${MINICONDA_VERSION:-"latest"}    # you can use "latest" if you don't care
-CHANNEL=${CHANNEL:-"http://conda.lsst.codes/stack"} # the URL to the conda channel where LSST conda packages reside
-
-#######################################################################################################
+# you can use "latest" if you don't care
+MINICONDA_VERSION=${MINICONDA_VERSION:-"latest"}
+# the URL to the conda channel where LSST conda packages reside
+CHANNEL=${CHANNEL:-"http://conda.lsst.codes/stack"} 
 
 CACHE_DIR="$HOME/miniconda.tarball"
 CACHE_DIR_TMP="$CACHE_DIR.tmp"
 CACHE_TARBALL_NAME="miniconda.tar.gz"
 CACHE_TARBALL_PATH="$CACHE_DIR/$CACHE_TARBALL_NAME"
 
-
+#######################################################################################################
 
 # Store a record of what's in the cached tarball
 # This record allows us to automatically regenerate the tarball if the installed packages change.
@@ -34,18 +34,12 @@ cat > "$HOME/info.txt" <<-EOT
 EOT
 cat "$HOME/info.txt"
 
-
-
 if [[ -f "$CACHE_TARBALL_PATH" ]] && cmp "$HOME/info.txt" "$CACHE_DIR/info.txt"; then
-	#
 	# Restore from cached tarball
-	#
 	tar xzf "$CACHE_TARBALL_PATH" -C "$HOME" 
 	ls -l "$HOME"
 else
-	#
 	# Miniconda install
-	#
 	# Install Python 2.7 Miniconda
 	rm -rf "$HOME/miniconda"
 	wget https://repo.continuum.io/miniconda/Miniconda2-$MINICONDA_VERSION-Linux-x86_64.sh -O miniconda.sh

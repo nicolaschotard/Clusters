@@ -14,7 +14,7 @@ python:
 
 install:
   # Updates and install
-  - rm -rf $HOME/miniconda.tar.gz
+  - rm -rf $HOME/miniconda.tarball
   - sudo apt-get update
   - ./stack_install.sh gcc lsst-daf-persistence lsst-log lsst-afw lsst-skypix lsst-meas-algorithms lsst-pipe-tasks
   ## We do this conditionally because it saves us some downloading if the
