@@ -95,7 +95,6 @@ class Catalogs(object):
                 for filt in kwargs['filter'] for patch in kwargs['patch']
                 if self.butler.datasetExists('deepCoadd',
                                              dataId={'filter': filt, 'patch': patch, 'tract': 0})]
-        print dids
         filenames = [kwargs['butler'] + '/deepCoadd' + "/%s/%i/%s.fits" %
                      (did['filter'], did['tract'], did['patch']) for did in dids]
         return numpy.concatenate([fitsio.read(filename, columns=['ccd', 'visit'], ext=7)
