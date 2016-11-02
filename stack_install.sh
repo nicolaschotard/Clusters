@@ -63,6 +63,10 @@ else
 	conda config --add channels "$CHANNEL"
 	conda install -q --yes "$@"			# -q is needed, otherwise TravisCI kills the job due too much output in the log (4MB)
 
+	# source
+	source eups-setups.sh
+	setup daf_persistence
+	
 	# install other packages
 	mkdir my_packages
         cd my_packages
