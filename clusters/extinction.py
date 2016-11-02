@@ -98,7 +98,7 @@ def from_ebv_sfd_to_megacam_albd(ebv):
     return from_sdss_albd_to_megacam_albd(from_ebv_sfd_to_sdss_albd(ebv))
 
 
-def plots(ra, dec, ebv, albd, title=None, figname="", filters=None):
+def plots(ra, dec, ebv, albd, title=None, figname=""):
     """Plot the extinction sky-map."""
     fig = P.figure()
     ax = fig.add_subplot(111, xlabel='RA (deg)', ylabel='DEC (deg)')
@@ -109,12 +109,9 @@ def plots(ra, dec, ebv, albd, title=None, figname="", filters=None):
         ax.set_title(title)
     fig.savefig(figname + "_ebmv_map.png")
 
-    if filters is None:
-        filters = albd.keys()
     fig = P.figure()
     ax = fig.add_subplot(111, xlabel='A(lbd)', ylabel='#')
-    for filt in filters:
-        ax.hist(albd[filt], histtype='step', lw=2, label='<%s>=%.2f' % (filt, N.mean(albd[filt])))
+    ax.hist(albd, histtype='step', lw=2, label='<>=%.2f' % N.mean(albd))
     if title is not None:
         ax.set_title(title)
     ax.legend(loc='best')

@@ -1,6 +1,7 @@
 """Test the reddening module."""
 
 import os
+from Clusters import main
 from Clusters import data
 
 
@@ -29,6 +30,7 @@ def test_catalogs_class(config="testdata/travis_test.yaml", datafile="travis_dat
     cats.load_catalogs(catalogs, matchid=True, **config)
     cats.save_catalogs(datafile)
 
+
 def test_data_functions(datafile="travis_data.hdf5"):
     """Test functions of data.py."""
     # Read the hdf5 file and load the catalogs
@@ -46,4 +48,17 @@ def test_data_functions(datafile="travis_data.hdf5"):
     x, y = data.skycoord_to_pixel([ra, dec], wcs, unit='rad')
     data.pixel_to_skycoord(x, y, wcs)
 
-    
+
+# Test the pipeline
+
+
+def test_main(config="testdata/travis_test.yaml", datafile="travis_test_data.hdf5"):
+    """Test the pipeline."""
+    print ""
+    main.load_data([config, "--output", datafile, "--overwrite"])
+    main.load_data([config, "--show", "--overwrite"])
+    filtered_data = datafile.replace('.hdf5', '_filtered_data.hdf5')
+    main.extinction([config, filtered_data, "--plot", "--overwrite"])
+    extinction_data = filtered_data.replace('.hdf5', '_extinction.hdf5')
+    main.photometric_redshift([config, filtered_data, "--extinction",
+                               extinction_data, "--overwrite"])

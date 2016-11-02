@@ -40,19 +40,23 @@ def load_data(argv=None):
         output = os.path.basename(args.config).replace('.yaml', '_data.hdf5')
         output_filtered = os.path.basename(args.config).replace('.yaml', '_filtered_data.hdf5')
     else:
-        output = args.output
-        output_filtered = "filtered_" + args.output
+        output = args.output if args.output.endswith('.hdf5') else args.output + ".hdf5"
+        output_filtered = output.replace('.hdf5', '_filtered_data.hdf5')
 
     if not args.overwrite and (os.path.exists(output) or os.path.exists(output_filtered)):
         raise IOError("Output(s) already exist(s). Remove them or use overwrite=True.")
 
-    print "INFO: Working on:"
+    print "\nINFO: Working on:"
     print "  - cluster %s (z=%.4f)" % (config['cluster'], config['redshift'])
     print "  - filters", config['filter']
     print "  - patches", config['patch']
     print "INFO: Butler located under %s" % config['butler']
 
     data = cdata.Catalogs(config['butler'])
+
+    if args.show:
+        data.show_keys(args.catalogs.split(','))
+        return
     data.load_catalogs(args.catalogs.split(','), matchid=True, **config)
     data.save_catalogs(output, overwrite=args.overwrite)
     print "\nINFO: Applying filters on the data to keep a clean sample of galaxies"
@@ -113,9 +117,8 @@ def extinction(argv=None):
         filt = new_tab['filter'] == config['filter'][0]
         cextinction.plots(new_tab['coord_ra'][filt],
                           new_tab['coord_dec'][filt],
-                          new_tab['ebv_sfd'], albds['albd_sfd'][filt],
-                          filters=['u', 'g', 'r', 'i_old', 'i_new', 'z'],
-                          title='Dust extinction map, %s, %i sources' %
+                          new_tab['ebv_sfd'], albds['albd_g_sfd'][filt],
+                          title='Dust extinction map, %s, %i sources, g_sfd' %
                           (config['cluster'], len(new_tab['coord_ra'][filt])),
                           figname=config['cluster'])
 
