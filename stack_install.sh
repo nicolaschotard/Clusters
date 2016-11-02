@@ -60,17 +60,17 @@ else
 	conda install -q "$@" 
 
 	# Source
-	source eups-setups.sh
-	setup daf_persistence
+	#source eups-setups.sh
+	#setup daf_persistence
 	
 	# Install obs_cfht
-	git clone https://github.com/lsst/obs_cfht.git $CACHE_DIR/obs_cfht
-	cd $CACHE_DIR/obs_cfht
-	git checkout b7ab2c4
-	setup -k -r .
-	scons opt=3
-	eups declare -r . -t travis
-	cd $HOME
+	#git clone https://github.com/lsst/obs_cfht.git $CACHE_DIR/obs_cfht
+	#cd $CACHE_DIR/obs_cfht
+	#git checkout b7ab2c4
+	#setup -k -r .
+	#scons opt=3
+	#eups declare -r . -t travis
+	#cd $HOME
 
 	# Minimize our on-disk footprint
 	#conda clean -iltp --yes
@@ -88,3 +88,16 @@ else
 	mv "$CACHE_DIR_TMP" "$CACHE_DIR"	# Atomic rename
 	ls -l "$CACHE_DIR"
 fi
+
+# Source
+source eups-setups.sh
+setup daf_persistence
+
+# Install obs_cfht
+git clone https://github.com/lsst/obs_cfht.git
+cd obs_cfht
+git checkout b7ab2c4
+setup -k -r .
+scons opt=3
+eups declare -r . -t travis
+cd $HOME
