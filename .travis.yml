@@ -14,8 +14,9 @@ python:
 
 install:
   # Updates and install
+  - rm -rf $HOME/miniconda.tar.gz
   - sudo apt-get update
-  - CHANNEL=http://conda.lsst.codes/stack ./stack_install.sh gcc lsst-daf-persistence lsst-log lsst-afw lsst-skypix lsst-meas-algorithms lsst-pipe-tasks
+  - ./stack_install.sh gcc lsst-daf-persistence lsst-log lsst-afw lsst-skypix lsst-meas-algorithms lsst-pipe-tasks
   ## We do this conditionally because it saves us some downloading if the
   ## version is the same.
   #- wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh
