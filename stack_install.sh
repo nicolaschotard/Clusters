@@ -22,7 +22,7 @@ cat > "$HOME/info.txt" <<-EOT
 EOT
 cat "$HOME/info.txt"
 
-if [[ -f "$CACHE_TARBALL_PATH" ]] && cmp "$HOME/info.txt" "$CACHE_DIR/info.txt"; then
+if [[ -f "$CACHE_TARBALL_PATH" ]]; then # && cmp "$HOME/info.txt" "$CACHE_DIR/info.txt"; then
  # Restore from cached tarball
  tar xzf "$CACHE_TARBALL_PATH" -C "$HOME"
  ls -l "$HOME"
