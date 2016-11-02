@@ -11,35 +11,14 @@ python:
   - "2.7"
 
 install:
-  # Updates and install
-  #- rm -rf $HOME/miniconda.tarball
+  # Updates
   - sudo apt-get update
+  # Install a basic DM stack + obs_cfht
   - ./stack_install.sh
-  ## We do this conditionally because it saves us some downloading if the
-  ## version is the same.
-  #- wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh
-  #- bash miniconda.sh -b -p $HOME/miniconda
+  # Prepare for other installs
   - export PATH="$HOME/miniconda/bin:$PATH"
-  #- hash -r
-  #- conda config --set always_yes yes --set changeps1 no
-  #- conda update -q conda
-  ## Useful for debugging any issues with conda
-  #- conda info -a
-  #- conda config --add channels http://conda.lsst.codes/stack
-  #- conda create -q -n lsst python=$TRAVIS_PYTHON_VERSION
   - source activate lsst
-  ## Install needed parts of the lsst stack
-  #- conda install -q gcc lsst-daf-persistence lsst-log lsst-afw lsst-skypix lsst-meas-algorithms lsst-pipe-tasks
   - source eups-setups.sh
-  #- setup daf_persistence
-  ## Install obs_cfht
-  #- git clone https://github.com/lsst/obs_cfht.git
-  #- cd obs_cfht
-  #- git checkout b7ab2c4
-  #- setup -k -r .
-  #- scons opt=3
-  #- eups declare -r . -t travis
-  #- cd ../
   # Install standard python packages
   - pip install --upgrade pytest codecov coveralls
   - pip install -r requirements.txt
