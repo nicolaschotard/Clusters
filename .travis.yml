@@ -50,25 +50,20 @@ install:
 
 # command to run tests
 script:
+  # Setup
   - export PATH="$HOME/miniconda/bin:$PATH"
   - source activate lsst
   - source eups-setups.sh
   - setup daf_persistence
   - setup obs_cfht -t travis
   # Get the test data
-  - "if [[ -f "testdata.tarball" ]]; then
-    	then tar xzf "testdata.tarbal" -C "$HOME"
-     else
-	wget https://lapp-owncloud.in2p3.fr/index.php/s/xG2AoS2jggbmP0k/download -O testdata.tarball;
-    	tar zxf download -C "$HOME" 
-     fi"
+  - wget https://lapp-owncloud.in2p3.fr/index.php/s/xG2AoS2jggbmP0k/download
+  - tar zxf download 
+  - rm -rf download
   # Get LEPHARE
-  - "if [[ -f "lephare.tarball" ]]; then
-       tar xzf "lephare.tarball" -C "$HOME" 
-    else
-       wget https://lapp-owncloud.in2p3.fr/index.php/s/MDaXObLSD9IVQ1B/download -O lephare.tarball;
-       tar zxf download -C "$HOME" 
-    fi"
+  - wget https://lapp-owncloud.in2p3.fr/index.php/s/MDaXObLSD9IVQ1B/download
+  - tar zxf download
+  - rm -rf download
   # LEPHARE env. var.
   - export LEPHAREWORK="$HOME/lephare/lephare_work"
   - export LEPHAREDIR="$HOME/lephare/lephare_dev"
