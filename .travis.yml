@@ -12,14 +12,14 @@ python:
 
 install:
   # Updates and install
-  - rm -rf $HOME/miniconda.tarball
+  #- rm -rf $HOME/miniconda.tarball
   - sudo apt-get update
   - ./stack_install.sh
   ## We do this conditionally because it saves us some downloading if the
   ## version is the same.
   #- wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh
   #- bash miniconda.sh -b -p $HOME/miniconda
-  #- export PATH="$HOME/miniconda/bin:$PATH"
+  - export PATH="$HOME/miniconda/bin:$PATH"
   #- hash -r
   #- conda config --set always_yes yes --set changeps1 no
   #- conda update -q conda
