@@ -31,7 +31,7 @@ install:
   - conda create -q -n lsst python=$TRAVIS_PYTHON_VERSION
   - source activate lsst
   # Install needed parts of the lsst stack
-  - conda install -q gcc lsst-daf-persistence lsst-log lsst-afw lsst-skypix lsst-meas-algorithms lsst-pip-tasks
+  - conda install -q gcc lsst-daf-persistence lsst-log lsst-afw lsst-skypix lsst-meas-algorithms lsst-pipe-tasks
   - source eups-setups.sh
   - setup daf_persistence
   # Install obs_cfht
