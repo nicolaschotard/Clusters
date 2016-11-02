@@ -57,19 +57,19 @@ script:
   - setup obs_cfht -t travis
   # Get the test data
   - if [[ -f "testdata.tarball" ]]; then
-	# Restore from cached tarball
-	tar xzf "testdata.tarbal" -C "$HOME" 
+       # Restore from cached tarball
+       tar xzf "testdata.tarbal" -C "$HOME" 
     else
-        wget https://lapp-owncloud.in2p3.fr/index.php/s/xG2AoS2jggbmP0k/download -O testdata.tarball
-        tar zxf download -C "$HOME" 
+       wget https://lapp-owncloud.in2p3.fr/index.php/s/xG2AoS2jggbmP0k/download -O testdata.tarball
+       tar zxf download -C "$HOME" 
     fi
   # Get LEPHARE
   - if [[ -f "lephare.tarball" ]]; then
-	# Restore from cached tarball
-	tar xzf "lephare.tarball" -C "$HOME" 
+       # Restore from cached tarball
+       tar xzf "lephare.tarball" -C "$HOME" 
     else
-        wget https://lapp-owncloud.in2p3.fr/index.php/s/MDaXObLSD9IVQ1B/download -O lephare.tarball
-        tar zxf download -C "$HOME" 
+       wget https://lapp-owncloud.in2p3.fr/index.php/s/MDaXObLSD9IVQ1B/download -O lephare.tarball
+       tar zxf download -C "$HOME" 
     fi
   # LEPHARE env. var.
   - export LEPHAREWORK="$HOME/lephare/lephare_work"
