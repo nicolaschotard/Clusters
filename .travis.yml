@@ -4,8 +4,8 @@ cache:
   - pip
   - directories:
     - $HOME/miniconda.tarball
-    - $HOME/testdata
-    - $HOME/lephare
+    - $HOME/testdata.tarball
+    - $HOME/lephare.tarball
 
 
 python:
@@ -43,7 +43,7 @@ install:
   #- eups declare -r . -t travis
   #- cd $HOME
   # Install standard python packages
-  - pip install pytest codecov coveralls
+  - pip install --upgrade pytest codecov coveralls
   - pip install -r requirements.txt
   # Install Clusters
   - pip install .
@@ -56,13 +56,21 @@ script:
   - setup daf_persistence
   - setup obs_cfht -t travis
   # Get the test data
-  - wget https://lapp-owncloud.in2p3.fr/index.php/s/xG2AoS2jggbmP0k/download
-  - tar zxf download
-  - rm -f download
+  - if [[ -f "testdata.tarball" ]]; then
+	# Restore from cached tarball
+	tar xzf "testdata.tarbal" -C "$HOME" 
+    else
+        wget https://lapp-owncloud.in2p3.fr/index.php/s/xG2AoS2jggbmP0k/download -O testdata.tarball
+        tar zxf download -C "$HOME" 
+    fi
   # Get LEPHARE
-  - wget https://lapp-owncloud.in2p3.fr/index.php/s/MDaXObLSD9IVQ1B/download
-  - tar zxf download
-  - rm -f download
+  - if [[ -f "lephare.tarball" ]]; then
+	# Restore from cached tarball
+	tar xzf "lephare.tarball" -C "$HOME" 
+    else
+        wget https://lapp-owncloud.in2p3.fr/index.php/s/MDaXObLSD9IVQ1B/download -O lephare.tarball
+        tar zxf download -C "$HOME" 
+    fi
   # LEPHARE env. var.
   - export LEPHAREWORK="$HOME/lephare/lephare_work"
   - export LEPHAREDIR="$HOME/lephare/lephare_dev"

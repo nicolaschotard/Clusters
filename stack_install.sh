@@ -48,11 +48,13 @@ else
 	hash -r
 	conda config --set always_yes yes --set changeps1 no
 	conda update -q conda
+	conda info -a
 	
 	# Disable MKL. The stack doesn't play nice with it (symbol collisions)
 	#conda install --yes nomkl
 
 	# Stack install
+	
 	conda config --add channels "$CHANNEL"
 	conda create -q -n lsst python=$TRAVIS_PYTHON_VERSION
 	source activate lsst
