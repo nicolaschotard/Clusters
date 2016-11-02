@@ -1,4 +1,4 @@
-#!/bin/bash -e #-xe
+#!/bin/bash -xe #-xe
 #
 # A script to setup the Travis build environment with Miniconda
 # and install the LSST stack into it.
