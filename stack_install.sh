@@ -25,6 +25,7 @@ cat "$HOME/info.txt"
 if [[ -f "$CACHE_TARBALL_PATH" ]] && cmp "$HOME/info.txt" "$CACHE_DIR/info.txt"; then
  # Restore from cached tarball
  tar xzf "$CACHE_TARBALL_PATH" -C "$HOME"
+ ls -l "$HOME"
  source activate lsst
 else
  # Miniconda install
@@ -50,6 +51,7 @@ else
  tar czf "$CACHE_DIR_TMP/$CACHE_TARBALL_NAME" -C "$HOME" miniconda
  mv "$HOME/info.txt" "$CACHE_DIR_TMP"
  mv "$CACHE_DIR_TMP" "$CACHE_DIR"	# Atomic rename
+ ls -l "$CACHE_DIR"
 fi
 
 # Source
