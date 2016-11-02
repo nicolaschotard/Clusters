@@ -11,10 +11,10 @@ if [[ -z $1 ]]; then
 	exit -1
 fi
 
-MINICONDA_VERSION=${MINICONDA_VERSION:-"latest"}		# you can use "latest" if you don't care
-CHANNEL=${CHANNEL:-"http://conda.lsst.codes/stack"}	# the URL to the conda channel where LSST conda packages reside
+MINICONDA_VERSION=${MINICONDA_VERSION:-"latest"}    # you can use "latest" if you don't care
+CHANNEL=${CHANNEL:-"http://conda.lsst.codes/stack"} # the URL to the conda channel where LSST conda packages reside
 
-########################################################################################################
+#######################################################################################################
 
 CACHE_DIR="$HOME/miniconda.tarball"
 CACHE_DIR_TMP="$CACHE_DIR.tmp"
@@ -61,29 +61,22 @@ else
 	# Stack install
 	#
 	conda config --add channels "$CHANNEL"
-	conda install -q --yes "$@"			# -q is needed, otherwise TravisCI kills the job due too much output in the log (4MB)
+	conda install -q --yes "$@" # -q is needed, otherwise TravisCI kills the job due too much output in the log (4MB)
 
-	# source
+	# Source
 	source eups-setups.sh
 	setup daf_persistence
 	
-	# install other packages
+	# Install obs_cfht
 	mkdir my_packages
         cd my_packages
-        # Install obs_base
-	- git clone https://github.com/lsst/obs_base.git
-	- cd obs_base
-	- setup -k -r .
-	- scons opt=3
-	- eups declare -r . -t travis
-	- cd ..
-	# Install obs_cfht
-	- git clone https://github.com/lsst/obs_cfht.git
-	- cd obs_cfht
-	- setup -k -r .
-	- scons opt=3
-	- eups declare -r . -t travis
-	- cd ../..
+	git clone https://github.com/lsst/obs_cfht.git
+	cd obs_cfht
+	git checkout b7ab2c4
+	setup -k -r .
+	scons opt=3
+	eups declare -r . -t travis
+	cd ../..
 
 	# Minimize our on-disk footprint
 	conda clean -iltp --yes
