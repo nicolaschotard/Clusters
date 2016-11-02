@@ -48,10 +48,13 @@ else
 	#
 	# Install Python 2.7 Miniconda
 	rm -rf "$HOME/miniconda"
-	curl -L -O "https://repo.continuum.io/miniconda/Miniconda2-$MINICONDA_VERSION-Linux-x86_64.sh"
-	bash "Miniconda2-$MINICONDA_VERSION-Linux-x86_64.sh" -b -p "$HOME/miniconda"
+	wget https://repo.continuum.io/miniconda/Miniconda2-$MINICONDA_VERSION-Linux-x86_64.sh -O miniconda.sh
+	bash miniconda.sh -b -p $HOME/miniconda
 	export PATH="$HOME/miniconda/bin:$PATH"
-
+	hash -r
+	conda config --set always_yes yes --set changeps1 no
+	conda update -q conda
+	
 	#
 	# Disable MKL. The stack doesn't play nice with it (symbol collisions)
 	#
@@ -61,7 +64,7 @@ else
 	# Stack install
 	#
 	conda config --add channels "$CHANNEL"
-	conda install -q --yes "$@" # -q is needed, otherwise TravisCI kills the job due too much output in the log (4MB)
+	conda install -q "$@" # -q is needed, otherwise TravisCI kills the job due too much output in the log (4MB)
 
 	# Source
 	source eups-setups.sh
