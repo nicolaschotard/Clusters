@@ -52,12 +52,12 @@ def test_data_functions(datafile="travis_data.hdf5"):
 # Test the pipeline
 
 
-#def test_main(config="testdata/travis_test.yaml", datafile="travis_test_data.hdf5"):
-#    """Test the pipeline."""
-#    main.load_data([config, "--output", datafile, "--overwrite"])
-#    main.load_data([config, "--show", "--overwrite"])
-#    filtered_data = datafile.replace('.hdf5', '_filtered_data.hdf5')
-#    main.extinction([config, filtered_data, "--plot", "--overwrite"])
-#    extinction_data = filtered_data.replace('.hdf5', '_extinction.hdf5')
-#    main.photometric_redshift([config, filtered_data, "--extinction",
-#                               extinction_data, "--overwrite"])
+def test_main(config="testdata/travis_test.yaml", datafile="travis_test_data.hdf5"):
+    """Test the pipeline."""
+    main.load_data([config, "--output", datafile, "--overwrite"])
+    main.load_data([config, "--show", "--overwrite"])
+    filtered_data = datafile.replace('.hdf5', '_filtered_data.hdf5')
+    main.extinction([config, filtered_data, "--plot", "--overwrite"])
+    extinction_data = filtered_data.replace('.hdf5', '_extinction.hdf5')
+    main.photometric_redshift([config, filtered_data, "--extinction",
+                               extinction_data, "--overwrite"])
