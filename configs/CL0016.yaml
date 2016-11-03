@@ -3,7 +3,7 @@
     "ra": 4.6375,
     "dec": 16.4369,
     "redshift": 0.5410,
-    "filter": ["u", "g", "r", "i", "z"],
+    "filter": ["u", "g", "r", "i", "i2", "z"],
     "butler": "/sps/lsst/dev/lsstprod/clusters/CL0016+16/output/coadd_dir",
     "patch": ['2,2', '2,3', '2,4', '3,2', '3,3', '3,4', '4,2', '4,3', '4,4', '5,2', '5,3', '5,4']
 }
