@@ -5,7 +5,8 @@ from Clusters import main
 from Clusters import data
 
 
-CONFIG = "configs/MACSJ2243.3-0935.yaml"
+CONFIG = "testdata/travis_test.yaml"
+DATAFILE = "travis_test_data.hdf5"
 
 # Test the data module
 
@@ -14,7 +15,7 @@ def test_load_config():
     data.load_config(CONFIG)
 
 
-def test_catalogs_class(config="testdata/travis_test.yaml", datafile="travis_test_data"):
+def test_catalogs_class(config=CONFIG, datafile=DATAFILE):
     """Test the Clusters.data.Catalogs class."""
     if not os.path.exists('testdata'):
         get_testdata = """
@@ -28,10 +29,10 @@ def test_catalogs_class(config="testdata/travis_test.yaml", datafile="travis_tes
     cats = data.Catalogs(config['butler'])
     cats.load_catalogs(catalogs, matchid=True, **config)
     cats.load_catalogs(None, show=True)
-    cats.save_catalogs(datafile)
+    cats.save_catalogs(datafile.split('.')[0])
 
 
-def test_data_functions(datafile="travis_test_data.hdf5"):
+def test_data_functions(datafile=DATAFILE):
     """Test functions of data.py."""
     # Read the hdf5 file and load the catalogs
     catalogs = data.read_hdf5(datafile)
@@ -52,7 +53,7 @@ def test_data_functions(datafile="travis_test_data.hdf5"):
 # Test the pipeline
 
 
-def test_main(config="testdata/travis_test.yaml", datafile="travis_test_data.hdf5"):
+def test_main(config=CONFIG, datafile=DATAFILE):
     """Test the pipeline."""
     main.load_data([config, "--output", datafile, "--overwrite"])
     main.load_data([config, "--show", "--overwrite"])
