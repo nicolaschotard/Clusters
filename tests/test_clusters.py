@@ -14,7 +14,7 @@ def test_load_config():
     data.load_config(CONFIG)
 
 
-def test_catalogs_class(config="testdata/travis_test.yaml", datafile="travis_data.hdf5"):
+def test_catalogs_class(config="testdata/travis_test.yaml", datafile="travis_data"):
     """Test the Clusters.data.Catalogs class."""
     if not os.path.exists('testdata'):
         get_testdata = """
@@ -26,8 +26,8 @@ def test_catalogs_class(config="testdata/travis_test.yaml", datafile="travis_dat
     catalogs = ['forced_src', 'deepCoadd_meas', 'deepCoadd_forced_src']
     config = data.load_config(config)
     cats = data.Catalogs(config['butler'])
-    cats.show_keys(catalogs)
     cats.load_catalogs(catalogs, matchid=True, **config)
+    cats.load_catalogs(None, show=True)
     cats.save_catalogs(datafile)
 
 
