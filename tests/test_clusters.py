@@ -14,7 +14,7 @@ def test_load_config():
     data.load_config(CONFIG)
 
 
-def test_catalogs_class(config="testdata/travis_test.yaml", datafile="travis_data"):
+def test_catalogs_class(config="testdata/travis_test.yaml", datafile="travis_test_data"):
     """Test the Clusters.data.Catalogs class."""
     if not os.path.exists('testdata'):
         get_testdata = """
@@ -56,8 +56,8 @@ def test_main(config="testdata/travis_test.yaml", datafile="travis_test_data.hdf
     """Test the pipeline."""
     main.load_data([config, "--output", datafile, "--overwrite"])
     main.load_data([config, "--show", "--overwrite"])
-#    filtered_data = datafile.replace('.hdf5', '_filtered_data.hdf5')
-#    main.extinction([config, filtered_data, "--plot", "--overwrite"])
+    filtered_data = datafile.replace('.hdf5', '_filtered_data.hdf5')
+    main.extinction([config, filtered_data, "--plot", "--overwrite"])
 #    extinction_data = filtered_data.replace('.hdf5', '_extinction.hdf5')
 #    main.photometric_redshift([config, filtered_data, "--extinction",
 #                               extinction_data, "--overwrite"])
