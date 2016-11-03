@@ -1,0 +1,11 @@
+numpy
+scipy
+matplotlib
+seaborn
+pyyaml
+astropy
+requests
+h5py
+progressbar
+termcolor
+mock
