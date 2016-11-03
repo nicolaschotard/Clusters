@@ -41,6 +41,7 @@ script:
   - wget https://lapp-owncloud.in2p3.fr/index.php/s/MDaXObLSD9IVQ1B/download
   - tar zxf download
   - rm -rf download
+  - mv lephare $HOME/
   # LEPHARE env. var.
   - export LEPHAREWORK="$HOME/lephare/lephare_work"
   - export LEPHAREDIR="$HOME/lephare/lephare_dev"
