@@ -31,7 +31,7 @@ def test_catalogs_class(config="testdata/travis_test.yaml", datafile="travis_tes
     cats.save_catalogs(datafile)
 
 
-def test_data_functions(datafile="travis_data.hdf5"):
+def test_data_functions(datafile="travis_test_data.hdf5"):
     """Test functions of data.py."""
     # Read the hdf5 file and load the catalogs
     catalogs = data.read_hdf5(datafile)
