@@ -44,6 +44,7 @@ script:
   # LEPHARE env. var.
   - export LEPHAREWORK="$HOME/lephare/lephare_work"
   - export LEPHAREDIR="$HOME/lephare/lephare_dev"
+  - export PATH="$PATH:$HOME/lephare/lephare_dev/source"
   # Run the tests
   - coverage run --source="Clusters" setup.py test
   

@@ -27,7 +27,9 @@ if [ -f "$CACHE_TARBALL_PATH" ] && cmp "$HOME/info.txt" "$CACHE_DIR/info.txt"; t
  # Restore from cached tarball
  tar xzf "$CACHE_TARBALL_PATH" -C "$HOME"
  ls -l "$HOME"
+ export PATH="$HOME/miniconda/bin:$PATH"
  source activate lsst
+ source eups-setups.sh
 else
  # Miniconda install
  # Install Python 2.7 Miniconda
@@ -55,11 +57,8 @@ else
  ls -l "$CACHE_DIR"
 fi
 
-# Source
-source eups-setups.sh
-setup daf_persistence
-
 # Install obs_cfht
+setup daf_persistence
 git clone https://github.com/lsst/obs_cfht.git
 cd obs_cfht
 git checkout b7ab2c4
