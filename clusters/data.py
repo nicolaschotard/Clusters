@@ -307,7 +307,7 @@ class Catalogs(object):
     def show_keys(self, catalogs=None):
         """Show all the available keys."""
         if catalogs is None:
-            catalogs = self.catalogs.keys()
+            catalogs = [k for k in self.catalogs.keys() if k != 'wcs']
         catalogs = [catalogs] if isinstance(catalogs, str) else catalogs
         if len(catalogs) == 0:
             print colored("\nWARNING: No catalog loaded nor given.", "yellow")
