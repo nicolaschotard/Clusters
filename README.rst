@@ -64,19 +64,86 @@ Also works with the master::
 In the future, release versions will be listed at this `location
 <http://github.com/nicolaschotard/Clusters/releases>`_.
 
-To install dependencies, simply do::
-
-  pip install -r requirements.txt
-
 
 Dependencies
 ------------
 
 ``Clusters`` has for now the following dependencies:
 
-- The LSST DM `stack <https://developer.lsst.io/build-ci/lsstsw.html>`_
 - Python 2.7 and libraries listed in the `requirements <requirements.txt>`_ file
+- The LSST DM `stack <https://developer.lsst.io/build-ci/lsstsw.html>`_. 
 - `LEPHARE <http://cesam.lam.fr/lephare/lephare.html>`_
+
+Python
+``````
+
+To install the python dependencies, simply do::
+
+  pip install -r requirements.txt
+
+
+DM stack quick install
+``````````````````````
+
+This four-step procedure should allow you to install and configure a
+light version of the DM stack, but complete enough to use the
+``Clusters`` packages. It should take ~10 minutes.
+
+- Get and install miniconda if you do not have it already::
+  
+    wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh
+    bash miniconda.sh -b -p $HOME/miniconda
+    export PATH="$HOME/miniconda/bin:$PATH"
+    conda config --set always_yes yes --set changeps1 no
+    conda update -q conda
+
+- And then, install the needed part of the DM stack (we do not need
+  the entire stack)::
+    
+    conda config --add channels http://conda.lsst.codes/stack
+    conda create -q -n lsst python=2.7
+    source activate lsst
+    conda install -q gcc lsst-daf-persistence lsst-log lsst-afw lsst-skypix lsst-meas-algorithms lsst-pipe-tasks
+
+- Install a compatible version of the ``obs_cfht`` package, which is
+  not yet avalaible in the conda repository::
+
+    setup daf_persistence
+    git clone https://github.com/lsst/obs_cfht.git
+    cd obs_cfht
+    git checkout b7ab2c4
+    setup -k -r .
+    scons opt=3
+    eups declare -r . -t yourname
+  
+- To use this install of the DM stack, do not forget to set the
+  follwoing things up::
+  
+    export PATH="$HOME/miniconda/bin:$PATH"
+    source activate lsst
+    source eups-setups.sh
+    setup daf_persistence
+    setup obs_cfht -t yourname
+
+
+LEPHARE quick install
+`````````````````````
+
+You can download and install pre-configured version of LEPHARE as followed::
+
+  wget https://lapp-owncloud.in2p3.fr/index.php/s/MDaXObLSD9IVQ1B/download -O lephare.tar.gz
+  tar zxf lephare.tar.gz
+
+When the download is complete, put the ``lephare`` directory where it
+suits you (``mypath`` in this example), and set the following
+environement variables (use setenv if needed)::
+
+    export LEPHAREWORK="mypath/lephare/lephare_work"
+    export LEPHAREDIR="mypath/lephare/lephare_dev"
+    export PATH="$PATH:mypath/lephare/lephare_dev/source"
+
+You should now be able to run ``clusters_zphot.py`` (only tested on
+linux systems).
 
 
 Configuration file
@@ -138,8 +205,6 @@ keys as this analysis will progress.
     default value for all catalogs.
 
 
-
-
 General usage
 -------------
 
@@ -189,6 +254,70 @@ With any command, you can run with ``-h`` or ``--help`` to see all the
 optional arguments, e.g., ``clusters_data.py -h``.
 
 
+Test the code
+-------------
+
+If you have installed all the dependencies previoulsy mentionned,
+download the test data set as followed::
+
+  wget https://lapp-owncloud.in2p3.fr/index.php/s/xG2AoS2jggbmP0k/download -O testdata.tar.gz
+  tar zxf testdata.tar.gz
+
+The `testdata` directory contains a subset of the reprocessing data
+available for MACSJ2243.3-0935. It can be used as a test set of the
+code, but is not complete enough to run the full analysis. Here is the
+full structure and content of the directory::
+
+  testdata/
+  ├── input
+  │   ├── _mapper
+  │   └── registry.sqlite3
+  ├── output
+  │   ├── coadd_dir
+  │   │   ├── deepCoadd
+  │   │   │   ├── g
+  │   │   │   │   └── 0
+  │   │   │   │       ├── 1,5
+  │   │   │   │       └── 1,5.fits
+  │   │   │   └── skyMap.pickle
+  │   │   ├── deepCoadd-results
+  │   │   │   └── g
+  │   │   │       └── 0
+  │   │   │           └── 1,5
+  │   │   │               ├── bkgd-g-0-1,5.fits
+  │   │   │               ├── calexp-g-0-1,5.fits
+  │   │   │               ├── detectMD-g-0-1,5.boost
+  │   │   │               ├── det-g-0-1,5.fits
+  │   │   │               ├── forced_src-g-0-1,5.fits
+  │   │   │               ├── meas-g-0-1,5.fits
+  │   │   │               ├── measMD-g-0-1,5.boost
+  │   │   │               └── srcMatch-g-0-1,5.fits
+  │   │   ├── forced
+  │   │   │   └── 08BO01
+  │   │   │       └── SCL-2241_P1
+  │   │   │           └── 2008-09-03
+  │   │   │               └── g
+  │   │   │                   └── 0
+  │   │   │                       ├── FORCEDSRC-1022175-00.fits
+  │   │   │                       ├── FORCEDSRC-1022175-09.fits
+  │   │   │                       ├── FORCEDSRC-1022176-00.fits
+  │   │   │                       ├── FORCEDSRC-1022176-09.fits
+  │   │   │                       ├── FORCEDSRC-1022177-00.fits
+  │   │   │                       ├── FORCEDSRC-1022177-09.fits
+  │   │   │                       ├── FORCEDSRC-1022178-00.fits
+  │   │   │                       ├── FORCEDSRC-1022178-09.fits
+  │   │   │                       ├── FORCEDSRC-1022179-00.fits
+  │   │   │                       ├── FORCEDSRC-1022179-09.fits
+  │   │   │                       ├── FORCEDSRC-1022180-00.fits
+  │   │   │                       └── FORCEDSRC-1022180-09.fits
+  │   │   └── _parent -> ../
+  │   └── _parent -> ../input/
+  └── travis_test.yaml
+
+With this data set, you should be able to test most of the
+``Clusters`` parts, starting with the ``clusters_data.py`` script.
+
+
 An example
 ----------
 
@@ -197,12 +326,12 @@ on, you can use one of our re-processing outputs for
 MACSJ2243.3-0935. The corresponding configuration file is stored
 `there <configs/MACSJ2243.3-0935.yaml>`_. To use it, you either need
 to be connected at CC-IN2P3, or change the path to the butler inside
-the config file (if you have your own data). You could also mount sps
-on your personal computer (see this `how to
+the config file (if you already have a copy of this data). You could
+also mount sps on your personal computer (see this `how to
 <http://lsstnotes.readthedocs.io/en/latest/sshfs.html>`_).
 
 The first step of the ``Clusters`` package is ``clusters_data.py``,
-which will get the data from the DM butler, convert them into a
+which will get the data from the DM butler, convert them into
 ``astropy`` tables and save them in a single ``hdf5`` file. To do so,
 you need the LSST DM stack to be installed. If you want to skip this
 part and try the code whithout having to install the DM stack, you
