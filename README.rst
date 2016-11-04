@@ -352,7 +352,7 @@ part and try the code whithout having to install the DM stack, you
 could also use the output of this first step for MACSJ2243.3-0935 that
 you can download from:
 
-  https://lsst-web.ncsa.illinois.edu/~nchotard/data/clusters/
+https://lsst-web.ncsa.illinois.edu/~nchotard/data/clusters/
 
 This repository contains the following files::
 
