@@ -68,11 +68,13 @@ In the future, release versions will be listed at this `location
 Dependencies
 ------------
 
-``Clusters`` has for now the following dependencies:
+``Clusters`` has for now the following dependencies (see the quick
+installs below):
 
 - Python 2.7 and libraries listed in the `requirements <requirements.txt>`_ file
 - The LSST DM `stack <https://developer.lsst.io/build-ci/lsstsw.html>`_. 
-- `LEPHARE <http://cesam.lam.fr/lephare/lephare.html>`_
+- `LEPHARE <http://cesam.lam.fr/lephare/lephare.html>`_ (Photometric
+  Analysis for Redshift Estimate)
 
 Python
 ``````
@@ -326,6 +328,9 @@ With this data set, you should be able to test most of the
 Get the data
 ------------
 
+Raw DM stack outoputs
+`````````````````````
+
 If you have installed ``Clusters`` but do not have any data to run it
 on, you can use one of our re-processing outputs for
 MACSJ2243.3-0935. The corresponding configuration file is stored
@@ -334,6 +339,10 @@ to be connected at CC-IN2P3, or change the path to the butler inside
 the config file (if you already have a copy of this data). You could
 also mount sps on your personal computer (see this `how to
 <http://lsstnotes.readthedocs.io/en/latest/sshfs.html>`_).
+
+
+``clusters_data.py`` output
+```````````````````````````
 
 The first step of the ``Clusters`` package is ``clusters_data.py``,
 which will get the data from the DM butler, convert them into
