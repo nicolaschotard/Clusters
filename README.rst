@@ -350,20 +350,18 @@ which will get the data from the DM butler, convert them into
 you need the LSST DM stack to be installed. If you want to skip this
 part and try the code whithout having to install the DM stack, you
 could also use the output of this first step for MACSJ2243.3-0935 that
-you can download from:
-
-https://lsst-web.ncsa.illinois.edu/~nchotard/data/clusters/
-
-This repository contains the following files::
+you can download from `this repository
+<https://lsst-web.ncsa.illinois.edu/~nchotard/data/clusters/>`_, which
+contains the following files::
 
   |-- CL0016
   |   |-- [4.4G]  CL0016_data.hdf5                     # full data set
   |   |-- [334M]  CL0016_filtered_data.hdf5            # only quality-filtered galaxies
   |   `-- [ 312]  CL0016.yaml                          # configuration file
   |-- MACSJ224330935
-  |   |-- [5.6G]  MACSJ2243.3-0935_data.hdf5
-  |   |-- [367M]  MACSJ2243.3-0935_filtered_data.hdf5
-  |   |-- [ 329]  MACSJ2243.3-0935.yaml
+  |   |-- [5.6G]  MACSJ2243.3-0935_data.hdf5           # full data set
+  |   |-- [367M]  MACSJ2243.3-0935_filtered_data.hdf5  # only quality-filtered galaxies
+  |   |-- [ 329]  MACSJ2243.3-0935.yaml                # configuration file
 
 
 A `short tutorial
