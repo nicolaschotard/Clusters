@@ -1,6 +1,5 @@
 """Mass analysis."""
 
-import numpy
 from . import data as data
 from . import shear
 from astropy.table import Column
