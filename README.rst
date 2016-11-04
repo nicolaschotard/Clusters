@@ -328,7 +328,7 @@ With this data set, you should be able to test most of the
 Get the data
 ------------
 
-Raw DM stack outoputs
+Raw DM stack outputs
 `````````````````````
 
 If you have installed ``Clusters`` but do not have any data to run it
