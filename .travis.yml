@@ -48,7 +48,11 @@ script:
   - export PATH="$PATH:$HOME/lephare/lephare_dev/source"
   # Run the tests
   - coverage run --source="Clusters" setup.py test
-  
+
+before_cache:
+  - rm -f $HOME/.cache/pip/log/debug.log
+  - rm -rf $HOME/.cache/pip/http
+
 after_success:
   - codecov
   - coveralls
