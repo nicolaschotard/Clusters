@@ -29,7 +29,6 @@ if [ -f "$CACHE_TARBALL_PATH" ] && cmp "$HOME/info.txt" "$CACHE_DIR/info.txt"; t
  ls -l "$HOME"
  export PATH="$HOME/miniconda/bin:$PATH"
  source activate lsst
- source eups-setups.sh
 else
  # Miniconda install
  # Install Python 2.7 Miniconda
@@ -58,6 +57,7 @@ else
 fi
 
 # Install obs_cfht
+source eups-setups.sh
 setup daf_persistence
 git clone https://github.com/lsst/obs_cfht.git
 cd obs_cfht
