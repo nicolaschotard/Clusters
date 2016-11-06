@@ -89,7 +89,7 @@ DM stack quick install
 
 This four-step procedure should allow you to install and configure a
 light version of the DM stack, but complete enough to use the
-``Clusters`` packages. It should take ~10 minutes.
+``Clusters`` package. It should take ~10 minutes.
 
 - Get and install miniconda, if you do not have it already::
   
@@ -135,12 +135,18 @@ LEPHARE quick install
 `````````````````````
 
 You can download and install a pre-configured version of LEPHARE as
-followed::
+followed:
 
-  wget https://lapp-owncloud.in2p3.fr/index.php/s/MDaXObLSD9IVQ1B/download -O lephare.tar.gz
-  tar zxf lephare.tar.gz
+- for linux system::
+    
+    wget https://lapp-owncloud.in2p3.fr/index.php/s/MDaXObLSD9IVQ1B/download -O lephare.tar.gz
+    tar zxf lephare.tar.gz
 
-When the download is complete, put the ``lephare`` directory where it
+- for mac::
+
+    will come soon
+
+When the download is complete, exctract the ``lephare`` directory where it
 suits you (``mypath`` in this example), and set the following
 environment variables (use setenv if needed)::
 
@@ -349,8 +355,8 @@ which will get the data from the DM butler, convert them into
 ``astropy`` tables and save them in a single ``hdf5`` file. To do so,
 you need the LSST DM stack to be installed. If you want to skip this
 part and try the code whithout having to install the DM stack, you
-could also use the output of this first step for MACSJ2243.3-0935 that
-you can download from `this repository
+could also use the outputs of this first step that you can download
+from `this repository
 <https://lsst-web.ncsa.illinois.edu/~nchotard/data/clusters/>`_, which
 contains the following files::
 
@@ -364,6 +370,6 @@ contains the following files::
   |   |-- [ 329]  MACSJ2243.3-0935.yaml                # configuration file
 
 
-A `short tutorial
+This `short tutorial
 <http://clusters.readthedocs.io/en/latest/data.html#work-with-the-table>`_
-explains how to use this ``hdf5`` file to start an analysis.
+explains how to use these ``hdf5`` files to start an analysis.

@@ -8,10 +8,10 @@ The data format used in all scripts is based on the `Astropy Table
 <http://docs.astropy.org/en/stable/table/>`_ format. In the `Build the
 table`_ section, we show how these Astropy Tables are created from the
 DM butler. This work is automatically done for the ``deepCoadd_meas``,
-``deepCoadd_forced_src``, and ``forced_src`` catalogs, and then saved
-together in one single `hdf5 <http://www.h5py.org/>`_ file. The
-procedures to write and read these files, and work with the loaded
-tables, are described in the `Working with the table`_ section.
+``deepCoadd_forced_src``, and ``forced_src`` catalogs, when avalaible,
+and then saved together in one single `hdf5 <http://www.h5py.org/>`_
+file. The procedure to write and read these files and work with the
+loaded tables are described in the `Working with the table`_ section.
 
 
 Build the table

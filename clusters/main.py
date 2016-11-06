@@ -138,12 +138,9 @@ def doplot(data, config, zmin=0, zmax=999):
 
 def photometric_redshift(argv=None):
     """Comput photometric redshift using LEPHARE."""
-    info = {}
-    info['description'] = """Comput photometric redshift using LEPHARE."""
-    info['prog'] = "clusters_zphot.py"
-    info['usage'] = """%s [options] config input""" % info['prog']
-
-    parser = ArgumentParser(prog=info['prog'], usage=info['usage'], description=info['description'],
+    parser = ArgumentParser(prog="clusters_zphot.py",
+                            usage="clusters_zphot.py [options] config input",
+                            description="Comput photometric redshift using LEPHARE.",
                             formatter_class=ArgumentDefaultsHelpFormatter)
     parser.add_argument('config', help='Configuration (yaml) file')
     parser.add_argument('input', help='Input data file')
@@ -184,17 +181,16 @@ def photometric_redshift(argv=None):
     print "INFO: Loading the data from", args.input
     data = cdata.read_hdf5(args.input)['deepCoadd_forced_src']
 
-    mag = args.mag
     # Compute extinction-corrected magitudes
     if args.extinction is not None:
         print "INFO: Computing extinction-corrected magnitude for", args.mag
         edata = cdata.read_hdf5(args.extinction)['extinction']
         cdata.correct_for_extinction(data, edata, mag=args.mag)
-        mag += "_extcorr"
+        args.mag += "_extcorr"
 
     # Make sure the selected magnitude does exist in the data table
-    if mag not in data.keys():
-        raise IOError("%s is not a column of the input table" % mag)
+    if args.mag not in data.keys():
+        raise IOError("%s is not a column of the input table" % args.mag)
 
     # Run LEPHARE
     print "INFO: LEPHARE will run on", len(data) / len(config['filter']), "sources"
@@ -203,9 +199,10 @@ def photometric_redshift(argv=None):
         args.zpara = os.environ["LEPHAREDIR"] + \
                      "/config/zphot_megacam.para" if 'zpara' not in config else config['zpara']
 
-    # If a spectroscopic sample is provided, LEPHARE will run using the adaptative method (zero points determination) 
+    # If a spectroscopic sample is provided, LEPHARE will run using the adaptative method
+    # (zero points determination)
     spectro_file = None if 'zspectro_file' not in config else config['zspectro_file']
-    
+
     for i, zpara in enumerate(args.zpara.split(',') if isinstance(args.zpara, str) else args.zpara):
         print "\nINFO: Configuration for LEPHARE from:", zpara
         kwargs = {'basename': config['cluster'] + '_' + zpara.split('/')[-1].replace('.para', ''),
@@ -213,8 +210,9 @@ def photometric_redshift(argv=None):
                   'ra': data['coord_ra_deg'][data['filter'] == config['filter'][0]],
                   'dec': data['coord_dec_deg'][data['filter'] == config['filter'][0]],
                   'id': data['objectId'][data['filter'] == config['filter'][0]]}
-        zphot = czphot.LEPHARE([data[mag][data['filter'] == f] for f in config['filter']],
-                               [data[args.mag + "Sigma"][data['filter'] == f]
+        zphot = czphot.LEPHARE([data[args.mag][data['filter'] == f] for f in config['filter']],
+                               [data[args.mag.replace("_extcorr", "") +
+                                     "Sigma"][data['filter'] == f]
                                 for f in config['filter']],
                                zpara=zpara, spectro_file=spectro_file, **kwargs)
         zphot.check_config()
@@ -226,12 +224,9 @@ def photometric_redshift(argv=None):
                                'coord_ra_deg',
                                'coord_dec_deg'][data['filter'] == config['filter'][0]],
                           Table(zphot.data_out.data_dict)], join_type='inner')
-        if i == 0:
-            new_tab.write(args.output, path=path, compression=True,
-                          serialize_meta=True, overwrite=args.overwrite)
-        else:
-            new_tab.write(args.output, path=path, compression=True,
-                          serialize_meta=True, append=True)
+        new_tab.write(args.output, path=path, compression=True, serialize_meta=True,
+                      overwrite=args.overwrite if i == 0 else False,
+                      append=False if i == 0 else True)
         print "INFO: LEPHARE data saved in", args.output, "as", path
 
         if args.plot:
@@ -302,7 +297,7 @@ def shear(argv=None):
     print "INFO: Working on filters", config['filter']
 
     # Load the data
-    data = cdata.read_data(args.input)
+    data = cdata.read_hdf5(args.input)
     meas = data['deepCoadd_meas']
     wcs = data['wcs']
     xclust, yclust = cdata.skycoord_to_pixel([config['ra'], config['dec']], wcs)
