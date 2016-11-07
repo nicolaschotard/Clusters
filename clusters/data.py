@@ -131,7 +131,7 @@ class Catalogs(object):
 
     def _get_tables(self, catalog, did, i, pbar):
         """Get a table and add a few keys."""
-        table = self._load_catalog_dataid(catalog, did, table=False, **{'keys': self.keys[catalog]})
+        table = self._load_catalog_dataid(catalog, did, table=True, **{'keys': self.keys[catalog]})
         table.update({key: [did[key]] * len(table[table.keys()[0]]) for key in did})
         pbar.update(i + 1)
         return table
