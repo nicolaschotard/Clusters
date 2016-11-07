@@ -48,12 +48,15 @@ class LEPHARE(object):
         if 'basename' in kwargs:
             self.files['input'] = kwargs['basename'] + "_zphot.in"
             self.files['output'] = kwargs['basename'] + "_zphot.out"
+            self.files['pdz_output'] = kwargs['basename'] + "_zphot"
         elif 'cname' in kwargs:
             self.files['input'] = kwargs['cname'] + "_zphot.in"
             self.files['output'] = kwargs['cname'] + "_zphot.out"
+            self.files['pdz_output'] = kwargs['basename'] + "_zphot"
         else:
             self.files['input'] = "zphot.in"
             self.files['output'] = "zphot.out"
+            self.files['pdz_output'] = kwargs['basename'] + "_zphot"
         self.files['all_input'] = self.files['input'].replace('.in', '.all')
 
         # Initialize lephare output variables
@@ -183,6 +186,7 @@ class LEPHARE(object):
         cmd += " -c " + self.config
         cmd += " -CAT_IN " + self.files['input']
         cmd += " -CAT_OUT " + self.files['output']
+        cmd += " -PDZ_OUT " + self.files['pdz_output']
         print "INFO: Will run '%s'" % cmd
         self.lephare_out = subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True)
         print "INFO: LEPHARE output summary (full output in self.lephare_out)"
@@ -391,7 +395,7 @@ class ZSPEC(object):
                                                  'match for each element'],
                                  'unit': ['', 'marcsec', '']})
 
-    def plot(self, cut=300):
+    def plot(self, cut=300, path_to_png=None):
         """Plot a sky-map of the matches."""
         if self.match is None:
             raise IOError("ERROR: You must load the photometric data first (load_zphot).")
@@ -406,6 +410,8 @@ class ZSPEC(object):
 
         # z-phot as a function of z-spec
         ax = fig.add_subplot(121, xlabel='Z-spec', ylabel='Z-phot')
+        ax.set_xlim([0,1.5])
+        ax.set_ylim([0,3.5])
         scat = ax.scatter(zspec, zphot, c=sdist, cmap=(P.cm.copper))
         ax.plot(N.arange(int(max(zspec+1))),N.arange(int(max(zspec+1))), c='red')
         cb = fig.colorbar(scat)
@@ -418,7 +424,11 @@ class ZSPEC(object):
         ax.set_title("%i galaxies" % len(self.match[filt]))
         ax.set_xscale('log')
         ax.set_xlim([1.,1.e6])
+        ax.set_ylim([-1.,3.5])
 
+        if path_to_png is not None:
+            fig.savefig(path_to_png)
+        
         fig = P.figure()
 
         # radec scatter plot of all catalogue and zspec galaxies
@@ -430,8 +440,11 @@ class ZSPEC(object):
         # radec scatter plot of matched catalogue and zspec galaxies, within the cut criterion
         ax = fig.add_subplot(122, xlabel='ra', ylabel='dec')
         ax.scatter(self.skycoords_phot.ra[self.match['idx'][filt]], self.skycoords_phot.dec[self.match['idx'][filt]],
-                   color='k', label='Photo-z', s=15)
-        ax.scatter(self.skycoords.ra[filt], self.skycoords.dec[filt], color='r', label='Spectro-z', s=12)
+                   color='k', label='Photo-z', s=5)
+        ax.scatter(self.skycoords.ra[filt], self.skycoords.dec[filt], color='r', label='Spectro-z', s=5)
+
+        if path_to_png is not None:
+            fig.savefig(path_to_png.replace('.png','_map.png'))
 
         P.show()
         
