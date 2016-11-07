@@ -1,8 +1,8 @@
 """Test the reddening module."""
 
 import os
-from Clusters import main
-from Clusters import data
+from clusters import main
+from clusters import data
 
 
 CONFIG = "testdata/travis_test.yaml"
@@ -16,7 +16,7 @@ def test_load_config():
 
 
 def test_catalogs_class(config=CONFIG, datafile=DATAFILE):
-    """Test the Clusters.data.Catalogs class."""
+    """Test the clusters.data.Catalogs class."""
     if not os.path.exists('testdata'):
         get_testdata = """
         - wget https://lapp-owncloud.in2p3.fr/index.php/s/xG2AoS2jggbmP0k/download
