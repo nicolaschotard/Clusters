@@ -102,7 +102,8 @@ class Catalogs(object):
 
     def _load_catalog_dataid(self, catalog, dataid, table=True, **kwargs):
         """Load a catalog from a 'dataId' set of parameter."""
-        cat = self.butler.get(catalog, dataId=dataid)
+        cat = self.butler.get(catalog, dataId=dataid,
+                              flags=lsst.afw.table.SOURCE_IO_NO_FOOTPRINTS)﻿⁠⁠⁠⁠)
         if self.schema is None and hasattr(cat, 'getSchema'):
             self.schema = cat.getSchema()
         return cat.getColumnView().extract(*kwargs['keys'] if 'keys' in kwargs else "*",
@@ -317,7 +318,8 @@ class Catalogs(object):
                 print colored("\nINFO: Get the available data IDs", "green")
                 self._load_dataids(cat)
             print colored("\nINFO: Available list of keys for the %s catalog" % cat, "green")
-            table = get_astropy_table(self.butler.get(cat, dataId=self.dataids[cat][0]),
+            table = get_astropy_table(self.butler.get(cat, dataId=self.dataids[cat][0],
+                                                      flags=lsst.afw.table.SOURCE_IO_NO_FOOTPRINTS),
                                       keys="*", get_info=True)
             ktable = Table(numpy.transpose([[k, table[k].description, table[k].unit]
                                             for k in sorted(table.keys())]).tolist(),
