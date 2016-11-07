@@ -11,7 +11,7 @@ def load_cluster(cluster="MACSJ2243.3-0935", ifilt="i_new"):
     # load astropy tables from hdf5 file
     d = data.read_hdf5(cluster + "_all.hdf5")
     # read extinction law parameters
-    d2 = data.read_hdf5(cluster + "_all_extinction.hdf5", path="extinction")
+    d2 = data.read_hdf5(cluster + "_all_extinction.hdf5", path="extinction", dic=False)
 
     # correct maggnitude for extinction
     data.correct_for_extinction(d['deepCoadd_forced_src'], d2, ifilt=ifilt)
