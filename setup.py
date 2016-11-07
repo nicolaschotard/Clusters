@@ -6,7 +6,7 @@ import os
 import glob
 import yaml
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 
 README = '/'.join(os.path.realpath(__file__).split('/')[:-1]) + '/README.rst'
@@ -19,7 +19,7 @@ __version__ = yaml.load(open(VERSION))['version']
 name = 'Clusters'
 
 # Packages (subdirectories in clusters/)
-packages = ["Clusters"]
+packages = find_packages()
 
 # Scripts (in scripts/)
 scripts = glob.glob("scripts/*.py")
@@ -35,7 +35,6 @@ setup(name=name,
       url="https://github.com/nicolaschotard/Clusters",
       author="Nicolas Chotard, Dominique Boutigny, Celine Combet",
       author_email="nchotard@in2p3.fr",
-      package_dir={name: 'clusters'},
       packages=packages,
       scripts=scripts,
       package_data=package_data,

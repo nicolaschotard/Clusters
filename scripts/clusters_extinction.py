@@ -2,6 +2,6 @@
 """Load the color excess."""
 
 import sys
-from Clusters import main
+from clusters import main
 
 sys.exit(main.extinction())

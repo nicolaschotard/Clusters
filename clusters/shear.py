@@ -63,8 +63,8 @@ def compare_shear(catalogs, xclust, yclust, qcut=None, param='Tshear'):
     """Compare shear mesured on the coadd and shear measured on indivial ccd.
 
     For now, do:
-    from Clusters import data
-    from Clusters import shear
+    from clusters import data
+    from clusters import shear
     config = data.load_config('MACSJ2243.3-0935.yaml')
     catalogs = data.read_hdf5('test_data2.hdf5')
     xc, yc = shear.xy_clust(config, data.load_wcs(catalogs['wcs']))
