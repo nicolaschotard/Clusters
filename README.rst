@@ -102,7 +102,7 @@ light version of the DM stack, but complete enough to use the
 - Install the needed part of the DM stack (we do not need the entire
   stack)::
     
-    conda config --add channels http://conda.lsst.codes/stack/0.12.1
+    conda config --add channels http://conda.lsst.codes/stack/0.12.0
     conda create -q -n lsst python=2.7
     source activate lsst
     conda install -q gcc lsst-daf-persistence lsst-log lsst-afw lsst-skypix lsst-meas-algorithms lsst-pipe-tasks
