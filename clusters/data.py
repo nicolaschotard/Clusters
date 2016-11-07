@@ -451,8 +451,8 @@ def read_hdf5(hdf5_file, path=None, dic=True):
         paths = hdf5_paths(hdf5_file)
         return {path: Table.read(hdf5_file, path=path) for path in paths}
     else:
-        return {path: Table.read(hdf5_file, path=path) if dic
-                else Table.read(hdf5_file, path=path)
+        return {path: Table.read(hdf5_file, path=path)} if dic \
+            else Table.read(hdf5_file, path=path)
 
 
 def hdf5_paths(hdf5_file):
