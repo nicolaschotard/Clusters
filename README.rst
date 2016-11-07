@@ -144,8 +144,9 @@ followed:
 
 - for mac::
 
-    will come soon
-
+    wget http://lpsc.in2p3.fr/upload/doc/fdd5e8/lephare_macosx.tar.gz -O lephare.tar.gz
+    tar zxf lephare.tar.gz
+    
 When the download is complete, exctract the ``lephare`` directory where it
 suits you (``mypath`` in this example), and set the following
 environment variables (use setenv if needed)::
