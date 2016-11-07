@@ -131,7 +131,7 @@ class Catalogs(object):
 
     def _get_tables(self, catalog, did, i, pbar):
         """Get a table and add a few keys."""
-        table = self._load_catalog_dataid(catalog, did, **{'keys': self.keys[catalog]})
+        table = self._load_catalog_dataid(catalog, did, table=False, **{'keys': self.keys[catalog]})
         table.update({key: [did[key]] * len(table[table.keys()[0]]) for key in did})
         pbar.update(i + 1)
         return table
@@ -440,7 +440,7 @@ def concatenate_dicts(*dicts):
     return {k: numpy.concatenate([d.pop(k) for d in dicts]) for k in dicts[0].keys()}
 
 
-def read_hdf5(hdf5_file, path=None):
+def read_hdf5(hdf5_file, path=None, dic=True):
     """Read astropy tables from an hdf5 file.
 
     :param string data_file: Name of the hdf5 file to load.
@@ -451,7 +451,8 @@ def read_hdf5(hdf5_file, path=None):
         paths = hdf5_paths(hdf5_file)
         return {path: Table.read(hdf5_file, path=path) for path in paths}
     else:
-        return {path: Table.read(hdf5_file, path=path)}
+        return {path: Table.read(hdf5_file, path=path) if dic
+                else Table.read(hdf5_file, path=path)
 
 
 def hdf5_paths(hdf5_file):
