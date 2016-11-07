@@ -206,7 +206,7 @@ def photometric_redshift(argv=None):
     for i, zpara in enumerate(args.zpara.split(',') if isinstance(args.zpara, str) else args.zpara):
         print "\nINFO: Configuration for LEPHARE from:", zpara
         kwargs = {'basename': config['cluster'] + '_' + zpara.split('/')[-1].replace('.para', ''),
-                  'filters': [f for f in config['filters'] if f in set(data['filter'].tolist())],
+                  'filters': [f for f in config['filter'] if f in set(data['filter'].tolist())],
                   'ra': data['coord_ra_deg'][data['filter'] == config['filter'][0]],
                   'dec': data['coord_dec_deg'][data['filter'] == config['filter'][0]],
                   'id': data['objectId'][data['filter'] == config['filter'][0]]}
