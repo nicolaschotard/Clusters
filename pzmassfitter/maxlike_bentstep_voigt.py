@@ -62,38 +62,42 @@ class BentVoigtShapedistro(mm.LensingModel):
 
         inputcat = data.inputcat
 
-        psfSize = data.psfsize # rh, in pixels
+#        psfSize = data.psfsize # rh, in pixels
 
-        m_slope, m_b, m_cov, c = self.psfDependence(data.options.steppsf, psfSize)
+        #disabled since we don't have a STEP calibration for the regauss pipeline in DMSTACK
+#        m_slope, m_b, m_cov, c = self.psfDependence(data.options.steppsf, psfSize)
+#
+#        
+#        parts.step_m_prior = pymc.MvNormalCov('step_m_prior', [m_b, m_slope], m_cov)
+#
+#        @pymc.deterministic(trace = False)
+#        def shearcal_m(size = inputcat['size'], mprior = parts.step_m_prior):
+#
+#            m_b = mprior[0]
+#            m_slope = mprior[1]
+#                           
+#
+#            m = np.zeros_like(size)
+#            m[size >= 2.0] = m_b
+#            m[size < 2.0] = m_slope*(size[size < 2.0] - 2.0) +m_b
+#            
+#            return np.ascontiguousarray(m.astype(np.float64))
+#
+#        parts.shearcal_m = shearcal_m
+#
+#        parts.step_c_prior = pymc.Normal('step_c_prior', c, 1./(0.0004**2))
+#
+#        @pymc.deterministic(trace = False)
+#        def shearcal_c(size = inputcat['size'], cprior = parts.step_c_prior):
+#            c = cprior*np.ones_like(size)
+#            
+#            return np.ascontiguousarray(c.astype(np.float64))
+#
+#        parts.shearcal_c = shearcal_c
+#
 
-        
-        parts.step_m_prior = pymc.MvNormalCov('step_m_prior', [m_b, m_slope], m_cov)
-
-        @pymc.deterministic(trace = False)
-        def shearcal_m(size = inputcat['size'], mprior = parts.step_m_prior):
-
-            m_b = mprior[0]
-            m_slope = mprior[1]
-                           
-
-            m = np.zeros_like(size)
-            m[size >= 2.0] = m_b
-            m[size < 2.0] = m_slope*(size[size < 2.0] - 2.0) +m_b
-            
-            return np.ascontiguousarray(m.astype(np.float64))
-
-        parts.shearcal_m = shearcal_m
-
-        parts.step_c_prior = pymc.Normal('step_c_prior', c, 1./(0.0004**2))
-
-        @pymc.deterministic(trace = False)
-        def shearcal_c(size = inputcat['size'], cprior = parts.step_c_prior):
-            c = cprior*np.ones_like(size)
-            
-            return np.ascontiguousarray(c.astype(np.float64))
-
-        parts.shearcal_c = shearcal_c
-
+        parts.shearcal_m = np.ones(len(inputcat))
+        parts.shearcal_c = np.zeros(len(inputcat))
 
         
         parts.sigma = pymc.Uniform('sigma', 0.15, 0.5) #sigma
@@ -114,18 +118,24 @@ class BentVoigtShapedistro(mm.LensingModel):
 
         inputcat = datamanager.inputcat
 
-        pdz = datamanager.pdz
+        pz = datamanager.pz
 
         parts.r_mpc = np.ascontiguousarray(inputcat['r_mpc'].astype(np.float64))
         parts.ghats = np.ascontiguousarray(inputcat['ghats'].astype(np.float64))
-        parts.pdz = np.ascontiguousarray(pdz.astype(np.float64))
+        parts.pz = np.ascontiguousarray(pz.astype(np.float64))
 
 
 
-        parts.pdzrange = datamanager.pdzrange
+        parts.zs = np.ascontiguousarray(np.array(datamanager.pdzrange).astype(np.float64))
 
-        parts.betas = np.ascontiguousarray(nfwutils.beta_s(parts.pdzrange, parts.zcluster).astype(np.float64))
+
+        parts.betas = np.ascontiguousarray(nfwutils.global_cosmology.beta_s(parts.zs, parts.zcluster).astype(np.float64))
         parts.nzbins = len(parts.betas)
+
+        parts.rho_c = nfwutils.global_cosmology.rho_crit(parts.zcluster)
+        parts.rho_c_over_sigma_c = 1.5 * nfwutils.global_cosmology.angulardist(parts.zcluster) * nfwutils.global_cosmology.beta([1e6], parts.zcluster)[0] * nfwutils.global_cosmology.hubble2(parts.zcluster) / nfwutils.global_cosmology.v_c**2
+
+
 
 
         parts.data = None
@@ -134,30 +144,35 @@ class BentVoigtShapedistro(mm.LensingModel):
             try:
 
                 @pymc.stochastic(observed=True, name='data_%d' % i)
-                def data(value = parts.ghats, 
-                         r_scale = parts.r_scale,
+                def data(value = parts.ghats,
+                         mdelta = parts.mdelta,
+                         cdelta = parts.cdelta,
+                         r_mpc = parts.r_mpc,
+                         zs = parts.zs,
+                         betas = parts.betas,
+                         pz = parts.pz, 
                          shearcal_m = parts.shearcal_m,
                          shearcal_c = parts.shearcal_c,
                          sigma = parts.sigma,
                          gamma = parts.gamma,
-                         r_mpc = parts.r_mpc, 
-                         pdz = parts.pdz, 
-                         betas = parts.betas, 
-                         concentration = parts.concentration,
-                         zcluster = parts.zcluster):
+                         rho_c = parts.rho_c,
+                         rho_c_over_sigma_c = parts.rho_c_over_sigma_c,
+                         massdelta = parts.massdelta):                    
                     
-                    
-                    return nfwtools.bentvoigt_like(r_scale, 
-                                                   r_mpc, 
-                                                   value, 
+                    return nfwtools.bentvoigt_like(mdelta,
+                                                   cdelta,
+                                                   r_mpc,
+                                                   value,
+                                                   zs, 
                                                    betas, 
-                                                   pdz, 
+                                                   pz, 
                                                    shearcal_m,
                                                    shearcal_c,
                                                    sigma,
                                                    gamma,
-                                                   concentration, 
-                                                   zcluster)
+                                                   rho_c,
+                                                   rho_c_over_sigma_c,
+                                                   massdelta)
 
 
 

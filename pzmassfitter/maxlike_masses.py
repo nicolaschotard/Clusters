@@ -9,6 +9,7 @@ import numpy as np, pymc
 import astropy.io.fits as pyfits
 import nfwmodeltools as tools, varcontainer
 import nfwutils, ldac
+import confidenceinterval as ci
 
 ##########################
 
@@ -45,58 +46,60 @@ class LensingModel(object):
 
     
 
-    def makeLikelihood(self, datamanager, parts):
-
-        inputcat = datamanager.inputcat
-
-        pdz = datamanager.pdz
-
-
-        bin_selectors = self.bin_selectors(inputcat)
-
-
-        parts.r_mpc = [ np.ascontiguousarray(inputcat['r_mpc'][x].astype(np.float64)) for x in bin_selectors ]
-        parts.ghats = [ np.ascontiguousarray(inputcat['ghats'][x].astype(np.float64)) for x in bin_selectors ]
-        parts.pdz = [ np.ascontiguousarray(pdz[x].astype(np.float64)) for x in bin_selectors ]
-
-
-        parts.nshapebins = len(bin_selectors)
-        parts.pdzrange = datamanager.pdzrange
-
-        
-        parts.betas = np.ascontiguousarray(nfwutils.beta_s(parts.pdzrange, parts.zcluster).astype(np.float64))
-        parts.nzbins = len(parts.betas)
-
-
-        parts.data = np.empty(parts.nshapebins, dtype=object)
-
-
-        for i, cur_ghats, cur_shape_param, cur_r_mpc, cur_pdz in zip(np.arange(parts.nshapebins), 
-                                                                     parts.ghats, 
-                                                                     parts.shape_params, 
-                                                                     parts.r_mpc, 
-                                                                     parts.pdz):
-
-            @pymc.stochastic(observed=True, name='data_%d' % i)
-            def data(value = cur_ghats, r_scale = parts.r_scale, shape_params = cur_shape_param,
-                     r_mpc = cur_r_mpc, pdz = cur_pdz, betas = parts.betas, 
-                     concentration = parts.concentration,
-                     zcluster = parts.zcluster):
-
-
-                return self.likelihood_func(r_scale, r_mpc, 
-                                       value, betas, 
-                                       pdz, shape_params,
-                                       concentration, zcluster)
-
-
-
-
-
-            parts.data[i] = data
-
-
-
+#    def makeLikelihood(self, datamanager, parts):
+#
+#        inputcat = datamanager.inputcat
+#
+#        pdz = datamanager.pdz
+#
+#
+#        bin_selectors = self.bin_selectors(inputcat)
+#
+#
+#        parts.r_mpc = [ np.ascontiguousarray(inputcat['r_mpc'][x].astype(np.float64)) for x in bin_selectors ]
+#        parts.ghats = [ np.ascontiguousarray(inputcat['ghats'][x].astype(np.float64)) for x in bin_selectors ]
+#        parts.pdz = [ np.ascontiguousarray(pdz[x].astype(np.float64)) for x in bin_selectors ]
+#
+#
+#        parts.nshapebins = len(bin_selectors)
+#        parts.pdzrange = datamanager.pdzrange
+#
+#        
+#        parts.betas = np.ascontiguousarray(nfwutils.beta_s(parts.pdzrange, parts.zcluster).astype(np.float64))
+#        parts.nzbins = len(parts.betas)
+#
+#        
+#
+#
+#        parts.data = np.empty(parts.nshapebins, dtype=object)
+#
+#
+#        for i, cur_ghats, cur_shape_param, cur_r_mpc, cur_pdz in zip(np.arange(parts.nshapebins), 
+#                                                                     parts.ghats, 
+#                                                                     parts.shape_params, 
+#                                                                     parts.r_mpc, 
+#                                                                     parts.pdz):
+#
+#            @pymc.stochastic(observed=True, name='data_%d' % i)
+#            def data(value = cur_ghats, r_scale = parts.r_scale, shape_params = cur_shape_param,
+#                     r_mpc = cur_r_mpc, pdz = cur_pdz, betas = parts.betas, 
+#                     concentration = parts.concentration,
+#                     zcluster = parts.zcluster):
+#
+#
+#                return self.likelihood_func(r_scale, r_mpc, 
+#                                       value, betas, 
+#                                       pdz, shape_params,
+#                                       concentration, zcluster)
+#
+#
+#
+#
+#
+#            parts.data[i] = data
+#
+#
+#
 
 
     #######################################################
@@ -147,7 +150,7 @@ class LensingModel(object):
     def createOptions(self, deltaz95low = -1, deltaz95high = 2.5, zbhigh = 1.25,
                       zcut = 0.1, masslow = 1e13, masshigh = 1e16,
                       ztypecut = False, radlow = 0.75, radhigh = 3.0, 
-                      concentration = None, logprior = False,
+                      concentration = None, delta=200.,
                       options = None, args = None):
 
         if options is None:
@@ -163,7 +166,7 @@ class LensingModel(object):
         options.radlow = radlow
         options.radhigh = radhigh
         options.concentration = concentration
-        options.logprior = logprior
+        options.delta = delta
 
         return options, None
 
@@ -193,19 +196,22 @@ class LensingModel(object):
         
 
 
+# Definition of pdz is changing, need to change this.
+#        pdz = manager.pdz
+#        pdzrange = manager.pdzrange
+#        delta95Z = np.zeros(len(pdz))
+#
+#        for i in range(len(delta95Z)):
+#
+#            cumpdz = pdz[i].cumsum() / pdz[i].cumsum()[-1]
+#
+#            delta95Z[i] = pdzrange[cumpdz >= 0.95][0] - pdzrange[cumpdz >= 0.05][0]
+#
+#        deltaZcut = np.logical_and(options.deltaz95low <= delta95Z,
+#                                   delta95Z < options.deltaz95high)
+#
 
-        pdz = manager.pdz
-        pdzrange = manager.pdzrange
-        delta95Z = np.zeros(len(pdz))
 
-        for i in range(len(delta95Z)):
-
-            cumpdz = pdz[i].cumsum() / pdz[i].cumsum()[-1]
-
-            delta95Z[i] = pdzrange[cumpdz >= 0.95][0] - pdzrange[cumpdz >= 0.05][0]
-
-        deltaZcut = np.logical_and(options.deltaz95low <= delta95Z,
-                                   delta95Z < options.deltaz95high)
 
         if options.zcut is None:
 
@@ -237,7 +243,8 @@ class LensingModel(object):
 
         
             
-        basic_cuts = reduce(np.logical_and, [goodObjs, deltaZcut, zcut, ztypecut])
+#        basic_cuts = reduce(np.logical_and, [goodObjs, deltaZcut, zcut, ztypecut])
+        basic_cuts = reduce(np.logical_and, [goodObjs, zcut, ztypecut])
 
 
         return basic_cuts
@@ -258,42 +265,18 @@ class LensingModel(object):
             parts.log10concentration = pymc.TruncatedNormal('log10concentration', 0.6, 1./0.116**2, 
                                                       np.log10(1.), np.log10(10.))   #tau!
             @pymc.deterministic
-            def concentration(log10concentration = parts.log10concentration):
+            def cdelta(log10concentration = parts.log10concentration):
                 return 10**log10concentration
-            parts.concentration = concentration
+            parts.cdelta = cdelta
         else:
-            parts.concentration = options.concentration
+            parts.cdelta = options.concentration
 
 
-        if options.logprior:
-            
-            parts.logmass_15mpc = pymc.Uniform('logmass_15mpc', np.log10(options.masslow), 
-                                               np.log10(options.masshigh))
+        manager.massdelta = options.delta
+        parts.massdelta = options.delta
+        parts.mdelta = pymc.Uniform('mdelta', options.masslow,
+                                    options.masshigh)
 
-            @pymc.deterministic
-            def mass_15mpc(logmass = parts.logmass_15mpc):
-                return 10**logmass
-
-            parts.mass_15mpc = mass_15mpc
-
-        else:
-
-
-            parts.mass_15mpc = pymc.Uniform('mass_15mpc', options.masslow, options.masshigh)
-
-        @pymc.deterministic
-        def r_scale(mass = parts.mass_15mpc, 
-                    concentration = parts.concentration, 
-                    zcluster = parts.zcluster):
-            
-            try:
-                rs = nfwutils.RsMassInsideR(mass, concentration, zcluster, 1.5)
-            except ValueError:
-                raise pymc.ZeroProbability
-
-            return rs
-
-        parts.r_scale = r_scale
 
 
 
@@ -498,20 +481,6 @@ class SampleModelToFile(object):
 
         manager.mcmc.sample(nsamples)
 
-        if isinstance(manager.mcmc.concentration, float):
-            manager.masses = np.array([ nfwutils.massInsideR(rs,
-                                                             manager.mcmc.concentration,
-                                                             manager.mcmc.zcluster,
-                                                             manager.r500) \
-                                            for rs in manager.mcmc.trace('r_scale')[burn:] ])
-        else:
-            manager.masses = np.array([ nfwutils.massInsideR(rs,
-                                                             c,
-                                                             manager.mcmc.zcluster,
-                                                             manager.r500) \
-                                            for rs, c in zip(manager.mcmc.trace('r_scale')[burn:],
-                                                             manager.mcmc.trace('concentration')[burn:])])
-            
         
 
 
@@ -526,15 +495,15 @@ class SampleModelToFile(object):
 
     def createOptions(self,
                       outputFile,
-                      numsamples = 20000,
-                      burn = 5000,
+                      nsamples = 100,
+                      burn = 10,
                       options = None, args = None):
 
         if options is None:
             options = varcontainer.VarContainer()
 
         options.outputFile = outputFile
-        options.numsamples = numsamples
+        options.nsamples = nsamples
         options.burn = burn
         return options, args
 
@@ -551,14 +520,10 @@ class SampleModelToFile(object):
 
     def dump(self, manager):
 
-        masses = manager.masses
 
         outputFile = manager.options.outputFile
 
-        dumpMasses(masses, '%s.mx500' % outputFile)
-
-        dumpMasses(manager.mcmc.trace('mass_15mpc')[manager.options.burn:],
-                   '%s.mass15mpc' % outputFile)
+        dumpMasses(manager.mcmc.trace('mdelta')[manager.options.burn:], '%s.m%d' % (outputFile, manager.massdelta))
 
 
     ##############
@@ -585,8 +550,8 @@ def dumpMasses(masses, outputFile):
     quantiles = pymc.utils.quantiles(masses, qlist=[2.5, 15.8, 25, 50, 75, 84.1, 97.5])
     hpd68 = pymc.utils.hpd(masses, 0.32)
     hpd95 = pymc.utils.hpd(masses, 0.05)
-    ml, (m, p) = sp.ConfidenceRegion(masses)
-    lml, (lm, lp) = sp.ConfidenceRegion(np.log10(masses))
+    ml, (m, p) = ci.maxDensityConfidenceRegion(masses)
+    lml, (lm, lp) = ci.maxDensityConfidenceRegion(np.log10(masses))
 
 
     with open('%s.mass.summary.txt' % outputFile, 'w') as output:

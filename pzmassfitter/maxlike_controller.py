@@ -133,12 +133,12 @@ Configured With:
 
         if hasattr(self.filehandler, 'cuts'):
             for cut in self.filehandler.cuts:
-                self.update(cut, {'inputcat' : 'filter', 'pdz' : '__getitem__'})
+                self.update(cut, {'inputcat' : 'filter', 'pz' : '__getitem__'})
                             
 
         if hasattr(self.modelbuilder, 'cuts'):
             for cut in self.modelbuilder.cuts:
-                self.update(cut, {'inputcat' : 'filter', 'pdz' : '__getitem__'})
+                self.update(cut, {'inputcat' : 'filter', 'pz' : '__getitem__'})
 
 
         self.model = self.modelbuilder.createModel(self)

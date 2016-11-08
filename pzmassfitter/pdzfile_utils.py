@@ -4,7 +4,7 @@
 
 import sys, re, cPickle
 import numpy as np
-import astropy.Table
+import astropy.table
 
 
 

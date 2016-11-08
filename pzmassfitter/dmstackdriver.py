@@ -9,7 +9,7 @@ import  astropytable_filehandler as atf, maxlike_masses
 
 #######################
 
-makeController = lambda : maxlike_controller.Controller(modelbuilder =  mbv.BentVoigt3Shapedistro(),
+makeController = lambda : maxlike_controller.Controller(modelbuilder =  mbv.BentVoigtShapedistro(),
                                     filehandler = atf.AstropyTableFilehandler(),
                                     runmethod = maxlike_masses.SampleModelToFile())
 

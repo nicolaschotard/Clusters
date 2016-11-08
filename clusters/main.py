@@ -342,22 +342,29 @@ def mass(argv=None):
 
     # Load the data
     data = cdata.read_hdf5(args.input)
-    meas = data['deepCoadd_forced_src']
+    meas = data['deepCoadd_meas']
+
+    cluster = config['cluster']
+    zcluster = config['redshift']
+    cluster_ra = config['ra']
+    cluster_dec = config['dec']
 
     ###let's assume that all quality cuts were made previously
 
     masscontroller = dmstackdriver.controller
 
-    options, cmdargs  = controller.modelbuilder.createOptions(**config)
-    options, cmdargs = controller.filehandler.createOptions(sheartable = meas,
+    options, cmdargs  = masscontroller.modelbuilder.createOptions()
+    options, cmdargs = masscontroller.filehandler.createOptions(cluster = cluster,
+                                                            zcluster = zcluster,
+                                                            lensingcat = meas,
                                                             pdzfile = args.pdzfile,
+                                                            cluster_ra = cluster_ra,
+                                                            cluster_dec = cluster_dec,
                                                             options = options,
-                                                            args = cmdargs,
-                                                            **config)
-    options, cmdargs = controller.runmethod.createOptions(outputFile = args.output,
+                                                            args = cmdargs)
+    options, cmdargs = masscontroller.runmethod.createOptions(outputFile = args.output,
                                                           options = options,
-                                                          args = cmdargs,
-                                                          **config)
+                                                          args = cmdargs)
 
     
     masscontroller.load(options, args)
