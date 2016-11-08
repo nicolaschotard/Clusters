@@ -8,7 +8,7 @@ import cPickle
 import numpy as np, pymc
 import astropy.io.fits as pyfits
 import nfwmodeltools as tools, varcontainer
-import nfwutils, shearprofile as sp, ldac
+import nfwutils, ldac
 
 ##########################
 
@@ -519,6 +519,25 @@ class SampleModelToFile(object):
     ############
 
     def addCLOps(self, parser):
+
+        raise NotImplementedError
+
+    ###########
+
+    def createOptions(self,
+                      outputFile,
+                      numsamples = 20000,
+                      burn = 5000,
+                      options = None, args = None):
+
+        if options is None:
+            options = varcontainer.VarContainer()
+
+        options.outputFile = outputFile
+        options.numsamples = numsamples
+        options.burn = burn
+        return options, args
+
 
 
         parser.add_option('-s', '--nsamples', dest='nsamples',

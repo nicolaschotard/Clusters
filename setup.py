@@ -31,7 +31,7 @@ scripts = glob.glob("scripts/*.py")
 package_data = {}
 
 extensions = [
-    Extension("pzmassfitter.nfwmodeltools", ["pzmassfitter/nfwmodeltools.pyx"],
+    Extension("pzmassfitter.nfwmodeltools", ["pzmassfitter/nfwmodeltools.pyx", "pzmassfitter/voigt.c"],
               include_dirs = [numpy.get_include()]
               ),
     Extension("pzmassfitter.voigtcall",

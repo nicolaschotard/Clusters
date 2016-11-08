@@ -13,6 +13,8 @@ from . import zphot as czphot
 from . import shear as cshear
 from . import background
 
+from pzmassfitter import dmstackdriver
+
 
 def load_data(argv=None):
     """Load data from the DM stack butler."""
@@ -302,11 +304,67 @@ def shear(argv=None):
     print "INFO: Working on filters", config['filter']
 
     # Load the data
-    data = cdata.read_data(args.input)
+    data = cdata.read_hdf5(args.input)
     meas = data['deepCoadd_meas']
     wcs = data['wcs']
     xclust, yclust = cdata.skycoord_to_pixel([config['ra'], config['dec']], wcs)
     cshear.analysis(meas, float(xclust), float(yclust))
+
+
+
+def mass(argv=None):
+    """Compute cluster mass"""
+    description = """Compute the mass."""
+    prog = "clusters_mass.py"
+    usage = """%s [options] config input""" % prog
+
+    parser = ArgumentParser(prog=prog, usage=usage, description=description,
+                            formatter_class=ArgumentDefaultsHelpFormatter)
+    parser.add_argument('config', help='Configuration (yaml) file')
+    parser.add_argument('input', help='Input data file: output of clusters_data.py, i.e, hdf5 file')
+    parser.add_argument('pdzfile', help='Input pdz file: output of clusters_photoz')
+    parser.add_argument("--output",
+                        help="Name of the output file (hdf5 file)")
+    parser.add_argument("--overwrite", action="store_true", default=False,
+                        help="Overwrite the output files if they exist already")
+    parser.add_argument("--plot", action='store_true', default=False,
+                        help="Make some plots")
+    args = parser.parse_args(argv)
+
+    config = cdata.load_config(args.config)
+    if args.output is None:
+        args.output = os.path.basename(args.input).replace('.hdf5', '_mass.hdf5')
+        if not args.overwrite and os.path.exists(args.output):
+            raise IOError("Output already exists. Remove them or use --overwrite.")
+
+    print "INFO: Working on cluster %s (z=%.4f)" % (config['cluster'], config['redshift'])
+    print "INFO: Working on filters", config['filter']
+
+    # Load the data
+    data = cdata.read_hdf5(args.input)
+    meas = data['deepCoadd_forced_src']
+
+    ###let's assume that all quality cuts were made previously
+
+    masscontroller = dmstackdriver.controller
+
+    options, cmdargs  = controller.modelbuilder.createOptions(**config)
+    options, cmdargs = controller.filehandler.createOptions(sheartable = meas,
+                                                            pdzfile = args.pdzfile,
+                                                            options = options,
+                                                            args = cmdargs,
+                                                            **config)
+    options, cmdargs = controller.runmethod.createOptions(outputFile = args.output,
+                                                          options = options,
+                                                          args = cmdargs,
+                                                          **config)
+
+    
+    masscontroller.load(options, args)
+    masscontroller.run()
+    masscontroller.dump()
+    masscontroller.finalize()
+
 
 
 def pipeline(argv=None):

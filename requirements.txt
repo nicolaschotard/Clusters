@@ -10,3 +10,6 @@ progressbar
 termcolor
 fitsio
 cython
+pymc
+
+
