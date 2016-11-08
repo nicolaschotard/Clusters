@@ -203,8 +203,8 @@ class LEPHARO(object):
     def __init__(self, zphot_output, zphot_pdz_output, all_input=None):
         """Read the LEPHARE progam Output (zphota output)."""
         self.files = {}
-        self.files['output']= zphot_output
-        self.files['pdz_output']= zphot_pdz_output
+        self.files['output'] = zphot_output
+        self.files['pdz_output'] = zphot_pdz_output
         if all_input is not None:
             self.files['input'] = all_input
             self.read_input()
@@ -373,7 +373,7 @@ class ZSPEC(object):
         unique_radec, good = N.unique(radec, return_index=True)
         if (len(unique_radec) < len(radec)):
             print "INFO: There are " + str(len(radec) - len(unique_radec)) + " duplicate galaxies in spectroz sample. They are removed."
-        bad=N.delete(N.arange(len(self.data)),good)
+        bad = N.delete(N.arange(len(self.data)),good)
         self.data.remove_rows(bad)
 
         self.skycoords = SkyCoord(self.data['ra'], self.data['dec'], unit=unit)
