@@ -238,13 +238,18 @@ def check_star_elipticities(d, cat='deepCoadd_meas', oid='id'):
     Also check magnitude vss radius
     """
     filters, nfilters = get_filter_list(d[cat])
-    assert 'i' not in filters, "'i' filter must be in the list of filters"
+    assert 'i' in filters, "'i' filter must be in the list of filters"
 
     # Define selection filter
-    filt = define_selection_filter(d, cat) & d['filter'] == 'i'
+    filt = define_selection_filter(d, cat)
 
-    # Seprat ethe stars from the galaxies
+    #& (d[cat]['filter'] == 'i')
+
+    # Separate the stars from the galaxies
     star, gal = separate_star_gal(d, cat, oid, nfilters, filt=filt)
+    #filti = d[cat]['filter'] == 'i'
+    star = star[star['filter'] == 'i']
+    gal = gal[gal['filter'] == 'i']
 
     # Get the needed variables
     moments = {'star': {'xx': star['ext_shapeHSM_HsmSourceMoments_xx'],
