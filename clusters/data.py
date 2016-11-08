@@ -89,7 +89,9 @@ class Catalogs(object):
         if len(self.missing[catalog]):
             print "  - missing: %i data ids (list available in 'self.missing[catalog]':" % \
                 len(self.missing[catalog])
-            print "INFO: %i data ids finally kept" % len(self.dataids[catalog])
+        print "INFO: %i data ids finally kept" % len(self.dataids[catalog])
+        if len(self.dataids[catalog]) == 0:
+            raise IOError("No data found for this catalog. Remove this catalog from the list.")
 
     def _get_ccd_visits(self, **kwargs):
         """Return the available ccd/visit according to the input list of patch."""
