@@ -26,7 +26,7 @@ class Catalogs(object):
         from lsst.afw import table as afwtable
         print "INFO: Loading data from", path
         self.butler = dafPersist.Butler(path)
-        self.SOURCE_IO_NO_FOOTPRINTS = afwtable.SOURCE_IO_NO_FOOTPRINTS
+        self.no_footprints = afwtable.SOURCE_IO_NO_FOOTPRINTS
 
         # Initialize data dictionnaries
         self.dataids = {}
@@ -105,7 +105,7 @@ class Catalogs(object):
     def _load_catalog_dataid(self, catalog, dataid, table=True, **kwargs):
         """Load a catalog from a 'dataId' set of parameter."""
         cat = self.butler.get(catalog, dataId=dataid,
-                              flags=self.SOURCE_IO_NO_FOOTPRINTS)
+                              flags=self.no_footprints)
         if self.schema is None and hasattr(cat, 'getSchema'):
             self.schema = cat.getSchema()
         return cat.getColumnView().extract(*kwargs['keys'] if 'keys' in kwargs else "*",
@@ -321,7 +321,7 @@ class Catalogs(object):
                 self._load_dataids(cat)
             print colored("\nINFO: Available list of keys for the %s catalog" % cat, "green")
             table = get_astropy_table(self.butler.get(cat, dataId=self.dataids[cat][0],
-                                                      flags=self.SOURCE_IO_NO_FOOTPRINTS),
+                                                      flags=self.no_footprints),
                                       keys="*", get_info=True)
             ktable = Table(numpy.transpose([[k, table[k].description, table[k].unit]
                                             for k in sorted(table.keys())]).tolist(),
