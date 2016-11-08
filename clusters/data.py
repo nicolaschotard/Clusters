@@ -113,7 +113,7 @@ class Catalogs(object):
         return cat.getColumnView().extract(*kwargs['keys'] if 'keys' in kwargs else "*",
                                            copy=True, ordered=True) if table else cat
 
-    def concatenateCatalogs(self, dataset):
+    def concatenateCatalogs(self, dataset, pbar):
         filenames = (self.butler.get(dataset + "_filename",
                                      dataId, immediate=True)[0]
                      for dataId in self.dataids[dataset])
@@ -121,16 +121,19 @@ class Catalogs(object):
         from lsst.afw import table as afwtable
         headers = (afwimage.readMetadata(fn, 2) for fn in filenames)
         size = sum(md.get("NAXIS2") for md in headers)
-        self.schema = self.butler.get(dataset + "_schema", immediate=True).schema
+        cat = self.butler.get(dataset, self.dataids[dataset][0],
+                              flags=afwtable.SOURCE_IO_NO_FOOTPRINTS, immediate=True)
+        self.schema = cat.schema
         newkeys = {k:[] for k in sorted(self.dataids[dataset][0].keys())}
         catalog = afwtable.SourceCatalog(self.schema) #mapper.getOutputSchema())
         catalog.reserve(size)
-        for ii, dataId in enumerate(self.dataids[dataset]):
-            cat = self.butler.get(dataset, dataId, flags=afwtable.SOURCE_IO_NO_FOOTPRINTS, immediate=True)
-            print "Reading catalog %d: %s" % (ii, dataId)
-            catalog.extend(cat) #, mapper)
+        for i, dataid in enumerate(self.dataids[dataset]):
+            cat = self.butler.get(dataset, dataid,
+                                  flags=afwtable.SOURCE_IO_NO_FOOTPRINTS, immediate=True)
+            catalog.extend(cat, deep=True)
             for newkey, idk in zip(newkeys, sorted(self.dataids[dataset][0].keys())):
-                newkeys[newkey].extend([dataId[idk]] * len(cat))
+                newkeys[newkey].extend([dataid[idk]] * len(cat))
+            pbar.update(i + 1)
         return catalog, newkeys
 
     def _load_catalog(self, catalog, **kwargs):
@@ -140,7 +143,11 @@ class Catalogs(object):
             len(self.dataids[catalog])
 
         pbar = progressbar(len(self.dataids[catalog]))
-        cat, newkeys = self.concatenateCatalogs(catalog)
+        cat, newkeys = self.concatenateCatalogs(catalog, pbar)
+        cat1 = Table(cat.getColumnView().extract(*kwargs['keys'] if 'keys' in kwargs else "*",
+                                                 copy=True, ordered=True))
+        cat2 = Table(newkeys)
+        tqble = hstack([cat1, cat2])
         table = hstack([Table(cat.getColumnView().extract(*kwargs['keys'] if 'keys' in kwargs else "*",
                                                           copy=True, ordered=True)),
                         Table(newkeys)])
