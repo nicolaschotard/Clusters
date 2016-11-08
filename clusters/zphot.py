@@ -188,20 +188,22 @@ class LEPHARE(object):
         cmd += " -CAT_OUT " + self.files['output']
         cmd += " -PDZ_OUT " + self.files['pdz_output']
         print "INFO: Will run '%s'" % cmd
+    
         self.lephare_out = subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True)
         print "INFO: LEPHARE output summary (full output in self.lephare_out)"
         print "\n".join(["   " + zo for zo in self.lephare_out.split("\n")[-6:]])
-
-        self.data_out = LEPHARO(self.files['output'], all_input=self.files['all_input'])
-
-
+    
+        self.data_out = LEPHARO(self.files['output'],self.files['pdz_output'],all_input=self.files['all_input'])
+        
 class LEPHARO(object):
 
     """Read LEPHARE output file."""
 
-    def __init__(self, zphot_output, all_input=None):
-        """Read the LEPHARe progam Output (zphota output)."""
-        self.files = {'output': zphot_output}
+    def __init__(self, zphot_output, zphot_pdz_output, all_input=None):
+        """Read the LEPHARE progam Output (zphota output)."""
+        self.files = {}
+        self.files['output']= zphot_output
+        self.files['pdz_output']= zphot_pdz_output
         if all_input is not None:
             self.files['input'] = all_input
             self.read_input()
@@ -218,6 +220,9 @@ class LEPHARO(object):
         self.data_dict = {v: a for v, a in zip(self.variables, self.data_array)}
         self.nsources = len(self.data_dict['Z_BEST'])
 
+        self.pdz_zbins = N.loadtxt(self.files['pdz_output']+'.zph', unpack=True)
+        self.pdz_val = N.loadtxt(self.files['pdz_output']+'.pdz', unpack=True)
+        
     def read_input(self):
         """Read the input."""
         data = N.loadtxt(self.files['input'], unpack=True)

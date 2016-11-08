@@ -13,6 +13,8 @@ from . import zphot as czphot
 from . import shear as cshear
 from . import background
 
+import pdb
+
 
 def load_data(argv=None):
     """Load data from the DM stack butler."""
@@ -146,6 +148,8 @@ def photometric_redshift(argv=None):
     parser.add_argument('input', help='Input data file')
     parser.add_argument("--output",
                         help="Name of the output file (hdf5 file)")
+    parser.add_argument("--pdz_output",
+                        help="Name of the zphot distribution output file (hdf5 file)")
     parser.add_argument("--extinction",
                         help="Output of clusters_extinction (hdf5 file)."
                         "Use to compute the extinction-corrected magnitudes.")
@@ -174,6 +178,12 @@ def photometric_redshift(argv=None):
         if not args.overwrite and os.path.exists(args.output):
             raise IOError("Output already exists. Remove themit or use --overwrite.")
 
+    if args.pdz_output is None:
+        args.pdz_output = os.path.basename(args.input).replace('.hdf5', '_zphot_pdz.hdf5')
+        if not args.overwrite and os.path.exists(args.output):
+            raise IOError("Output already exists. Remove themit or use --overwrite.")
+
+        
     print "INFO: Working on cluster %s (z=%.4f)" % (config['cluster'], config['redshift'])
     print "INFO: Working on filters", config['filter']
 
@@ -218,6 +228,8 @@ def photometric_redshift(argv=None):
         zphot.check_config()
         zphot.run()
 
+      
+        
         # Create a new table and save it
         path = "zphot_%s" % zpara.split('/')[-1].replace('.para', '')
         new_tab = hstack([data['objectId',
@@ -228,6 +240,16 @@ def photometric_redshift(argv=None):
                       overwrite=args.overwrite if i == 0 else False,
                       append=False if i == 0 else True)
         print "INFO: LEPHARE data saved in", args.output, "as", path
+
+        # hstack creates a table where the first column is objectId and the second column contains 1d arrays with the pdz values
+        zbest_tab=Table([zphot.data_out.data_dict['Z_BEST']], names=['Z_BEST'])
+        pdz_val_tab=hstack([Table([data['objectId'][data['filter'] == config['filter'][0]]]),Table([zphot.data_out.pdz_val.T],names=['pdz'])])
+        pdz_bins_tab=Table([zphot.data_out.pdz_zbins], names=['zbins'])
+
+        pdz_val_tab.write(args.pdz_output, path='pdz_values', compression=True, serialize_meta=True, overwrite=args.overwrite)
+        zbest_tab.write(args.pdz_output, path='z_best', compression=True, serialize_meta=True, append=True)
+        pdz_bins_tab.write(args.pdz_output, path='pdz_bins', compression=True, serialize_meta=True, append=True)
+        print "INFO: LEPHARE zphot distributions saved in", args.pdz_output
 
         if args.plot:
             doplot(zphot.data_out, config,
