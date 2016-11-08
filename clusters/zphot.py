@@ -8,6 +8,7 @@ import pylab as P
 import seaborn
 import subprocess
 from scipy.optimize import curve_fit
+from scipy.integrate import simps
 
 from astropy.io import ascii
 from astropy.table import Table
@@ -222,7 +223,7 @@ class LEPHARO(object):
 
         self.pdz_zbins = N.loadtxt(self.files['pdz_output']+'.zph', unpack=True)
         self.pdz_val = N.loadtxt(self.files['pdz_output']+'.pdz', unpack=True)
-        
+
     def read_input(self):
         """Read the input."""
         data = N.loadtxt(self.files['input'], unpack=True)

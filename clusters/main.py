@@ -14,7 +14,7 @@ from . import shear as cshear
 from . import background
 
 import pdb
-
+import numpy as N
 
 def load_data(argv=None):
     """Load data from the DM stack butler."""
@@ -242,12 +242,17 @@ def photometric_redshift(argv=None):
         print "INFO: LEPHARE data saved in", args.output, "as", path
 
         # hstack creates a table where the first column is objectId and the second column contains 1d arrays with the pdz values
-        zbest_tab=Table([zphot.data_out.data_dict['Z_BEST']], names=['Z_BEST'])
-        pdz_val_tab=hstack([Table([data['objectId'][data['filter'] == config['filter'][0]]]),Table([zphot.data_out.pdz_val.T],names=['pdz'])])
         pdz_bins_tab=Table([zphot.data_out.pdz_zbins], names=['zbins'])
 
+        # Converts LePhare likelihood to actual probability density
+        for i in N.arange(len(zphot.data_out.pdz_val)):
+            norm=N.trapz(zphot.data_out.pdz_val[:,i],zphot.data_out.pdz_zbins)
+            new_pdz_val=zphot.data_out.pdz_val[:,i]/norm
+            zphot.data_out.pdz_val[:,i]=new_pdz_val
+            
+        pdz_val_tab=hstack([Table([data['objectId'][data['filter'] == config['filter'][0]]]),Table([zphot.data_out.data_dict['Z_BEST']], names=['Z_BEST']),Table([zphot.data_out.pdz_val.T],names=['pdz'])])
+       
         pdz_val_tab.write(args.pdz_output, path='pdz_values', compression=True, serialize_meta=True, overwrite=args.overwrite)
-        zbest_tab.write(args.pdz_output, path='z_best', compression=True, serialize_meta=True, append=True)
         pdz_bins_tab.write(args.pdz_output, path='pdz_bins', compression=True, serialize_meta=True, append=True)
         print "INFO: LEPHARE zphot distributions saved in", args.pdz_output
 
