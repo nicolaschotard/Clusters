@@ -94,7 +94,7 @@ def extinction(argv=None):
     print "INFO: Working on filters", config['filter']
 
     # Load the data
-    data = cdata.read_hdf5(args.input)['deepCoadd_forced_src']
+    data = cdata.read_hdf5(args.input, path='deepCoadd_forced_src', dic=False)
 
     # Query for E(b-v) and compute the extinction
     ebmv = {'ebv_sfd': cextinction.query(data['coord_ra_deg'].tolist(),

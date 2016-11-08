@@ -23,8 +23,10 @@ class Catalogs(object):
         """."""
         # Load the bulter
         import lsst.daf.persistence as dafPersist
+        from lsst.afw import table as afwtable
         print "INFO: Loading data from", path
         self.butler = dafPersist.Butler(path)
+        self.no_footprints = afwtable.SOURCE_IO_NO_FOOTPRINTS
 
         # Initialize data dictionnaries
         self.dataids = {}
@@ -87,7 +89,9 @@ class Catalogs(object):
         if len(self.missing[catalog]):
             print "  - missing: %i data ids (list available in 'self.missing[catalog]':" % \
                 len(self.missing[catalog])
-            print "INFO: %i data ids finally kept" % len(self.dataids[catalog])
+        print "INFO: %i data ids finally kept" % len(self.dataids[catalog])
+        if len(self.dataids[catalog]) == 0:
+            raise IOError("No data found for this catalog. Remove this catalog from the list.")
 
     def _get_ccd_visits(self, **kwargs):
         """Return the available ccd/visit according to the input list of patch."""
@@ -102,7 +106,8 @@ class Catalogs(object):
 
     def _load_catalog_dataid(self, catalog, dataid, table=True, **kwargs):
         """Load a catalog from a 'dataId' set of parameter."""
-        cat = self.butler.get(catalog, dataId=dataid)
+        cat = self.butler.get(catalog, dataId=dataid,
+                              flags=self.no_footprints)
         if self.schema is None and hasattr(cat, 'getSchema'):
             self.schema = cat.getSchema()
         return cat.getColumnView().extract(*kwargs['keys'] if 'keys' in kwargs else "*",
@@ -128,7 +133,7 @@ class Catalogs(object):
 
     def _get_tables(self, catalog, did, i, pbar):
         """Get a table and add a few keys."""
-        table = self._load_catalog_dataid(catalog, did, **{'keys': self.keys[catalog]})
+        table = self._load_catalog_dataid(catalog, did, table=True, **{'keys': self.keys[catalog]})
         table.update({key: [did[key]] * len(table[table.keys()[0]]) for key in did})
         pbar.update(i + 1)
         return table
@@ -317,7 +322,8 @@ class Catalogs(object):
                 print colored("\nINFO: Get the available data IDs", "green")
                 self._load_dataids(cat)
             print colored("\nINFO: Available list of keys for the %s catalog" % cat, "green")
-            table = get_astropy_table(self.butler.get(cat, dataId=self.dataids[cat][0]),
+            table = get_astropy_table(self.butler.get(cat, dataId=self.dataids[cat][0],
+                                                      flags=self.no_footprints),
                                       keys="*", get_info=True)
             ktable = Table(numpy.transpose([[k, table[k].description, table[k].unit]
                                             for k in sorted(table.keys())]).tolist(),
@@ -436,7 +442,7 @@ def concatenate_dicts(*dicts):
     return {k: numpy.concatenate([d.pop(k) for d in dicts]) for k in dicts[0].keys()}
 
 
-def read_hdf5(hdf5_file, path=None):
+def read_hdf5(hdf5_file, path=None, dic=True):
     """Read astropy tables from an hdf5 file.
 
     :param string data_file: Name of the hdf5 file to load.
@@ -447,7 +453,8 @@ def read_hdf5(hdf5_file, path=None):
         paths = hdf5_paths(hdf5_file)
         return {path: Table.read(hdf5_file, path=path) for path in paths}
     else:
-        return {path: Table.read(hdf5_file, path=path)}
+        return {path: Table.read(hdf5_file, path=path)} if dic \
+            else Table.read(hdf5_file, path=path)
 
 
 def hdf5_paths(hdf5_file):
