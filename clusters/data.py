@@ -359,7 +359,7 @@ class Catalogs(object):
             else:
                 self.catalogs[cat].write(output_name, path=cat, compression=True,
                                          serialize_meta=True, append=True)
-            if delete_catalog and catalog is not 'wcs':
+            if delete_catalog and cat is not 'wcs':
                 oid = self.catalogs[cat]['id' if 'id' in self.catalogs[cat].keys()
                                          else 'objectId'].copy()
                 self.catalogs.pop(cat)
