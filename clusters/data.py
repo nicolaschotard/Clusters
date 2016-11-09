@@ -19,7 +19,7 @@ try:
     from lsst.afw import image as afwimage
     from lsst.afw import table as afwtable
     import lsst.daf.persistence as dafPersist
-except ImportWarning:
+except ImportError:
     print colored("WARNING: LSST stack is probably not installed", "yellow")
 
 class Catalogs(object):
@@ -590,6 +590,8 @@ def filter_around(data, config, **kwargs):
     :param plot: Produce a figure if specified
     :return: A filter data table containing galaxie inside [exclude_inner, exclude_outer]
     """
+    plot = kwargs.get('plot', True)
+
     datag = data.group_by('filter')
     same_length = len(set([len(g) for g in datag.groups])) == 1
     if same_length:
@@ -610,7 +612,7 @@ def filter_around(data, config, **kwargs):
     filt = (sep >= kwargs.get('exclude_inner', 0)) & \
            (sep < kwargs.get('exclude_outer', numpy.inf))
     data_around = vstack([group[filt] for group in datag.groups]) if same_length else data[filt]
-    if 'plot' in kwargs:
+    if plot:
         title = "%s, %.2f < d < %.2f %s cut" % \
                 (config['cluster'], kwargs.get('exclude_inner', 0),
                  kwargs.get('exclude_outer', numpy.inf), unit)
