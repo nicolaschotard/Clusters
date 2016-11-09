@@ -295,7 +295,7 @@ def getbackground(argv=None):
     print "INFO: Working on filters", filters
 
     data = cdata.read_hdf5(args.input)['deepCoadd_forced_src']
-    background.get_background(config, data, zdata=args.zdata)
+    rs_flag,z_flag = background.get_background(config, data, zdata=args.zdata)
 
 
 def shear(argv=None):

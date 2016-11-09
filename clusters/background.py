@@ -60,6 +60,7 @@ def fit_red_sequence(color, mag, **kwargs):
      - islope (float): first guess for the red sequence band slope (-0.04)
      - nbins (int): Number of bins used in the fits (40)
      - plot (bool): if True plot stuff
+     - verbose (bool): if True print information to screen
     :return:
 
      - slope of the red sequence band,
@@ -75,6 +76,8 @@ def fit_red_sequence(color, mag, **kwargs):
     islope = kwargs.get('islope', -0.04)
     nbins = kwargs.get('nbins', 40)
     plot = kwargs.get('plot', False)
+    verb = kwargs.get('verbose', False)
+    
     magref = minm  # Arbitrary reference magnitude for projection
     diffref = 0.5 * (minc + maxc)  # Arbitrary reference ordinate for projection
 
@@ -106,9 +109,11 @@ def fit_red_sequence(color, mag, **kwargs):
     p0 = [n.max(), 0.2, 0.1, -3.0, 1., 1., 40.]  # Initial parameter values
     p2, cov, infodict, mesg, ier = optimize.leastsq(dist, p0[:], args=(x, n), full_output=True)
     ss_err = (infodict['fvec']**2).sum()
-    print "mean %f - sigma %f" % (p2[1], p2[2])
-    print "Reduced chi2 = ", ss_err / (nbins + 6 - 1)
-    print p2
+
+    if verb:
+        print "mean %f - sigma %f" % (p2[1], p2[2])
+        print "Reduced chi2 = ", ss_err / (nbins + 6 - 1)
+        print p2
     # Superimpose fitted curve over color projection
     ax0.plot(bins, func(p2, bins), color='g')
     ax0.tick_params(labelsize=20)
@@ -179,11 +184,14 @@ def fit_red_sequence(color, mag, **kwargs):
     ss_err = (infodict1['fvec']**2).sum()
     ss_tot = ((N.asarray(sigma) - N.asarray(sigma).mean())**2).sum()
     rsquared = 1 - (ss_err / ss_tot)
-    print "R^2 = ", rsquared
+    if verb:
+        print "R^2 = ", rsquared
     if rsquared < 0.9:
-        print "Bad fit - take absolute minimun instead of fitted value"
+        if verb:
+            print "Bad fit - take absolute minimun instead of fitted value"
         fitslope = bestslope
-    print "Fitted minimum: %f" % fitslope
+    if verb:
+        print "Fitted minimum: %f" % fitslope
 
     # Plot RS projection corresponding to the optimal slope
     alpha = math.atan(slope)
@@ -207,8 +215,9 @@ def fit_red_sequence(color, mag, **kwargs):
     ss_err = (infodict['fvec']**2).sum()
     ss_tot = ((n - n.mean()) ** 2).sum()
     rsquared = 1 - (ss_err / ss_tot)
-    print "mean %f - sigma %f" % (p1[1], p1[2])
-    print "Reduced chi2 = %f - R^2 = %f" % (ss_err / (nbins + 6 - 1), rsquared)
+    if verb:
+        print "mean %f - sigma %f" % (p1[1], p1[2])
+        print "Reduced chi2 = %f - R^2 = %f" % (ss_err / (nbins + 6 - 1), rsquared)
     ax2.plot(bins, hfunc(p1, bins), color='r')
     ax2.tick_params(labelsize=20)
 
@@ -219,8 +228,9 @@ def fit_red_sequence(color, mag, **kwargs):
     b1 = (p1[1] - 1.5 * p1[2] - fitslope * magref) / math.cos(alpha) + diffref
     b2 = (p1[1] + 1.5 * p1[2] - fitslope * magref) / math.cos(alpha) + diffref
 
-    print"Ordinate at origin of the RS band - middle : %f, lower : %f, upper : %f" %\
-        (b0, b1, b2)
+    if verb:
+        print"Ordinate at origin of the RS band - middle : %f, lower : %f, upper : %f" %\
+          (b0, b1, b2)
         
     # plot fitted RS band over color plot
     fig, (ax3) = P.subplots(ncols=1)
@@ -241,14 +251,18 @@ def fit_red_sequence(color, mag, **kwargs):
     params= [[fitslope, b1],[fitslope, b2]]
     return params
 
-def zphot_cut(zclust, zdata):
+def zphot_cut(zclust, zdata, **kwargs):
     r"""
     Redshif selection of the galaxies used for analysis.
     - option 1: hard cut, z_cl+0.1 < z_best < 1.25 (cf WtGIII)
     - option 2: cut form pdz. \int_0^z_cl p(z) dz < x%
     
+    :param float plot: if keywords exists, plot stuff for visual inspection
+    
     Returns bool array of length = len(data), where False means the object does not pass the cut
     """
+    plot = kwargs.get('plot', False)
+ 
     zbest = zdata['Z_BEST']
     cbest = zdata['CHI_BEST']
     error = (zbest - zdata['Z_BEST68_LOW'] + zdata['Z_BEST68_HIGH']) / 2.
@@ -271,7 +285,8 @@ def zphot_cut(zclust, zdata):
     ax.hist(cbest, bins=100)
     ax.set_title("%i galaxies" % len(zbest))
 
-    P.show()
+    if plot == True:
+        P.show()
 
 #    return zdata['objectId'][filt]
     return filt
@@ -289,8 +304,6 @@ def red_sequence_cut(config, data, **kwargs):
     :param float mag_cut: rband magnitude cut - default is 25
     :param float plot: if keywords exists, plot stuff for visual inspection
     """
-
-    print "INFO; Finding red sequence galaxies"
 
     mcut = kwargs.get('mag_cut',25)
     plot = kwargs.get('plot',False)
@@ -317,8 +330,9 @@ def get_background(config, data, zdata=None, zspec=None):
     """Apply different cuts to the data in order to get the background galaxies."""
   
     # Red sequence
-    print "INFO; Excluding red sequence galaxies from the selection"
-    bkg_gal_id = red_sequence_cut(config, data)
+    print "INFO; Flagging red sequence galaxies"
+    rs_flag = red_sequence_cut(config, data)
+    print "INFO; %i galaxies have been flagged as RS" %(sum(~rs_flag)/len(set(data['filter'])))
     
     # Spectroscopic against photometric redshifts
     if zspec is not None:
@@ -327,7 +341,11 @@ def get_background(config, data, zdata=None, zspec=None):
     # Photometric redshift cut
     if zdata is not None:
         zdata = cdata.read_hdf5(zdata)
-        print "INFO: A redshift cut will be applied."
-        zphot_cut(config['redshift'], zdata)
-
-    return bkg_gal_id
+        print "INFO: Flagging foreground/uncertain objects using redshift information"
+        z_flag=zphot_cut(config['redshift'], zdata[zdata.keys()[0]])
+        print "INFO; %i galaxies have been flagged after redshift cut" %(sum(~z_flag)/len(set(data['filter'])))
+        
+    if zdata is not None:
+        return (rs_flag, z_flag)
+    else:
+        return rs_flag
