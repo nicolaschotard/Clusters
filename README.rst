@@ -24,7 +24,7 @@ ____
 Clusters
 --------
 
-Python package wrapping up the ongoing cluster analysis of the french
+Python package wrapping up the ongoing cluster analysis of the cluster
 LSST/DESC group. For more info, see the two following github
 repositories:
 
@@ -92,6 +92,10 @@ light version of the DM stack, but complete enough to use the
 ``Clusters`` package. It should take ~10 minutes.
 
 - Get and install miniconda, if you do not have it already::
+
+    .. warning:: If you install the stack in an 'lsst' conda
+                 environment, you must also install the cluster
+                 package in this environment.
   
     wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh
     bash miniconda.sh -b -p $HOME/miniconda
