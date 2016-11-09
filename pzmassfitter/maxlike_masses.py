@@ -10,6 +10,7 @@ import astropy.io.fits as pyfits
 import nfwmodeltools as tools, varcontainer
 import nfwutils, ldac
 import confidenceinterval as ci
+import pymc_mymcmc_adapter as pma
 
 ##########################
 
@@ -469,19 +470,23 @@ class SampleModelToFile(object):
         burn = manager.options.burn
 
 
-        manager.mcmc = pymc.MCMC(input = model, db='pickle', dbname=outputFile)
+        mcmc_manager = varcontainer.VarContainer()
+        mcmc_options = varcontainer.VarContainer()
+        mcmc_manager.options = mcmc_options
+
+        mcmc_options.singlecore = True
+        mcmc_options.adapt_every = 100
+        mcmc_options.adapt_after = 100
+        mcmc_options.nsamples = nsamples
+        mcmc_manager.model = model
+
+        runner = pma.MyMCMemRunner()
+        runner.run(mcmc_manager)
+        runner.finalize(mcmc_manager)
+
+        manager.chain = mcmc_manager.chain
 
 
-        try:
-            manager.shapedistro.sampler_callback(mcmc)
-        except:
-            #doesn't have it, doesn't matter
-            pass
-
-
-        manager.mcmc.sample(nsamples)
-
-        
 
 
 
@@ -495,8 +500,8 @@ class SampleModelToFile(object):
 
     def createOptions(self,
                       outputFile,
-                      nsamples = 100,
-                      burn = 10,
+                      nsamples = 2000,
+                      burn = 500,
                       options = None, args = None):
 
         if options is None:
@@ -523,7 +528,7 @@ class SampleModelToFile(object):
 
         outputFile = manager.options.outputFile
 
-        dumpMasses(manager.mcmc.trace('mdelta')[manager.options.burn:], '%s.m%d' % (outputFile, manager.massdelta))
+        dumpMasses(np.array(manager.chain['mdelta'][manager.options.burn:]), '%s.m%d' % (outputFile, manager.massdelta))
 
 
     ##############
@@ -531,7 +536,7 @@ class SampleModelToFile(object):
     def finalize(self, manager):
 
 
-        manager.mcmc.db.close()
+        pass
 
 
     ######################
