@@ -22,6 +22,7 @@ try:
 except ImportError:
     print colored("WARNING: LSST stack is probably not installed", "yellow")
 
+
 class Catalogs(object):
 
     """Load data from a LSST stack butler path."""
@@ -127,7 +128,7 @@ class Catalogs(object):
         cat = self.butler.get(dataset, self.dataids[dataset][0],
                               flags=afwtable.SOURCE_IO_NO_FOOTPRINTS, immediate=True)
         self.from_butler['schema'] = cat.schema
-        catadic = {k:[] for k in sorted(self.dataids[dataset][0].keys())}
+        catadic = {k: [] for k in sorted(self.dataids[dataset][0].keys())}
         catalog = afwtable.SourceCatalog(self.from_butler['schema'])
         catalog.reserve(size)
         pbar = progressbar(len(self.dataids[dataset]))
@@ -219,7 +220,6 @@ class Catalogs(object):
                 continue
             print "  - for", catalog
             columns = []
-
             # Add magnitudes
             kfluxes = [k for k in self.catalogs[catalog].columns if k.endswith('_flux')]
             ksigmas = [k + 'Sigma' for k in kfluxes]
@@ -368,6 +368,7 @@ class Catalogs(object):
         print "INFO: Saving done."
         # Clean memory before loading a new catalog
         gc.collect()
+
 
 def progressbar(maxnumber, prefix='loading'):
     """Create and return a standard progress bar."""
@@ -602,20 +603,20 @@ def filter_around(data, config, **kwargs):
         dec = Quantity(numpy.round(data['coord_dec'].tolist(), 3), 'rad')
     sep = SkyCoord(Quantity([config['ra']], 'deg'),
                    Quantity([config['dec']], 'deg')).separation(SkyCoord(ra, dec))
-    unit = kwargs.get('unit', 'degree')
-    if hasattr(sep, unit):
-        sep = getattr(sep, unit)
+    if hasattr(sep, kwargs.get('unit', 'degree')):
+        sep = getattr(sep, kwargs.get('unit', 'degree'))
     else:
         raise AttributeError("Angle instance has no attribute %s. Available attributes are: %s" %
-                             (unit, "\n" + ", ".join(sorted([a for a in dir(sep)
-                                                             if not a.startswith('_')]))))
+                             (kwargs.get('unit', 'degree'),
+                              "\n" + ", ".join(sorted([a for a in dir(sep)
+                                                       if not a.startswith('_')]))))
     filt = (sep >= kwargs.get('exclude_inner', 0)) & \
            (sep < kwargs.get('exclude_outer', numpy.inf))
     data_around = vstack([group[filt] for group in datag.groups]) if same_length else data[filt]
     if plot:
         title = "%s, %.2f < d < %.2f %s cut" % \
                 (config['cluster'], kwargs.get('exclude_inner', 0),
-                 kwargs.get('exclude_outer', numpy.inf), unit)
+                 kwargs.get('exclude_outer', numpy.inf), kwargs.get('unit', 'degree'))
         plot_coordinates(data, data_around,
                          cluster_coord=(config['ra'], config['dec']), title=title)
     if 'pbar' in kwargs:
