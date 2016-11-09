@@ -594,7 +594,7 @@ def filter_around(data, config, **kwargs):
     :param float exclude_inner: Cut galaxies inside this radius [0]
     :param float exclude_outer: Cut galaxies outside this radius [inf]
     :param str unit: Unit of the input cuts [degree]
-    :param bool plot: Produce a figure if set to False
+    :param plot: Produce a figure if specified
     :return: A filter data table containing galaxie inside [exclude_inner, exclude_outer]
     """
     datag = data.group_by('filter')
@@ -617,7 +617,7 @@ def filter_around(data, config, **kwargs):
     filt = (sep >= kwargs.get('exclude_inner', 0)) & \
            (sep < kwargs.get('exclude_outer', numpy.inf))
     data_around = vstack([group[filt] for group in datag.groups]) if same_length else data[filt]
-    if kwargs.get('plot', False):
+    if 'plot' in kwargs:
         title = "%s, %.2f < d < %.2f %s cut" % \
                 (config['cluster'], kwargs.get('exclude_inner', 0),
                  kwargs.get('exclude_outer', numpy.inf), unit)

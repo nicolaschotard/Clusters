@@ -2,10 +2,13 @@
 
 from scipy import optimize
 from scipy import special
+from astropy.cosmology import Planck15 as cosmo
+from astropy import units as u
 import numpy as N
 import pylab as P
 import seaborn
 import math
+import pdb
 
 from . import data as cdata
 
@@ -56,7 +59,7 @@ def fit_red_sequence(color, mag, **kwargs):
      - maxm (float): upper cut of the mag axis: mag < maxm  (23.5)
      - islope (float): first guess for the red sequence band slope (-0.04)
      - nbins (int): Number of bins used in the fits (40)
-
+     - plot (bool): if True plot stuff
     :return:
 
      - slope of the red sequence band,
@@ -71,7 +74,7 @@ def fit_red_sequence(color, mag, **kwargs):
     maxm = kwargs.get('maxm', 23.5)
     islope = kwargs.get('islope', -0.04)
     nbins = kwargs.get('nbins', 40)
-
+    plot = kwargs.get('plot', False)
     magref = minm  # Arbitrary reference magnitude for projection
     diffref = 0.5 * (minc + maxc)  # Arbitrary reference ordinate for projection
 
@@ -218,7 +221,7 @@ def fit_red_sequence(color, mag, **kwargs):
 
     print"Ordinate at origin of the RS band - middle : %f, lower : %f, upper : %f" %\
         (b0, b1, b2)
-
+        
     # plot fitted RS band over color plot
     fig, (ax3) = P.subplots(ncols=1)
     ax3.scatter(mag, color, s=1, color='b')
@@ -232,11 +235,20 @@ def fit_red_sequence(color, mag, **kwargs):
     ax3.plot(x, ymax, color='r')
     ax3.plot(x, ymid, color='g')
 
-    P.show()
-
+    if 'plot' == True:
+        P.show()
+        
+    params= [[fitslope, b1],[fitslope, b2]]
+    return params
 
 def zphot_cut(zclust, zdata):
-    """."""
+    r"""
+    Redshif selection of the galaxies used for analysis.
+    - option 1: hard cut, z_cl+0.1 < z_best < 1.25 (cf WtGIII)
+    - option 2: cut form pdz. \int_0^z_cl p(z) dz < x%
+    
+    Returns bool array of length = len(data), where False means the object does not pass the cut
+    """
     zbest = zdata['Z_BEST']
     cbest = zdata['CHI_BEST']
     error = (zbest - zdata['Z_BEST68_LOW'] + zdata['Z_BEST68_HIGH']) / 2.
@@ -261,19 +273,53 @@ def zphot_cut(zclust, zdata):
 
     P.show()
 
-    return zdata['objectId'][filt]
+#    return zdata['objectId'][filt]
+    return filt
 
+def red_sequence_cut(config, data, **kwargs):
+    """
+    Identify RS galaxies using color-magnitude diagram.
+    First do a radial cut on catalogue and identify the RS from the inner galaxies --> increase the contrast of the RS
+    Then go back and apply the cut on the entire catalogue as some RS galaxies are located far away from the centre
 
+    Returns bool array of length = len(data), where False means the object does not pass the cut
+
+    List of available kwargs:
+    
+    :param float mag_cut: rband magnitude cut - default is 25
+    :param float plot: if keywords exists, plot stuff for visual inspection
+    """
+
+    print "INFO; Finding red sequence galaxies"
+
+    mcut = kwargs.get('mag_cut',25)
+    plot = kwargs.get('plot',False)
+    
+    da = cosmo.angular_diameter_distance(config['redshift']) # Mpc - using Planck15 cosmo
+    rcut_RS = 1 * u.Mpc
+    sub_sample = cdata.filter_around(data, config, exclude_outer=N.arctan(rcut_RS/da).value, unit='rad', plot=plot)
+
+    color_gr = sub_sample['modelfit_CModel_mag'][sub_sample['filter'] == 'g'] - sub_sample['modelfit_CModel_mag'][sub_sample['filter'] == 'r']
+    mag = sub_sample['modelfit_CModel_mag'][sub_sample['filter'] == 'r'] 
+    params = fit_red_sequence(color_gr, mag, plot=plot) # slopes and intercepts of the RS band
+
+    # apply cut to entire dataset
+    color_gr = data['modelfit_CModel_mag'][data['filter'] == 'g'] - data['modelfit_CModel_mag'][data['filter'] == 'r']
+    mag = data['modelfit_CModel_mag'][data['filter'] == 'r']
+    lower_bound = params[0][0]*mag +  params[0][1] 
+    upper_bound = params[1][0]*mag +  params[1][1] 
+    filt = ((color_gr < lower_bound) & (mag < mcut)) | ((color_gr > upper_bound) & (mag < mcut))    
+    filt=N.repeat(filt, len(set(data['filter']))) # to get the cut applied to all filters
+    
+    return filt
+    
 def get_background(config, data, zdata=None, zspec=None):
     """Apply different cuts to the data in order to get the background galaxies."""
-    print config['cluster'], len(data)
-
-    # Cut data futher than a given radius around the center of the cluster
-    cdata.filter_around(data, config, exclude_outer=20, exclude_inner=3, unit='arcmin')
-
+  
     # Red sequence
-    print "INFO; Getting red sequence"
-
+    print "INFO; Excluding red sequence galaxies from the selection"
+    bkg_gal_id = red_sequence_cut(config, data)
+    
     # Spectroscopic against photometric redshifts
     if zspec is not None:
         print "INFO: Checking photo/spectro redshifts consitancy"
@@ -283,3 +329,5 @@ def get_background(config, data, zdata=None, zspec=None):
         zdata = cdata.read_hdf5(zdata)
         print "INFO: A redshift cut will be applied."
         zphot_cut(config['redshift'], zdata)
+
+    return bkg_gal_id
