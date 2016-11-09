@@ -13,8 +13,8 @@ from . import zphot as czphot
 from . import shear as cshear
 from . import background
 
-import pdb
 import numpy as N
+
 
 def load_data(argv=None):
     """Load data from the DM stack butler."""
@@ -59,11 +59,14 @@ def load_data(argv=None):
     if args.show:
         data.show_keys(args.catalogs.split(','))
         return
+    config['output_name'] = output
+    config['overwrite'] = args.overwrite
     data.load_catalogs(args.catalogs.split(','), matchid=True, **config)
-    data.save_catalogs(output, overwrite=args.overwrite)
     print "\nINFO: Applying filters on the data to keep a clean sample of galaxies"
-    data.catalogs = cdata.filter_table(data.catalogs)
-    data.save_catalogs(output_filtered, overwrite=args.overwrite)
+    catalogs = cdata.read_hdf5(output)
+    data = cdata.Catalogs(config['butler'])
+    data.catalogs = cdata.filter_table(catalogs)
+    data.save_catalogs(output_filtered, overwrite=args.overwrite, delete_catalog=True)
 
 
 def extinction(argv=None):
@@ -183,7 +186,6 @@ def photometric_redshift(argv=None):
         if not args.overwrite and os.path.exists(args.output):
             raise IOError("Output already exists. Remove themit or use --overwrite.")
 
-        
     print "INFO: Working on cluster %s (z=%.4f)" % (config['cluster'], config['redshift'])
     print "INFO: Working on filters", config['filter']
 
