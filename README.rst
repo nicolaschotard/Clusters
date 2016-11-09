@@ -90,10 +90,6 @@ DM stack quick install
 This four-step procedure should allow you to install and configure a
 light version of the DM stack, but complete enough to use the
 ``Clusters`` package. It should take ~10 minutes.
-
-.. warning:: If you install the stack in an 'lsst' conda
-             environment, you must also install the cluster
-             package in this environment.
   
 - Get and install miniconda, if you do not have it already::
 
