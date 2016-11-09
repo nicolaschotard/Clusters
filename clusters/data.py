@@ -19,7 +19,7 @@ try:
     from lsst.afw import image as afwimage
     from lsst.afw import table as afwtable
     import lsst.daf.persistence as dafPersist
-except ImportWarning:
+except ImportError:
     print colored("WARNING: LSST stack is probably not installed", "yellow")
 
 class Catalogs(object):
