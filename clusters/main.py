@@ -230,8 +230,6 @@ def photometric_redshift(argv=None):
         zphot.check_config()
         zphot.run()
 
-      
-        
         # Create a new table and save it
         path = "zphot_%s" % zpara.split('/')[-1].replace('.para', '')
         new_tab = hstack([data['objectId',
@@ -247,15 +245,20 @@ def photometric_redshift(argv=None):
 
         # Converts LePhare likelihood to actual probability density
         for i in N.arange(len(zphot.data_out.pdz_val)):
-            norm = N.trapz(zphot.data_out.pdz_val[:,i],zphot.data_out.pdz_zbins)
-            new_pdz_val = zphot.data_out.pdz_val[:,i]/norm
-            zphot.data_out.pdz_val[:,i] = new_pdz_val
+            norm = N.trapz(zphot.data_out.pdz_val[:, i], zphot.data_out.pdz_zbins)
+            new_pdz_val = zphot.data_out.pdz_val[:, i] / norm
+            zphot.data_out.pdz_val[:, i] = new_pdz_val
 
-        # hstack creates a table where col0=objectId, col1=zbest and col2 contains 1d arrays with the pdz values
-        pdz_val_tab = hstack([Table([data['objectId'][data['filter'] == config['filter'][0]]]),Table([zphot.data_out.data_dict['Z_BEST']], names=['Z_BEST']),Table([zphot.data_out.pdz_val.T],names=['pdz'])])
-       
-        pdz_val_tab.write(args.pdz_output, path='pdz_values', compression=True, serialize_meta=True, overwrite=args.overwrite)
-        pdz_bins_tab.write(args.pdz_output, path='pdz_bins', compression=True, serialize_meta=True, append=True)
+        # hstack creates a table where col0=objectId, col1=zbest and col2
+        # contains 1d arrays with the pdz values
+        pdz_val_tab = hstack([Table([data['objectId'][data['filter'] == config['filter'][0]]]),
+                              Table([zphot.data_out.data_dict['Z_BEST']], names=['Z_BEST']),
+                              Table([zphot.data_out.pdz_val.T], names=['pdz'])])
+
+        pdz_val_tab.write(args.pdz_output, path='pdz_values', compression=True,
+                          serialize_meta=True, overwrite=args.overwrite)
+        pdz_bins_tab.write(args.pdz_output, path='pdz_bins', compression=True,
+                           serialize_meta=True, append=True)
         print "INFO: LEPHARE zphot distributions saved in", args.pdz_output
 
         if args.plot:
@@ -295,7 +298,7 @@ def getbackground(argv=None):
     print "INFO: Working on filters", filters
 
     data = cdata.read_hdf5(args.input)['deepCoadd_forced_src']
-    rs_flag,z_flag = background.get_background(config, data, zdata=args.zdata)
+    rs_flag, z_flag = background.get_background(config, data, zdata=args.zdata)
 
 
 def shear(argv=None):
