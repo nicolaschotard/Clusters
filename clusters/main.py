@@ -359,7 +359,7 @@ def mass(argv=None):
 
     config = cdata.load_config(args.config)
     if args.output is None:
-        args.output = os.path.basename(args.input).replace('.hdf5', '_mass.hdf5')
+        args.output = args.input.replace('.hdf5', '_mass.hdf5')
         if not args.overwrite and os.path.exists(args.output):
             raise IOError("Output already exists. Remove them or use --overwrite.")
 
@@ -381,9 +381,19 @@ def mass(argv=None):
         print 'TESTING!!!!'
         masscontroller = dmstackdriver.makeTestingController()
         options, cmdargs  = masscontroller.modelbuilder.createOptions(concentration=4.)
+        options, cmdargs = masscontroller.runmethod.createOptions(outputFile = args.output,
+                                                                  options = options,
+                                                                  args = cmdargs)
+
     else:
         masscontroller = dmstackdriver.controller
         options, cmdargs  = masscontroller.modelbuilder.createOptions()
+        options, cmdargs = masscontroller.runmethod.createOptions(outputFile = args.output,
+                                                                  nsamples = 10000,
+                                                                  burn = 2000,
+                                                                  options = options,
+                                                                  args = cmdargs)
+
 
 
         
@@ -396,9 +406,6 @@ def mass(argv=None):
                                                                 options = options,
                                                                 args = cmdargs)
 
-    options, cmdargs = masscontroller.runmethod.createOptions(outputFile = args.output,
-                                                                  options = options,
-                                                                  args = cmdargs)
 
     masscontroller.load(options, args)
     masscontroller.run()
