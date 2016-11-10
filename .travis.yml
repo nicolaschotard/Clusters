@@ -1,7 +1,7 @@
 language: python
 
 cache:
-  - pip
+  - pip: True
   - directories:
     - $HOME/miniconda.tarball
 

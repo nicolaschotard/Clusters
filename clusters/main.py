@@ -4,7 +4,7 @@ import os
 import yaml
 import sys
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
-
+import numpy as N
 from astropy.table import Table, hstack
 
 from . import data as cdata
@@ -12,8 +12,7 @@ from . import extinction as cextinction
 from . import zphot as czphot
 from . import shear as cshear
 from . import background
-
-import numpy as N
+from pzmassfitter import dmstackdriver
 
 
 def load_data(argv=None):
@@ -337,6 +336,85 @@ def shear(argv=None):
     wcs = data['wcs']
     xclust, yclust = cdata.skycoord_to_pixel([config['ra'], config['dec']], wcs)
     cshear.analysis(meas, float(xclust), float(yclust))
+
+
+
+def mass(argv=None):
+    """Compute cluster mass"""
+    description = """Compute the mass."""
+    prog = "clusters_mass.py"
+    usage = """%s [options] config input""" % prog
+
+    parser = ArgumentParser(prog=prog, usage=usage, description=description,
+                            formatter_class=ArgumentDefaultsHelpFormatter)
+    parser.add_argument('config', help='Configuration (yaml) file')
+    parser.add_argument('input', help='Input data file: output of clusters_data.py, i.e, hdf5 file')
+    parser.add_argument('pdzfile', help='Input pdz file: output of clusters_photoz')
+    parser.add_argument("--output",
+                        help="Name of the output file (hdf5 file)")
+    parser.add_argument("--overwrite", action="store_true", default=False,
+                        help="Overwrite the output files if they exist already")
+    parser.add_argument("--plot", action='store_true', default=False,
+                        help="Make some plots")
+    parser.add_argument("--testing", action="store_true", default=False,
+                        help="Simplify model for testing purposes")
+    args = parser.parse_args(argv)
+
+    config = cdata.load_config(args.config)
+    if args.output is None:
+        args.output = args.input.replace('.hdf5', '_mass.hdf5')
+        if not args.overwrite and os.path.exists(args.output):
+            raise IOError("Output already exists. Remove them or use --overwrite.")
+
+    print "INFO: Working on cluster %s (z=%.4f)" % (config['cluster'], config['redshift'])
+    print "INFO: Working on filters", config['filter']
+
+    # Load the data
+    data = cdata.read_hdf5(args.input)
+    meas = data['deepCoadd_meas']
+
+    cluster = config['cluster']
+    zcluster = config['redshift']
+    cluster_ra = config['ra']
+    cluster_dec = config['dec']
+
+    ###let's assume that all quality cuts were made previously
+
+    if args.testing:
+        print 'TESTING!!!!'
+        masscontroller = dmstackdriver.makeTestingController()
+        options, cmdargs  = masscontroller.modelbuilder.createOptions(concentration=4.)
+        options, cmdargs = masscontroller.runmethod.createOptions(outputFile = args.output,
+                                                                  options = options,
+                                                                  args = cmdargs)
+
+    else:
+        masscontroller = dmstackdriver.controller
+        options, cmdargs  = masscontroller.modelbuilder.createOptions()
+        options, cmdargs = masscontroller.runmethod.createOptions(outputFile = args.output,
+                                                                  nsamples = 10000,
+                                                                  burn = 2000,
+                                                                  options = options,
+                                                                  args = cmdargs)
+
+
+
+        
+    options, cmdargs = masscontroller.filehandler.createOptions(cluster = cluster,
+                                                                zcluster = zcluster,
+                                                                lensingcat = meas,
+                                                                pdzfile = args.pdzfile,
+                                                                cluster_ra = cluster_ra,
+                                                                cluster_dec = cluster_dec,
+                                                                options = options,
+                                                                args = cmdargs)
+
+
+    masscontroller.load(options, args)
+    masscontroller.run()
+    masscontroller.dump()
+    masscontroller.finalize()
+
 
 
 def pipeline(argv=None):
