@@ -13,15 +13,15 @@ python:
 install:
   # Updates
   - sudo apt-get update
+  # Install standard python packages
+  - pip install --user codecov coveralls
+  - pip install --user -r requirements.txt
   # Install a basic DM stack + obs_cfht
   - ./stack_install.sh
   # Prepare for other installs
   - export PATH="$HOME/miniconda/bin:$PATH"
   - source activate lsst
   - source eups-setups.sh
-  # Install standard python packages
-  - pip install codecov coveralls
-  - pip install -r requirements.txt
   # Install Clusters
   - python setup.py install
 
