@@ -24,7 +24,7 @@ ____
 Clusters
 --------
 
-Python package wrapping up the ongoing cluster analysis of the french
+Python package wrapping up the ongoing cluster analysis of the cluster
 LSST/DESC group. For more info, see the two following github
 repositories:
 
@@ -94,10 +94,10 @@ DM stack quick install
 
 This four-step procedure should allow you to install and configure a
 light version of the DM stack, but complete enough to use the
-``Clusters`` packages. It should take ~10 minutes.
-
-- Get and install miniconda, if you do not have it already::
+``Clusters`` package. It should take ~10 minutes.
   
+- Get and install miniconda, if you do not have it already::
+
     wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh
     bash miniconda.sh -b -p $HOME/miniconda
     export PATH="$HOME/miniconda/bin:$PATH"
@@ -107,7 +107,7 @@ light version of the DM stack, but complete enough to use the
 - Install the needed part of the DM stack (we do not need the entire
   stack)::
     
-    conda config --add channels http://conda.lsst.codes/stack
+    conda config --add channels http://conda.lsst.codes/stack/0.12.0
     conda create -q -n lsst python=2.7
     source activate lsst
     conda install -q gcc lsst-daf-persistence lsst-log lsst-afw lsst-skypix lsst-meas-algorithms lsst-pipe-tasks
@@ -140,12 +140,19 @@ LEPHARE quick install
 `````````````````````
 
 You can download and install a pre-configured version of LEPHARE as
-followed::
+followed:
 
-  wget https://lapp-owncloud.in2p3.fr/index.php/s/MDaXObLSD9IVQ1B/download -O lephare.tar.gz
-  tar zxf lephare.tar.gz
+- for linux system::
+    
+    wget https://lapp-owncloud.in2p3.fr/index.php/s/MDaXObLSD9IVQ1B/download -O lephare.tar.gz
+    tar zxf lephare.tar.gz
 
-When the download is complete, put the ``lephare`` directory where it
+- for mac::
+
+    wget http://lpsc.in2p3.fr/upload/doc/fdd5e8/lephare_macosx.tar.gz -O lephare.tar.gz
+    tar zxf lephare.tar.gz
+    
+When the download is complete, exctract the ``lephare`` directory where it
 suits you (``mypath`` in this example), and set the following
 environment variables (use setenv if needed)::
 
@@ -354,8 +361,8 @@ which will get the data from the DM butler, convert them into
 ``astropy`` tables and save them in a single ``hdf5`` file. To do so,
 you need the LSST DM stack to be installed. If you want to skip this
 part and try the code whithout having to install the DM stack, you
-could also use the output of this first step for MACSJ2243.3-0935 that
-you can download from `this repository
+could also use the outputs of this first step that you can download
+from `this repository
 <https://lsst-web.ncsa.illinois.edu/~nchotard/data/clusters/>`_, which
 contains the following files::
 
@@ -369,6 +376,6 @@ contains the following files::
   |   |-- [ 329]  MACSJ2243.3-0935.yaml                # configuration file
 
 
-A `short tutorial
+This `short tutorial
 <http://clusters.readthedocs.io/en/latest/data.html#work-with-the-table>`_
-explains how to use this ``hdf5`` file to start an analysis.
+explains how to use these ``hdf5`` files to start an analysis.

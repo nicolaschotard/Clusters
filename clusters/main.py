@@ -4,7 +4,7 @@ import os
 import yaml
 import sys
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
-
+import numpy as N
 from astropy.table import Table, hstack
 
 from . import data as cdata
@@ -12,7 +12,6 @@ from . import extinction as cextinction
 from . import zphot as czphot
 from . import shear as cshear
 from . import background
-
 from pzmassfitter import dmstackdriver
 
 
@@ -59,11 +58,14 @@ def load_data(argv=None):
     if args.show:
         data.show_keys(args.catalogs.split(','))
         return
+    config['output_name'] = output
+    config['overwrite'] = args.overwrite
     data.load_catalogs(args.catalogs.split(','), matchid=True, **config)
-    data.save_catalogs(output, overwrite=args.overwrite)
     print "\nINFO: Applying filters on the data to keep a clean sample of galaxies"
-    data.catalogs = cdata.filter_table(data.catalogs)
-    data.save_catalogs(output_filtered, overwrite=args.overwrite)
+    catalogs = cdata.read_hdf5(output)
+    data = cdata.Catalogs(config['butler'])
+    data.catalogs = cdata.filter_table(catalogs)
+    data.save_catalogs(output_filtered, overwrite=args.overwrite, delete_catalog=True)
 
 
 def extinction(argv=None):
@@ -94,7 +96,7 @@ def extinction(argv=None):
     print "INFO: Working on filters", config['filter']
 
     # Load the data
-    data = cdata.read_hdf5(args.input)['deepCoadd_forced_src']
+    data = cdata.read_hdf5(args.input, path='deepCoadd_forced_src', dic=False)
 
     # Query for E(b-v) and compute the extinction
     ebmv = {'ebv_sfd': cextinction.query(data['coord_ra_deg'].tolist(),
@@ -140,17 +142,16 @@ def doplot(data, config, zmin=0, zmax=999):
 
 def photometric_redshift(argv=None):
     """Comput photometric redshift using LEPHARE."""
-    info = {}
-    info['description'] = """Comput photometric redshift using LEPHARE."""
-    info['prog'] = "clusters_zphot.py"
-    info['usage'] = """%s [options] config input""" % info['prog']
-
-    parser = ArgumentParser(prog=info['prog'], usage=info['usage'], description=info['description'],
+    parser = ArgumentParser(prog="clusters_zphot.py",
+                            usage="clusters_zphot.py [options] config input",
+                            description="Comput photometric redshift using LEPHARE.",
                             formatter_class=ArgumentDefaultsHelpFormatter)
     parser.add_argument('config', help='Configuration (yaml) file')
     parser.add_argument('input', help='Input data file')
     parser.add_argument("--output",
                         help="Name of the output file (hdf5 file)")
+    parser.add_argument("--pdz_output",
+                        help="Name of the zphot distribution output file (hdf5 file)")
     parser.add_argument("--extinction",
                         help="Output of clusters_extinction (hdf5 file)."
                         "Use to compute the extinction-corrected magnitudes.")
@@ -179,6 +180,11 @@ def photometric_redshift(argv=None):
         if not args.overwrite and os.path.exists(args.output):
             raise IOError("Output already exists. Remove themit or use --overwrite.")
 
+    if args.pdz_output is None:
+        args.pdz_output = os.path.basename(args.input).replace('.hdf5', '_zphot_pdz.hdf5')
+        if not args.overwrite and os.path.exists(args.output):
+            raise IOError("Output already exists. Remove themit or use --overwrite.")
+
     print "INFO: Working on cluster %s (z=%.4f)" % (config['cluster'], config['redshift'])
     print "INFO: Working on filters", config['filter']
 
@@ -186,17 +192,16 @@ def photometric_redshift(argv=None):
     print "INFO: Loading the data from", args.input
     data = cdata.read_hdf5(args.input)['deepCoadd_forced_src']
 
-    mag = args.mag
     # Compute extinction-corrected magitudes
     if args.extinction is not None:
         print "INFO: Computing extinction-corrected magnitude for", args.mag
         edata = cdata.read_hdf5(args.extinction)['extinction']
         cdata.correct_for_extinction(data, edata, mag=args.mag)
-        mag += "_extcorr"
+        args.mag += "_extcorr"
 
     # Make sure the selected magnitude does exist in the data table
-    if mag not in data.keys():
-        raise IOError("%s is not a column of the input table" % mag)
+    if args.mag not in data.keys():
+        raise IOError("%s is not a column of the input table" % args.mag)
 
     # Run LEPHARE
     print "INFO: LEPHARE will run on", len(data) / len(config['filter']), "sources"
@@ -205,19 +210,21 @@ def photometric_redshift(argv=None):
         args.zpara = os.environ["LEPHAREDIR"] + \
                      "/config/zphot_megacam.para" if 'zpara' not in config else config['zpara']
 
-    # If a spectroscopic sample is provided, LEPHARE will run using the adaptative method (zero points determination) 
+    # If a spectroscopic sample is provided, LEPHARE will run using the adaptative method
+    # (zero points determination)
     spectro_file = None if 'zspectro_file' not in config else config['zspectro_file']
-    
+
     for i, zpara in enumerate(args.zpara.split(',') if isinstance(args.zpara, str) else args.zpara):
         print "\nINFO: Configuration for LEPHARE from:", zpara
         kwargs = {'basename': config['cluster'] + '_' + zpara.split('/')[-1].replace('.para', ''),
-                  'filters': config['filter'],
+                  'filters': [f for f in config['filter'] if f in set(data['filter'].tolist())],
                   'ra': data['coord_ra_deg'][data['filter'] == config['filter'][0]],
                   'dec': data['coord_dec_deg'][data['filter'] == config['filter'][0]],
                   'id': data['objectId'][data['filter'] == config['filter'][0]]}
-        zphot = czphot.LEPHARE([data[mag][data['filter'] == f] for f in config['filter']],
-                               [data[args.mag + "Sigma"][data['filter'] == f]
-                                for f in config['filter']],
+        zphot = czphot.LEPHARE([data[args.mag][data['filter'] == f] for f in kwargs['filters']],
+                               [data[args.mag.replace("_extcorr", "") +
+                                     "Sigma"][data['filter'] == f]
+                                for f in kwargs['filters']],
                                zpara=zpara, spectro_file=spectro_file, **kwargs)
         zphot.check_config()
         zphot.run()
@@ -228,13 +235,30 @@ def photometric_redshift(argv=None):
                                'coord_ra_deg',
                                'coord_dec_deg'][data['filter'] == config['filter'][0]],
                           Table(zphot.data_out.data_dict)], join_type='inner')
-        if i == 0:
-            new_tab.write(args.output, path=path, compression=True,
-                          serialize_meta=True, overwrite=args.overwrite)
-        else:
-            new_tab.write(args.output, path=path, compression=True,
-                          serialize_meta=True, append=True)
+        new_tab.write(args.output, path=path, compression=True, serialize_meta=True,
+                      overwrite=args.overwrite if i == 0 else False,
+                      append=False if i == 0 else True)
         print "INFO: LEPHARE data saved in", args.output, "as", path
+
+        pdz_bins_tab = Table([zphot.data_out.pdz_zbins], names=['zbins'])
+
+        # Converts LePhare likelihood to actual probability density
+        for i in N.arange(len(zphot.data_out.pdz_val)):
+            norm = N.trapz(zphot.data_out.pdz_val[:, i], zphot.data_out.pdz_zbins)
+            new_pdz_val = zphot.data_out.pdz_val[:, i] / norm
+            zphot.data_out.pdz_val[:, i] = new_pdz_val
+
+        # hstack creates a table where col0=objectId, col1=zbest and col2
+        # contains 1d arrays with the pdz values
+        pdz_val_tab = hstack([Table([data['objectId'][data['filter'] == config['filter'][0]]]),
+                              Table([zphot.data_out.data_dict['Z_BEST']], names=['Z_BEST']),
+                              Table([zphot.data_out.pdz_val.T], names=['pdz'])])
+
+        pdz_val_tab.write(args.pdz_output, path='pdz_values', compression=True,
+                          serialize_meta=True, overwrite=args.overwrite)
+        pdz_bins_tab.write(args.pdz_output, path='pdz_bins', compression=True,
+                           serialize_meta=True, append=True)
+        print "INFO: LEPHARE zphot distributions saved in", args.pdz_output
 
         if args.plot:
             doplot(zphot.data_out, config,
@@ -273,7 +297,7 @@ def getbackground(argv=None):
     print "INFO: Working on filters", filters
 
     data = cdata.read_hdf5(args.input)['deepCoadd_forced_src']
-    background.get_background(config, data, zdata=args.zdata)
+    rs_flag, z_flag = background.get_background(config, data, zdata=args.zdata)
 
 
 def shear(argv=None):
