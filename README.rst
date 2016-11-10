@@ -262,7 +262,7 @@ in the configuration file.
   - input.hdf5 is the catalogue from which magnitudes are read to produce the red sequence cut.
   - z_min, z_max are used for a 'hard' redshift cut: all galaxies in [z_min, z_max] are flagged.
   - threshold: if the probability of a galaxy to be located at z < z_cluster + 0.1 is larger than threshold [%], the galaxy is flagged to be removed.
-  - output.hdf5 contains all the input.hdf5 catalogue information, with an additional three columns of boolean ('RS_flag', 'z_flag_hard', 'z_flag_pdz') in the astropy table, corresponding to the three cuts. If True the object passed the cut and is to be kept.
+  - output.hdf5 contains all the input.hdf5 catalogue information, with an additional three columns of boolean (``RS_flag``, ``z_flag_hard``, ``z_flag_pdz``) in the astropy table, corresponding to the three cuts. If True the object passed the cut and is to be kept.
 
 - Compute the shear::
 
