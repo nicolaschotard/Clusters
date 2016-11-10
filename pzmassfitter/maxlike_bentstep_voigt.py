@@ -100,12 +100,10 @@ class BentVoigtShapedistro(mm.LensingModel):
         parts.shearcal_c = np.zeros(len(inputcat))
 
 
-# turned off sampling of the wings for now
-#        parts.sigma = pymc.Uniform('sigma', 0.15, 0.5) #sigma
-#        parts.gamma = pymc.Uniform('gamma', 0.003, 0.1) #gamma
 
-        parts.sigma = 0.2
-        parts.gamma = 1.4e-2
+        parts.sigma = pymc.Uniform('sigma', 0.15, 0.5) #sigma
+        parts.gamma = pymc.Uniform('gamma', 0.003, 0.1) #gamma
+
 
 
     ####################

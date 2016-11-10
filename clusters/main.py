@@ -359,7 +359,7 @@ def mass(argv=None):
         options, cmdargs  = masscontroller.modelbuilder.createOptions(concentration=4.)
     else:
         masscontroller = dmstackdriver.controller
-        options, cmdargs  = masscontroller.modelbuilder.createOptions(concentration=4.)
+        options, cmdargs  = masscontroller.modelbuilder.createOptions()
 
 
         
