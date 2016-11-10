@@ -254,21 +254,15 @@ file. This list of configuration files can also be given in the
 CONFIG.yaml file (see above). ``--zpara`` will overwrite what is given
 in the configuration file.
 
-- Identify galaxies to be removed from the whole sample:: 
+- Identify galaxies to be removed from the whole sample: Red sequence galaxies identified from color-color diagrams, foreground galaxies identified using photometric redshifts::
 
-   - Red sequence galaxies identified from color-color diagrams 
-   - Foreground galaxies identified using photometric redshifts
-
-      clusters_getbackground.py config.yaml input.hdf5 (--output output.hdf5) 
+    clusters_getbackground.py config.yaml input.hdf5 (--output output.hdf5) 
           (--zdata zphot.hdf5) (--zmin z_min) (--zmax z_max) (--thresh_prob threshold)
 
-   - input.hdf5 is the catalogue from which magnitudes are read to produce the red sequence cut
-   - z_min, z_max are used for a 'hard' redshift cut: all galaxies in [z_min, z_max] are flagged
-   - threshold: if the probability of a galaxy to be located at z < z_cluster + 0.1 is larger 
-   than threshold [%], the galaxy is flagged to be removed
-   - output.hdf5 contains all the input.hdf5 catalogue information, with an additional three columns 
-   of boolean ('RS_flag', 'z_flag_hard', 'z_flag_pdz') in the astropy table, corresponding to the 
-   three cuts. If True the object passed the cut and is to be kept.
+  - input.hdf5 is the catalogue from which magnitudes are read to produce the red sequence cut.
+  - z_min, z_max are used for a 'hard' redshift cut: all galaxies in [z_min, z_max] are flagged.
+  - threshold: if the probability of a galaxy to be located at z < z_cluster + 0.1 is larger than threshold [%], the galaxy is flagged to be removed.
+  - output.hdf5 contains all the input.hdf5 catalogue information, with an additional three columns of boolean (``RS_flag``, ``z_flag_hard``, ``z_flag_pdz``) in the astropy table, corresponding to the three cuts. If True the object passed the cut and is to be kept.
 
 - Compute the shear::
 
