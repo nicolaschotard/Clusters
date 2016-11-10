@@ -1,4 +1,4 @@
-#
+#!/usr/bin/env python
 # Python code to take multiple shear mapping codes and a catalog from the CFHT
 # clusters pipeline and produce multiple versions of 2-d maps
 
@@ -6,6 +6,7 @@
 # line or from a config file
 from clusters import data
 import numpy as np
+#f = "/home/chotard/Work/scripts/analysis/test_Cluster/MACSJ2243.3-0935_filtered_data.hdf5"
 f = "/Volumes/clustersdata/MACSJ2243.3-0935_filtered_data.hdf5"
 d = data.read_hdf5(f)
 fc = d['deepCoadd_meas']
@@ -117,28 +118,28 @@ for i in range(irmax):
 # 3) The rotated ellipticities are multiplied by a Weight, which depends on the type of map.  
 # 4) The sum of the weighted ellipticities is divided by the sum of the weights to provide an output
 # first, loop over  x and y points in output map
-#
-invlensmap=np.zeros((nxpoints,npoints))
-inv45map=np.zeros((nxpoints,npoints))
-maturi=np.zeros((nxpoints,npoints))
-maturi45=np.zeros((nxpoints,npoints))
-apmassmap=np.zeros((nxpoints,npoints))
-apmass45map=np.zeros((nxpoints,npoints))
-potmap=np.zeros((nxpoints,npoints))
-pot45map=np.zeros((nxpoints,npoints))
-intmap=np.zeros((nxpoints,npoints))
-int45map=np.zeros((nxpoints,npoints))
-for nyp in range(nxpoints):
- yp = ymin + (nyp+0.5)*step
- for nxp in range(nypoints):
-  xp = xmin + (nxp+0.5)
+  #
+#nxpoints, nypoints = 50, 50
+invlensmap=np.zeros((nxpoints,nypoints))
+inv45map=np.zeros((nxpoints,nypoints))
+maturi=np.zeros((nxpoints,nypoints))
+maturi45=np.zeros((nxpoints,nypoints))
+apmassmap=np.zeros((nxpoints,nypoints))
+apmass45map=np.zeros((nxpoints,nypoints))
+potmap=np.zeros((nxpoints,nypoints))
+pot45map=np.zeros((nxpoints,nypoints))
+intmap=np.zeros((nxpoints,nypoints))
+int45map=np.zeros((nxpoints,nypoints))
+for nxp in range(nxpoints):
+ yp = ymin + (nxp+0.5)*step
+ for nyp in range(nypoints):
+  xp = xmin + (nyp+0.5)
 # now loop over all the objects in your catalog
 # the new version of the code treats all objects as numpy arrays implicitly.  Will it work?
   dx = x - xp
   dy = y - yp
   r2 = dx * dx + dy * dy
   r = np.sqrt(r2)
-  print r
   nr = np.array(r.tolist(),dtype=int)
   cos2phi = (dx*dx - dy*dy) / r2
   sin2phi = 2.0*dx*dy / r2
@@ -152,10 +153,9 @@ for nyp in range(nxpoints):
   apmass45 = wtapmass[nr] * ecross
   pot = wtpot[nr] * etan
   pot45 = wtpot[nr] * ecross
-  int = wtint[nr] * etan
+  integ = wtint[nr] * etan
   int45 = wt[nr] * ecross
   #end loop over objects
-  #now populate the 2-d array elements    
   invlensmap[nxp][nyp] = np.sum(invlens) /  np.sum(wt[nr])
   inv45map[nxp][nyp] = np.sum(inv45) / np.sum(wt[nr])
   maturi[nxp][nyp] = np.sum(mat) / np.sum(wtmat[nr])
@@ -164,7 +164,7 @@ for nyp in range(nxpoints):
   apmass45map[nxp][nyp] = np.sum(apmass45) / np.sum(wtapmass[nr])
   potmap[nxp][nyp] = np.sum(pot) / np.sum(wtpot[nr])
   pot45map[nxp][nyp] = np.sum(pot45) / np.sum(wtpot[nr])
-  intmap[nxp][nyp] = np.sum(int) / np.sum(wtint[nr])
+  intmap[nxp][nyp] = np.sum(integ) / np.sum(wtint[nr])
   int45map[nxp][nyp] = np.sum(int45) / np.sum(wtint[nr])
   #end x loop
  #end y loop
@@ -173,7 +173,7 @@ for nyp in range(nxpoints):
 import astropy.io.fits as pyfits
 hdu = pyfits.PrimaryHDU(invlensmap)
 # to modify header, use this syntax
-hdu.header["cd1_1"]=XXXX
+#hdu.header["cd1_1"]=XXXX
 hdu.writeto("invlens.fits",clobber=True)
 
 hdu = pyfits.PrimaryHDU(inv45map)
