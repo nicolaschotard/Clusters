@@ -299,8 +299,12 @@ def getbackground(argv=None):
     data = cdata.read_hdf5(args.input)['deepCoadd_forced_src']
     rs_flag, z_flag1, z_flag2 = background.get_background(config, data, zdata=args.zdata)
 
-    data.add_columns([Column(rs_flag, name='RS_flag'),Column(z_flag1, name='z_flag_hard'),Column(z_flag2, name='z_flag_pdz')])
+    data.add_columns([Column(rs_flag, name='RS_flag'),
+                    Column(z_flag1, name='z_flag_hard'),
+                    Column(z_flag2, name='z_flag_pdz')])
 
+    data.write(args.input, path='deepCoadd_forced_src', compression=True,
+                   serialize_meta=True, append=True, overwrite=True)
     
     
 def shear(argv=None):
