@@ -262,14 +262,16 @@ def zphot_cut(zclust, zdata, **kwargs):
     Returns bool arrays, where False means the object does not pass the cut
     """
     plot = kwargs.get('plot', False)
-    thresh = kwargs.get('thresh', 1.)
+    thresh = kwargs.get('thresh', 5.)
+    zmin = kwargs.get('zmin',  zclust + 0.1)
+    zmax = kwargs.get('zmax', 1.25)
 
     zbest = zdata['pdz_values']['Z_BEST']
     pdz = zdata['pdz_values']['pdz']
     zbins = zdata['pdz_bins']
 
     # WtGIII hard cuts
-    filt1 = (zbest > zclust + 0.1) & (zbest < 1.25)
+    filt1 = (zbest > zmin) & (zbest < zmax)
 
     # pdz_based cut
     cut = (zbins['zbins'] < zclust + 0.1)
@@ -326,7 +328,7 @@ def red_sequence_cut(config, data, **kwargs):
     return filt
 
 
-def get_background(config, data, zdata=None, zspec=None):
+def get_background(config, data, zdata=None, zspec=None, thresh=None, zmin=None, zmax=None):
     """Apply different cuts to the data in order to get the background galaxies."""
 
     # Red sequence
@@ -343,9 +345,9 @@ def get_background(config, data, zdata=None, zspec=None):
     if zdata is not None:
         zdata = cdata.read_hdf5(zdata)
         print "INFO: Flagging foreground/uncertain objects using redshift information"
-        z_flag1, z_flag2 = zphot_cut(config['redshift'], zdata)
-        print "INFO: %i galaxies have been kept after redshift cut" %(sum(z_flag1))
-        print "INFO: %i galaxies have been kept after redshift cut" %(sum(z_flag2))
+        z_flag1, z_flag2 = zphot_cut(config['redshift'], zdata, thresh=thresh, zmin=zmin, zmax=zmax)
+        print "INFO: %i galaxies have been kept after the hard redshift cut" %(sum(z_flag1))
+        print "INFO: %i galaxies have been kept after the pdz redshift cut" %(sum(z_flag2))
         z_flag1 = N.repeat(z_flag1, len(set(data['filter'])))  # to get the cut applied to all filters
         z_flag2 = N.repeat(z_flag2, len(set(data['filter'])))  # to get the cut applied to all filters
         

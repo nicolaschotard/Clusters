@@ -5,7 +5,7 @@ import yaml
 import sys
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 import numpy as N
-from astropy.table import Table, hstack
+from astropy.table import Table, Column, hstack
 
 from . import data as cdata
 from . import extinction as cextinction
@@ -283,13 +283,25 @@ def getbackground(argv=None):
                         help="Name of the output file (hdf5 file)")
     parser.add_argument("--zdata",
                         help="Photometric redshift data (hdf5 output of clusters_zphot)")
+    parser.add_argument("--zmin", type=float,
+                        help="Minimum redshift for photoz hard cut")
+    parser.add_argument("--zmax", type=float,
+                        help="Maximum redshift for photoz hard cut")
+    parser.add_argument("--thresh_prob", type=float,
+                        help="Threshod redshift probability to select galaxy [%]")
     args = parser.parse_args(argv)
 
     config = yaml.load(open(args.config))
     if args.output is None:
         args.output = os.path.basename(args.config).replace('.yaml',
                                                             '_background.hdf5')
-
+    if args.zmin is None:
+        args.zmin = 0.
+    if args.zmax is None:
+        args.zmax = config['redshift'] + 0.1
+    if args.thresh_prob is None:
+        args.thresh_prob = 5.
+         
     filters = config['filter']
 
     print "INFO: Working on cluster %s (z=%.4f)" % (config['cluster'],
@@ -297,13 +309,18 @@ def getbackground(argv=None):
     print "INFO: Working on filters", filters
 
     data = cdata.read_hdf5(args.input)['deepCoadd_forced_src']
-    rs_flag, z_flag1, z_flag2 = background.get_background(config, data, zdata=args.zdata)
+    rs_flag, z_flag1, z_flag2 = background.get_background(config,data,
+                                                          zdata=args.zdata,
+                                                          zmin=args.zmin,
+                                                          zmax=args.zmax,
+                                                          thresh=args.thresh_prob)
 
+    data = cdata.read_hdf5(args.input)['deepCoadd_meas']
     data.add_columns([Column(rs_flag, name='RS_flag'),
                     Column(z_flag1, name='z_flag_hard'),
                     Column(z_flag2, name='z_flag_pdz')])
 
-    data.write(args.input, path='deepCoadd_forced_src', compression=True,
+    data.write(args.output, path='deepCoadd_meas', compression=True,
                    serialize_meta=True, append=True, overwrite=True)
     
     
