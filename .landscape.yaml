@@ -10,3 +10,4 @@ pep8:
 pylint:
   disable:
     - invalid-name
+    - anomalous-backslash-in-string
