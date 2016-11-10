@@ -9,3 +9,7 @@ h5py
 progressbar
 termcolor
 fitsio
+cython
+pymc
+pytest
+
