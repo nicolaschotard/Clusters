@@ -890,7 +890,7 @@ typedef npy_double __pyx_t_5numpy_double_t;
  */
 typedef npy_longdouble __pyx_t_5numpy_longdouble_t;
 
-/* "pzmassfitter/nfwmodeltools.pyx":40
+/* "pzmassfitter/nfwmodeltools.pyx":41
  * 
  * DTYPE = np.double
  * ctypedef np.double_t DTYPE_T             # <<<<<<<<<<<<<<
@@ -963,7 +963,7 @@ typedef npy_clongdouble __pyx_t_5numpy_clongdouble_t;
 typedef npy_cdouble __pyx_t_5numpy_complex_t;
 struct __pyx_opt_args_12pzmassfitter_13nfwmodeltools_deltaC;
 
-/* "pzmassfitter/nfwmodeltools.pyx":49
+/* "pzmassfitter/nfwmodeltools.pyx":50
  * ############################
  * 
  * cdef double deltaC(double c, double delta = 200.):             # <<<<<<<<<<<<<<
@@ -975,7 +975,7 @@ struct __pyx_opt_args_12pzmassfitter_13nfwmodeltools_deltaC {
   double delta;
 };
 
-/* "pzmassfitter/nfwmodeltools.pyx":189
+/* "pzmassfitter/nfwmodeltools.pyx":190
  * @cython.boundscheck(False)
  * @cython.wraparound(False)
  * def rdelta2rs(double rdelta,             # <<<<<<<<<<<<<<
@@ -1235,14 +1235,6 @@ static CYTHON_INLINE PyObject* __Pyx_PyObject_CallOneArg(PyObject *func, PyObjec
 static void __Pyx_RaiseBufferFallbackError(void);
 
 #define __Pyx_BufPtrCContig2d(type, buf, i0, s0, i1, s1) ((type)((char*)buf + i0 * s0) + i1)
-/* PyIntBinop.proto */
-#if !CYTHON_COMPILING_IN_PYPY
-static PyObject* __Pyx_PyInt_SubtractCObj(PyObject *op1, PyObject *op2, long intval, int inplace);
-#else
-#define __Pyx_PyInt_SubtractCObj(op1, op2, intval, inplace)\
-    (inplace ? PyNumber_InPlaceSubtract(op1, op2) : PyNumber_Subtract(op1, op2))
-#endif
-
 /* RaiseException.proto */
 static void __Pyx_Raise(PyObject *type, PyObject *value, PyObject *tb, PyObject *cause);
 
@@ -1572,7 +1564,6 @@ static const char __pyx_k_dtype[] = "dtype";
 static const char __pyx_k_gamma[] = "gamma";
 static const char __pyx_k_ghats[] = "ghats";
 static const char __pyx_k_kappa[] = "kappa";
-static const char __pyx_k_nbins[] = "nbins";
 static const char __pyx_k_nobjs[] = "nobjs";
 static const char __pyx_k_numpy[] = "numpy";
 static const char __pyx_k_r_mpc[] = "r_mpc";
@@ -1582,44 +1573,32 @@ static const char __pyx_k_scipy[] = "scipy";
 static const char __pyx_k_sigma[] = "sigma";
 static const char __pyx_k_trapz[] = "trapz";
 static const char __pyx_k_zeros[] = "zeros";
-static const char __pyx_k_beta_s[] = "beta_s";
 static const char __pyx_k_brenth[] = "brenth";
 static const char __pyx_k_cdelta[] = "cdelta";
-static const char __pyx_k_curbin[] = "curbin";
 static const char __pyx_k_cvs_id[] = "__cvs_id__";
 static const char __pyx_k_double[] = "double";
-static const char __pyx_k_gtilde[] = "gtilde";
 static const char __pyx_k_import[] = "__import__";
 static const char __pyx_k_mdelta[] = "mdelta";
-static const char __pyx_k_modelg[] = "modelg";
 static const char __pyx_k_rdelta[] = "rdelta";
 static const char __pyx_k_rscale[] = "rscale";
-static const char __pyx_k_avebeta[] = "avebeta";
-static const char __pyx_k_beta_s2[] = "beta_s2";
 static const char __pyx_k_delta_c[] = "delta_c";
 static const char __pyx_k_float64[] = "float64";
 static const char __pyx_k_galProb[] = "galProb";
 static const char __pyx_k_logProb[] = "logProb";
-static const char __pyx_k_r_scale[] = "r_scale";
+static const char __pyx_k_sqrt2pi[] = "sqrt2pi";
 static const char __pyx_k_NFWKappa[] = "NFWKappa";
 static const char __pyx_k_NFWShear[] = "NFWShear";
-static const char __pyx_k_avebeta2[] = "avebeta2";
 static const char __pyx_k_avekappa[] = "avekappa";
-static const char __pyx_k_boostcor[] = "boostcor";
 static const char __pyx_k_nfwutils[] = "nfwutils";
 static const char __pyx_k_optimize[] = "optimize";
-static const char __pyx_k_zcluster[] = "zcluster";
-static const char __pyx_k_bin_r_mpc[] = "bin_r_mpc";
-static const char __pyx_k_bin_sigma[] = "bin_sigma";
 static const char __pyx_k_gamma_inf[] = "gamma_inf";
 static const char __pyx_k_integrand[] = "integrand";
 static const char __pyx_k_kappa_inf[] = "kappa_inf";
 static const char __pyx_k_massdelta[] = "massdelta";
 static const char __pyx_k_rdelta2rs[] = "rdelta2rs";
 static const char __pyx_k_ValueError[] = "ValueError";
-static const char __pyx_k_binlogProb[] = "binlogProb";
+static const char __pyx_k_gauss_like[] = "gauss_like";
 static const char __pyx_k_logsqrt2pi[] = "logsqrt2pi";
-static const char __pyx_k_sigma_ghat[] = "sigma_ghat";
 static const char __pyx_k_ImportError[] = "ImportError";
 static const char __pyx_k_massInsideR[] = "massInsideR";
 static const char __pyx_k_RuntimeError[] = "RuntimeError";
@@ -1627,9 +1606,7 @@ static const char __pyx_k_rscaleConstM[] = "rscaleConstM";
 static const char __pyx_k_concentration[] = "concentration";
 static const char __pyx_k_bentvoigt_like[] = "bentvoigt_like";
 static const char __pyx_k_scipy_optimize[] = "scipy.optimize";
-static const char __pyx_k_bin_contamboost[] = "bin_contamboost";
 static const char __pyx_k_aveEnclosedKappa[] = "aveEnclosedKappa";
-static const char __pyx_k_bentcolorcut_like[] = "bentcolorcut_like";
 static const char __pyx_k_rdelta2rs_locals_f[] = "rdelta2rs.<locals>.f";
 static const char __pyx_k_rho_c_over_sigma_c[] = "rho_c_over_sigma_c";
 static const char __pyx_k_pzmassfitter_nfwmodeltools[] = "pzmassfitter.nfwmodeltools";
@@ -1658,28 +1635,17 @@ static PyObject *__pyx_n_s_ValueError;
 static PyObject *__pyx_n_s_a;
 static PyObject *__pyx_n_s_amp;
 static PyObject *__pyx_n_s_aveEnclosedKappa;
-static PyObject *__pyx_n_s_avebeta;
-static PyObject *__pyx_n_s_avebeta2;
 static PyObject *__pyx_n_s_avekappa;
 static PyObject *__pyx_n_s_b;
-static PyObject *__pyx_n_s_bentcolorcut_like;
 static PyObject *__pyx_n_s_bentvoigt_like;
 static PyObject *__pyx_n_s_beta;
-static PyObject *__pyx_n_s_beta_s;
-static PyObject *__pyx_n_s_beta_s2;
 static PyObject *__pyx_n_s_betas;
-static PyObject *__pyx_n_s_bin_contamboost;
-static PyObject *__pyx_n_s_bin_r_mpc;
-static PyObject *__pyx_n_s_bin_sigma;
-static PyObject *__pyx_n_s_binlogProb;
-static PyObject *__pyx_n_s_boostcor;
 static PyObject *__pyx_n_s_brenth;
 static PyObject *__pyx_n_s_c;
 static PyObject *__pyx_n_s_c200;
 static PyObject *__pyx_n_s_cdelta;
 static PyObject *__pyx_n_s_concentration;
 static PyObject *__pyx_n_s_curPZ;
-static PyObject *__pyx_n_s_curbin;
 static PyObject *__pyx_n_s_cvs_id;
 static PyObject *__pyx_n_s_delta;
 static PyObject *__pyx_n_s_delta_c;
@@ -1691,8 +1657,8 @@ static PyObject *__pyx_n_s_g;
 static PyObject *__pyx_n_s_galProb;
 static PyObject *__pyx_n_s_gamma;
 static PyObject *__pyx_n_s_gamma_inf;
+static PyObject *__pyx_n_s_gauss_like;
 static PyObject *__pyx_n_s_ghats;
-static PyObject *__pyx_n_s_gtilde;
 static PyObject *__pyx_n_s_i;
 static PyObject *__pyx_n_s_import;
 static PyObject *__pyx_n_s_integrand;
@@ -1707,8 +1673,6 @@ static PyObject *__pyx_n_s_main;
 static PyObject *__pyx_n_s_massInsideR;
 static PyObject *__pyx_n_s_massdelta;
 static PyObject *__pyx_n_s_mdelta;
-static PyObject *__pyx_n_s_modelg;
-static PyObject *__pyx_n_s_nbins;
 static PyObject *__pyx_kp_u_ndarray_is_not_C_contiguous;
 static PyObject *__pyx_kp_u_ndarray_is_not_Fortran_contiguou;
 static PyObject *__pyx_n_s_nfwutils;
@@ -1725,7 +1689,6 @@ static PyObject *__pyx_n_s_pz;
 static PyObject *__pyx_n_s_pzmassfitter_nfwmodeltools;
 static PyObject *__pyx_n_s_r;
 static PyObject *__pyx_n_s_r_mpc;
-static PyObject *__pyx_n_s_r_scale;
 static PyObject *__pyx_n_s_range;
 static PyObject *__pyx_n_s_rdelta;
 static PyObject *__pyx_n_s_rdelta2rs;
@@ -1739,14 +1702,13 @@ static PyObject *__pyx_n_s_s;
 static PyObject *__pyx_n_s_scipy;
 static PyObject *__pyx_n_s_scipy_optimize;
 static PyObject *__pyx_n_s_sigma;
-static PyObject *__pyx_n_s_sigma_ghat;
 static PyObject *__pyx_n_s_sqrt;
+static PyObject *__pyx_n_s_sqrt2pi;
 static PyObject *__pyx_n_s_test;
 static PyObject *__pyx_n_s_trapz;
 static PyObject *__pyx_kp_u_unknown_dtype_code_in_numpy_pxd;
 static PyObject *__pyx_n_s_x;
 static PyObject *__pyx_n_s_x0;
-static PyObject *__pyx_n_s_zcluster;
 static PyObject *__pyx_n_s_zeros;
 static PyObject *__pyx_n_s_zs;
 static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_NFWShear(CYTHON_UNUSED PyObject *__pyx_self, PyArrayObject *__pyx_v_r, double __pyx_v_concentration, double __pyx_v_rs, double __pyx_v_rho_c_over_sigma_c, double __pyx_v_delta); /* proto */
@@ -1756,13 +1718,11 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_9rdelta2rs_f(PyObject *
 static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_6rdelta2rs(CYTHON_UNUSED PyObject *__pyx_self, double __pyx_v_rdelta, double __pyx_v_c200, double __pyx_v_delta); /* proto */
 static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_8rscaleConstM(CYTHON_UNUSED PyObject *__pyx_self, double __pyx_v_mdelta, double __pyx_v_c, double __pyx_v_rho_c, double __pyx_v_delta); /* proto */
 static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_10massInsideR(CYTHON_UNUSED PyObject *__pyx_self, double __pyx_v_rs, double __pyx_v_c, double __pyx_v_R, double __pyx_v_rho_c); /* proto */
-static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_12bentvoigt_like(CYTHON_UNUSED PyObject *__pyx_self, double __pyx_v_mdelta, double __pyx_v_cdelta, PyArrayObject *__pyx_v_r_mpc, PyArrayObject *__pyx_v_ghats, PyArrayObject *__pyx_v_zs, PyArrayObject *__pyx_v_betas, PyArrayObject *__pyx_v_pz, PyArrayObject *__pyx_v_m, PyArrayObject *__pyx_v_c, double __pyx_v_sigma, double __pyx_v_gamma, double __pyx_v_rho_c, double __pyx_v_rho_c_over_sigma_c, double __pyx_v_massdelta); /* proto */
-static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_14bentcolorcut_like(CYTHON_UNUSED PyObject *__pyx_self, double __pyx_v_r_scale, PyArrayObject *__pyx_v_r_mpc, PyArrayObject *__pyx_v_ghats, PyArrayObject *__pyx_v_sigma_ghat, double __pyx_v_concentration, double __pyx_v_zcluster, double __pyx_v_beta_s, double __pyx_v_beta_s2, PyArrayObject *__pyx_v_boostcor); /* proto */
-static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_16bentcolorcut_like(CYTHON_UNUSED PyObject *__pyx_self, PyArrayObject *__pyx_v_bin_r_mpc, double __pyx_v_r_scale, PyArrayObject *__pyx_v_ghats, PyArrayObject *__pyx_v_bin_sigma, double __pyx_v_concentration, double __pyx_v_zcluster, double __pyx_v_avebeta, double __pyx_v_avebeta2, PyArrayObject *__pyx_v_bin_contamboost); /* proto */
+static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_12gauss_like(CYTHON_UNUSED PyObject *__pyx_self, double __pyx_v_mdelta, double __pyx_v_cdelta, PyArrayObject *__pyx_v_r_mpc, PyArrayObject *__pyx_v_ghats, PyArrayObject *__pyx_v_zs, PyArrayObject *__pyx_v_betas, PyArrayObject *__pyx_v_pz, PyArrayObject *__pyx_v_m, PyArrayObject *__pyx_v_c, double __pyx_v_sigma, double __pyx_v_rho_c, double __pyx_v_rho_c_over_sigma_c, double __pyx_v_massdelta); /* proto */
+static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_14bentvoigt_like(CYTHON_UNUSED PyObject *__pyx_self, double __pyx_v_mdelta, double __pyx_v_cdelta, PyArrayObject *__pyx_v_r_mpc, PyArrayObject *__pyx_v_ghats, PyArrayObject *__pyx_v_zs, PyArrayObject *__pyx_v_betas, PyArrayObject *__pyx_v_pz, PyArrayObject *__pyx_v_m, PyArrayObject *__pyx_v_c, double __pyx_v_sigma, double __pyx_v_gamma, double __pyx_v_rho_c, double __pyx_v_rho_c_over_sigma_c, double __pyx_v_massdelta); /* proto */
 static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, Py_buffer *__pyx_v_info, int __pyx_v_flags); /* proto */
 static void __pyx_pf_5numpy_7ndarray_2__releasebuffer__(PyArrayObject *__pyx_v_self, Py_buffer *__pyx_v_info); /* proto */
 static PyObject *__pyx_tp_new_12pzmassfitter_13nfwmodeltools___pyx_scope_struct__rdelta2rs(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
-static PyObject *__pyx_float_0_;
 static PyObject *__pyx_float_0_1;
 static PyObject *__pyx_int_1;
 static PyObject *__pyx_int_2;
@@ -1786,7 +1746,6 @@ static PyObject *__pyx_tuple__20;
 static PyObject *__pyx_tuple__22;
 static PyObject *__pyx_tuple__24;
 static PyObject *__pyx_tuple__26;
-static PyObject *__pyx_tuple__28;
 static PyObject *__pyx_codeobj__2;
 static PyObject *__pyx_codeobj__13;
 static PyObject *__pyx_codeobj__15;
@@ -1796,9 +1755,8 @@ static PyObject *__pyx_codeobj__21;
 static PyObject *__pyx_codeobj__23;
 static PyObject *__pyx_codeobj__25;
 static PyObject *__pyx_codeobj__27;
-static PyObject *__pyx_codeobj__29;
 
-/* "pzmassfitter/nfwmodeltools.pyx":49
+/* "pzmassfitter/nfwmodeltools.pyx":50
  * ############################
  * 
  * cdef double deltaC(double c, double delta = 200.):             # <<<<<<<<<<<<<<
@@ -1820,7 +1778,7 @@ static double __pyx_f_12pzmassfitter_13nfwmodeltools_deltaC(double __pyx_v_c, st
     }
   }
 
-  /* "pzmassfitter/nfwmodeltools.pyx":50
+  /* "pzmassfitter/nfwmodeltools.pyx":51
  * 
  * cdef double deltaC(double c, double delta = 200.):
  *     return (delta/3.) * c**3 / (log(1+c) - c/(1+c))             # <<<<<<<<<<<<<<
@@ -1831,17 +1789,17 @@ static double __pyx_f_12pzmassfitter_13nfwmodeltools_deltaC(double __pyx_v_c, st
   __pyx_t_2 = (1.0 + __pyx_v_c);
   if (unlikely(__pyx_t_2 == 0)) {
     PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-    __PYX_ERR(0, 50, __pyx_L1_error)
+    __PYX_ERR(0, 51, __pyx_L1_error)
   }
   __pyx_t_3 = (log((1.0 + __pyx_v_c)) - (__pyx_v_c / __pyx_t_2));
   if (unlikely(__pyx_t_3 == 0)) {
     PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-    __PYX_ERR(0, 50, __pyx_L1_error)
+    __PYX_ERR(0, 51, __pyx_L1_error)
   }
   __pyx_r = (__pyx_t_1 / __pyx_t_3);
   goto __pyx_L0;
 
-  /* "pzmassfitter/nfwmodeltools.pyx":49
+  /* "pzmassfitter/nfwmodeltools.pyx":50
  * ############################
  * 
  * cdef double deltaC(double c, double delta = 200.):             # <<<<<<<<<<<<<<
@@ -1858,7 +1816,7 @@ static double __pyx_f_12pzmassfitter_13nfwmodeltools_deltaC(double __pyx_v_c, st
   return __pyx_r;
 }
 
-/* "pzmassfitter/nfwmodeltools.pyx":57
+/* "pzmassfitter/nfwmodeltools.pyx":58
  * @cython.boundscheck(False)
  * @cython.wraparound(False)
  * def NFWShear(np.ndarray[np.double_t, ndim=1, mode='c'] r,             # <<<<<<<<<<<<<<
@@ -1901,17 +1859,17 @@ static PyObject *__pyx_pw_12pzmassfitter_13nfwmodeltools_1NFWShear(PyObject *__p
         case  1:
         if (likely((values[1] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_concentration)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("NFWShear", 0, 4, 5, 1); __PYX_ERR(0, 57, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("NFWShear", 0, 4, 5, 1); __PYX_ERR(0, 58, __pyx_L3_error)
         }
         case  2:
         if (likely((values[2] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_rs)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("NFWShear", 0, 4, 5, 2); __PYX_ERR(0, 57, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("NFWShear", 0, 4, 5, 2); __PYX_ERR(0, 58, __pyx_L3_error)
         }
         case  3:
         if (likely((values[3] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_rho_c_over_sigma_c)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("NFWShear", 0, 4, 5, 3); __PYX_ERR(0, 57, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("NFWShear", 0, 4, 5, 3); __PYX_ERR(0, 58, __pyx_L3_error)
         }
         case  4:
         if (kw_args > 0) {
@@ -1920,7 +1878,7 @@ static PyObject *__pyx_pw_12pzmassfitter_13nfwmodeltools_1NFWShear(PyObject *__p
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "NFWShear") < 0)) __PYX_ERR(0, 57, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "NFWShear") < 0)) __PYX_ERR(0, 58, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -1934,24 +1892,24 @@ static PyObject *__pyx_pw_12pzmassfitter_13nfwmodeltools_1NFWShear(PyObject *__p
       }
     }
     __pyx_v_r = ((PyArrayObject *)values[0]);
-    __pyx_v_concentration = __pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_concentration == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 58, __pyx_L3_error)
-    __pyx_v_rs = __pyx_PyFloat_AsDouble(values[2]); if (unlikely((__pyx_v_rs == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 59, __pyx_L3_error)
-    __pyx_v_rho_c_over_sigma_c = __pyx_PyFloat_AsDouble(values[3]); if (unlikely((__pyx_v_rho_c_over_sigma_c == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 60, __pyx_L3_error)
+    __pyx_v_concentration = __pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_concentration == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 59, __pyx_L3_error)
+    __pyx_v_rs = __pyx_PyFloat_AsDouble(values[2]); if (unlikely((__pyx_v_rs == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 60, __pyx_L3_error)
+    __pyx_v_rho_c_over_sigma_c = __pyx_PyFloat_AsDouble(values[3]); if (unlikely((__pyx_v_rho_c_over_sigma_c == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 61, __pyx_L3_error)
     if (values[4]) {
-      __pyx_v_delta = __pyx_PyFloat_AsDouble(values[4]); if (unlikely((__pyx_v_delta == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 61, __pyx_L3_error)
+      __pyx_v_delta = __pyx_PyFloat_AsDouble(values[4]); if (unlikely((__pyx_v_delta == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 62, __pyx_L3_error)
     } else {
       __pyx_v_delta = ((double)200.);
     }
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("NFWShear", 0, 4, 5, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 57, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("NFWShear", 0, 4, 5, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 58, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("pzmassfitter.nfwmodeltools.NFWShear", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_r), __pyx_ptype_5numpy_ndarray, 1, "r", 0))) __PYX_ERR(0, 57, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_r), __pyx_ptype_5numpy_ndarray, 1, "r", 0))) __PYX_ERR(0, 58, __pyx_L1_error)
   __pyx_r = __pyx_pf_12pzmassfitter_13nfwmodeltools_NFWShear(__pyx_self, __pyx_v_r, __pyx_v_concentration, __pyx_v_rs, __pyx_v_rho_c_over_sigma_c, __pyx_v_delta);
 
   /* function exit code */
@@ -2010,11 +1968,11 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_NFWShear(CYTHON_UNUSED 
   __pyx_pybuffernd_r.rcbuffer = &__pyx_pybuffer_r;
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_r.rcbuffer->pybuffer, (PyObject*)__pyx_v_r, &__Pyx_TypeInfo_nn___pyx_t_5numpy_double_t, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 1, 0, __pyx_stack) == -1)) __PYX_ERR(0, 57, __pyx_L1_error)
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_r.rcbuffer->pybuffer, (PyObject*)__pyx_v_r, &__Pyx_TypeInfo_nn___pyx_t_5numpy_double_t, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 1, 0, __pyx_stack) == -1)) __PYX_ERR(0, 58, __pyx_L1_error)
   }
   __pyx_pybuffernd_r.diminfo[0].strides = __pyx_pybuffernd_r.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_r.diminfo[0].shape = __pyx_pybuffernd_r.rcbuffer->pybuffer.shape[0];
 
-  /* "pzmassfitter/nfwmodeltools.pyx":63
+  /* "pzmassfitter/nfwmodeltools.pyx":64
  *              double delta = 200.):
  * 
  *     cdef double delta_c = deltaC(concentration, delta = delta)             # <<<<<<<<<<<<<<
@@ -2026,7 +1984,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_NFWShear(CYTHON_UNUSED 
   __pyx_t_1 = __pyx_f_12pzmassfitter_13nfwmodeltools_deltaC(__pyx_v_concentration, &__pyx_t_2); 
   __pyx_v_delta_c = __pyx_t_1;
 
-  /* "pzmassfitter/nfwmodeltools.pyx":64
+  /* "pzmassfitter/nfwmodeltools.pyx":65
  * 
  *     cdef double delta_c = deltaC(concentration, delta = delta)
  *     cdef double amp = rs*delta_c*rho_c_over_sigma_c             # <<<<<<<<<<<<<<
@@ -2035,7 +1993,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_NFWShear(CYTHON_UNUSED 
  */
   __pyx_v_amp = ((__pyx_v_rs * __pyx_v_delta_c) * __pyx_v_rho_c_over_sigma_c);
 
-  /* "pzmassfitter/nfwmodeltools.pyx":68
+  /* "pzmassfitter/nfwmodeltools.pyx":69
  *     cdef double x,a,b,c
  *     cdef Py_ssize_t i, npos
  *     npos = r.shape[0]             # <<<<<<<<<<<<<<
@@ -2044,46 +2002,46 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_NFWShear(CYTHON_UNUSED 
  */
   __pyx_v_npos = (__pyx_v_r->dimensions[0]);
 
-  /* "pzmassfitter/nfwmodeltools.pyx":69
+  /* "pzmassfitter/nfwmodeltools.pyx":70
  *     cdef Py_ssize_t i, npos
  *     npos = r.shape[0]
  *     cdef np.ndarray[np.double_t, ndim=1, mode='c'] g = np.zeros(r.shape[0], dtype=np.float64)             # <<<<<<<<<<<<<<
  * 
  *     for i from npos > i >= 0:
  */
-  __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 69, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 70, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_zeros); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 69, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_zeros); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 70, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = __Pyx_PyInt_From_Py_intptr_t((__pyx_v_r->dimensions[0])); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 69, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyInt_From_Py_intptr_t((__pyx_v_r->dimensions[0])); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 70, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_5 = PyTuple_New(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 69, __pyx_L1_error)
+  __pyx_t_5 = PyTuple_New(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 70, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_GIVEREF(__pyx_t_3);
   PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_t_3);
   __pyx_t_3 = 0;
-  __pyx_t_3 = PyDict_New(); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 69, __pyx_L1_error)
+  __pyx_t_3 = PyDict_New(); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 70, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_6 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 69, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 70, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
-  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_float64); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 69, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_float64); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 70, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_dtype, __pyx_t_7) < 0) __PYX_ERR(0, 69, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_dtype, __pyx_t_7) < 0) __PYX_ERR(0, 70, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_5, __pyx_t_3); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 69, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_5, __pyx_t_3); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 70, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (!(likely(((__pyx_t_7) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_7, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 69, __pyx_L1_error)
+  if (!(likely(((__pyx_t_7) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_7, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 70, __pyx_L1_error)
   __pyx_t_8 = ((PyArrayObject *)__pyx_t_7);
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
     if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_g.rcbuffer->pybuffer, (PyObject*)__pyx_t_8, &__Pyx_TypeInfo_nn___pyx_t_5numpy_double_t, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS| PyBUF_WRITABLE, 1, 0, __pyx_stack) == -1)) {
       __pyx_v_g = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_g.rcbuffer->pybuffer.buf = NULL;
-      __PYX_ERR(0, 69, __pyx_L1_error)
+      __PYX_ERR(0, 70, __pyx_L1_error)
     } else {__pyx_pybuffernd_g.diminfo[0].strides = __pyx_pybuffernd_g.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_g.diminfo[0].shape = __pyx_pybuffernd_g.rcbuffer->pybuffer.shape[0];
     }
   }
@@ -2091,7 +2049,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_NFWShear(CYTHON_UNUSED 
   __pyx_v_g = ((PyArrayObject *)__pyx_t_7);
   __pyx_t_7 = 0;
 
-  /* "pzmassfitter/nfwmodeltools.pyx":71
+  /* "pzmassfitter/nfwmodeltools.pyx":72
  *     cdef np.ndarray[np.double_t, ndim=1, mode='c'] g = np.zeros(r.shape[0], dtype=np.float64)
  * 
  *     for i from npos > i >= 0:             # <<<<<<<<<<<<<<
@@ -2100,7 +2058,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_NFWShear(CYTHON_UNUSED 
  */
   for (__pyx_v_i = __pyx_v_npos-1; __pyx_v_i >= 0; __pyx_v_i--) {
 
-    /* "pzmassfitter/nfwmodeltools.pyx":73
+    /* "pzmassfitter/nfwmodeltools.pyx":74
  *     for i from npos > i >= 0:
  * 
  *         x = r[i]/rs             # <<<<<<<<<<<<<<
@@ -2111,11 +2069,11 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_NFWShear(CYTHON_UNUSED 
     __pyx_t_10 = (*__Pyx_BufPtrCContig1d(__pyx_t_5numpy_double_t *, __pyx_pybuffernd_r.rcbuffer->pybuffer.buf, __pyx_t_9, __pyx_pybuffernd_r.diminfo[0].strides));
     if (unlikely(__pyx_v_rs == 0)) {
       PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-      __PYX_ERR(0, 73, __pyx_L1_error)
+      __PYX_ERR(0, 74, __pyx_L1_error)
     }
     __pyx_v_x = (__pyx_t_10 / __pyx_v_rs);
 
-    /* "pzmassfitter/nfwmodeltools.pyx":75
+    /* "pzmassfitter/nfwmodeltools.pyx":76
  *         x = r[i]/rs
  * 
  *         if x < 1:             # <<<<<<<<<<<<<<
@@ -2125,7 +2083,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_NFWShear(CYTHON_UNUSED 
     __pyx_t_11 = ((__pyx_v_x < 1.0) != 0);
     if (__pyx_t_11) {
 
-      /* "pzmassfitter/nfwmodeltools.pyx":77
+      /* "pzmassfitter/nfwmodeltools.pyx":78
  *         if x < 1:
  * 
  *             a = atanh(sqrt((1-x)/(1+x)))             # <<<<<<<<<<<<<<
@@ -2136,11 +2094,11 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_NFWShear(CYTHON_UNUSED 
       __pyx_t_12 = (1.0 + __pyx_v_x);
       if (unlikely(__pyx_t_12 == 0)) {
         PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-        __PYX_ERR(0, 77, __pyx_L1_error)
+        __PYX_ERR(0, 78, __pyx_L1_error)
       }
       __pyx_v_a = atanh(sqrt((__pyx_t_1 / __pyx_t_12)));
 
-      /* "pzmassfitter/nfwmodeltools.pyx":78
+      /* "pzmassfitter/nfwmodeltools.pyx":79
  * 
  *             a = atanh(sqrt((1-x)/(1+x)))
  *             b = sqrt(1-x**2)             # <<<<<<<<<<<<<<
@@ -2149,7 +2107,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_NFWShear(CYTHON_UNUSED 
  */
       __pyx_v_b = sqrt((1.0 - pow(__pyx_v_x, 2.0)));
 
-      /* "pzmassfitter/nfwmodeltools.pyx":79
+      /* "pzmassfitter/nfwmodeltools.pyx":80
  *             a = atanh(sqrt((1-x)/(1+x)))
  *             b = sqrt(1-x**2)
  *             c = (x**2) - 1             # <<<<<<<<<<<<<<
@@ -2158,7 +2116,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_NFWShear(CYTHON_UNUSED 
  */
       __pyx_v_c = (pow(__pyx_v_x, 2.0) - 1.0);
 
-      /* "pzmassfitter/nfwmodeltools.pyx":81
+      /* "pzmassfitter/nfwmodeltools.pyx":82
  *             c = (x**2) - 1
  * 
  *             g[i] = 8*a/(b*x**2) + 4*log(x/2)/x**2 - 2/c + 4*a/(b*c)             # <<<<<<<<<<<<<<
@@ -2169,28 +2127,28 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_NFWShear(CYTHON_UNUSED 
       __pyx_t_1 = (__pyx_v_b * pow(__pyx_v_x, 2.0));
       if (unlikely(__pyx_t_1 == 0)) {
         PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-        __PYX_ERR(0, 81, __pyx_L1_error)
+        __PYX_ERR(0, 82, __pyx_L1_error)
       }
       __pyx_t_13 = (4.0 * log((__pyx_v_x / 2.0)));
       __pyx_t_14 = pow(__pyx_v_x, 2.0);
       if (unlikely(__pyx_t_14 == 0)) {
         PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-        __PYX_ERR(0, 81, __pyx_L1_error)
+        __PYX_ERR(0, 82, __pyx_L1_error)
       }
       if (unlikely(__pyx_v_c == 0)) {
         PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-        __PYX_ERR(0, 81, __pyx_L1_error)
+        __PYX_ERR(0, 82, __pyx_L1_error)
       }
       __pyx_t_15 = (4.0 * __pyx_v_a);
       __pyx_t_16 = (__pyx_v_b * __pyx_v_c);
       if (unlikely(__pyx_t_16 == 0)) {
         PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-        __PYX_ERR(0, 81, __pyx_L1_error)
+        __PYX_ERR(0, 82, __pyx_L1_error)
       }
       __pyx_t_17 = __pyx_v_i;
       *__Pyx_BufPtrCContig1d(__pyx_t_5numpy_double_t *, __pyx_pybuffernd_g.rcbuffer->pybuffer.buf, __pyx_t_17, __pyx_pybuffernd_g.diminfo[0].strides) = ((((__pyx_t_12 / __pyx_t_1) + (__pyx_t_13 / __pyx_t_14)) - (2.0 / __pyx_v_c)) + (__pyx_t_15 / __pyx_t_16));
 
-      /* "pzmassfitter/nfwmodeltools.pyx":75
+      /* "pzmassfitter/nfwmodeltools.pyx":76
  *         x = r[i]/rs
  * 
  *         if x < 1:             # <<<<<<<<<<<<<<
@@ -2200,7 +2158,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_NFWShear(CYTHON_UNUSED 
       goto __pyx_L5;
     }
 
-    /* "pzmassfitter/nfwmodeltools.pyx":83
+    /* "pzmassfitter/nfwmodeltools.pyx":84
  *             g[i] = 8*a/(b*x**2) + 4*log(x/2)/x**2 - 2/c + 4*a/(b*c)
  * 
  *         elif x > 1:             # <<<<<<<<<<<<<<
@@ -2210,7 +2168,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_NFWShear(CYTHON_UNUSED 
     __pyx_t_11 = ((__pyx_v_x > 1.0) != 0);
     if (__pyx_t_11) {
 
-      /* "pzmassfitter/nfwmodeltools.pyx":85
+      /* "pzmassfitter/nfwmodeltools.pyx":86
  *         elif x > 1:
  * 
  *             a = atan(sqrt((x-1)/(1+x)))             # <<<<<<<<<<<<<<
@@ -2221,11 +2179,11 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_NFWShear(CYTHON_UNUSED 
       __pyx_t_15 = (1.0 + __pyx_v_x);
       if (unlikely(__pyx_t_15 == 0)) {
         PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-        __PYX_ERR(0, 85, __pyx_L1_error)
+        __PYX_ERR(0, 86, __pyx_L1_error)
       }
       __pyx_v_a = atan(sqrt((__pyx_t_16 / __pyx_t_15)));
 
-      /* "pzmassfitter/nfwmodeltools.pyx":86
+      /* "pzmassfitter/nfwmodeltools.pyx":87
  * 
  *             a = atan(sqrt((x-1)/(1+x)))
  *             b = sqrt(x**2-1)             # <<<<<<<<<<<<<<
@@ -2234,7 +2192,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_NFWShear(CYTHON_UNUSED 
  */
       __pyx_v_b = sqrt((pow(__pyx_v_x, 2.0) - 1.0));
 
-      /* "pzmassfitter/nfwmodeltools.pyx":88
+      /* "pzmassfitter/nfwmodeltools.pyx":89
  *             b = sqrt(x**2-1)
  * 
  *             g[i] = 8*a/(b*x**2) + 4*log(x/2)/x**2 - 2/b**2 + 4*a/b**3             # <<<<<<<<<<<<<<
@@ -2245,29 +2203,29 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_NFWShear(CYTHON_UNUSED 
       __pyx_t_16 = (__pyx_v_b * pow(__pyx_v_x, 2.0));
       if (unlikely(__pyx_t_16 == 0)) {
         PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-        __PYX_ERR(0, 88, __pyx_L1_error)
+        __PYX_ERR(0, 89, __pyx_L1_error)
       }
       __pyx_t_14 = (4.0 * log((__pyx_v_x / 2.0)));
       __pyx_t_13 = pow(__pyx_v_x, 2.0);
       if (unlikely(__pyx_t_13 == 0)) {
         PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-        __PYX_ERR(0, 88, __pyx_L1_error)
+        __PYX_ERR(0, 89, __pyx_L1_error)
       }
       __pyx_t_1 = pow(__pyx_v_b, 2.0);
       if (unlikely(__pyx_t_1 == 0)) {
         PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-        __PYX_ERR(0, 88, __pyx_L1_error)
+        __PYX_ERR(0, 89, __pyx_L1_error)
       }
       __pyx_t_12 = (4.0 * __pyx_v_a);
       __pyx_t_18 = pow(__pyx_v_b, 3.0);
       if (unlikely(__pyx_t_18 == 0)) {
         PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-        __PYX_ERR(0, 88, __pyx_L1_error)
+        __PYX_ERR(0, 89, __pyx_L1_error)
       }
       __pyx_t_19 = __pyx_v_i;
       *__Pyx_BufPtrCContig1d(__pyx_t_5numpy_double_t *, __pyx_pybuffernd_g.rcbuffer->pybuffer.buf, __pyx_t_19, __pyx_pybuffernd_g.diminfo[0].strides) = ((((__pyx_t_15 / __pyx_t_16) + (__pyx_t_14 / __pyx_t_13)) - (2.0 / __pyx_t_1)) + (__pyx_t_12 / __pyx_t_18));
 
-      /* "pzmassfitter/nfwmodeltools.pyx":83
+      /* "pzmassfitter/nfwmodeltools.pyx":84
  *             g[i] = 8*a/(b*x**2) + 4*log(x/2)/x**2 - 2/c + 4*a/(b*c)
  * 
  *         elif x > 1:             # <<<<<<<<<<<<<<
@@ -2277,7 +2235,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_NFWShear(CYTHON_UNUSED 
       goto __pyx_L5;
     }
 
-    /* "pzmassfitter/nfwmodeltools.pyx":92
+    /* "pzmassfitter/nfwmodeltools.pyx":93
  *         else:
  * 
  *             g[i] = 10./3 + 4*log(.5)             # <<<<<<<<<<<<<<
@@ -2291,7 +2249,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_NFWShear(CYTHON_UNUSED 
     __pyx_L5:;
   }
 
-  /* "pzmassfitter/nfwmodeltools.pyx":94
+  /* "pzmassfitter/nfwmodeltools.pyx":95
  *             g[i] = 10./3 + 4*log(.5)
  * 
  *     return amp*g             # <<<<<<<<<<<<<<
@@ -2299,16 +2257,16 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_NFWShear(CYTHON_UNUSED 
  * ###################
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_7 = PyFloat_FromDouble(__pyx_v_amp); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 94, __pyx_L1_error)
+  __pyx_t_7 = PyFloat_FromDouble(__pyx_v_amp); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 95, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  __pyx_t_3 = PyNumber_Multiply(__pyx_t_7, ((PyObject *)__pyx_v_g)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 94, __pyx_L1_error)
+  __pyx_t_3 = PyNumber_Multiply(__pyx_t_7, ((PyObject *)__pyx_v_g)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 95, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
   __pyx_r = __pyx_t_3;
   __pyx_t_3 = 0;
   goto __pyx_L0;
 
-  /* "pzmassfitter/nfwmodeltools.pyx":57
+  /* "pzmassfitter/nfwmodeltools.pyx":58
  * @cython.boundscheck(False)
  * @cython.wraparound(False)
  * def NFWShear(np.ndarray[np.double_t, ndim=1, mode='c'] r,             # <<<<<<<<<<<<<<
@@ -2343,7 +2301,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_NFWShear(CYTHON_UNUSED 
   return __pyx_r;
 }
 
-/* "pzmassfitter/nfwmodeltools.pyx":100
+/* "pzmassfitter/nfwmodeltools.pyx":101
  * @cython.boundscheck(False)
  * @cython.wraparound(False)
  * def NFWKappa(np.ndarray[np.double_t, ndim=1, mode='c'] r,             # <<<<<<<<<<<<<<
@@ -2386,17 +2344,17 @@ static PyObject *__pyx_pw_12pzmassfitter_13nfwmodeltools_3NFWKappa(PyObject *__p
         case  1:
         if (likely((values[1] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_concentration)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("NFWKappa", 0, 4, 5, 1); __PYX_ERR(0, 100, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("NFWKappa", 0, 4, 5, 1); __PYX_ERR(0, 101, __pyx_L3_error)
         }
         case  2:
         if (likely((values[2] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_rs)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("NFWKappa", 0, 4, 5, 2); __PYX_ERR(0, 100, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("NFWKappa", 0, 4, 5, 2); __PYX_ERR(0, 101, __pyx_L3_error)
         }
         case  3:
         if (likely((values[3] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_rho_c_over_sigma_c)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("NFWKappa", 0, 4, 5, 3); __PYX_ERR(0, 100, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("NFWKappa", 0, 4, 5, 3); __PYX_ERR(0, 101, __pyx_L3_error)
         }
         case  4:
         if (kw_args > 0) {
@@ -2405,7 +2363,7 @@ static PyObject *__pyx_pw_12pzmassfitter_13nfwmodeltools_3NFWKappa(PyObject *__p
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "NFWKappa") < 0)) __PYX_ERR(0, 100, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "NFWKappa") < 0)) __PYX_ERR(0, 101, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -2419,24 +2377,24 @@ static PyObject *__pyx_pw_12pzmassfitter_13nfwmodeltools_3NFWKappa(PyObject *__p
       }
     }
     __pyx_v_r = ((PyArrayObject *)values[0]);
-    __pyx_v_concentration = __pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_concentration == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 101, __pyx_L3_error)
-    __pyx_v_rs = __pyx_PyFloat_AsDouble(values[2]); if (unlikely((__pyx_v_rs == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 102, __pyx_L3_error)
-    __pyx_v_rho_c_over_sigma_c = __pyx_PyFloat_AsDouble(values[3]); if (unlikely((__pyx_v_rho_c_over_sigma_c == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 103, __pyx_L3_error)
+    __pyx_v_concentration = __pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_concentration == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 102, __pyx_L3_error)
+    __pyx_v_rs = __pyx_PyFloat_AsDouble(values[2]); if (unlikely((__pyx_v_rs == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 103, __pyx_L3_error)
+    __pyx_v_rho_c_over_sigma_c = __pyx_PyFloat_AsDouble(values[3]); if (unlikely((__pyx_v_rho_c_over_sigma_c == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 104, __pyx_L3_error)
     if (values[4]) {
-      __pyx_v_delta = __pyx_PyFloat_AsDouble(values[4]); if (unlikely((__pyx_v_delta == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 104, __pyx_L3_error)
+      __pyx_v_delta = __pyx_PyFloat_AsDouble(values[4]); if (unlikely((__pyx_v_delta == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 105, __pyx_L3_error)
     } else {
       __pyx_v_delta = ((double)200.);
     }
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("NFWKappa", 0, 4, 5, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 100, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("NFWKappa", 0, 4, 5, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 101, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("pzmassfitter.nfwmodeltools.NFWKappa", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_r), __pyx_ptype_5numpy_ndarray, 1, "r", 0))) __PYX_ERR(0, 100, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_r), __pyx_ptype_5numpy_ndarray, 1, "r", 0))) __PYX_ERR(0, 101, __pyx_L1_error)
   __pyx_r = __pyx_pf_12pzmassfitter_13nfwmodeltools_2NFWKappa(__pyx_self, __pyx_v_r, __pyx_v_concentration, __pyx_v_rs, __pyx_v_rho_c_over_sigma_c, __pyx_v_delta);
 
   /* function exit code */
@@ -2490,11 +2448,11 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_2NFWKappa(CYTHON_UNUSED
   __pyx_pybuffernd_r.rcbuffer = &__pyx_pybuffer_r;
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_r.rcbuffer->pybuffer, (PyObject*)__pyx_v_r, &__Pyx_TypeInfo_nn___pyx_t_5numpy_double_t, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 1, 0, __pyx_stack) == -1)) __PYX_ERR(0, 100, __pyx_L1_error)
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_r.rcbuffer->pybuffer, (PyObject*)__pyx_v_r, &__Pyx_TypeInfo_nn___pyx_t_5numpy_double_t, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 1, 0, __pyx_stack) == -1)) __PYX_ERR(0, 101, __pyx_L1_error)
   }
   __pyx_pybuffernd_r.diminfo[0].strides = __pyx_pybuffernd_r.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_r.diminfo[0].shape = __pyx_pybuffernd_r.rcbuffer->pybuffer.shape[0];
 
-  /* "pzmassfitter/nfwmodeltools.pyx":107
+  /* "pzmassfitter/nfwmodeltools.pyx":108
  * 
  * 
  *     cdef double delta_c = deltaC(concentration, delta = delta)             # <<<<<<<<<<<<<<
@@ -2506,7 +2464,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_2NFWKappa(CYTHON_UNUSED
   __pyx_t_1 = __pyx_f_12pzmassfitter_13nfwmodeltools_deltaC(__pyx_v_concentration, &__pyx_t_2); 
   __pyx_v_delta_c = __pyx_t_1;
 
-  /* "pzmassfitter/nfwmodeltools.pyx":108
+  /* "pzmassfitter/nfwmodeltools.pyx":109
  * 
  *     cdef double delta_c = deltaC(concentration, delta = delta)
  *     cdef double amp = 2*rs*delta_c*rho_c_over_sigma_c             # <<<<<<<<<<<<<<
@@ -2515,7 +2473,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_2NFWKappa(CYTHON_UNUSED
  */
   __pyx_v_amp = (((2.0 * __pyx_v_rs) * __pyx_v_delta_c) * __pyx_v_rho_c_over_sigma_c);
 
-  /* "pzmassfitter/nfwmodeltools.pyx":111
+  /* "pzmassfitter/nfwmodeltools.pyx":112
  * 
  *     cdef Py_ssize_t i, npos
  *     npos = r.shape[0]             # <<<<<<<<<<<<<<
@@ -2524,46 +2482,46 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_2NFWKappa(CYTHON_UNUSED
  */
   __pyx_v_npos = (__pyx_v_r->dimensions[0]);
 
-  /* "pzmassfitter/nfwmodeltools.pyx":112
+  /* "pzmassfitter/nfwmodeltools.pyx":113
  *     cdef Py_ssize_t i, npos
  *     npos = r.shape[0]
  *     cdef np.ndarray[np.double_t, ndim=1, mode='c'] kappa = np.zeros(npos, dtype=np.float64)             # <<<<<<<<<<<<<<
  * 
  *     cdef double x, a,b,c
  */
-  __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 112, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 113, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_zeros); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 112, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_zeros); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 113, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = PyInt_FromSsize_t(__pyx_v_npos); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 112, __pyx_L1_error)
+  __pyx_t_3 = PyInt_FromSsize_t(__pyx_v_npos); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 113, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_5 = PyTuple_New(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 112, __pyx_L1_error)
+  __pyx_t_5 = PyTuple_New(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 113, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_GIVEREF(__pyx_t_3);
   PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_t_3);
   __pyx_t_3 = 0;
-  __pyx_t_3 = PyDict_New(); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 112, __pyx_L1_error)
+  __pyx_t_3 = PyDict_New(); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 113, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_6 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 112, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 113, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
-  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_float64); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 112, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_float64); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 113, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_dtype, __pyx_t_7) < 0) __PYX_ERR(0, 112, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_dtype, __pyx_t_7) < 0) __PYX_ERR(0, 113, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_5, __pyx_t_3); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 112, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_5, __pyx_t_3); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 113, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (!(likely(((__pyx_t_7) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_7, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 112, __pyx_L1_error)
+  if (!(likely(((__pyx_t_7) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_7, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 113, __pyx_L1_error)
   __pyx_t_8 = ((PyArrayObject *)__pyx_t_7);
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
     if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_kappa.rcbuffer->pybuffer, (PyObject*)__pyx_t_8, &__Pyx_TypeInfo_nn___pyx_t_5numpy_double_t, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS| PyBUF_WRITABLE, 1, 0, __pyx_stack) == -1)) {
       __pyx_v_kappa = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_kappa.rcbuffer->pybuffer.buf = NULL;
-      __PYX_ERR(0, 112, __pyx_L1_error)
+      __PYX_ERR(0, 113, __pyx_L1_error)
     } else {__pyx_pybuffernd_kappa.diminfo[0].strides = __pyx_pybuffernd_kappa.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_kappa.diminfo[0].shape = __pyx_pybuffernd_kappa.rcbuffer->pybuffer.shape[0];
     }
   }
@@ -2571,7 +2529,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_2NFWKappa(CYTHON_UNUSED
   __pyx_v_kappa = ((PyArrayObject *)__pyx_t_7);
   __pyx_t_7 = 0;
 
-  /* "pzmassfitter/nfwmodeltools.pyx":116
+  /* "pzmassfitter/nfwmodeltools.pyx":117
  *     cdef double x, a,b,c
  * 
  *     for i from npos > i >= 0:             # <<<<<<<<<<<<<<
@@ -2580,7 +2538,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_2NFWKappa(CYTHON_UNUSED
  */
   for (__pyx_v_i = __pyx_v_npos-1; __pyx_v_i >= 0; __pyx_v_i--) {
 
-    /* "pzmassfitter/nfwmodeltools.pyx":118
+    /* "pzmassfitter/nfwmodeltools.pyx":119
  *     for i from npos > i >= 0:
  * 
  *         x = r[i]/rs             # <<<<<<<<<<<<<<
@@ -2591,11 +2549,11 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_2NFWKappa(CYTHON_UNUSED
     __pyx_t_10 = (*__Pyx_BufPtrCContig1d(__pyx_t_5numpy_double_t *, __pyx_pybuffernd_r.rcbuffer->pybuffer.buf, __pyx_t_9, __pyx_pybuffernd_r.diminfo[0].strides));
     if (unlikely(__pyx_v_rs == 0)) {
       PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-      __PYX_ERR(0, 118, __pyx_L1_error)
+      __PYX_ERR(0, 119, __pyx_L1_error)
     }
     __pyx_v_x = (__pyx_t_10 / __pyx_v_rs);
 
-    /* "pzmassfitter/nfwmodeltools.pyx":120
+    /* "pzmassfitter/nfwmodeltools.pyx":121
  *         x = r[i]/rs
  * 
  *         if x < 1:             # <<<<<<<<<<<<<<
@@ -2605,7 +2563,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_2NFWKappa(CYTHON_UNUSED
     __pyx_t_11 = ((__pyx_v_x < 1.0) != 0);
     if (__pyx_t_11) {
 
-      /* "pzmassfitter/nfwmodeltools.pyx":122
+      /* "pzmassfitter/nfwmodeltools.pyx":123
  *         if x < 1:
  * 
  *             a = atanh(sqrt((1-x)/(1+x)))             # <<<<<<<<<<<<<<
@@ -2616,11 +2574,11 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_2NFWKappa(CYTHON_UNUSED
       __pyx_t_12 = (1.0 + __pyx_v_x);
       if (unlikely(__pyx_t_12 == 0)) {
         PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-        __PYX_ERR(0, 122, __pyx_L1_error)
+        __PYX_ERR(0, 123, __pyx_L1_error)
       }
       __pyx_v_a = atanh(sqrt((__pyx_t_1 / __pyx_t_12)));
 
-      /* "pzmassfitter/nfwmodeltools.pyx":123
+      /* "pzmassfitter/nfwmodeltools.pyx":124
  * 
  *             a = atanh(sqrt((1-x)/(1+x)))
  *             b = sqrt(1-x**2)             # <<<<<<<<<<<<<<
@@ -2629,7 +2587,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_2NFWKappa(CYTHON_UNUSED
  */
       __pyx_v_b = sqrt((1.0 - pow(__pyx_v_x, 2.0)));
 
-      /* "pzmassfitter/nfwmodeltools.pyx":124
+      /* "pzmassfitter/nfwmodeltools.pyx":125
  *             a = atanh(sqrt((1-x)/(1+x)))
  *             b = sqrt(1-x**2)
  *             c = 1./(x**2 - 1)             # <<<<<<<<<<<<<<
@@ -2639,11 +2597,11 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_2NFWKappa(CYTHON_UNUSED
       __pyx_t_12 = (pow(__pyx_v_x, 2.0) - 1.0);
       if (unlikely(__pyx_t_12 == 0)) {
         PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-        __PYX_ERR(0, 124, __pyx_L1_error)
+        __PYX_ERR(0, 125, __pyx_L1_error)
       }
       __pyx_v_c = (1. / __pyx_t_12);
 
-      /* "pzmassfitter/nfwmodeltools.pyx":125
+      /* "pzmassfitter/nfwmodeltools.pyx":126
  *             b = sqrt(1-x**2)
  *             c = 1./(x**2 - 1)
  *             kappa[i] = c*(1 - 2.*a/b)             # <<<<<<<<<<<<<<
@@ -2653,12 +2611,12 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_2NFWKappa(CYTHON_UNUSED
       __pyx_t_12 = (2. * __pyx_v_a);
       if (unlikely(__pyx_v_b == 0)) {
         PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-        __PYX_ERR(0, 125, __pyx_L1_error)
+        __PYX_ERR(0, 126, __pyx_L1_error)
       }
       __pyx_t_13 = __pyx_v_i;
       *__Pyx_BufPtrCContig1d(__pyx_t_5numpy_double_t *, __pyx_pybuffernd_kappa.rcbuffer->pybuffer.buf, __pyx_t_13, __pyx_pybuffernd_kappa.diminfo[0].strides) = (__pyx_v_c * (1.0 - (__pyx_t_12 / __pyx_v_b)));
 
-      /* "pzmassfitter/nfwmodeltools.pyx":120
+      /* "pzmassfitter/nfwmodeltools.pyx":121
  *         x = r[i]/rs
  * 
  *         if x < 1:             # <<<<<<<<<<<<<<
@@ -2668,7 +2626,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_2NFWKappa(CYTHON_UNUSED
       goto __pyx_L5;
     }
 
-    /* "pzmassfitter/nfwmodeltools.pyx":127
+    /* "pzmassfitter/nfwmodeltools.pyx":128
  *             kappa[i] = c*(1 - 2.*a/b)
  * 
  *         elif x > 1:             # <<<<<<<<<<<<<<
@@ -2678,7 +2636,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_2NFWKappa(CYTHON_UNUSED
     __pyx_t_11 = ((__pyx_v_x > 1.0) != 0);
     if (__pyx_t_11) {
 
-      /* "pzmassfitter/nfwmodeltools.pyx":128
+      /* "pzmassfitter/nfwmodeltools.pyx":129
  * 
  *         elif x > 1:
  *             a = atan(sqrt((x-1)/(1+x)))             # <<<<<<<<<<<<<<
@@ -2689,11 +2647,11 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_2NFWKappa(CYTHON_UNUSED
       __pyx_t_1 = (1.0 + __pyx_v_x);
       if (unlikely(__pyx_t_1 == 0)) {
         PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-        __PYX_ERR(0, 128, __pyx_L1_error)
+        __PYX_ERR(0, 129, __pyx_L1_error)
       }
       __pyx_v_a = atan(sqrt((__pyx_t_12 / __pyx_t_1)));
 
-      /* "pzmassfitter/nfwmodeltools.pyx":129
+      /* "pzmassfitter/nfwmodeltools.pyx":130
  *         elif x > 1:
  *             a = atan(sqrt((x-1)/(1+x)))
  *             b = sqrt(x**2-1)             # <<<<<<<<<<<<<<
@@ -2702,7 +2660,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_2NFWKappa(CYTHON_UNUSED
  */
       __pyx_v_b = sqrt((pow(__pyx_v_x, 2.0) - 1.0));
 
-      /* "pzmassfitter/nfwmodeltools.pyx":130
+      /* "pzmassfitter/nfwmodeltools.pyx":131
  *             a = atan(sqrt((x-1)/(1+x)))
  *             b = sqrt(x**2-1)
  *             c = 1./(x**2 - 1)             # <<<<<<<<<<<<<<
@@ -2712,11 +2670,11 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_2NFWKappa(CYTHON_UNUSED
       __pyx_t_1 = (pow(__pyx_v_x, 2.0) - 1.0);
       if (unlikely(__pyx_t_1 == 0)) {
         PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-        __PYX_ERR(0, 130, __pyx_L1_error)
+        __PYX_ERR(0, 131, __pyx_L1_error)
       }
       __pyx_v_c = (1. / __pyx_t_1);
 
-      /* "pzmassfitter/nfwmodeltools.pyx":131
+      /* "pzmassfitter/nfwmodeltools.pyx":132
  *             b = sqrt(x**2-1)
  *             c = 1./(x**2 - 1)
  *             kappa[i] = c*(1 - 2.*a/b)             # <<<<<<<<<<<<<<
@@ -2726,12 +2684,12 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_2NFWKappa(CYTHON_UNUSED
       __pyx_t_1 = (2. * __pyx_v_a);
       if (unlikely(__pyx_v_b == 0)) {
         PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-        __PYX_ERR(0, 131, __pyx_L1_error)
+        __PYX_ERR(0, 132, __pyx_L1_error)
       }
       __pyx_t_14 = __pyx_v_i;
       *__Pyx_BufPtrCContig1d(__pyx_t_5numpy_double_t *, __pyx_pybuffernd_kappa.rcbuffer->pybuffer.buf, __pyx_t_14, __pyx_pybuffernd_kappa.diminfo[0].strides) = (__pyx_v_c * (1.0 - (__pyx_t_1 / __pyx_v_b)));
 
-      /* "pzmassfitter/nfwmodeltools.pyx":127
+      /* "pzmassfitter/nfwmodeltools.pyx":128
  *             kappa[i] = c*(1 - 2.*a/b)
  * 
  *         elif x > 1:             # <<<<<<<<<<<<<<
@@ -2741,7 +2699,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_2NFWKappa(CYTHON_UNUSED
       goto __pyx_L5;
     }
 
-    /* "pzmassfitter/nfwmodeltools.pyx":134
+    /* "pzmassfitter/nfwmodeltools.pyx":135
  * 
  *         else:
  *             kappa[i] = 1./3.             # <<<<<<<<<<<<<<
@@ -2755,7 +2713,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_2NFWKappa(CYTHON_UNUSED
     __pyx_L5:;
   }
 
-  /* "pzmassfitter/nfwmodeltools.pyx":136
+  /* "pzmassfitter/nfwmodeltools.pyx":137
  *             kappa[i] = 1./3.
  * 
  *     return kappa*amp             # <<<<<<<<<<<<<<
@@ -2763,16 +2721,16 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_2NFWKappa(CYTHON_UNUSED
  * 
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_7 = PyFloat_FromDouble(__pyx_v_amp); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 136, __pyx_L1_error)
+  __pyx_t_7 = PyFloat_FromDouble(__pyx_v_amp); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 137, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  __pyx_t_3 = PyNumber_Multiply(((PyObject *)__pyx_v_kappa), __pyx_t_7); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 136, __pyx_L1_error)
+  __pyx_t_3 = PyNumber_Multiply(((PyObject *)__pyx_v_kappa), __pyx_t_7); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 137, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
   __pyx_r = __pyx_t_3;
   __pyx_t_3 = 0;
   goto __pyx_L0;
 
-  /* "pzmassfitter/nfwmodeltools.pyx":100
+  /* "pzmassfitter/nfwmodeltools.pyx":101
  * @cython.boundscheck(False)
  * @cython.wraparound(False)
  * def NFWKappa(np.ndarray[np.double_t, ndim=1, mode='c'] r,             # <<<<<<<<<<<<<<
@@ -2807,7 +2765,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_2NFWKappa(CYTHON_UNUSED
   return __pyx_r;
 }
 
-/* "pzmassfitter/nfwmodeltools.pyx":143
+/* "pzmassfitter/nfwmodeltools.pyx":144
  * @cython.boundscheck(False)
  * @cython.wraparound(False)
  * def aveEnclosedKappa(np.ndarray[np.double_t, ndim=1, mode='c'] r,             # <<<<<<<<<<<<<<
@@ -2850,17 +2808,17 @@ static PyObject *__pyx_pw_12pzmassfitter_13nfwmodeltools_5aveEnclosedKappa(PyObj
         case  1:
         if (likely((values[1] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_concentration)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("aveEnclosedKappa", 0, 4, 5, 1); __PYX_ERR(0, 143, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("aveEnclosedKappa", 0, 4, 5, 1); __PYX_ERR(0, 144, __pyx_L3_error)
         }
         case  2:
         if (likely((values[2] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_rs)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("aveEnclosedKappa", 0, 4, 5, 2); __PYX_ERR(0, 143, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("aveEnclosedKappa", 0, 4, 5, 2); __PYX_ERR(0, 144, __pyx_L3_error)
         }
         case  3:
         if (likely((values[3] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_rho_c_over_sigma_c)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("aveEnclosedKappa", 0, 4, 5, 3); __PYX_ERR(0, 143, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("aveEnclosedKappa", 0, 4, 5, 3); __PYX_ERR(0, 144, __pyx_L3_error)
         }
         case  4:
         if (kw_args > 0) {
@@ -2869,7 +2827,7 @@ static PyObject *__pyx_pw_12pzmassfitter_13nfwmodeltools_5aveEnclosedKappa(PyObj
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "aveEnclosedKappa") < 0)) __PYX_ERR(0, 143, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "aveEnclosedKappa") < 0)) __PYX_ERR(0, 144, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -2883,24 +2841,24 @@ static PyObject *__pyx_pw_12pzmassfitter_13nfwmodeltools_5aveEnclosedKappa(PyObj
       }
     }
     __pyx_v_r = ((PyArrayObject *)values[0]);
-    __pyx_v_concentration = __pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_concentration == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 144, __pyx_L3_error)
-    __pyx_v_rs = __pyx_PyFloat_AsDouble(values[2]); if (unlikely((__pyx_v_rs == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 145, __pyx_L3_error)
-    __pyx_v_rho_c_over_sigma_c = __pyx_PyFloat_AsDouble(values[3]); if (unlikely((__pyx_v_rho_c_over_sigma_c == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 146, __pyx_L3_error)
+    __pyx_v_concentration = __pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_concentration == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 145, __pyx_L3_error)
+    __pyx_v_rs = __pyx_PyFloat_AsDouble(values[2]); if (unlikely((__pyx_v_rs == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 146, __pyx_L3_error)
+    __pyx_v_rho_c_over_sigma_c = __pyx_PyFloat_AsDouble(values[3]); if (unlikely((__pyx_v_rho_c_over_sigma_c == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 147, __pyx_L3_error)
     if (values[4]) {
-      __pyx_v_delta = __pyx_PyFloat_AsDouble(values[4]); if (unlikely((__pyx_v_delta == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 147, __pyx_L3_error)
+      __pyx_v_delta = __pyx_PyFloat_AsDouble(values[4]); if (unlikely((__pyx_v_delta == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 148, __pyx_L3_error)
     } else {
       __pyx_v_delta = ((double)200.);
     }
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("aveEnclosedKappa", 0, 4, 5, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 143, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("aveEnclosedKappa", 0, 4, 5, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 144, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("pzmassfitter.nfwmodeltools.aveEnclosedKappa", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_r), __pyx_ptype_5numpy_ndarray, 1, "r", 0))) __PYX_ERR(0, 143, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_r), __pyx_ptype_5numpy_ndarray, 1, "r", 0))) __PYX_ERR(0, 144, __pyx_L1_error)
   __pyx_r = __pyx_pf_12pzmassfitter_13nfwmodeltools_4aveEnclosedKappa(__pyx_self, __pyx_v_r, __pyx_v_concentration, __pyx_v_rs, __pyx_v_rho_c_over_sigma_c, __pyx_v_delta);
 
   /* function exit code */
@@ -2954,11 +2912,11 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_4aveEnclosedKappa(CYTHO
   __pyx_pybuffernd_r.rcbuffer = &__pyx_pybuffer_r;
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_r.rcbuffer->pybuffer, (PyObject*)__pyx_v_r, &__Pyx_TypeInfo_nn___pyx_t_5numpy_double_t, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 1, 0, __pyx_stack) == -1)) __PYX_ERR(0, 143, __pyx_L1_error)
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_r.rcbuffer->pybuffer, (PyObject*)__pyx_v_r, &__Pyx_TypeInfo_nn___pyx_t_5numpy_double_t, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 1, 0, __pyx_stack) == -1)) __PYX_ERR(0, 144, __pyx_L1_error)
   }
   __pyx_pybuffernd_r.diminfo[0].strides = __pyx_pybuffernd_r.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_r.diminfo[0].shape = __pyx_pybuffernd_r.rcbuffer->pybuffer.shape[0];
 
-  /* "pzmassfitter/nfwmodeltools.pyx":149
+  /* "pzmassfitter/nfwmodeltools.pyx":150
  *                      double delta = 200.):
  * 
  *     cdef double delta_c = deltaC(concentration, delta = delta)             # <<<<<<<<<<<<<<
@@ -2970,7 +2928,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_4aveEnclosedKappa(CYTHO
   __pyx_t_1 = __pyx_f_12pzmassfitter_13nfwmodeltools_deltaC(__pyx_v_concentration, &__pyx_t_2); 
   __pyx_v_delta_c = __pyx_t_1;
 
-  /* "pzmassfitter/nfwmodeltools.pyx":150
+  /* "pzmassfitter/nfwmodeltools.pyx":151
  * 
  *     cdef double delta_c = deltaC(concentration, delta = delta)
  *     cdef double amp = 4*rs*delta_c*rho_c_over_sigma_c             # <<<<<<<<<<<<<<
@@ -2979,7 +2937,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_4aveEnclosedKappa(CYTHO
  */
   __pyx_v_amp = (((4.0 * __pyx_v_rs) * __pyx_v_delta_c) * __pyx_v_rho_c_over_sigma_c);
 
-  /* "pzmassfitter/nfwmodeltools.pyx":153
+  /* "pzmassfitter/nfwmodeltools.pyx":154
  * 
  *     cdef Py_ssize_t i, npos
  *     npos = r.shape[0]             # <<<<<<<<<<<<<<
@@ -2988,46 +2946,46 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_4aveEnclosedKappa(CYTHO
  */
   __pyx_v_npos = (__pyx_v_r->dimensions[0]);
 
-  /* "pzmassfitter/nfwmodeltools.pyx":154
+  /* "pzmassfitter/nfwmodeltools.pyx":155
  *     cdef Py_ssize_t i, npos
  *     npos = r.shape[0]
  *     cdef np.ndarray[np.double_t, ndim=1, mode='c'] avekappa = np.zeros(npos, dtype=np.float64)             # <<<<<<<<<<<<<<
  * 
  *     cdef double x, a,b,c
  */
-  __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 154, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 155, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_zeros); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 154, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_zeros); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 155, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = PyInt_FromSsize_t(__pyx_v_npos); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 154, __pyx_L1_error)
+  __pyx_t_3 = PyInt_FromSsize_t(__pyx_v_npos); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 155, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_5 = PyTuple_New(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 154, __pyx_L1_error)
+  __pyx_t_5 = PyTuple_New(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 155, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_GIVEREF(__pyx_t_3);
   PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_t_3);
   __pyx_t_3 = 0;
-  __pyx_t_3 = PyDict_New(); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 154, __pyx_L1_error)
+  __pyx_t_3 = PyDict_New(); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 155, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_6 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 154, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 155, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
-  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_float64); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 154, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_float64); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 155, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_dtype, __pyx_t_7) < 0) __PYX_ERR(0, 154, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_dtype, __pyx_t_7) < 0) __PYX_ERR(0, 155, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_5, __pyx_t_3); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 154, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_5, __pyx_t_3); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 155, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (!(likely(((__pyx_t_7) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_7, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 154, __pyx_L1_error)
+  if (!(likely(((__pyx_t_7) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_7, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 155, __pyx_L1_error)
   __pyx_t_8 = ((PyArrayObject *)__pyx_t_7);
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
     if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_avekappa.rcbuffer->pybuffer, (PyObject*)__pyx_t_8, &__Pyx_TypeInfo_nn___pyx_t_5numpy_double_t, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS| PyBUF_WRITABLE, 1, 0, __pyx_stack) == -1)) {
       __pyx_v_avekappa = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_avekappa.rcbuffer->pybuffer.buf = NULL;
-      __PYX_ERR(0, 154, __pyx_L1_error)
+      __PYX_ERR(0, 155, __pyx_L1_error)
     } else {__pyx_pybuffernd_avekappa.diminfo[0].strides = __pyx_pybuffernd_avekappa.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_avekappa.diminfo[0].shape = __pyx_pybuffernd_avekappa.rcbuffer->pybuffer.shape[0];
     }
   }
@@ -3035,7 +2993,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_4aveEnclosedKappa(CYTHO
   __pyx_v_avekappa = ((PyArrayObject *)__pyx_t_7);
   __pyx_t_7 = 0;
 
-  /* "pzmassfitter/nfwmodeltools.pyx":158
+  /* "pzmassfitter/nfwmodeltools.pyx":159
  *     cdef double x, a,b,c
  * 
  *     for i from npos > i >= 0:             # <<<<<<<<<<<<<<
@@ -3044,7 +3002,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_4aveEnclosedKappa(CYTHO
  */
   for (__pyx_v_i = __pyx_v_npos-1; __pyx_v_i >= 0; __pyx_v_i--) {
 
-    /* "pzmassfitter/nfwmodeltools.pyx":160
+    /* "pzmassfitter/nfwmodeltools.pyx":161
  *     for i from npos > i >= 0:
  * 
  *         x = r[i]/rs             # <<<<<<<<<<<<<<
@@ -3055,11 +3013,11 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_4aveEnclosedKappa(CYTHO
     __pyx_t_10 = (*__Pyx_BufPtrCContig1d(__pyx_t_5numpy_double_t *, __pyx_pybuffernd_r.rcbuffer->pybuffer.buf, __pyx_t_9, __pyx_pybuffernd_r.diminfo[0].strides));
     if (unlikely(__pyx_v_rs == 0)) {
       PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-      __PYX_ERR(0, 160, __pyx_L1_error)
+      __PYX_ERR(0, 161, __pyx_L1_error)
     }
     __pyx_v_x = (__pyx_t_10 / __pyx_v_rs);
 
-    /* "pzmassfitter/nfwmodeltools.pyx":162
+    /* "pzmassfitter/nfwmodeltools.pyx":163
  *         x = r[i]/rs
  * 
  *         if x < 1:             # <<<<<<<<<<<<<<
@@ -3069,7 +3027,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_4aveEnclosedKappa(CYTHO
     __pyx_t_11 = ((__pyx_v_x < 1.0) != 0);
     if (__pyx_t_11) {
 
-      /* "pzmassfitter/nfwmodeltools.pyx":164
+      /* "pzmassfitter/nfwmodeltools.pyx":165
  *         if x < 1:
  * 
  *             a = atanh(sqrt((1-x)/(1+x)))             # <<<<<<<<<<<<<<
@@ -3080,11 +3038,11 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_4aveEnclosedKappa(CYTHO
       __pyx_t_12 = (1.0 + __pyx_v_x);
       if (unlikely(__pyx_t_12 == 0)) {
         PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-        __PYX_ERR(0, 164, __pyx_L1_error)
+        __PYX_ERR(0, 165, __pyx_L1_error)
       }
       __pyx_v_a = atanh(sqrt((__pyx_t_1 / __pyx_t_12)));
 
-      /* "pzmassfitter/nfwmodeltools.pyx":165
+      /* "pzmassfitter/nfwmodeltools.pyx":166
  * 
  *             a = atanh(sqrt((1-x)/(1+x)))
  *             b = sqrt(1-x**2)             # <<<<<<<<<<<<<<
@@ -3093,7 +3051,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_4aveEnclosedKappa(CYTHO
  */
       __pyx_v_b = sqrt((1.0 - pow(__pyx_v_x, 2.0)));
 
-      /* "pzmassfitter/nfwmodeltools.pyx":166
+      /* "pzmassfitter/nfwmodeltools.pyx":167
  *             a = atanh(sqrt((1-x)/(1+x)))
  *             b = sqrt(1-x**2)
  *             c = log(x/2.)             # <<<<<<<<<<<<<<
@@ -3102,7 +3060,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_4aveEnclosedKappa(CYTHO
  */
       __pyx_v_c = log((__pyx_v_x / 2.));
 
-      /* "pzmassfitter/nfwmodeltools.pyx":167
+      /* "pzmassfitter/nfwmodeltools.pyx":168
  *             b = sqrt(1-x**2)
  *             c = log(x/2.)
  *             avekappa[i] = (2*a/b + c)/(x**2)             # <<<<<<<<<<<<<<
@@ -3112,18 +3070,18 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_4aveEnclosedKappa(CYTHO
       __pyx_t_12 = (2.0 * __pyx_v_a);
       if (unlikely(__pyx_v_b == 0)) {
         PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-        __PYX_ERR(0, 167, __pyx_L1_error)
+        __PYX_ERR(0, 168, __pyx_L1_error)
       }
       __pyx_t_1 = ((__pyx_t_12 / __pyx_v_b) + __pyx_v_c);
       __pyx_t_12 = pow(__pyx_v_x, 2.0);
       if (unlikely(__pyx_t_12 == 0)) {
         PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-        __PYX_ERR(0, 167, __pyx_L1_error)
+        __PYX_ERR(0, 168, __pyx_L1_error)
       }
       __pyx_t_13 = __pyx_v_i;
       *__Pyx_BufPtrCContig1d(__pyx_t_5numpy_double_t *, __pyx_pybuffernd_avekappa.rcbuffer->pybuffer.buf, __pyx_t_13, __pyx_pybuffernd_avekappa.diminfo[0].strides) = (__pyx_t_1 / __pyx_t_12);
 
-      /* "pzmassfitter/nfwmodeltools.pyx":162
+      /* "pzmassfitter/nfwmodeltools.pyx":163
  *         x = r[i]/rs
  * 
  *         if x < 1:             # <<<<<<<<<<<<<<
@@ -3133,7 +3091,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_4aveEnclosedKappa(CYTHO
       goto __pyx_L5;
     }
 
-    /* "pzmassfitter/nfwmodeltools.pyx":169
+    /* "pzmassfitter/nfwmodeltools.pyx":170
  *             avekappa[i] = (2*a/b + c)/(x**2)
  * 
  *         elif x > 1:             # <<<<<<<<<<<<<<
@@ -3143,7 +3101,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_4aveEnclosedKappa(CYTHO
     __pyx_t_11 = ((__pyx_v_x > 1.0) != 0);
     if (__pyx_t_11) {
 
-      /* "pzmassfitter/nfwmodeltools.pyx":170
+      /* "pzmassfitter/nfwmodeltools.pyx":171
  * 
  *         elif x > 1:
  *             a = atan(sqrt((x-1)/(1+x)))             # <<<<<<<<<<<<<<
@@ -3154,11 +3112,11 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_4aveEnclosedKappa(CYTHO
       __pyx_t_1 = (1.0 + __pyx_v_x);
       if (unlikely(__pyx_t_1 == 0)) {
         PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-        __PYX_ERR(0, 170, __pyx_L1_error)
+        __PYX_ERR(0, 171, __pyx_L1_error)
       }
       __pyx_v_a = atan(sqrt((__pyx_t_12 / __pyx_t_1)));
 
-      /* "pzmassfitter/nfwmodeltools.pyx":171
+      /* "pzmassfitter/nfwmodeltools.pyx":172
  *         elif x > 1:
  *             a = atan(sqrt((x-1)/(1+x)))
  *             b = sqrt(x**2-1)             # <<<<<<<<<<<<<<
@@ -3167,7 +3125,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_4aveEnclosedKappa(CYTHO
  */
       __pyx_v_b = sqrt((pow(__pyx_v_x, 2.0) - 1.0));
 
-      /* "pzmassfitter/nfwmodeltools.pyx":172
+      /* "pzmassfitter/nfwmodeltools.pyx":173
  *             a = atan(sqrt((x-1)/(1+x)))
  *             b = sqrt(x**2-1)
  *             c = log(x/2.)             # <<<<<<<<<<<<<<
@@ -3176,7 +3134,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_4aveEnclosedKappa(CYTHO
  */
       __pyx_v_c = log((__pyx_v_x / 2.));
 
-      /* "pzmassfitter/nfwmodeltools.pyx":173
+      /* "pzmassfitter/nfwmodeltools.pyx":174
  *             b = sqrt(x**2-1)
  *             c = log(x/2.)
  *             avekappa[i] = (2*a/b + c)/(x**2)             # <<<<<<<<<<<<<<
@@ -3186,18 +3144,18 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_4aveEnclosedKappa(CYTHO
       __pyx_t_1 = (2.0 * __pyx_v_a);
       if (unlikely(__pyx_v_b == 0)) {
         PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-        __PYX_ERR(0, 173, __pyx_L1_error)
+        __PYX_ERR(0, 174, __pyx_L1_error)
       }
       __pyx_t_12 = ((__pyx_t_1 / __pyx_v_b) + __pyx_v_c);
       __pyx_t_1 = pow(__pyx_v_x, 2.0);
       if (unlikely(__pyx_t_1 == 0)) {
         PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-        __PYX_ERR(0, 173, __pyx_L1_error)
+        __PYX_ERR(0, 174, __pyx_L1_error)
       }
       __pyx_t_14 = __pyx_v_i;
       *__Pyx_BufPtrCContig1d(__pyx_t_5numpy_double_t *, __pyx_pybuffernd_avekappa.rcbuffer->pybuffer.buf, __pyx_t_14, __pyx_pybuffernd_avekappa.diminfo[0].strides) = (__pyx_t_12 / __pyx_t_1);
 
-      /* "pzmassfitter/nfwmodeltools.pyx":169
+      /* "pzmassfitter/nfwmodeltools.pyx":170
  *             avekappa[i] = (2*a/b + c)/(x**2)
  * 
  *         elif x > 1:             # <<<<<<<<<<<<<<
@@ -3207,7 +3165,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_4aveEnclosedKappa(CYTHO
       goto __pyx_L5;
     }
 
-    /* "pzmassfitter/nfwmodeltools.pyx":176
+    /* "pzmassfitter/nfwmodeltools.pyx":177
  * 
  *         else:
  *             avekappa[i] = 1 + log(0.5)             # <<<<<<<<<<<<<<
@@ -3221,7 +3179,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_4aveEnclosedKappa(CYTHO
     __pyx_L5:;
   }
 
-  /* "pzmassfitter/nfwmodeltools.pyx":178
+  /* "pzmassfitter/nfwmodeltools.pyx":179
  *             avekappa[i] = 1 + log(0.5)
  * 
  *     return avekappa*amp             # <<<<<<<<<<<<<<
@@ -3229,16 +3187,16 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_4aveEnclosedKappa(CYTHO
  * 
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_7 = PyFloat_FromDouble(__pyx_v_amp); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 178, __pyx_L1_error)
+  __pyx_t_7 = PyFloat_FromDouble(__pyx_v_amp); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 179, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  __pyx_t_3 = PyNumber_Multiply(((PyObject *)__pyx_v_avekappa), __pyx_t_7); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 178, __pyx_L1_error)
+  __pyx_t_3 = PyNumber_Multiply(((PyObject *)__pyx_v_avekappa), __pyx_t_7); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 179, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
   __pyx_r = __pyx_t_3;
   __pyx_t_3 = 0;
   goto __pyx_L0;
 
-  /* "pzmassfitter/nfwmodeltools.pyx":143
+  /* "pzmassfitter/nfwmodeltools.pyx":144
  * @cython.boundscheck(False)
  * @cython.wraparound(False)
  * def aveEnclosedKappa(np.ndarray[np.double_t, ndim=1, mode='c'] r,             # <<<<<<<<<<<<<<
@@ -3273,7 +3231,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_4aveEnclosedKappa(CYTHO
   return __pyx_r;
 }
 
-/* "pzmassfitter/nfwmodeltools.pyx":189
+/* "pzmassfitter/nfwmodeltools.pyx":190
  * @cython.boundscheck(False)
  * @cython.wraparound(False)
  * def rdelta2rs(double rdelta,             # <<<<<<<<<<<<<<
@@ -3312,16 +3270,16 @@ static PyObject *__pyx_pw_12pzmassfitter_13nfwmodeltools_7rdelta2rs(PyObject *__
         case  1:
         if (likely((values[1] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_c200)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("rdelta2rs", 1, 3, 3, 1); __PYX_ERR(0, 189, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("rdelta2rs", 1, 3, 3, 1); __PYX_ERR(0, 190, __pyx_L3_error)
         }
         case  2:
         if (likely((values[2] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_delta)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("rdelta2rs", 1, 3, 3, 2); __PYX_ERR(0, 189, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("rdelta2rs", 1, 3, 3, 2); __PYX_ERR(0, 190, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "rdelta2rs") < 0)) __PYX_ERR(0, 189, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "rdelta2rs") < 0)) __PYX_ERR(0, 190, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 3) {
       goto __pyx_L5_argtuple_error;
@@ -3330,13 +3288,13 @@ static PyObject *__pyx_pw_12pzmassfitter_13nfwmodeltools_7rdelta2rs(PyObject *__
       values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
       values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
     }
-    __pyx_v_rdelta = __pyx_PyFloat_AsDouble(values[0]); if (unlikely((__pyx_v_rdelta == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 189, __pyx_L3_error)
-    __pyx_v_c200 = __pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_c200 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 190, __pyx_L3_error)
-    __pyx_v_delta = __pyx_PyFloat_AsDouble(values[2]); if (unlikely((__pyx_v_delta == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 191, __pyx_L3_error)
+    __pyx_v_rdelta = __pyx_PyFloat_AsDouble(values[0]); if (unlikely((__pyx_v_rdelta == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 190, __pyx_L3_error)
+    __pyx_v_c200 = __pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_c200 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 191, __pyx_L3_error)
+    __pyx_v_delta = __pyx_PyFloat_AsDouble(values[2]); if (unlikely((__pyx_v_delta == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 192, __pyx_L3_error)
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("rdelta2rs", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 189, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("rdelta2rs", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 190, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("pzmassfitter.nfwmodeltools.rdelta2rs", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -3349,7 +3307,7 @@ static PyObject *__pyx_pw_12pzmassfitter_13nfwmodeltools_7rdelta2rs(PyObject *__
   return __pyx_r;
 }
 
-/* "pzmassfitter/nfwmodeltools.pyx":196
+/* "pzmassfitter/nfwmodeltools.pyx":197
  * 
  *     # x = r_delta / rs
  *     def f(x):             # <<<<<<<<<<<<<<
@@ -3385,7 +3343,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_9rdelta2rs_f(PyObject *
   __pyx_outer_scope = (struct __pyx_obj_12pzmassfitter_13nfwmodeltools___pyx_scope_struct__rdelta2rs *) __Pyx_CyFunction_GetClosure(__pyx_self);
   __pyx_cur_scope = __pyx_outer_scope;
 
-  /* "pzmassfitter/nfwmodeltools.pyx":198
+  /* "pzmassfitter/nfwmodeltools.pyx":199
  *     def f(x):
  * 
  *         return 3*delta_c*(log(1+x) - (x/(1+x)))/x**3 - delta             # <<<<<<<<<<<<<<
@@ -3393,36 +3351,36 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_9rdelta2rs_f(PyObject *
  * 
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyFloat_FromDouble((3.0 * __pyx_cur_scope->__pyx_v_delta_c)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 198, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble((3.0 * __pyx_cur_scope->__pyx_v_delta_c)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 199, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyInt_AddCObj(__pyx_int_1, __pyx_v_x, 1, 0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 198, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_AddCObj(__pyx_int_1, __pyx_v_x, 1, 0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 199, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __pyx_PyFloat_AsDouble(__pyx_t_2); if (unlikely((__pyx_t_3 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 198, __pyx_L1_error)
+  __pyx_t_3 = __pyx_PyFloat_AsDouble(__pyx_t_2); if (unlikely((__pyx_t_3 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 199, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = PyFloat_FromDouble(log(__pyx_t_3)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 198, __pyx_L1_error)
+  __pyx_t_2 = PyFloat_FromDouble(log(__pyx_t_3)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 199, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_4 = __Pyx_PyInt_AddCObj(__pyx_int_1, __pyx_v_x, 1, 0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 198, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyInt_AddCObj(__pyx_int_1, __pyx_v_x, 1, 0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 199, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_5 = __Pyx_PyNumber_Divide(__pyx_v_x, __pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 198, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyNumber_Divide(__pyx_v_x, __pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 199, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = PyNumber_Subtract(__pyx_t_2, __pyx_t_5); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 198, __pyx_L1_error)
+  __pyx_t_4 = PyNumber_Subtract(__pyx_t_2, __pyx_t_5); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 199, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __pyx_t_5 = PyNumber_Multiply(__pyx_t_1, __pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 198, __pyx_L1_error)
+  __pyx_t_5 = PyNumber_Multiply(__pyx_t_1, __pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 199, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = PyNumber_Power(__pyx_v_x, __pyx_int_3, Py_None); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 198, __pyx_L1_error)
+  __pyx_t_4 = PyNumber_Power(__pyx_v_x, __pyx_int_3, Py_None); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 199, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_1 = __Pyx_PyNumber_Divide(__pyx_t_5, __pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 198, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyNumber_Divide(__pyx_t_5, __pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 199, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = PyFloat_FromDouble(__pyx_cur_scope->__pyx_v_delta); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 198, __pyx_L1_error)
+  __pyx_t_4 = PyFloat_FromDouble(__pyx_cur_scope->__pyx_v_delta); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 199, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_5 = PyNumber_Subtract(__pyx_t_1, __pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 198, __pyx_L1_error)
+  __pyx_t_5 = PyNumber_Subtract(__pyx_t_1, __pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 199, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
@@ -3430,7 +3388,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_9rdelta2rs_f(PyObject *
   __pyx_t_5 = 0;
   goto __pyx_L0;
 
-  /* "pzmassfitter/nfwmodeltools.pyx":196
+  /* "pzmassfitter/nfwmodeltools.pyx":197
  * 
  *     # x = r_delta / rs
  *     def f(x):             # <<<<<<<<<<<<<<
@@ -3452,7 +3410,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_9rdelta2rs_f(PyObject *
   return __pyx_r;
 }
 
-/* "pzmassfitter/nfwmodeltools.pyx":189
+/* "pzmassfitter/nfwmodeltools.pyx":190
  * @cython.boundscheck(False)
  * @cython.wraparound(False)
  * def rdelta2rs(double rdelta,             # <<<<<<<<<<<<<<
@@ -3478,13 +3436,13 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_6rdelta2rs(CYTHON_UNUSE
   if (unlikely(!__pyx_cur_scope)) {
     __pyx_cur_scope = ((struct __pyx_obj_12pzmassfitter_13nfwmodeltools___pyx_scope_struct__rdelta2rs *)Py_None);
     __Pyx_INCREF(Py_None);
-    __PYX_ERR(0, 189, __pyx_L1_error)
+    __PYX_ERR(0, 190, __pyx_L1_error)
   } else {
     __Pyx_GOTREF(__pyx_cur_scope);
   }
   __pyx_cur_scope->__pyx_v_delta = __pyx_v_delta;
 
-  /* "pzmassfitter/nfwmodeltools.pyx":193
+  /* "pzmassfitter/nfwmodeltools.pyx":194
  *               double delta):
  * 
  *     cdef double delta_c = deltaC(c200)             # <<<<<<<<<<<<<<
@@ -3493,31 +3451,31 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_6rdelta2rs(CYTHON_UNUSE
  */
   __pyx_cur_scope->__pyx_v_delta_c = __pyx_f_12pzmassfitter_13nfwmodeltools_deltaC(__pyx_v_c200, NULL);
 
-  /* "pzmassfitter/nfwmodeltools.pyx":196
+  /* "pzmassfitter/nfwmodeltools.pyx":197
  * 
  *     # x = r_delta / rs
  *     def f(x):             # <<<<<<<<<<<<<<
  * 
  *         return 3*delta_c*(log(1+x) - (x/(1+x)))/x**3 - delta
  */
-  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_12pzmassfitter_13nfwmodeltools_9rdelta2rs_1f, 0, __pyx_n_s_rdelta2rs_locals_f, ((PyObject*)__pyx_cur_scope), __pyx_n_s_pzmassfitter_nfwmodeltools, __pyx_d, ((PyObject *)__pyx_codeobj__2)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 196, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_12pzmassfitter_13nfwmodeltools_9rdelta2rs_1f, 0, __pyx_n_s_rdelta2rs_locals_f, ((PyObject*)__pyx_cur_scope), __pyx_n_s_pzmassfitter_nfwmodeltools, __pyx_d, ((PyObject *)__pyx_codeobj__2)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 197, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_v_f = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "pzmassfitter/nfwmodeltools.pyx":201
+  /* "pzmassfitter/nfwmodeltools.pyx":202
  * 
  * 
  *     x0 = scipy.optimize.brenth(f, 0.1, 20)             # <<<<<<<<<<<<<<
  * 
  *     cdef double rs = rdelta / x0
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_scipy); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 201, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_scipy); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 202, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_optimize); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 201, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_optimize); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 202, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_brenth); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 201, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_brenth); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 202, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_t_3 = NULL;
@@ -3535,7 +3493,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_6rdelta2rs(CYTHON_UNUSE
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_2)) {
     PyObject *__pyx_temp[4] = {__pyx_t_3, __pyx_v_f, __pyx_float_0_1, __pyx_int_20};
-    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_4, 3+__pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 201, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_4, 3+__pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 202, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_GOTREF(__pyx_t_1);
   } else
@@ -3543,13 +3501,13 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_6rdelta2rs(CYTHON_UNUSE
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
     PyObject *__pyx_temp[4] = {__pyx_t_3, __pyx_v_f, __pyx_float_0_1, __pyx_int_20};
-    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_4, 3+__pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 201, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_4, 3+__pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 202, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_GOTREF(__pyx_t_1);
   } else
   #endif
   {
-    __pyx_t_5 = PyTuple_New(3+__pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 201, __pyx_L1_error)
+    __pyx_t_5 = PyTuple_New(3+__pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 202, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     if (__pyx_t_3) {
       __Pyx_GIVEREF(__pyx_t_3); PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_t_3); __pyx_t_3 = NULL;
@@ -3563,7 +3521,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_6rdelta2rs(CYTHON_UNUSE
     __Pyx_INCREF(__pyx_int_20);
     __Pyx_GIVEREF(__pyx_int_20);
     PyTuple_SET_ITEM(__pyx_t_5, 2+__pyx_t_4, __pyx_int_20);
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_5, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 201, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_5, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 202, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   }
@@ -3571,23 +3529,23 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_6rdelta2rs(CYTHON_UNUSE
   __pyx_v_x0 = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "pzmassfitter/nfwmodeltools.pyx":203
+  /* "pzmassfitter/nfwmodeltools.pyx":204
  *     x0 = scipy.optimize.brenth(f, 0.1, 20)
  * 
  *     cdef double rs = rdelta / x0             # <<<<<<<<<<<<<<
  * 
  *     return rs
  */
-  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_rdelta); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 203, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_rdelta); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 204, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyNumber_Divide(__pyx_t_1, __pyx_v_x0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 203, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyNumber_Divide(__pyx_t_1, __pyx_v_x0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 204, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_6 = __pyx_PyFloat_AsDouble(__pyx_t_2); if (unlikely((__pyx_t_6 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 203, __pyx_L1_error)
+  __pyx_t_6 = __pyx_PyFloat_AsDouble(__pyx_t_2); if (unlikely((__pyx_t_6 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 204, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_v_rs = __pyx_t_6;
 
-  /* "pzmassfitter/nfwmodeltools.pyx":205
+  /* "pzmassfitter/nfwmodeltools.pyx":206
  *     cdef double rs = rdelta / x0
  * 
  *     return rs             # <<<<<<<<<<<<<<
@@ -3595,13 +3553,13 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_6rdelta2rs(CYTHON_UNUSE
  * #####################
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_2 = PyFloat_FromDouble(__pyx_v_rs); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 205, __pyx_L1_error)
+  __pyx_t_2 = PyFloat_FromDouble(__pyx_v_rs); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 206, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_r = __pyx_t_2;
   __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "pzmassfitter/nfwmodeltools.pyx":189
+  /* "pzmassfitter/nfwmodeltools.pyx":190
  * @cython.boundscheck(False)
  * @cython.wraparound(False)
  * def rdelta2rs(double rdelta,             # <<<<<<<<<<<<<<
@@ -3626,7 +3584,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_6rdelta2rs(CYTHON_UNUSE
   return __pyx_r;
 }
 
-/* "pzmassfitter/nfwmodeltools.pyx":212
+/* "pzmassfitter/nfwmodeltools.pyx":213
  * @cython.boundscheck(False)
  * @cython.wraparound(False)
  * def rscaleConstM(double mdelta,             # <<<<<<<<<<<<<<
@@ -3667,21 +3625,21 @@ static PyObject *__pyx_pw_12pzmassfitter_13nfwmodeltools_9rscaleConstM(PyObject 
         case  1:
         if (likely((values[1] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_c)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("rscaleConstM", 1, 4, 4, 1); __PYX_ERR(0, 212, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("rscaleConstM", 1, 4, 4, 1); __PYX_ERR(0, 213, __pyx_L3_error)
         }
         case  2:
         if (likely((values[2] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_rho_c)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("rscaleConstM", 1, 4, 4, 2); __PYX_ERR(0, 212, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("rscaleConstM", 1, 4, 4, 2); __PYX_ERR(0, 213, __pyx_L3_error)
         }
         case  3:
         if (likely((values[3] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_delta)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("rscaleConstM", 1, 4, 4, 3); __PYX_ERR(0, 212, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("rscaleConstM", 1, 4, 4, 3); __PYX_ERR(0, 213, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "rscaleConstM") < 0)) __PYX_ERR(0, 212, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "rscaleConstM") < 0)) __PYX_ERR(0, 213, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 4) {
       goto __pyx_L5_argtuple_error;
@@ -3691,14 +3649,14 @@ static PyObject *__pyx_pw_12pzmassfitter_13nfwmodeltools_9rscaleConstM(PyObject 
       values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
       values[3] = PyTuple_GET_ITEM(__pyx_args, 3);
     }
-    __pyx_v_mdelta = __pyx_PyFloat_AsDouble(values[0]); if (unlikely((__pyx_v_mdelta == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 212, __pyx_L3_error)
-    __pyx_v_c = __pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_c == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 213, __pyx_L3_error)
-    __pyx_v_rho_c = __pyx_PyFloat_AsDouble(values[2]); if (unlikely((__pyx_v_rho_c == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 214, __pyx_L3_error)
-    __pyx_v_delta = __pyx_PyFloat_AsDouble(values[3]); if (unlikely((__pyx_v_delta == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 215, __pyx_L3_error)
+    __pyx_v_mdelta = __pyx_PyFloat_AsDouble(values[0]); if (unlikely((__pyx_v_mdelta == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 213, __pyx_L3_error)
+    __pyx_v_c = __pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_c == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 214, __pyx_L3_error)
+    __pyx_v_rho_c = __pyx_PyFloat_AsDouble(values[2]); if (unlikely((__pyx_v_rho_c == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 215, __pyx_L3_error)
+    __pyx_v_delta = __pyx_PyFloat_AsDouble(values[3]); if (unlikely((__pyx_v_delta == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 216, __pyx_L3_error)
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("rscaleConstM", 1, 4, 4, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 212, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("rscaleConstM", 1, 4, 4, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 213, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("pzmassfitter.nfwmodeltools.rscaleConstM", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -3727,60 +3685,60 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_8rscaleConstM(CYTHON_UN
   PyObject *__pyx_t_9 = NULL;
   __Pyx_RefNannySetupContext("rscaleConstM", 0);
 
-  /* "pzmassfitter/nfwmodeltools.pyx":217
+  /* "pzmassfitter/nfwmodeltools.pyx":218
  *                  double delta):
  * 
  *     cdef double rdelta = (3*mdelta/(4*delta*np.pi*rho_c))**(1./3.)             # <<<<<<<<<<<<<<
  * 
  *     cdef double rs = rdelta2rs(rdelta, c, delta)
  */
-  __pyx_t_1 = PyFloat_FromDouble((3.0 * __pyx_v_mdelta)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 217, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble((3.0 * __pyx_v_mdelta)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 218, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = PyFloat_FromDouble((4.0 * __pyx_v_delta)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 217, __pyx_L1_error)
+  __pyx_t_2 = PyFloat_FromDouble((4.0 * __pyx_v_delta)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 218, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 217, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 218, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_pi); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 217, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_pi); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 218, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = PyNumber_Multiply(__pyx_t_2, __pyx_t_4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 217, __pyx_L1_error)
+  __pyx_t_3 = PyNumber_Multiply(__pyx_t_2, __pyx_t_4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 218, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = PyFloat_FromDouble(__pyx_v_rho_c); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 217, __pyx_L1_error)
+  __pyx_t_4 = PyFloat_FromDouble(__pyx_v_rho_c); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 218, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_2 = PyNumber_Multiply(__pyx_t_3, __pyx_t_4); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 217, __pyx_L1_error)
+  __pyx_t_2 = PyNumber_Multiply(__pyx_t_3, __pyx_t_4); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 218, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = __Pyx_PyNumber_Divide(__pyx_t_1, __pyx_t_2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 217, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyNumber_Divide(__pyx_t_1, __pyx_t_2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 218, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = PyFloat_FromDouble((1. / 3.)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 217, __pyx_L1_error)
+  __pyx_t_2 = PyFloat_FromDouble((1. / 3.)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 218, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_1 = PyNumber_Power(__pyx_t_4, __pyx_t_2, Py_None); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 217, __pyx_L1_error)
+  __pyx_t_1 = PyNumber_Power(__pyx_t_4, __pyx_t_2, Py_None); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 218, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_5 = __pyx_PyFloat_AsDouble(__pyx_t_1); if (unlikely((__pyx_t_5 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 217, __pyx_L1_error)
+  __pyx_t_5 = __pyx_PyFloat_AsDouble(__pyx_t_1); if (unlikely((__pyx_t_5 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 218, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_rdelta = __pyx_t_5;
 
-  /* "pzmassfitter/nfwmodeltools.pyx":219
+  /* "pzmassfitter/nfwmodeltools.pyx":220
  *     cdef double rdelta = (3*mdelta/(4*delta*np.pi*rho_c))**(1./3.)
  * 
  *     cdef double rs = rdelta2rs(rdelta, c, delta)             # <<<<<<<<<<<<<<
  * 
  *     return rs
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_rdelta2rs); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 219, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_rdelta2rs); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 220, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_4 = PyFloat_FromDouble(__pyx_v_rdelta); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 219, __pyx_L1_error)
+  __pyx_t_4 = PyFloat_FromDouble(__pyx_v_rdelta); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 220, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_3 = PyFloat_FromDouble(__pyx_v_c); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 219, __pyx_L1_error)
+  __pyx_t_3 = PyFloat_FromDouble(__pyx_v_c); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 220, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_6 = PyFloat_FromDouble(__pyx_v_delta); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 219, __pyx_L1_error)
+  __pyx_t_6 = PyFloat_FromDouble(__pyx_v_delta); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 220, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __pyx_t_7 = NULL;
   __pyx_t_8 = 0;
@@ -3797,7 +3755,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_8rscaleConstM(CYTHON_UN
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_2)) {
     PyObject *__pyx_temp[4] = {__pyx_t_7, __pyx_t_4, __pyx_t_3, __pyx_t_6};
-    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_8, 3+__pyx_t_8); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 219, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_8, 3+__pyx_t_8); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 220, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
@@ -3808,7 +3766,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_8rscaleConstM(CYTHON_UN
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
     PyObject *__pyx_temp[4] = {__pyx_t_7, __pyx_t_4, __pyx_t_3, __pyx_t_6};
-    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_8, 3+__pyx_t_8); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 219, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_8, 3+__pyx_t_8); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 220, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
@@ -3817,7 +3775,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_8rscaleConstM(CYTHON_UN
   } else
   #endif
   {
-    __pyx_t_9 = PyTuple_New(3+__pyx_t_8); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 219, __pyx_L1_error)
+    __pyx_t_9 = PyTuple_New(3+__pyx_t_8); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 220, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_9);
     if (__pyx_t_7) {
       __Pyx_GIVEREF(__pyx_t_7); PyTuple_SET_ITEM(__pyx_t_9, 0, __pyx_t_7); __pyx_t_7 = NULL;
@@ -3831,16 +3789,16 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_8rscaleConstM(CYTHON_UN
     __pyx_t_4 = 0;
     __pyx_t_3 = 0;
     __pyx_t_6 = 0;
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_9, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 219, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_9, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 220, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_5 = __pyx_PyFloat_AsDouble(__pyx_t_1); if (unlikely((__pyx_t_5 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 219, __pyx_L1_error)
+  __pyx_t_5 = __pyx_PyFloat_AsDouble(__pyx_t_1); if (unlikely((__pyx_t_5 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 220, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_rs = __pyx_t_5;
 
-  /* "pzmassfitter/nfwmodeltools.pyx":221
+  /* "pzmassfitter/nfwmodeltools.pyx":222
  *     cdef double rs = rdelta2rs(rdelta, c, delta)
  * 
  *     return rs             # <<<<<<<<<<<<<<
@@ -3848,13 +3806,13 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_8rscaleConstM(CYTHON_UN
  * 
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_rs); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 221, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_rs); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 222, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "pzmassfitter/nfwmodeltools.pyx":212
+  /* "pzmassfitter/nfwmodeltools.pyx":213
  * @cython.boundscheck(False)
  * @cython.wraparound(False)
  * def rscaleConstM(double mdelta,             # <<<<<<<<<<<<<<
@@ -3879,7 +3837,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_8rscaleConstM(CYTHON_UN
   return __pyx_r;
 }
 
-/* "pzmassfitter/nfwmodeltools.pyx":228
+/* "pzmassfitter/nfwmodeltools.pyx":229
  * @cython.boundscheck(False)
  * @cython.wraparound(False)
  * def massInsideR(double rs,             # <<<<<<<<<<<<<<
@@ -3920,21 +3878,21 @@ static PyObject *__pyx_pw_12pzmassfitter_13nfwmodeltools_11massInsideR(PyObject 
         case  1:
         if (likely((values[1] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_c)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("massInsideR", 1, 4, 4, 1); __PYX_ERR(0, 228, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("massInsideR", 1, 4, 4, 1); __PYX_ERR(0, 229, __pyx_L3_error)
         }
         case  2:
         if (likely((values[2] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_R)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("massInsideR", 1, 4, 4, 2); __PYX_ERR(0, 228, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("massInsideR", 1, 4, 4, 2); __PYX_ERR(0, 229, __pyx_L3_error)
         }
         case  3:
         if (likely((values[3] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_rho_c)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("massInsideR", 1, 4, 4, 3); __PYX_ERR(0, 228, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("massInsideR", 1, 4, 4, 3); __PYX_ERR(0, 229, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "massInsideR") < 0)) __PYX_ERR(0, 228, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "massInsideR") < 0)) __PYX_ERR(0, 229, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 4) {
       goto __pyx_L5_argtuple_error;
@@ -3944,14 +3902,14 @@ static PyObject *__pyx_pw_12pzmassfitter_13nfwmodeltools_11massInsideR(PyObject 
       values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
       values[3] = PyTuple_GET_ITEM(__pyx_args, 3);
     }
-    __pyx_v_rs = __pyx_PyFloat_AsDouble(values[0]); if (unlikely((__pyx_v_rs == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 228, __pyx_L3_error)
-    __pyx_v_c = __pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_c == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 229, __pyx_L3_error)
-    __pyx_v_R = __pyx_PyFloat_AsDouble(values[2]); if (unlikely((__pyx_v_R == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 230, __pyx_L3_error)
-    __pyx_v_rho_c = __pyx_PyFloat_AsDouble(values[3]); if (unlikely((__pyx_v_rho_c == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 231, __pyx_L3_error)
+    __pyx_v_rs = __pyx_PyFloat_AsDouble(values[0]); if (unlikely((__pyx_v_rs == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 229, __pyx_L3_error)
+    __pyx_v_c = __pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_c == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 230, __pyx_L3_error)
+    __pyx_v_R = __pyx_PyFloat_AsDouble(values[2]); if (unlikely((__pyx_v_R == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 231, __pyx_L3_error)
+    __pyx_v_rho_c = __pyx_PyFloat_AsDouble(values[3]); if (unlikely((__pyx_v_rho_c == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 232, __pyx_L3_error)
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("massInsideR", 1, 4, 4, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 228, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("massInsideR", 1, 4, 4, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 229, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("pzmassfitter.nfwmodeltools.massInsideR", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -3976,7 +3934,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_10massInsideR(CYTHON_UN
   PyObject *__pyx_t_4 = NULL;
   __Pyx_RefNannySetupContext("massInsideR", 0);
 
-  /* "pzmassfitter/nfwmodeltools.pyx":233
+  /* "pzmassfitter/nfwmodeltools.pyx":234
  *                 double rho_c):
  * 
  *     cdef double x = R/rs             # <<<<<<<<<<<<<<
@@ -3985,11 +3943,11 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_10massInsideR(CYTHON_UN
  */
   if (unlikely(__pyx_v_rs == 0)) {
     PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-    __PYX_ERR(0, 233, __pyx_L1_error)
+    __PYX_ERR(0, 234, __pyx_L1_error)
   }
   __pyx_v_x = (__pyx_v_R / __pyx_v_rs);
 
-  /* "pzmassfitter/nfwmodeltools.pyx":234
+  /* "pzmassfitter/nfwmodeltools.pyx":235
  * 
  *     cdef double x = R/rs
  *     cdef double delta_c = deltaC(c)             # <<<<<<<<<<<<<<
@@ -3998,7 +3956,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_10massInsideR(CYTHON_UN
  */
   __pyx_v_delta_c = __pyx_f_12pzmassfitter_13nfwmodeltools_deltaC(__pyx_v_c, NULL);
 
-  /* "pzmassfitter/nfwmodeltools.pyx":236
+  /* "pzmassfitter/nfwmodeltools.pyx":237
  *     cdef double delta_c = deltaC(c)
  * 
  *     cdef double massInsideR = (log(1+x) - (x/(1+x)))*4*np.pi*delta_c*rho_c*rs**3             # <<<<<<<<<<<<<<
@@ -4008,42 +3966,42 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_10massInsideR(CYTHON_UN
   __pyx_t_1 = (1.0 + __pyx_v_x);
   if (unlikely(__pyx_t_1 == 0)) {
     PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-    __PYX_ERR(0, 236, __pyx_L1_error)
+    __PYX_ERR(0, 237, __pyx_L1_error)
   }
-  __pyx_t_2 = PyFloat_FromDouble(((log((1.0 + __pyx_v_x)) - (__pyx_v_x / __pyx_t_1)) * 4.0)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 236, __pyx_L1_error)
+  __pyx_t_2 = PyFloat_FromDouble(((log((1.0 + __pyx_v_x)) - (__pyx_v_x / __pyx_t_1)) * 4.0)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 237, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 236, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 237, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_pi); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 236, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_pi); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 237, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = PyNumber_Multiply(__pyx_t_2, __pyx_t_4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 236, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_3);
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = PyFloat_FromDouble(__pyx_v_delta_c); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 236, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_2 = PyNumber_Multiply(__pyx_t_3, __pyx_t_4); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 236, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = PyFloat_FromDouble(__pyx_v_rho_c); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 236, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_3 = PyNumber_Multiply(__pyx_t_2, __pyx_t_4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 236, __pyx_L1_error)
+  __pyx_t_3 = PyNumber_Multiply(__pyx_t_2, __pyx_t_4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 237, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = PyFloat_FromDouble(pow(__pyx_v_rs, 3.0)); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 236, __pyx_L1_error)
+  __pyx_t_4 = PyFloat_FromDouble(__pyx_v_delta_c); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 237, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_2 = PyNumber_Multiply(__pyx_t_3, __pyx_t_4); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 236, __pyx_L1_error)
+  __pyx_t_2 = PyNumber_Multiply(__pyx_t_3, __pyx_t_4); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 237, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_1 = __pyx_PyFloat_AsDouble(__pyx_t_2); if (unlikely((__pyx_t_1 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 236, __pyx_L1_error)
+  __pyx_t_4 = PyFloat_FromDouble(__pyx_v_rho_c); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 237, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_4);
+  __pyx_t_3 = PyNumber_Multiply(__pyx_t_2, __pyx_t_4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 237, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+  __pyx_t_4 = PyFloat_FromDouble(pow(__pyx_v_rs, 3.0)); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 237, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_4);
+  __pyx_t_2 = PyNumber_Multiply(__pyx_t_3, __pyx_t_4); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 237, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+  __pyx_t_1 = __pyx_PyFloat_AsDouble(__pyx_t_2); if (unlikely((__pyx_t_1 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 237, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_v_massInsideR = __pyx_t_1;
 
-  /* "pzmassfitter/nfwmodeltools.pyx":239
+  /* "pzmassfitter/nfwmodeltools.pyx":240
  * 
  * 
  *     return massInsideR             # <<<<<<<<<<<<<<
@@ -4051,13 +4009,13 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_10massInsideR(CYTHON_UN
  * 
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_2 = PyFloat_FromDouble(__pyx_v_massInsideR); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 239, __pyx_L1_error)
+  __pyx_t_2 = PyFloat_FromDouble(__pyx_v_massInsideR); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 240, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_r = __pyx_t_2;
   __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "pzmassfitter/nfwmodeltools.pyx":228
+  /* "pzmassfitter/nfwmodeltools.pyx":229
  * @cython.boundscheck(False)
  * @cython.wraparound(False)
  * def massInsideR(double rs,             # <<<<<<<<<<<<<<
@@ -4081,15 +4039,1172 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_10massInsideR(CYTHON_UN
 /* "pzmassfitter/nfwmodeltools.pyx":252
  * @cython.boundscheck(False)
  * @cython.wraparound(False)
+ * def gauss_like(double mdelta,             # <<<<<<<<<<<<<<
+ *                double cdelta,
+ *                np.ndarray[DTYPE_T, ndim=1, mode='c'] r_mpc not None,
+ */
+
+/* Python wrapper */
+static PyObject *__pyx_pw_12pzmassfitter_13nfwmodeltools_13gauss_like(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyMethodDef __pyx_mdef_12pzmassfitter_13nfwmodeltools_13gauss_like = {"gauss_like", (PyCFunction)__pyx_pw_12pzmassfitter_13nfwmodeltools_13gauss_like, METH_VARARGS|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_12pzmassfitter_13nfwmodeltools_13gauss_like(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+  double __pyx_v_mdelta;
+  double __pyx_v_cdelta;
+  PyArrayObject *__pyx_v_r_mpc = 0;
+  PyArrayObject *__pyx_v_ghats = 0;
+  PyArrayObject *__pyx_v_zs = 0;
+  PyArrayObject *__pyx_v_betas = 0;
+  PyArrayObject *__pyx_v_pz = 0;
+  PyArrayObject *__pyx_v_m = 0;
+  PyArrayObject *__pyx_v_c = 0;
+  double __pyx_v_sigma;
+  double __pyx_v_rho_c;
+  double __pyx_v_rho_c_over_sigma_c;
+  double __pyx_v_massdelta;
+  PyObject *__pyx_r = 0;
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("gauss_like (wrapper)", 0);
+  {
+    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_mdelta,&__pyx_n_s_cdelta,&__pyx_n_s_r_mpc,&__pyx_n_s_ghats,&__pyx_n_s_zs,&__pyx_n_s_betas,&__pyx_n_s_pz,&__pyx_n_s_m,&__pyx_n_s_c,&__pyx_n_s_sigma,&__pyx_n_s_rho_c,&__pyx_n_s_rho_c_over_sigma_c,&__pyx_n_s_massdelta,0};
+    PyObject* values[13] = {0,0,0,0,0,0,0,0,0,0,0,0,0};
+    if (unlikely(__pyx_kwds)) {
+      Py_ssize_t kw_args;
+      const Py_ssize_t pos_args = PyTuple_GET_SIZE(__pyx_args);
+      switch (pos_args) {
+        case 13: values[12] = PyTuple_GET_ITEM(__pyx_args, 12);
+        case 12: values[11] = PyTuple_GET_ITEM(__pyx_args, 11);
+        case 11: values[10] = PyTuple_GET_ITEM(__pyx_args, 10);
+        case 10: values[9] = PyTuple_GET_ITEM(__pyx_args, 9);
+        case  9: values[8] = PyTuple_GET_ITEM(__pyx_args, 8);
+        case  8: values[7] = PyTuple_GET_ITEM(__pyx_args, 7);
+        case  7: values[6] = PyTuple_GET_ITEM(__pyx_args, 6);
+        case  6: values[5] = PyTuple_GET_ITEM(__pyx_args, 5);
+        case  5: values[4] = PyTuple_GET_ITEM(__pyx_args, 4);
+        case  4: values[3] = PyTuple_GET_ITEM(__pyx_args, 3);
+        case  3: values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
+        case  2: values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
+        case  1: values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+        case  0: break;
+        default: goto __pyx_L5_argtuple_error;
+      }
+      kw_args = PyDict_Size(__pyx_kwds);
+      switch (pos_args) {
+        case  0:
+        if (likely((values[0] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_mdelta)) != 0)) kw_args--;
+        else goto __pyx_L5_argtuple_error;
+        case  1:
+        if (likely((values[1] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_cdelta)) != 0)) kw_args--;
+        else {
+          __Pyx_RaiseArgtupleInvalid("gauss_like", 1, 13, 13, 1); __PYX_ERR(0, 252, __pyx_L3_error)
+        }
+        case  2:
+        if (likely((values[2] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_r_mpc)) != 0)) kw_args--;
+        else {
+          __Pyx_RaiseArgtupleInvalid("gauss_like", 1, 13, 13, 2); __PYX_ERR(0, 252, __pyx_L3_error)
+        }
+        case  3:
+        if (likely((values[3] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_ghats)) != 0)) kw_args--;
+        else {
+          __Pyx_RaiseArgtupleInvalid("gauss_like", 1, 13, 13, 3); __PYX_ERR(0, 252, __pyx_L3_error)
+        }
+        case  4:
+        if (likely((values[4] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_zs)) != 0)) kw_args--;
+        else {
+          __Pyx_RaiseArgtupleInvalid("gauss_like", 1, 13, 13, 4); __PYX_ERR(0, 252, __pyx_L3_error)
+        }
+        case  5:
+        if (likely((values[5] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_betas)) != 0)) kw_args--;
+        else {
+          __Pyx_RaiseArgtupleInvalid("gauss_like", 1, 13, 13, 5); __PYX_ERR(0, 252, __pyx_L3_error)
+        }
+        case  6:
+        if (likely((values[6] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_pz)) != 0)) kw_args--;
+        else {
+          __Pyx_RaiseArgtupleInvalid("gauss_like", 1, 13, 13, 6); __PYX_ERR(0, 252, __pyx_L3_error)
+        }
+        case  7:
+        if (likely((values[7] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_m)) != 0)) kw_args--;
+        else {
+          __Pyx_RaiseArgtupleInvalid("gauss_like", 1, 13, 13, 7); __PYX_ERR(0, 252, __pyx_L3_error)
+        }
+        case  8:
+        if (likely((values[8] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_c)) != 0)) kw_args--;
+        else {
+          __Pyx_RaiseArgtupleInvalid("gauss_like", 1, 13, 13, 8); __PYX_ERR(0, 252, __pyx_L3_error)
+        }
+        case  9:
+        if (likely((values[9] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_sigma)) != 0)) kw_args--;
+        else {
+          __Pyx_RaiseArgtupleInvalid("gauss_like", 1, 13, 13, 9); __PYX_ERR(0, 252, __pyx_L3_error)
+        }
+        case 10:
+        if (likely((values[10] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_rho_c)) != 0)) kw_args--;
+        else {
+          __Pyx_RaiseArgtupleInvalid("gauss_like", 1, 13, 13, 10); __PYX_ERR(0, 252, __pyx_L3_error)
+        }
+        case 11:
+        if (likely((values[11] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_rho_c_over_sigma_c)) != 0)) kw_args--;
+        else {
+          __Pyx_RaiseArgtupleInvalid("gauss_like", 1, 13, 13, 11); __PYX_ERR(0, 252, __pyx_L3_error)
+        }
+        case 12:
+        if (likely((values[12] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_massdelta)) != 0)) kw_args--;
+        else {
+          __Pyx_RaiseArgtupleInvalid("gauss_like", 1, 13, 13, 12); __PYX_ERR(0, 252, __pyx_L3_error)
+        }
+      }
+      if (unlikely(kw_args > 0)) {
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "gauss_like") < 0)) __PYX_ERR(0, 252, __pyx_L3_error)
+      }
+    } else if (PyTuple_GET_SIZE(__pyx_args) != 13) {
+      goto __pyx_L5_argtuple_error;
+    } else {
+      values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+      values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
+      values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
+      values[3] = PyTuple_GET_ITEM(__pyx_args, 3);
+      values[4] = PyTuple_GET_ITEM(__pyx_args, 4);
+      values[5] = PyTuple_GET_ITEM(__pyx_args, 5);
+      values[6] = PyTuple_GET_ITEM(__pyx_args, 6);
+      values[7] = PyTuple_GET_ITEM(__pyx_args, 7);
+      values[8] = PyTuple_GET_ITEM(__pyx_args, 8);
+      values[9] = PyTuple_GET_ITEM(__pyx_args, 9);
+      values[10] = PyTuple_GET_ITEM(__pyx_args, 10);
+      values[11] = PyTuple_GET_ITEM(__pyx_args, 11);
+      values[12] = PyTuple_GET_ITEM(__pyx_args, 12);
+    }
+    __pyx_v_mdelta = __pyx_PyFloat_AsDouble(values[0]); if (unlikely((__pyx_v_mdelta == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 252, __pyx_L3_error)
+    __pyx_v_cdelta = __pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_cdelta == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 253, __pyx_L3_error)
+    __pyx_v_r_mpc = ((PyArrayObject *)values[2]);
+    __pyx_v_ghats = ((PyArrayObject *)values[3]);
+    __pyx_v_zs = ((PyArrayObject *)values[4]);
+    __pyx_v_betas = ((PyArrayObject *)values[5]);
+    __pyx_v_pz = ((PyArrayObject *)values[6]);
+    __pyx_v_m = ((PyArrayObject *)values[7]);
+    __pyx_v_c = ((PyArrayObject *)values[8]);
+    __pyx_v_sigma = __pyx_PyFloat_AsDouble(values[9]); if (unlikely((__pyx_v_sigma == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 261, __pyx_L3_error)
+    __pyx_v_rho_c = __pyx_PyFloat_AsDouble(values[10]); if (unlikely((__pyx_v_rho_c == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 262, __pyx_L3_error)
+    __pyx_v_rho_c_over_sigma_c = __pyx_PyFloat_AsDouble(values[11]); if (unlikely((__pyx_v_rho_c_over_sigma_c == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 263, __pyx_L3_error)
+    __pyx_v_massdelta = __pyx_PyFloat_AsDouble(values[12]); if (unlikely((__pyx_v_massdelta == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 264, __pyx_L3_error)
+  }
+  goto __pyx_L4_argument_unpacking_done;
+  __pyx_L5_argtuple_error:;
+  __Pyx_RaiseArgtupleInvalid("gauss_like", 1, 13, 13, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 252, __pyx_L3_error)
+  __pyx_L3_error:;
+  __Pyx_AddTraceback("pzmassfitter.nfwmodeltools.gauss_like", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_RefNannyFinishContext();
+  return NULL;
+  __pyx_L4_argument_unpacking_done:;
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_r_mpc), __pyx_ptype_5numpy_ndarray, 0, "r_mpc", 0))) __PYX_ERR(0, 254, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_ghats), __pyx_ptype_5numpy_ndarray, 0, "ghats", 0))) __PYX_ERR(0, 255, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_zs), __pyx_ptype_5numpy_ndarray, 0, "zs", 0))) __PYX_ERR(0, 256, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_betas), __pyx_ptype_5numpy_ndarray, 0, "betas", 0))) __PYX_ERR(0, 257, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_pz), __pyx_ptype_5numpy_ndarray, 0, "pz", 0))) __PYX_ERR(0, 258, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_m), __pyx_ptype_5numpy_ndarray, 0, "m", 0))) __PYX_ERR(0, 259, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_c), __pyx_ptype_5numpy_ndarray, 0, "c", 0))) __PYX_ERR(0, 260, __pyx_L1_error)
+  __pyx_r = __pyx_pf_12pzmassfitter_13nfwmodeltools_12gauss_like(__pyx_self, __pyx_v_mdelta, __pyx_v_cdelta, __pyx_v_r_mpc, __pyx_v_ghats, __pyx_v_zs, __pyx_v_betas, __pyx_v_pz, __pyx_v_m, __pyx_v_c, __pyx_v_sigma, __pyx_v_rho_c, __pyx_v_rho_c_over_sigma_c, __pyx_v_massdelta);
+
+  /* function exit code */
+  goto __pyx_L0;
+  __pyx_L1_error:;
+  __pyx_r = NULL;
+  __pyx_L0:;
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_12gauss_like(CYTHON_UNUSED PyObject *__pyx_self, double __pyx_v_mdelta, double __pyx_v_cdelta, PyArrayObject *__pyx_v_r_mpc, PyArrayObject *__pyx_v_ghats, PyArrayObject *__pyx_v_zs, PyArrayObject *__pyx_v_betas, PyArrayObject *__pyx_v_pz, PyArrayObject *__pyx_v_m, PyArrayObject *__pyx_v_c, double __pyx_v_sigma, double __pyx_v_rho_c, double __pyx_v_rho_c_over_sigma_c, double __pyx_v_massdelta) {
+  Py_ssize_t __pyx_v_nobjs;
+  Py_ssize_t __pyx_v_npz;
+  PyArrayObject *__pyx_v_gamma_inf = 0;
+  PyArrayObject *__pyx_v_kappa_inf = 0;
+  double __pyx_v_rscale;
+  PyObject *__pyx_v_rdelta = NULL;
+  double __pyx_v_delta;
+  double __pyx_v_curPZ;
+  double __pyx_v_beta;
+  double __pyx_v_g;
+  Py_ssize_t __pyx_v_i;
+  Py_ssize_t __pyx_v_j;
+  __pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T __pyx_v_galProb;
+  __pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T __pyx_v_logProb;
+  PyArrayObject *__pyx_v_integrand = 0;
+  __Pyx_LocalBuf_ND __pyx_pybuffernd_betas;
+  __Pyx_Buffer __pyx_pybuffer_betas;
+  __Pyx_LocalBuf_ND __pyx_pybuffernd_c;
+  __Pyx_Buffer __pyx_pybuffer_c;
+  __Pyx_LocalBuf_ND __pyx_pybuffernd_gamma_inf;
+  __Pyx_Buffer __pyx_pybuffer_gamma_inf;
+  __Pyx_LocalBuf_ND __pyx_pybuffernd_ghats;
+  __Pyx_Buffer __pyx_pybuffer_ghats;
+  __Pyx_LocalBuf_ND __pyx_pybuffernd_integrand;
+  __Pyx_Buffer __pyx_pybuffer_integrand;
+  __Pyx_LocalBuf_ND __pyx_pybuffernd_kappa_inf;
+  __Pyx_Buffer __pyx_pybuffer_kappa_inf;
+  __Pyx_LocalBuf_ND __pyx_pybuffernd_m;
+  __Pyx_Buffer __pyx_pybuffer_m;
+  __Pyx_LocalBuf_ND __pyx_pybuffernd_pz;
+  __Pyx_Buffer __pyx_pybuffer_pz;
+  __Pyx_LocalBuf_ND __pyx_pybuffernd_r_mpc;
+  __Pyx_Buffer __pyx_pybuffer_r_mpc;
+  __Pyx_LocalBuf_ND __pyx_pybuffernd_zs;
+  __Pyx_Buffer __pyx_pybuffer_zs;
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  int __pyx_t_1;
+  PyObject *__pyx_t_2 = NULL;
+  PyObject *__pyx_t_3 = NULL;
+  PyObject *__pyx_t_4 = NULL;
+  PyObject *__pyx_t_5 = NULL;
+  PyObject *__pyx_t_6 = NULL;
+  PyArrayObject *__pyx_t_7 = NULL;
+  int __pyx_t_8;
+  PyObject *__pyx_t_9 = NULL;
+  PyObject *__pyx_t_10 = NULL;
+  PyObject *__pyx_t_11 = NULL;
+  PyArrayObject *__pyx_t_12 = NULL;
+  double __pyx_t_13;
+  PyArrayObject *__pyx_t_14 = NULL;
+  Py_ssize_t __pyx_t_15;
+  Py_ssize_t __pyx_t_16;
+  Py_ssize_t __pyx_t_17;
+  Py_ssize_t __pyx_t_18;
+  Py_ssize_t __pyx_t_19;
+  __pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T __pyx_t_20;
+  Py_ssize_t __pyx_t_21;
+  __pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T __pyx_t_22;
+  Py_ssize_t __pyx_t_23;
+  Py_ssize_t __pyx_t_24;
+  Py_ssize_t __pyx_t_25;
+  Py_ssize_t __pyx_t_26;
+  __Pyx_RefNannySetupContext("gauss_like", 0);
+  __pyx_pybuffer_gamma_inf.pybuffer.buf = NULL;
+  __pyx_pybuffer_gamma_inf.refcount = 0;
+  __pyx_pybuffernd_gamma_inf.data = NULL;
+  __pyx_pybuffernd_gamma_inf.rcbuffer = &__pyx_pybuffer_gamma_inf;
+  __pyx_pybuffer_kappa_inf.pybuffer.buf = NULL;
+  __pyx_pybuffer_kappa_inf.refcount = 0;
+  __pyx_pybuffernd_kappa_inf.data = NULL;
+  __pyx_pybuffernd_kappa_inf.rcbuffer = &__pyx_pybuffer_kappa_inf;
+  __pyx_pybuffer_integrand.pybuffer.buf = NULL;
+  __pyx_pybuffer_integrand.refcount = 0;
+  __pyx_pybuffernd_integrand.data = NULL;
+  __pyx_pybuffernd_integrand.rcbuffer = &__pyx_pybuffer_integrand;
+  __pyx_pybuffer_r_mpc.pybuffer.buf = NULL;
+  __pyx_pybuffer_r_mpc.refcount = 0;
+  __pyx_pybuffernd_r_mpc.data = NULL;
+  __pyx_pybuffernd_r_mpc.rcbuffer = &__pyx_pybuffer_r_mpc;
+  __pyx_pybuffer_ghats.pybuffer.buf = NULL;
+  __pyx_pybuffer_ghats.refcount = 0;
+  __pyx_pybuffernd_ghats.data = NULL;
+  __pyx_pybuffernd_ghats.rcbuffer = &__pyx_pybuffer_ghats;
+  __pyx_pybuffer_zs.pybuffer.buf = NULL;
+  __pyx_pybuffer_zs.refcount = 0;
+  __pyx_pybuffernd_zs.data = NULL;
+  __pyx_pybuffernd_zs.rcbuffer = &__pyx_pybuffer_zs;
+  __pyx_pybuffer_betas.pybuffer.buf = NULL;
+  __pyx_pybuffer_betas.refcount = 0;
+  __pyx_pybuffernd_betas.data = NULL;
+  __pyx_pybuffernd_betas.rcbuffer = &__pyx_pybuffer_betas;
+  __pyx_pybuffer_pz.pybuffer.buf = NULL;
+  __pyx_pybuffer_pz.refcount = 0;
+  __pyx_pybuffernd_pz.data = NULL;
+  __pyx_pybuffernd_pz.rcbuffer = &__pyx_pybuffer_pz;
+  __pyx_pybuffer_m.pybuffer.buf = NULL;
+  __pyx_pybuffer_m.refcount = 0;
+  __pyx_pybuffernd_m.data = NULL;
+  __pyx_pybuffernd_m.rcbuffer = &__pyx_pybuffer_m;
+  __pyx_pybuffer_c.pybuffer.buf = NULL;
+  __pyx_pybuffer_c.refcount = 0;
+  __pyx_pybuffernd_c.data = NULL;
+  __pyx_pybuffernd_c.rcbuffer = &__pyx_pybuffer_c;
+  {
+    __Pyx_BufFmt_StackElem __pyx_stack[1];
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_r_mpc.rcbuffer->pybuffer, (PyObject*)__pyx_v_r_mpc, &__Pyx_TypeInfo_nn___pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 1, 0, __pyx_stack) == -1)) __PYX_ERR(0, 252, __pyx_L1_error)
+  }
+  __pyx_pybuffernd_r_mpc.diminfo[0].strides = __pyx_pybuffernd_r_mpc.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_r_mpc.diminfo[0].shape = __pyx_pybuffernd_r_mpc.rcbuffer->pybuffer.shape[0];
+  {
+    __Pyx_BufFmt_StackElem __pyx_stack[1];
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_ghats.rcbuffer->pybuffer, (PyObject*)__pyx_v_ghats, &__Pyx_TypeInfo_nn___pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 1, 0, __pyx_stack) == -1)) __PYX_ERR(0, 252, __pyx_L1_error)
+  }
+  __pyx_pybuffernd_ghats.diminfo[0].strides = __pyx_pybuffernd_ghats.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_ghats.diminfo[0].shape = __pyx_pybuffernd_ghats.rcbuffer->pybuffer.shape[0];
+  {
+    __Pyx_BufFmt_StackElem __pyx_stack[1];
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_zs.rcbuffer->pybuffer, (PyObject*)__pyx_v_zs, &__Pyx_TypeInfo_nn___pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 1, 0, __pyx_stack) == -1)) __PYX_ERR(0, 252, __pyx_L1_error)
+  }
+  __pyx_pybuffernd_zs.diminfo[0].strides = __pyx_pybuffernd_zs.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_zs.diminfo[0].shape = __pyx_pybuffernd_zs.rcbuffer->pybuffer.shape[0];
+  {
+    __Pyx_BufFmt_StackElem __pyx_stack[1];
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_betas.rcbuffer->pybuffer, (PyObject*)__pyx_v_betas, &__Pyx_TypeInfo_nn___pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 1, 0, __pyx_stack) == -1)) __PYX_ERR(0, 252, __pyx_L1_error)
+  }
+  __pyx_pybuffernd_betas.diminfo[0].strides = __pyx_pybuffernd_betas.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_betas.diminfo[0].shape = __pyx_pybuffernd_betas.rcbuffer->pybuffer.shape[0];
+  {
+    __Pyx_BufFmt_StackElem __pyx_stack[1];
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_pz.rcbuffer->pybuffer, (PyObject*)__pyx_v_pz, &__Pyx_TypeInfo_nn___pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 2, 0, __pyx_stack) == -1)) __PYX_ERR(0, 252, __pyx_L1_error)
+  }
+  __pyx_pybuffernd_pz.diminfo[0].strides = __pyx_pybuffernd_pz.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_pz.diminfo[0].shape = __pyx_pybuffernd_pz.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_pz.diminfo[1].strides = __pyx_pybuffernd_pz.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_pz.diminfo[1].shape = __pyx_pybuffernd_pz.rcbuffer->pybuffer.shape[1];
+  {
+    __Pyx_BufFmt_StackElem __pyx_stack[1];
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_m.rcbuffer->pybuffer, (PyObject*)__pyx_v_m, &__Pyx_TypeInfo_nn___pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 1, 0, __pyx_stack) == -1)) __PYX_ERR(0, 252, __pyx_L1_error)
+  }
+  __pyx_pybuffernd_m.diminfo[0].strides = __pyx_pybuffernd_m.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_m.diminfo[0].shape = __pyx_pybuffernd_m.rcbuffer->pybuffer.shape[0];
+  {
+    __Pyx_BufFmt_StackElem __pyx_stack[1];
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_c.rcbuffer->pybuffer, (PyObject*)__pyx_v_c, &__Pyx_TypeInfo_nn___pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 1, 0, __pyx_stack) == -1)) __PYX_ERR(0, 252, __pyx_L1_error)
+  }
+  __pyx_pybuffernd_c.diminfo[0].strides = __pyx_pybuffernd_c.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_c.diminfo[0].shape = __pyx_pybuffernd_c.rcbuffer->pybuffer.shape[0];
+
+  /* "pzmassfitter/nfwmodeltools.pyx":267
+ * 
+ * 
+ *     cdef Py_ssize_t nobjs = pz.shape[0]             # <<<<<<<<<<<<<<
+ *     cdef Py_ssize_t npz = pz.shape[1]
+ * 
+ */
+  __pyx_v_nobjs = (__pyx_v_pz->dimensions[0]);
+
+  /* "pzmassfitter/nfwmodeltools.pyx":268
+ * 
+ *     cdef Py_ssize_t nobjs = pz.shape[0]
+ *     cdef Py_ssize_t npz = pz.shape[1]             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+  __pyx_v_npz = (__pyx_v_pz->dimensions[1]);
+
+  /* "pzmassfitter/nfwmodeltools.pyx":276
+ *     cdef double rscale
+ * 
+ *     if mdelta == 0:             # <<<<<<<<<<<<<<
+ *         gamma_inf = np.zeros(nobjs)
+ *         kappa_inf = np.zeros(nobjs)
+ */
+  __pyx_t_1 = ((__pyx_v_mdelta == 0.0) != 0);
+  if (__pyx_t_1) {
+
+    /* "pzmassfitter/nfwmodeltools.pyx":277
+ * 
+ *     if mdelta == 0:
+ *         gamma_inf = np.zeros(nobjs)             # <<<<<<<<<<<<<<
+ *         kappa_inf = np.zeros(nobjs)
+ *     else:
+ */
+    __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 277, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
+    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_zeros); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 277, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_4);
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+    __pyx_t_3 = PyInt_FromSsize_t(__pyx_v_nobjs); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 277, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
+    __pyx_t_5 = NULL;
+    if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_4))) {
+      __pyx_t_5 = PyMethod_GET_SELF(__pyx_t_4);
+      if (likely(__pyx_t_5)) {
+        PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_4);
+        __Pyx_INCREF(__pyx_t_5);
+        __Pyx_INCREF(function);
+        __Pyx_DECREF_SET(__pyx_t_4, function);
+      }
+    }
+    if (!__pyx_t_5) {
+      __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 277, __pyx_L1_error)
+      __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+      __Pyx_GOTREF(__pyx_t_2);
+    } else {
+      #if CYTHON_FAST_PYCALL
+      if (PyFunction_Check(__pyx_t_4)) {
+        PyObject *__pyx_temp[2] = {__pyx_t_5, __pyx_t_3};
+        __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_4, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 277, __pyx_L1_error)
+        __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
+        __Pyx_GOTREF(__pyx_t_2);
+        __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+      } else
+      #endif
+      #if CYTHON_FAST_PYCCALL
+      if (__Pyx_PyFastCFunction_Check(__pyx_t_4)) {
+        PyObject *__pyx_temp[2] = {__pyx_t_5, __pyx_t_3};
+        __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_4, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 277, __pyx_L1_error)
+        __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
+        __Pyx_GOTREF(__pyx_t_2);
+        __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+      } else
+      #endif
+      {
+        __pyx_t_6 = PyTuple_New(1+1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 277, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_6);
+        __Pyx_GIVEREF(__pyx_t_5); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_5); __pyx_t_5 = NULL;
+        __Pyx_GIVEREF(__pyx_t_3);
+        PyTuple_SET_ITEM(__pyx_t_6, 0+1, __pyx_t_3);
+        __pyx_t_3 = 0;
+        __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_6, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 277, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_2);
+        __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+      }
+    }
+    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+    if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 277, __pyx_L1_error)
+    __pyx_t_7 = ((PyArrayObject *)__pyx_t_2);
+    {
+      __Pyx_BufFmt_StackElem __pyx_stack[1];
+      __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_gamma_inf.rcbuffer->pybuffer);
+      __pyx_t_8 = __Pyx_GetBufferAndValidate(&__pyx_pybuffernd_gamma_inf.rcbuffer->pybuffer, (PyObject*)__pyx_t_7, &__Pyx_TypeInfo_nn___pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 1, 0, __pyx_stack);
+      if (unlikely(__pyx_t_8 < 0)) {
+        PyErr_Fetch(&__pyx_t_9, &__pyx_t_10, &__pyx_t_11);
+        if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_gamma_inf.rcbuffer->pybuffer, (PyObject*)__pyx_v_gamma_inf, &__Pyx_TypeInfo_nn___pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 1, 0, __pyx_stack) == -1)) {
+          Py_XDECREF(__pyx_t_9); Py_XDECREF(__pyx_t_10); Py_XDECREF(__pyx_t_11);
+          __Pyx_RaiseBufferFallbackError();
+        } else {
+          PyErr_Restore(__pyx_t_9, __pyx_t_10, __pyx_t_11);
+        }
+      }
+      __pyx_pybuffernd_gamma_inf.diminfo[0].strides = __pyx_pybuffernd_gamma_inf.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_gamma_inf.diminfo[0].shape = __pyx_pybuffernd_gamma_inf.rcbuffer->pybuffer.shape[0];
+      if (unlikely(__pyx_t_8 < 0)) __PYX_ERR(0, 277, __pyx_L1_error)
+    }
+    __pyx_t_7 = 0;
+    __pyx_v_gamma_inf = ((PyArrayObject *)__pyx_t_2);
+    __pyx_t_2 = 0;
+
+    /* "pzmassfitter/nfwmodeltools.pyx":278
+ *     if mdelta == 0:
+ *         gamma_inf = np.zeros(nobjs)
+ *         kappa_inf = np.zeros(nobjs)             # <<<<<<<<<<<<<<
+ *     else:
+ * 
+ */
+    __pyx_t_4 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 278, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_4);
+    __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_zeros); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 278, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_6);
+    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+    __pyx_t_4 = PyInt_FromSsize_t(__pyx_v_nobjs); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 278, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_4);
+    __pyx_t_3 = NULL;
+    if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_6))) {
+      __pyx_t_3 = PyMethod_GET_SELF(__pyx_t_6);
+      if (likely(__pyx_t_3)) {
+        PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_6);
+        __Pyx_INCREF(__pyx_t_3);
+        __Pyx_INCREF(function);
+        __Pyx_DECREF_SET(__pyx_t_6, function);
+      }
+    }
+    if (!__pyx_t_3) {
+      __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_t_6, __pyx_t_4); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 278, __pyx_L1_error)
+      __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+      __Pyx_GOTREF(__pyx_t_2);
+    } else {
+      #if CYTHON_FAST_PYCALL
+      if (PyFunction_Check(__pyx_t_6)) {
+        PyObject *__pyx_temp[2] = {__pyx_t_3, __pyx_t_4};
+        __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_6, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 278, __pyx_L1_error)
+        __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
+        __Pyx_GOTREF(__pyx_t_2);
+        __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+      } else
+      #endif
+      #if CYTHON_FAST_PYCCALL
+      if (__Pyx_PyFastCFunction_Check(__pyx_t_6)) {
+        PyObject *__pyx_temp[2] = {__pyx_t_3, __pyx_t_4};
+        __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_6, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 278, __pyx_L1_error)
+        __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
+        __Pyx_GOTREF(__pyx_t_2);
+        __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+      } else
+      #endif
+      {
+        __pyx_t_5 = PyTuple_New(1+1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 278, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_5);
+        __Pyx_GIVEREF(__pyx_t_3); PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_t_3); __pyx_t_3 = NULL;
+        __Pyx_GIVEREF(__pyx_t_4);
+        PyTuple_SET_ITEM(__pyx_t_5, 0+1, __pyx_t_4);
+        __pyx_t_4 = 0;
+        __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_6, __pyx_t_5, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 278, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_2);
+        __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+      }
+    }
+    __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+    if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 278, __pyx_L1_error)
+    __pyx_t_12 = ((PyArrayObject *)__pyx_t_2);
+    {
+      __Pyx_BufFmt_StackElem __pyx_stack[1];
+      __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_kappa_inf.rcbuffer->pybuffer);
+      __pyx_t_8 = __Pyx_GetBufferAndValidate(&__pyx_pybuffernd_kappa_inf.rcbuffer->pybuffer, (PyObject*)__pyx_t_12, &__Pyx_TypeInfo_nn___pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 1, 0, __pyx_stack);
+      if (unlikely(__pyx_t_8 < 0)) {
+        PyErr_Fetch(&__pyx_t_11, &__pyx_t_10, &__pyx_t_9);
+        if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_kappa_inf.rcbuffer->pybuffer, (PyObject*)__pyx_v_kappa_inf, &__Pyx_TypeInfo_nn___pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 1, 0, __pyx_stack) == -1)) {
+          Py_XDECREF(__pyx_t_11); Py_XDECREF(__pyx_t_10); Py_XDECREF(__pyx_t_9);
+          __Pyx_RaiseBufferFallbackError();
+        } else {
+          PyErr_Restore(__pyx_t_11, __pyx_t_10, __pyx_t_9);
+        }
+      }
+      __pyx_pybuffernd_kappa_inf.diminfo[0].strides = __pyx_pybuffernd_kappa_inf.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_kappa_inf.diminfo[0].shape = __pyx_pybuffernd_kappa_inf.rcbuffer->pybuffer.shape[0];
+      if (unlikely(__pyx_t_8 < 0)) __PYX_ERR(0, 278, __pyx_L1_error)
+    }
+    __pyx_t_12 = 0;
+    __pyx_v_kappa_inf = ((PyArrayObject *)__pyx_t_2);
+    __pyx_t_2 = 0;
+
+    /* "pzmassfitter/nfwmodeltools.pyx":276
+ *     cdef double rscale
+ * 
+ *     if mdelta == 0:             # <<<<<<<<<<<<<<
+ *         gamma_inf = np.zeros(nobjs)
+ *         kappa_inf = np.zeros(nobjs)
+ */
+    goto __pyx_L3;
+  }
+
+  /* "pzmassfitter/nfwmodeltools.pyx":281
+ *     else:
+ * 
+ *         rdelta = (3*abs(mdelta)/(4*massdelta*np.pi*rho_c))**(1./3.)             # <<<<<<<<<<<<<<
+ *         rscale = rdelta / cdelta
+ * 
+ */
+  /*else*/ {
+    __pyx_t_2 = PyFloat_FromDouble((3.0 * fabs(__pyx_v_mdelta))); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 281, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_2);
+    __pyx_t_6 = PyFloat_FromDouble((4.0 * __pyx_v_massdelta)); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 281, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_6);
+    __pyx_t_5 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 281, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_5);
+    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_pi); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 281, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_4);
+    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+    __pyx_t_5 = PyNumber_Multiply(__pyx_t_6, __pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 281, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_5);
+    __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+    __pyx_t_4 = PyFloat_FromDouble(__pyx_v_rho_c); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 281, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_4);
+    __pyx_t_6 = PyNumber_Multiply(__pyx_t_5, __pyx_t_4); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 281, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_6);
+    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+    __pyx_t_4 = __Pyx_PyNumber_Divide(__pyx_t_2, __pyx_t_6); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 281, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_4);
+    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+    __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+    __pyx_t_6 = PyFloat_FromDouble((1. / 3.)); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 281, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_6);
+    __pyx_t_2 = PyNumber_Power(__pyx_t_4, __pyx_t_6, Py_None); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 281, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_2);
+    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+    __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+    __pyx_v_rdelta = __pyx_t_2;
+    __pyx_t_2 = 0;
+
+    /* "pzmassfitter/nfwmodeltools.pyx":282
+ * 
+ *         rdelta = (3*abs(mdelta)/(4*massdelta*np.pi*rho_c))**(1./3.)
+ *         rscale = rdelta / cdelta             # <<<<<<<<<<<<<<
+ * 
+ *         gamma_inf = NFWShear(r_mpc, cdelta, rscale, rho_c_over_sigma_c, delta = massdelta)
+ */
+    __pyx_t_2 = PyFloat_FromDouble(__pyx_v_cdelta); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 282, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_2);
+    __pyx_t_6 = __Pyx_PyNumber_Divide(__pyx_v_rdelta, __pyx_t_2); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 282, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_6);
+    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+    __pyx_t_13 = __pyx_PyFloat_AsDouble(__pyx_t_6); if (unlikely((__pyx_t_13 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 282, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+    __pyx_v_rscale = __pyx_t_13;
+
+    /* "pzmassfitter/nfwmodeltools.pyx":284
+ *         rscale = rdelta / cdelta
+ * 
+ *         gamma_inf = NFWShear(r_mpc, cdelta, rscale, rho_c_over_sigma_c, delta = massdelta)             # <<<<<<<<<<<<<<
+ *         kappa_inf = NFWKappa(r_mpc, cdelta, rscale, rho_c_over_sigma_c, delta = massdelta)
+ * 
+ */
+    __pyx_t_6 = __Pyx_GetModuleGlobalName(__pyx_n_s_NFWShear); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 284, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_6);
+    __pyx_t_2 = PyFloat_FromDouble(__pyx_v_cdelta); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 284, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_2);
+    __pyx_t_4 = PyFloat_FromDouble(__pyx_v_rscale); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 284, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_4);
+    __pyx_t_5 = PyFloat_FromDouble(__pyx_v_rho_c_over_sigma_c); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 284, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_5);
+    __pyx_t_3 = PyTuple_New(4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 284, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
+    __Pyx_INCREF(((PyObject *)__pyx_v_r_mpc));
+    __Pyx_GIVEREF(((PyObject *)__pyx_v_r_mpc));
+    PyTuple_SET_ITEM(__pyx_t_3, 0, ((PyObject *)__pyx_v_r_mpc));
+    __Pyx_GIVEREF(__pyx_t_2);
+    PyTuple_SET_ITEM(__pyx_t_3, 1, __pyx_t_2);
+    __Pyx_GIVEREF(__pyx_t_4);
+    PyTuple_SET_ITEM(__pyx_t_3, 2, __pyx_t_4);
+    __Pyx_GIVEREF(__pyx_t_5);
+    PyTuple_SET_ITEM(__pyx_t_3, 3, __pyx_t_5);
+    __pyx_t_2 = 0;
+    __pyx_t_4 = 0;
+    __pyx_t_5 = 0;
+    __pyx_t_5 = PyDict_New(); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 284, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_5);
+    __pyx_t_4 = PyFloat_FromDouble(__pyx_v_massdelta); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 284, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_4);
+    if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_delta, __pyx_t_4) < 0) __PYX_ERR(0, 284, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+    __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_6, __pyx_t_3, __pyx_t_5); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 284, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_4);
+    __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+    if (!(likely(((__pyx_t_4) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_4, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 284, __pyx_L1_error)
+    __pyx_t_7 = ((PyArrayObject *)__pyx_t_4);
+    {
+      __Pyx_BufFmt_StackElem __pyx_stack[1];
+      __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_gamma_inf.rcbuffer->pybuffer);
+      __pyx_t_8 = __Pyx_GetBufferAndValidate(&__pyx_pybuffernd_gamma_inf.rcbuffer->pybuffer, (PyObject*)__pyx_t_7, &__Pyx_TypeInfo_nn___pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 1, 0, __pyx_stack);
+      if (unlikely(__pyx_t_8 < 0)) {
+        PyErr_Fetch(&__pyx_t_9, &__pyx_t_10, &__pyx_t_11);
+        if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_gamma_inf.rcbuffer->pybuffer, (PyObject*)__pyx_v_gamma_inf, &__Pyx_TypeInfo_nn___pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 1, 0, __pyx_stack) == -1)) {
+          Py_XDECREF(__pyx_t_9); Py_XDECREF(__pyx_t_10); Py_XDECREF(__pyx_t_11);
+          __Pyx_RaiseBufferFallbackError();
+        } else {
+          PyErr_Restore(__pyx_t_9, __pyx_t_10, __pyx_t_11);
+        }
+      }
+      __pyx_pybuffernd_gamma_inf.diminfo[0].strides = __pyx_pybuffernd_gamma_inf.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_gamma_inf.diminfo[0].shape = __pyx_pybuffernd_gamma_inf.rcbuffer->pybuffer.shape[0];
+      if (unlikely(__pyx_t_8 < 0)) __PYX_ERR(0, 284, __pyx_L1_error)
+    }
+    __pyx_t_7 = 0;
+    __pyx_v_gamma_inf = ((PyArrayObject *)__pyx_t_4);
+    __pyx_t_4 = 0;
+
+    /* "pzmassfitter/nfwmodeltools.pyx":285
+ * 
+ *         gamma_inf = NFWShear(r_mpc, cdelta, rscale, rho_c_over_sigma_c, delta = massdelta)
+ *         kappa_inf = NFWKappa(r_mpc, cdelta, rscale, rho_c_over_sigma_c, delta = massdelta)             # <<<<<<<<<<<<<<
+ * 
+ *     if mdelta < 0.:
+ */
+    __pyx_t_4 = __Pyx_GetModuleGlobalName(__pyx_n_s_NFWKappa); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 285, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_4);
+    __pyx_t_5 = PyFloat_FromDouble(__pyx_v_cdelta); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 285, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_5);
+    __pyx_t_3 = PyFloat_FromDouble(__pyx_v_rscale); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 285, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
+    __pyx_t_6 = PyFloat_FromDouble(__pyx_v_rho_c_over_sigma_c); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 285, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_6);
+    __pyx_t_2 = PyTuple_New(4); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 285, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_2);
+    __Pyx_INCREF(((PyObject *)__pyx_v_r_mpc));
+    __Pyx_GIVEREF(((PyObject *)__pyx_v_r_mpc));
+    PyTuple_SET_ITEM(__pyx_t_2, 0, ((PyObject *)__pyx_v_r_mpc));
+    __Pyx_GIVEREF(__pyx_t_5);
+    PyTuple_SET_ITEM(__pyx_t_2, 1, __pyx_t_5);
+    __Pyx_GIVEREF(__pyx_t_3);
+    PyTuple_SET_ITEM(__pyx_t_2, 2, __pyx_t_3);
+    __Pyx_GIVEREF(__pyx_t_6);
+    PyTuple_SET_ITEM(__pyx_t_2, 3, __pyx_t_6);
+    __pyx_t_5 = 0;
+    __pyx_t_3 = 0;
+    __pyx_t_6 = 0;
+    __pyx_t_6 = PyDict_New(); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 285, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_6);
+    __pyx_t_3 = PyFloat_FromDouble(__pyx_v_massdelta); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 285, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
+    if (PyDict_SetItem(__pyx_t_6, __pyx_n_s_delta, __pyx_t_3) < 0) __PYX_ERR(0, 285, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_2, __pyx_t_6); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 285, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
+    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+    __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+    if (!(likely(((__pyx_t_3) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_3, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 285, __pyx_L1_error)
+    __pyx_t_12 = ((PyArrayObject *)__pyx_t_3);
+    {
+      __Pyx_BufFmt_StackElem __pyx_stack[1];
+      __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_kappa_inf.rcbuffer->pybuffer);
+      __pyx_t_8 = __Pyx_GetBufferAndValidate(&__pyx_pybuffernd_kappa_inf.rcbuffer->pybuffer, (PyObject*)__pyx_t_12, &__Pyx_TypeInfo_nn___pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 1, 0, __pyx_stack);
+      if (unlikely(__pyx_t_8 < 0)) {
+        PyErr_Fetch(&__pyx_t_11, &__pyx_t_10, &__pyx_t_9);
+        if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_kappa_inf.rcbuffer->pybuffer, (PyObject*)__pyx_v_kappa_inf, &__Pyx_TypeInfo_nn___pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 1, 0, __pyx_stack) == -1)) {
+          Py_XDECREF(__pyx_t_11); Py_XDECREF(__pyx_t_10); Py_XDECREF(__pyx_t_9);
+          __Pyx_RaiseBufferFallbackError();
+        } else {
+          PyErr_Restore(__pyx_t_11, __pyx_t_10, __pyx_t_9);
+        }
+      }
+      __pyx_pybuffernd_kappa_inf.diminfo[0].strides = __pyx_pybuffernd_kappa_inf.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_kappa_inf.diminfo[0].shape = __pyx_pybuffernd_kappa_inf.rcbuffer->pybuffer.shape[0];
+      if (unlikely(__pyx_t_8 < 0)) __PYX_ERR(0, 285, __pyx_L1_error)
+    }
+    __pyx_t_12 = 0;
+    __pyx_v_kappa_inf = ((PyArrayObject *)__pyx_t_3);
+    __pyx_t_3 = 0;
+  }
+  __pyx_L3:;
+
+  /* "pzmassfitter/nfwmodeltools.pyx":287
+ *         kappa_inf = NFWKappa(r_mpc, cdelta, rscale, rho_c_over_sigma_c, delta = massdelta)
+ * 
+ *     if mdelta < 0.:             # <<<<<<<<<<<<<<
+ *         gamma_inf = -gamma_inf
+ * 
+ */
+  __pyx_t_1 = ((__pyx_v_mdelta < 0.) != 0);
+  if (__pyx_t_1) {
+
+    /* "pzmassfitter/nfwmodeltools.pyx":288
+ * 
+ *     if mdelta < 0.:
+ *         gamma_inf = -gamma_inf             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+    __pyx_t_3 = PyNumber_Negative(((PyObject *)__pyx_v_gamma_inf)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 288, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
+    if (!(likely(((__pyx_t_3) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_3, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 288, __pyx_L1_error)
+    __pyx_t_7 = ((PyArrayObject *)__pyx_t_3);
+    {
+      __Pyx_BufFmt_StackElem __pyx_stack[1];
+      __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_gamma_inf.rcbuffer->pybuffer);
+      __pyx_t_8 = __Pyx_GetBufferAndValidate(&__pyx_pybuffernd_gamma_inf.rcbuffer->pybuffer, (PyObject*)__pyx_t_7, &__Pyx_TypeInfo_nn___pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 1, 0, __pyx_stack);
+      if (unlikely(__pyx_t_8 < 0)) {
+        PyErr_Fetch(&__pyx_t_9, &__pyx_t_10, &__pyx_t_11);
+        if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_gamma_inf.rcbuffer->pybuffer, (PyObject*)__pyx_v_gamma_inf, &__Pyx_TypeInfo_nn___pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 1, 0, __pyx_stack) == -1)) {
+          Py_XDECREF(__pyx_t_9); Py_XDECREF(__pyx_t_10); Py_XDECREF(__pyx_t_11);
+          __Pyx_RaiseBufferFallbackError();
+        } else {
+          PyErr_Restore(__pyx_t_9, __pyx_t_10, __pyx_t_11);
+        }
+      }
+      __pyx_pybuffernd_gamma_inf.diminfo[0].strides = __pyx_pybuffernd_gamma_inf.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_gamma_inf.diminfo[0].shape = __pyx_pybuffernd_gamma_inf.rcbuffer->pybuffer.shape[0];
+      if (unlikely(__pyx_t_8 < 0)) __PYX_ERR(0, 288, __pyx_L1_error)
+    }
+    __pyx_t_7 = 0;
+    __Pyx_DECREF_SET(__pyx_v_gamma_inf, ((PyArrayObject *)__pyx_t_3));
+    __pyx_t_3 = 0;
+
+    /* "pzmassfitter/nfwmodeltools.pyx":287
+ *         kappa_inf = NFWKappa(r_mpc, cdelta, rscale, rho_c_over_sigma_c, delta = massdelta)
+ * 
+ *     if mdelta < 0.:             # <<<<<<<<<<<<<<
+ *         gamma_inf = -gamma_inf
+ * 
+ */
+  }
+
+  /* "pzmassfitter/nfwmodeltools.pyx":292
+ * 
+ * 
+ *     cdef double delta = 0.             # <<<<<<<<<<<<<<
+ *     cdef double curPZ = 0.
+ *     cdef double beta = 0.
+ */
+  __pyx_v_delta = 0.;
+
+  /* "pzmassfitter/nfwmodeltools.pyx":293
+ * 
+ *     cdef double delta = 0.
+ *     cdef double curPZ = 0.             # <<<<<<<<<<<<<<
+ *     cdef double beta = 0.
+ *     cdef double g = 0.
+ */
+  __pyx_v_curPZ = 0.;
+
+  /* "pzmassfitter/nfwmodeltools.pyx":294
+ *     cdef double delta = 0.
+ *     cdef double curPZ = 0.
+ *     cdef double beta = 0.             # <<<<<<<<<<<<<<
+ *     cdef double g = 0.
+ * 
+ */
+  __pyx_v_beta = 0.;
+
+  /* "pzmassfitter/nfwmodeltools.pyx":295
+ *     cdef double curPZ = 0.
+ *     cdef double beta = 0.
+ *     cdef double g = 0.             # <<<<<<<<<<<<<<
+ * 
+ *     cdef Py_ssize_t i, j, s
+ */
+  __pyx_v_g = 0.;
+
+  /* "pzmassfitter/nfwmodeltools.pyx":298
+ * 
+ *     cdef Py_ssize_t i, j, s
+ *     cdef DTYPE_T galProb = 0.             # <<<<<<<<<<<<<<
+ *     cdef DTYPE_T logProb = 0.
+ *     cdef np.ndarray[DTYPE_T, ndim=1, mode='c'] integrand = np.zeros(npz)
+ */
+  __pyx_v_galProb = 0.;
+
+  /* "pzmassfitter/nfwmodeltools.pyx":299
+ *     cdef Py_ssize_t i, j, s
+ *     cdef DTYPE_T galProb = 0.
+ *     cdef DTYPE_T logProb = 0.             # <<<<<<<<<<<<<<
+ *     cdef np.ndarray[DTYPE_T, ndim=1, mode='c'] integrand = np.zeros(npz)
+ * 
+ */
+  __pyx_v_logProb = 0.;
+
+  /* "pzmassfitter/nfwmodeltools.pyx":300
+ *     cdef DTYPE_T galProb = 0.
+ *     cdef DTYPE_T logProb = 0.
+ *     cdef np.ndarray[DTYPE_T, ndim=1, mode='c'] integrand = np.zeros(npz)             # <<<<<<<<<<<<<<
+ * 
+ *     for i from nobjs > i >= 0:
+ */
+  __pyx_t_6 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 300, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_6);
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_zeros); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 300, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+  __pyx_t_6 = PyInt_FromSsize_t(__pyx_v_npz); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 300, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_6);
+  __pyx_t_4 = NULL;
+  if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
+    __pyx_t_4 = PyMethod_GET_SELF(__pyx_t_2);
+    if (likely(__pyx_t_4)) {
+      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_2);
+      __Pyx_INCREF(__pyx_t_4);
+      __Pyx_INCREF(function);
+      __Pyx_DECREF_SET(__pyx_t_2, function);
+    }
+  }
+  if (!__pyx_t_4) {
+    __pyx_t_3 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_6); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 300, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+    __Pyx_GOTREF(__pyx_t_3);
+  } else {
+    #if CYTHON_FAST_PYCALL
+    if (PyFunction_Check(__pyx_t_2)) {
+      PyObject *__pyx_temp[2] = {__pyx_t_4, __pyx_t_6};
+      __pyx_t_3 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 300, __pyx_L1_error)
+      __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+      __Pyx_GOTREF(__pyx_t_3);
+      __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+    } else
+    #endif
+    #if CYTHON_FAST_PYCCALL
+    if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
+      PyObject *__pyx_temp[2] = {__pyx_t_4, __pyx_t_6};
+      __pyx_t_3 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 300, __pyx_L1_error)
+      __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+      __Pyx_GOTREF(__pyx_t_3);
+      __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+    } else
+    #endif
+    {
+      __pyx_t_5 = PyTuple_New(1+1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 300, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_5);
+      __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_t_4); __pyx_t_4 = NULL;
+      __Pyx_GIVEREF(__pyx_t_6);
+      PyTuple_SET_ITEM(__pyx_t_5, 0+1, __pyx_t_6);
+      __pyx_t_6 = 0;
+      __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_5, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 300, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_3);
+      __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+    }
+  }
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  if (!(likely(((__pyx_t_3) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_3, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 300, __pyx_L1_error)
+  __pyx_t_14 = ((PyArrayObject *)__pyx_t_3);
+  {
+    __Pyx_BufFmt_StackElem __pyx_stack[1];
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_integrand.rcbuffer->pybuffer, (PyObject*)__pyx_t_14, &__Pyx_TypeInfo_nn___pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS| PyBUF_WRITABLE, 1, 0, __pyx_stack) == -1)) {
+      __pyx_v_integrand = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_integrand.rcbuffer->pybuffer.buf = NULL;
+      __PYX_ERR(0, 300, __pyx_L1_error)
+    } else {__pyx_pybuffernd_integrand.diminfo[0].strides = __pyx_pybuffernd_integrand.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_integrand.diminfo[0].shape = __pyx_pybuffernd_integrand.rcbuffer->pybuffer.shape[0];
+    }
+  }
+  __pyx_t_14 = 0;
+  __pyx_v_integrand = ((PyArrayObject *)__pyx_t_3);
+  __pyx_t_3 = 0;
+
+  /* "pzmassfitter/nfwmodeltools.pyx":302
+ *     cdef np.ndarray[DTYPE_T, ndim=1, mode='c'] integrand = np.zeros(npz)
+ * 
+ *     for i from nobjs > i >= 0:             # <<<<<<<<<<<<<<
+ * 
+ *         #zero out the array for the new object
+ */
+  for (__pyx_v_i = __pyx_v_nobjs-1; __pyx_v_i >= 0; __pyx_v_i--) {
+
+    /* "pzmassfitter/nfwmodeltools.pyx":305
+ * 
+ *         #zero out the array for the new object
+ *         for j from npz > j >= 0:             # <<<<<<<<<<<<<<
+ *             integrand[j] = 0.
+ * 
+ */
+    for (__pyx_v_j = __pyx_v_npz-1; __pyx_v_j >= 0; __pyx_v_j--) {
+
+      /* "pzmassfitter/nfwmodeltools.pyx":306
+ *         #zero out the array for the new object
+ *         for j from npz > j >= 0:
+ *             integrand[j] = 0.             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+      __pyx_t_15 = __pyx_v_j;
+      *__Pyx_BufPtrCContig1d(__pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T *, __pyx_pybuffernd_integrand.rcbuffer->pybuffer.buf, __pyx_t_15, __pyx_pybuffernd_integrand.diminfo[0].strides) = 0.;
+    }
+
+    /* "pzmassfitter/nfwmodeltools.pyx":309
+ * 
+ * 
+ *         for j from npz > j >= 0:             # <<<<<<<<<<<<<<
+ * 
+ *             curPZ = pz[i,j]
+ */
+    for (__pyx_v_j = __pyx_v_npz-1; __pyx_v_j >= 0; __pyx_v_j--) {
+
+      /* "pzmassfitter/nfwmodeltools.pyx":311
+ *         for j from npz > j >= 0:
+ * 
+ *             curPZ = pz[i,j]             # <<<<<<<<<<<<<<
+ *             if curPZ > 1e-6:
+ * 
+ */
+      __pyx_t_16 = __pyx_v_i;
+      __pyx_t_17 = __pyx_v_j;
+      __pyx_v_curPZ = (*__Pyx_BufPtrCContig2d(__pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T *, __pyx_pybuffernd_pz.rcbuffer->pybuffer.buf, __pyx_t_16, __pyx_pybuffernd_pz.diminfo[0].strides, __pyx_t_17, __pyx_pybuffernd_pz.diminfo[1].strides));
+
+      /* "pzmassfitter/nfwmodeltools.pyx":312
+ * 
+ *             curPZ = pz[i,j]
+ *             if curPZ > 1e-6:             # <<<<<<<<<<<<<<
+ * 
+ *                 beta = betas[j]
+ */
+      __pyx_t_1 = ((__pyx_v_curPZ > 1e-6) != 0);
+      if (__pyx_t_1) {
+
+        /* "pzmassfitter/nfwmodeltools.pyx":314
+ *             if curPZ > 1e-6:
+ * 
+ *                 beta = betas[j]             # <<<<<<<<<<<<<<
+ * 
+ *                 g = (beta*gamma_inf[i] / (1 - beta*kappa_inf[i]))
+ */
+        __pyx_t_18 = __pyx_v_j;
+        __pyx_v_beta = (*__Pyx_BufPtrCContig1d(__pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T *, __pyx_pybuffernd_betas.rcbuffer->pybuffer.buf, __pyx_t_18, __pyx_pybuffernd_betas.diminfo[0].strides));
+
+        /* "pzmassfitter/nfwmodeltools.pyx":316
+ *                 beta = betas[j]
+ * 
+ *                 g = (beta*gamma_inf[i] / (1 - beta*kappa_inf[i]))             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+        __pyx_t_19 = __pyx_v_i;
+        __pyx_t_20 = (__pyx_v_beta * (*__Pyx_BufPtrCContig1d(__pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T *, __pyx_pybuffernd_gamma_inf.rcbuffer->pybuffer.buf, __pyx_t_19, __pyx_pybuffernd_gamma_inf.diminfo[0].strides)));
+        __pyx_t_21 = __pyx_v_i;
+        __pyx_t_22 = (1.0 - (__pyx_v_beta * (*__Pyx_BufPtrCContig1d(__pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T *, __pyx_pybuffernd_kappa_inf.rcbuffer->pybuffer.buf, __pyx_t_21, __pyx_pybuffernd_kappa_inf.diminfo[0].strides))));
+        if (unlikely(__pyx_t_22 == 0)) {
+          PyErr_SetString(PyExc_ZeroDivisionError, "float division");
+          __PYX_ERR(0, 316, __pyx_L1_error)
+        }
+        __pyx_v_g = (__pyx_t_20 / __pyx_t_22);
+
+        /* "pzmassfitter/nfwmodeltools.pyx":319
+ * 
+ * 
+ *                 delta = ghats[i] - (1+m[i])*g - c[i]             # <<<<<<<<<<<<<<
+ * 
+ *                 integrand[j] = curPZ*exp(-0.5*(delta/sigma)**2)/(sqrt2pi*sigma)
+ */
+        __pyx_t_23 = __pyx_v_i;
+        __pyx_t_24 = __pyx_v_i;
+        __pyx_t_25 = __pyx_v_i;
+        __pyx_v_delta = (((*__Pyx_BufPtrCContig1d(__pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T *, __pyx_pybuffernd_ghats.rcbuffer->pybuffer.buf, __pyx_t_23, __pyx_pybuffernd_ghats.diminfo[0].strides)) - ((1.0 + (*__Pyx_BufPtrCContig1d(__pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T *, __pyx_pybuffernd_m.rcbuffer->pybuffer.buf, __pyx_t_24, __pyx_pybuffernd_m.diminfo[0].strides))) * __pyx_v_g)) - (*__Pyx_BufPtrCContig1d(__pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T *, __pyx_pybuffernd_c.rcbuffer->pybuffer.buf, __pyx_t_25, __pyx_pybuffernd_c.diminfo[0].strides)));
+
+        /* "pzmassfitter/nfwmodeltools.pyx":321
+ *                 delta = ghats[i] - (1+m[i])*g - c[i]
+ * 
+ *                 integrand[j] = curPZ*exp(-0.5*(delta/sigma)**2)/(sqrt2pi*sigma)             # <<<<<<<<<<<<<<
+ * 
+ *         galProb = np.trapz(integrand, zs)
+ */
+        if (unlikely(__pyx_v_sigma == 0)) {
+          PyErr_SetString(PyExc_ZeroDivisionError, "float division");
+          __PYX_ERR(0, 321, __pyx_L1_error)
+        }
+        __pyx_t_3 = PyFloat_FromDouble((__pyx_v_curPZ * exp((-0.5 * pow((__pyx_v_delta / __pyx_v_sigma), 2.0))))); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 321, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_3);
+        __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_sqrt2pi); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 321, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_2);
+        __pyx_t_5 = PyFloat_FromDouble(__pyx_v_sigma); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 321, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_5);
+        __pyx_t_6 = PyNumber_Multiply(__pyx_t_2, __pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 321, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_6);
+        __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+        __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+        __pyx_t_5 = __Pyx_PyNumber_Divide(__pyx_t_3, __pyx_t_6); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 321, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_5);
+        __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+        __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+        __pyx_t_22 = __pyx_PyFloat_AsDouble(__pyx_t_5); if (unlikely((__pyx_t_22 == ((npy_double)-1)) && PyErr_Occurred())) __PYX_ERR(0, 321, __pyx_L1_error)
+        __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+        __pyx_t_26 = __pyx_v_j;
+        *__Pyx_BufPtrCContig1d(__pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T *, __pyx_pybuffernd_integrand.rcbuffer->pybuffer.buf, __pyx_t_26, __pyx_pybuffernd_integrand.diminfo[0].strides) = __pyx_t_22;
+
+        /* "pzmassfitter/nfwmodeltools.pyx":312
+ * 
+ *             curPZ = pz[i,j]
+ *             if curPZ > 1e-6:             # <<<<<<<<<<<<<<
+ * 
+ *                 beta = betas[j]
+ */
+      }
+    }
+
+    /* "pzmassfitter/nfwmodeltools.pyx":323
+ *                 integrand[j] = curPZ*exp(-0.5*(delta/sigma)**2)/(sqrt2pi*sigma)
+ * 
+ *         galProb = np.trapz(integrand, zs)             # <<<<<<<<<<<<<<
+ *         logProb = logProb + log(galProb)
+ * 
+ */
+    __pyx_t_6 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 323, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_6);
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_trapz); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 323, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
+    __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+    __pyx_t_6 = NULL;
+    __pyx_t_8 = 0;
+    if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
+      __pyx_t_6 = PyMethod_GET_SELF(__pyx_t_3);
+      if (likely(__pyx_t_6)) {
+        PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_3);
+        __Pyx_INCREF(__pyx_t_6);
+        __Pyx_INCREF(function);
+        __Pyx_DECREF_SET(__pyx_t_3, function);
+        __pyx_t_8 = 1;
+      }
+    }
+    #if CYTHON_FAST_PYCALL
+    if (PyFunction_Check(__pyx_t_3)) {
+      PyObject *__pyx_temp[3] = {__pyx_t_6, ((PyObject *)__pyx_v_integrand), ((PyObject *)__pyx_v_zs)};
+      __pyx_t_5 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_8, 2+__pyx_t_8); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 323, __pyx_L1_error)
+      __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
+      __Pyx_GOTREF(__pyx_t_5);
+    } else
+    #endif
+    #if CYTHON_FAST_PYCCALL
+    if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
+      PyObject *__pyx_temp[3] = {__pyx_t_6, ((PyObject *)__pyx_v_integrand), ((PyObject *)__pyx_v_zs)};
+      __pyx_t_5 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_8, 2+__pyx_t_8); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 323, __pyx_L1_error)
+      __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
+      __Pyx_GOTREF(__pyx_t_5);
+    } else
+    #endif
+    {
+      __pyx_t_2 = PyTuple_New(2+__pyx_t_8); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 323, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_2);
+      if (__pyx_t_6) {
+        __Pyx_GIVEREF(__pyx_t_6); PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_t_6); __pyx_t_6 = NULL;
+      }
+      __Pyx_INCREF(((PyObject *)__pyx_v_integrand));
+      __Pyx_GIVEREF(((PyObject *)__pyx_v_integrand));
+      PyTuple_SET_ITEM(__pyx_t_2, 0+__pyx_t_8, ((PyObject *)__pyx_v_integrand));
+      __Pyx_INCREF(((PyObject *)__pyx_v_zs));
+      __Pyx_GIVEREF(((PyObject *)__pyx_v_zs));
+      PyTuple_SET_ITEM(__pyx_t_2, 1+__pyx_t_8, ((PyObject *)__pyx_v_zs));
+      __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_2, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 323, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_5);
+      __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+    }
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+    __pyx_t_22 = __pyx_PyFloat_AsDouble(__pyx_t_5); if (unlikely((__pyx_t_22 == ((npy_double)-1)) && PyErr_Occurred())) __PYX_ERR(0, 323, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+    __pyx_v_galProb = __pyx_t_22;
+
+    /* "pzmassfitter/nfwmodeltools.pyx":324
+ * 
+ *         galProb = np.trapz(integrand, zs)
+ *         logProb = logProb + log(galProb)             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+    __pyx_v_logProb = (__pyx_v_logProb + log(__pyx_v_galProb));
+  }
+
+  /* "pzmassfitter/nfwmodeltools.pyx":327
+ * 
+ * 
+ *     return logProb             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+  __Pyx_XDECREF(__pyx_r);
+  __pyx_t_5 = PyFloat_FromDouble(__pyx_v_logProb); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 327, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_5);
+  __pyx_r = __pyx_t_5;
+  __pyx_t_5 = 0;
+  goto __pyx_L0;
+
+  /* "pzmassfitter/nfwmodeltools.pyx":252
+ * @cython.boundscheck(False)
+ * @cython.wraparound(False)
+ * def gauss_like(double mdelta,             # <<<<<<<<<<<<<<
+ *                double cdelta,
+ *                np.ndarray[DTYPE_T, ndim=1, mode='c'] r_mpc not None,
+ */
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_2);
+  __Pyx_XDECREF(__pyx_t_3);
+  __Pyx_XDECREF(__pyx_t_4);
+  __Pyx_XDECREF(__pyx_t_5);
+  __Pyx_XDECREF(__pyx_t_6);
+  { PyObject *__pyx_type, *__pyx_value, *__pyx_tb;
+    __Pyx_PyThreadState_declare
+    __Pyx_PyThreadState_assign
+    __Pyx_ErrFetch(&__pyx_type, &__pyx_value, &__pyx_tb);
+    __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_betas.rcbuffer->pybuffer);
+    __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_c.rcbuffer->pybuffer);
+    __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_gamma_inf.rcbuffer->pybuffer);
+    __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_ghats.rcbuffer->pybuffer);
+    __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_integrand.rcbuffer->pybuffer);
+    __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_kappa_inf.rcbuffer->pybuffer);
+    __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_m.rcbuffer->pybuffer);
+    __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_pz.rcbuffer->pybuffer);
+    __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_r_mpc.rcbuffer->pybuffer);
+    __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_zs.rcbuffer->pybuffer);
+  __Pyx_ErrRestore(__pyx_type, __pyx_value, __pyx_tb);}
+  __Pyx_AddTraceback("pzmassfitter.nfwmodeltools.gauss_like", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  goto __pyx_L2;
+  __pyx_L0:;
+  __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_betas.rcbuffer->pybuffer);
+  __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_c.rcbuffer->pybuffer);
+  __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_gamma_inf.rcbuffer->pybuffer);
+  __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_ghats.rcbuffer->pybuffer);
+  __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_integrand.rcbuffer->pybuffer);
+  __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_kappa_inf.rcbuffer->pybuffer);
+  __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_m.rcbuffer->pybuffer);
+  __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_pz.rcbuffer->pybuffer);
+  __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_r_mpc.rcbuffer->pybuffer);
+  __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_zs.rcbuffer->pybuffer);
+  __pyx_L2:;
+  __Pyx_XDECREF((PyObject *)__pyx_v_gamma_inf);
+  __Pyx_XDECREF((PyObject *)__pyx_v_kappa_inf);
+  __Pyx_XDECREF(__pyx_v_rdelta);
+  __Pyx_XDECREF((PyObject *)__pyx_v_integrand);
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "pzmassfitter/nfwmodeltools.pyx":337
+ * @cython.boundscheck(False)
+ * @cython.wraparound(False)
  * def bentvoigt_like(double mdelta,             # <<<<<<<<<<<<<<
  *                    double cdelta,
  *                    np.ndarray[DTYPE_T, ndim=1, mode='c'] r_mpc not None,
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_12pzmassfitter_13nfwmodeltools_13bentvoigt_like(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyMethodDef __pyx_mdef_12pzmassfitter_13nfwmodeltools_13bentvoigt_like = {"bentvoigt_like", (PyCFunction)__pyx_pw_12pzmassfitter_13nfwmodeltools_13bentvoigt_like, METH_VARARGS|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_12pzmassfitter_13nfwmodeltools_13bentvoigt_like(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_12pzmassfitter_13nfwmodeltools_15bentvoigt_like(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyMethodDef __pyx_mdef_12pzmassfitter_13nfwmodeltools_15bentvoigt_like = {"bentvoigt_like", (PyCFunction)__pyx_pw_12pzmassfitter_13nfwmodeltools_15bentvoigt_like, METH_VARARGS|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_12pzmassfitter_13nfwmodeltools_15bentvoigt_like(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   double __pyx_v_mdelta;
   double __pyx_v_cdelta;
   PyArrayObject *__pyx_v_r_mpc = 0;
@@ -4139,71 +5254,71 @@ static PyObject *__pyx_pw_12pzmassfitter_13nfwmodeltools_13bentvoigt_like(PyObje
         case  1:
         if (likely((values[1] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_cdelta)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("bentvoigt_like", 1, 14, 14, 1); __PYX_ERR(0, 252, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("bentvoigt_like", 1, 14, 14, 1); __PYX_ERR(0, 337, __pyx_L3_error)
         }
         case  2:
         if (likely((values[2] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_r_mpc)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("bentvoigt_like", 1, 14, 14, 2); __PYX_ERR(0, 252, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("bentvoigt_like", 1, 14, 14, 2); __PYX_ERR(0, 337, __pyx_L3_error)
         }
         case  3:
         if (likely((values[3] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_ghats)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("bentvoigt_like", 1, 14, 14, 3); __PYX_ERR(0, 252, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("bentvoigt_like", 1, 14, 14, 3); __PYX_ERR(0, 337, __pyx_L3_error)
         }
         case  4:
         if (likely((values[4] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_zs)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("bentvoigt_like", 1, 14, 14, 4); __PYX_ERR(0, 252, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("bentvoigt_like", 1, 14, 14, 4); __PYX_ERR(0, 337, __pyx_L3_error)
         }
         case  5:
         if (likely((values[5] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_betas)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("bentvoigt_like", 1, 14, 14, 5); __PYX_ERR(0, 252, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("bentvoigt_like", 1, 14, 14, 5); __PYX_ERR(0, 337, __pyx_L3_error)
         }
         case  6:
         if (likely((values[6] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_pz)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("bentvoigt_like", 1, 14, 14, 6); __PYX_ERR(0, 252, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("bentvoigt_like", 1, 14, 14, 6); __PYX_ERR(0, 337, __pyx_L3_error)
         }
         case  7:
         if (likely((values[7] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_m)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("bentvoigt_like", 1, 14, 14, 7); __PYX_ERR(0, 252, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("bentvoigt_like", 1, 14, 14, 7); __PYX_ERR(0, 337, __pyx_L3_error)
         }
         case  8:
         if (likely((values[8] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_c)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("bentvoigt_like", 1, 14, 14, 8); __PYX_ERR(0, 252, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("bentvoigt_like", 1, 14, 14, 8); __PYX_ERR(0, 337, __pyx_L3_error)
         }
         case  9:
         if (likely((values[9] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_sigma)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("bentvoigt_like", 1, 14, 14, 9); __PYX_ERR(0, 252, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("bentvoigt_like", 1, 14, 14, 9); __PYX_ERR(0, 337, __pyx_L3_error)
         }
         case 10:
         if (likely((values[10] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_gamma)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("bentvoigt_like", 1, 14, 14, 10); __PYX_ERR(0, 252, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("bentvoigt_like", 1, 14, 14, 10); __PYX_ERR(0, 337, __pyx_L3_error)
         }
         case 11:
         if (likely((values[11] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_rho_c)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("bentvoigt_like", 1, 14, 14, 11); __PYX_ERR(0, 252, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("bentvoigt_like", 1, 14, 14, 11); __PYX_ERR(0, 337, __pyx_L3_error)
         }
         case 12:
         if (likely((values[12] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_rho_c_over_sigma_c)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("bentvoigt_like", 1, 14, 14, 12); __PYX_ERR(0, 252, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("bentvoigt_like", 1, 14, 14, 12); __PYX_ERR(0, 337, __pyx_L3_error)
         }
         case 13:
         if (likely((values[13] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_massdelta)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("bentvoigt_like", 1, 14, 14, 13); __PYX_ERR(0, 252, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("bentvoigt_like", 1, 14, 14, 13); __PYX_ERR(0, 337, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "bentvoigt_like") < 0)) __PYX_ERR(0, 252, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "bentvoigt_like") < 0)) __PYX_ERR(0, 337, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 14) {
       goto __pyx_L5_argtuple_error;
@@ -4223,8 +5338,8 @@ static PyObject *__pyx_pw_12pzmassfitter_13nfwmodeltools_13bentvoigt_like(PyObje
       values[12] = PyTuple_GET_ITEM(__pyx_args, 12);
       values[13] = PyTuple_GET_ITEM(__pyx_args, 13);
     }
-    __pyx_v_mdelta = __pyx_PyFloat_AsDouble(values[0]); if (unlikely((__pyx_v_mdelta == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 252, __pyx_L3_error)
-    __pyx_v_cdelta = __pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_cdelta == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 253, __pyx_L3_error)
+    __pyx_v_mdelta = __pyx_PyFloat_AsDouble(values[0]); if (unlikely((__pyx_v_mdelta == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 337, __pyx_L3_error)
+    __pyx_v_cdelta = __pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_cdelta == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 338, __pyx_L3_error)
     __pyx_v_r_mpc = ((PyArrayObject *)values[2]);
     __pyx_v_ghats = ((PyArrayObject *)values[3]);
     __pyx_v_zs = ((PyArrayObject *)values[4]);
@@ -4232,28 +5347,28 @@ static PyObject *__pyx_pw_12pzmassfitter_13nfwmodeltools_13bentvoigt_like(PyObje
     __pyx_v_pz = ((PyArrayObject *)values[6]);
     __pyx_v_m = ((PyArrayObject *)values[7]);
     __pyx_v_c = ((PyArrayObject *)values[8]);
-    __pyx_v_sigma = __pyx_PyFloat_AsDouble(values[9]); if (unlikely((__pyx_v_sigma == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 261, __pyx_L3_error)
-    __pyx_v_gamma = __pyx_PyFloat_AsDouble(values[10]); if (unlikely((__pyx_v_gamma == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 262, __pyx_L3_error)
-    __pyx_v_rho_c = __pyx_PyFloat_AsDouble(values[11]); if (unlikely((__pyx_v_rho_c == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 263, __pyx_L3_error)
-    __pyx_v_rho_c_over_sigma_c = __pyx_PyFloat_AsDouble(values[12]); if (unlikely((__pyx_v_rho_c_over_sigma_c == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 264, __pyx_L3_error)
-    __pyx_v_massdelta = __pyx_PyFloat_AsDouble(values[13]); if (unlikely((__pyx_v_massdelta == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 265, __pyx_L3_error)
+    __pyx_v_sigma = __pyx_PyFloat_AsDouble(values[9]); if (unlikely((__pyx_v_sigma == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 346, __pyx_L3_error)
+    __pyx_v_gamma = __pyx_PyFloat_AsDouble(values[10]); if (unlikely((__pyx_v_gamma == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 347, __pyx_L3_error)
+    __pyx_v_rho_c = __pyx_PyFloat_AsDouble(values[11]); if (unlikely((__pyx_v_rho_c == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 348, __pyx_L3_error)
+    __pyx_v_rho_c_over_sigma_c = __pyx_PyFloat_AsDouble(values[12]); if (unlikely((__pyx_v_rho_c_over_sigma_c == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 349, __pyx_L3_error)
+    __pyx_v_massdelta = __pyx_PyFloat_AsDouble(values[13]); if (unlikely((__pyx_v_massdelta == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 350, __pyx_L3_error)
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("bentvoigt_like", 1, 14, 14, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 252, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("bentvoigt_like", 1, 14, 14, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 337, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("pzmassfitter.nfwmodeltools.bentvoigt_like", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_r_mpc), __pyx_ptype_5numpy_ndarray, 0, "r_mpc", 0))) __PYX_ERR(0, 254, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_ghats), __pyx_ptype_5numpy_ndarray, 0, "ghats", 0))) __PYX_ERR(0, 255, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_zs), __pyx_ptype_5numpy_ndarray, 0, "zs", 0))) __PYX_ERR(0, 256, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_betas), __pyx_ptype_5numpy_ndarray, 0, "betas", 0))) __PYX_ERR(0, 257, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_pz), __pyx_ptype_5numpy_ndarray, 0, "pz", 0))) __PYX_ERR(0, 258, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_m), __pyx_ptype_5numpy_ndarray, 0, "m", 0))) __PYX_ERR(0, 259, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_c), __pyx_ptype_5numpy_ndarray, 0, "c", 0))) __PYX_ERR(0, 260, __pyx_L1_error)
-  __pyx_r = __pyx_pf_12pzmassfitter_13nfwmodeltools_12bentvoigt_like(__pyx_self, __pyx_v_mdelta, __pyx_v_cdelta, __pyx_v_r_mpc, __pyx_v_ghats, __pyx_v_zs, __pyx_v_betas, __pyx_v_pz, __pyx_v_m, __pyx_v_c, __pyx_v_sigma, __pyx_v_gamma, __pyx_v_rho_c, __pyx_v_rho_c_over_sigma_c, __pyx_v_massdelta);
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_r_mpc), __pyx_ptype_5numpy_ndarray, 0, "r_mpc", 0))) __PYX_ERR(0, 339, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_ghats), __pyx_ptype_5numpy_ndarray, 0, "ghats", 0))) __PYX_ERR(0, 340, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_zs), __pyx_ptype_5numpy_ndarray, 0, "zs", 0))) __PYX_ERR(0, 341, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_betas), __pyx_ptype_5numpy_ndarray, 0, "betas", 0))) __PYX_ERR(0, 342, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_pz), __pyx_ptype_5numpy_ndarray, 0, "pz", 0))) __PYX_ERR(0, 343, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_m), __pyx_ptype_5numpy_ndarray, 0, "m", 0))) __PYX_ERR(0, 344, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_c), __pyx_ptype_5numpy_ndarray, 0, "c", 0))) __PYX_ERR(0, 345, __pyx_L1_error)
+  __pyx_r = __pyx_pf_12pzmassfitter_13nfwmodeltools_14bentvoigt_like(__pyx_self, __pyx_v_mdelta, __pyx_v_cdelta, __pyx_v_r_mpc, __pyx_v_ghats, __pyx_v_zs, __pyx_v_betas, __pyx_v_pz, __pyx_v_m, __pyx_v_c, __pyx_v_sigma, __pyx_v_gamma, __pyx_v_rho_c, __pyx_v_rho_c_over_sigma_c, __pyx_v_massdelta);
 
   /* function exit code */
   goto __pyx_L0;
@@ -4264,7 +5379,7 @@ static PyObject *__pyx_pw_12pzmassfitter_13nfwmodeltools_13bentvoigt_like(PyObje
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_12bentvoigt_like(CYTHON_UNUSED PyObject *__pyx_self, double __pyx_v_mdelta, double __pyx_v_cdelta, PyArrayObject *__pyx_v_r_mpc, PyArrayObject *__pyx_v_ghats, PyArrayObject *__pyx_v_zs, PyArrayObject *__pyx_v_betas, PyArrayObject *__pyx_v_pz, PyArrayObject *__pyx_v_m, PyArrayObject *__pyx_v_c, double __pyx_v_sigma, double __pyx_v_gamma, double __pyx_v_rho_c, double __pyx_v_rho_c_over_sigma_c, double __pyx_v_massdelta) {
+static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_14bentvoigt_like(CYTHON_UNUSED PyObject *__pyx_self, double __pyx_v_mdelta, double __pyx_v_cdelta, PyArrayObject *__pyx_v_r_mpc, PyArrayObject *__pyx_v_ghats, PyArrayObject *__pyx_v_zs, PyArrayObject *__pyx_v_betas, PyArrayObject *__pyx_v_pz, PyArrayObject *__pyx_v_m, PyArrayObject *__pyx_v_c, double __pyx_v_sigma, double __pyx_v_gamma, double __pyx_v_rho_c, double __pyx_v_rho_c_over_sigma_c, double __pyx_v_massdelta) {
   Py_ssize_t __pyx_v_nobjs;
   Py_ssize_t __pyx_v_npz;
   PyArrayObject *__pyx_v_gamma_inf = 0;
@@ -4371,41 +5486,41 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_12bentvoigt_like(CYTHON
   __pyx_pybuffernd_c.rcbuffer = &__pyx_pybuffer_c;
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_r_mpc.rcbuffer->pybuffer, (PyObject*)__pyx_v_r_mpc, &__Pyx_TypeInfo_nn___pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 1, 0, __pyx_stack) == -1)) __PYX_ERR(0, 252, __pyx_L1_error)
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_r_mpc.rcbuffer->pybuffer, (PyObject*)__pyx_v_r_mpc, &__Pyx_TypeInfo_nn___pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 1, 0, __pyx_stack) == -1)) __PYX_ERR(0, 337, __pyx_L1_error)
   }
   __pyx_pybuffernd_r_mpc.diminfo[0].strides = __pyx_pybuffernd_r_mpc.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_r_mpc.diminfo[0].shape = __pyx_pybuffernd_r_mpc.rcbuffer->pybuffer.shape[0];
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_ghats.rcbuffer->pybuffer, (PyObject*)__pyx_v_ghats, &__Pyx_TypeInfo_nn___pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 1, 0, __pyx_stack) == -1)) __PYX_ERR(0, 252, __pyx_L1_error)
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_ghats.rcbuffer->pybuffer, (PyObject*)__pyx_v_ghats, &__Pyx_TypeInfo_nn___pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 1, 0, __pyx_stack) == -1)) __PYX_ERR(0, 337, __pyx_L1_error)
   }
   __pyx_pybuffernd_ghats.diminfo[0].strides = __pyx_pybuffernd_ghats.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_ghats.diminfo[0].shape = __pyx_pybuffernd_ghats.rcbuffer->pybuffer.shape[0];
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_zs.rcbuffer->pybuffer, (PyObject*)__pyx_v_zs, &__Pyx_TypeInfo_nn___pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 1, 0, __pyx_stack) == -1)) __PYX_ERR(0, 252, __pyx_L1_error)
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_zs.rcbuffer->pybuffer, (PyObject*)__pyx_v_zs, &__Pyx_TypeInfo_nn___pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 1, 0, __pyx_stack) == -1)) __PYX_ERR(0, 337, __pyx_L1_error)
   }
   __pyx_pybuffernd_zs.diminfo[0].strides = __pyx_pybuffernd_zs.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_zs.diminfo[0].shape = __pyx_pybuffernd_zs.rcbuffer->pybuffer.shape[0];
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_betas.rcbuffer->pybuffer, (PyObject*)__pyx_v_betas, &__Pyx_TypeInfo_nn___pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 1, 0, __pyx_stack) == -1)) __PYX_ERR(0, 252, __pyx_L1_error)
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_betas.rcbuffer->pybuffer, (PyObject*)__pyx_v_betas, &__Pyx_TypeInfo_nn___pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 1, 0, __pyx_stack) == -1)) __PYX_ERR(0, 337, __pyx_L1_error)
   }
   __pyx_pybuffernd_betas.diminfo[0].strides = __pyx_pybuffernd_betas.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_betas.diminfo[0].shape = __pyx_pybuffernd_betas.rcbuffer->pybuffer.shape[0];
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_pz.rcbuffer->pybuffer, (PyObject*)__pyx_v_pz, &__Pyx_TypeInfo_nn___pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 2, 0, __pyx_stack) == -1)) __PYX_ERR(0, 252, __pyx_L1_error)
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_pz.rcbuffer->pybuffer, (PyObject*)__pyx_v_pz, &__Pyx_TypeInfo_nn___pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 2, 0, __pyx_stack) == -1)) __PYX_ERR(0, 337, __pyx_L1_error)
   }
   __pyx_pybuffernd_pz.diminfo[0].strides = __pyx_pybuffernd_pz.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_pz.diminfo[0].shape = __pyx_pybuffernd_pz.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_pz.diminfo[1].strides = __pyx_pybuffernd_pz.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_pz.diminfo[1].shape = __pyx_pybuffernd_pz.rcbuffer->pybuffer.shape[1];
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_m.rcbuffer->pybuffer, (PyObject*)__pyx_v_m, &__Pyx_TypeInfo_nn___pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 1, 0, __pyx_stack) == -1)) __PYX_ERR(0, 252, __pyx_L1_error)
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_m.rcbuffer->pybuffer, (PyObject*)__pyx_v_m, &__Pyx_TypeInfo_nn___pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 1, 0, __pyx_stack) == -1)) __PYX_ERR(0, 337, __pyx_L1_error)
   }
   __pyx_pybuffernd_m.diminfo[0].strides = __pyx_pybuffernd_m.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_m.diminfo[0].shape = __pyx_pybuffernd_m.rcbuffer->pybuffer.shape[0];
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_c.rcbuffer->pybuffer, (PyObject*)__pyx_v_c, &__Pyx_TypeInfo_nn___pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 1, 0, __pyx_stack) == -1)) __PYX_ERR(0, 252, __pyx_L1_error)
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_c.rcbuffer->pybuffer, (PyObject*)__pyx_v_c, &__Pyx_TypeInfo_nn___pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 1, 0, __pyx_stack) == -1)) __PYX_ERR(0, 337, __pyx_L1_error)
   }
   __pyx_pybuffernd_c.diminfo[0].strides = __pyx_pybuffernd_c.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_c.diminfo[0].shape = __pyx_pybuffernd_c.rcbuffer->pybuffer.shape[0];
 
-  /* "pzmassfitter/nfwmodeltools.pyx":268
+  /* "pzmassfitter/nfwmodeltools.pyx":353
  * 
  * 
  *     cdef Py_ssize_t nobjs = pz.shape[0]             # <<<<<<<<<<<<<<
@@ -4414,7 +5529,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_12bentvoigt_like(CYTHON
  */
   __pyx_v_nobjs = (__pyx_v_pz->dimensions[0]);
 
-  /* "pzmassfitter/nfwmodeltools.pyx":269
+  /* "pzmassfitter/nfwmodeltools.pyx":354
  * 
  *     cdef Py_ssize_t nobjs = pz.shape[0]
  *     cdef Py_ssize_t npz = pz.shape[1]             # <<<<<<<<<<<<<<
@@ -4423,7 +5538,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_12bentvoigt_like(CYTHON
  */
   __pyx_v_npz = (__pyx_v_pz->dimensions[1]);
 
-  /* "pzmassfitter/nfwmodeltools.pyx":277
+  /* "pzmassfitter/nfwmodeltools.pyx":362
  *     cdef double rscale
  * 
  *     if mdelta == 0:             # <<<<<<<<<<<<<<
@@ -4433,19 +5548,19 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_12bentvoigt_like(CYTHON
   __pyx_t_1 = ((__pyx_v_mdelta == 0.0) != 0);
   if (__pyx_t_1) {
 
-    /* "pzmassfitter/nfwmodeltools.pyx":278
+    /* "pzmassfitter/nfwmodeltools.pyx":363
  * 
  *     if mdelta == 0:
  *         gamma_inf = np.zeros(nobjs)             # <<<<<<<<<<<<<<
  *         kappa_inf = np.zeros(nobjs)
  *     else:
  */
-    __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 278, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 363, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_zeros); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 278, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_zeros); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 363, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_3 = PyInt_FromSsize_t(__pyx_v_nobjs); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 278, __pyx_L1_error)
+    __pyx_t_3 = PyInt_FromSsize_t(__pyx_v_nobjs); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 363, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __pyx_t_5 = NULL;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_4))) {
@@ -4458,14 +5573,14 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_12bentvoigt_like(CYTHON
       }
     }
     if (!__pyx_t_5) {
-      __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 278, __pyx_L1_error)
+      __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 363, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_GOTREF(__pyx_t_2);
     } else {
       #if CYTHON_FAST_PYCALL
       if (PyFunction_Check(__pyx_t_4)) {
         PyObject *__pyx_temp[2] = {__pyx_t_5, __pyx_t_3};
-        __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_4, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 278, __pyx_L1_error)
+        __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_4, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 363, __pyx_L1_error)
         __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
         __Pyx_GOTREF(__pyx_t_2);
         __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -4474,26 +5589,26 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_12bentvoigt_like(CYTHON
       #if CYTHON_FAST_PYCCALL
       if (__Pyx_PyFastCFunction_Check(__pyx_t_4)) {
         PyObject *__pyx_temp[2] = {__pyx_t_5, __pyx_t_3};
-        __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_4, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 278, __pyx_L1_error)
+        __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_4, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 363, __pyx_L1_error)
         __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
         __Pyx_GOTREF(__pyx_t_2);
         __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
       } else
       #endif
       {
-        __pyx_t_6 = PyTuple_New(1+1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 278, __pyx_L1_error)
+        __pyx_t_6 = PyTuple_New(1+1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 363, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_6);
         __Pyx_GIVEREF(__pyx_t_5); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_5); __pyx_t_5 = NULL;
         __Pyx_GIVEREF(__pyx_t_3);
         PyTuple_SET_ITEM(__pyx_t_6, 0+1, __pyx_t_3);
         __pyx_t_3 = 0;
-        __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_6, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 278, __pyx_L1_error)
+        __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_6, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 363, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_2);
         __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
       }
     }
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 278, __pyx_L1_error)
+    if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 363, __pyx_L1_error)
     __pyx_t_7 = ((PyArrayObject *)__pyx_t_2);
     {
       __Pyx_BufFmt_StackElem __pyx_stack[1];
@@ -4509,25 +5624,25 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_12bentvoigt_like(CYTHON
         }
       }
       __pyx_pybuffernd_gamma_inf.diminfo[0].strides = __pyx_pybuffernd_gamma_inf.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_gamma_inf.diminfo[0].shape = __pyx_pybuffernd_gamma_inf.rcbuffer->pybuffer.shape[0];
-      if (unlikely(__pyx_t_8 < 0)) __PYX_ERR(0, 278, __pyx_L1_error)
+      if (unlikely(__pyx_t_8 < 0)) __PYX_ERR(0, 363, __pyx_L1_error)
     }
     __pyx_t_7 = 0;
     __pyx_v_gamma_inf = ((PyArrayObject *)__pyx_t_2);
     __pyx_t_2 = 0;
 
-    /* "pzmassfitter/nfwmodeltools.pyx":279
+    /* "pzmassfitter/nfwmodeltools.pyx":364
  *     if mdelta == 0:
  *         gamma_inf = np.zeros(nobjs)
  *         kappa_inf = np.zeros(nobjs)             # <<<<<<<<<<<<<<
  *     else:
  * 
  */
-    __pyx_t_4 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 279, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 364, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_zeros); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 279, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_zeros); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 364, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __pyx_t_4 = PyInt_FromSsize_t(__pyx_v_nobjs); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 279, __pyx_L1_error)
+    __pyx_t_4 = PyInt_FromSsize_t(__pyx_v_nobjs); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 364, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __pyx_t_3 = NULL;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_6))) {
@@ -4540,14 +5655,14 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_12bentvoigt_like(CYTHON
       }
     }
     if (!__pyx_t_3) {
-      __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_t_6, __pyx_t_4); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 279, __pyx_L1_error)
+      __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_t_6, __pyx_t_4); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 364, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
       __Pyx_GOTREF(__pyx_t_2);
     } else {
       #if CYTHON_FAST_PYCALL
       if (PyFunction_Check(__pyx_t_6)) {
         PyObject *__pyx_temp[2] = {__pyx_t_3, __pyx_t_4};
-        __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_6, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 279, __pyx_L1_error)
+        __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_6, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 364, __pyx_L1_error)
         __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
         __Pyx_GOTREF(__pyx_t_2);
         __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
@@ -4556,26 +5671,26 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_12bentvoigt_like(CYTHON
       #if CYTHON_FAST_PYCCALL
       if (__Pyx_PyFastCFunction_Check(__pyx_t_6)) {
         PyObject *__pyx_temp[2] = {__pyx_t_3, __pyx_t_4};
-        __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_6, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 279, __pyx_L1_error)
+        __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_6, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 364, __pyx_L1_error)
         __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
         __Pyx_GOTREF(__pyx_t_2);
         __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
       } else
       #endif
       {
-        __pyx_t_5 = PyTuple_New(1+1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 279, __pyx_L1_error)
+        __pyx_t_5 = PyTuple_New(1+1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 364, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_5);
         __Pyx_GIVEREF(__pyx_t_3); PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_t_3); __pyx_t_3 = NULL;
         __Pyx_GIVEREF(__pyx_t_4);
         PyTuple_SET_ITEM(__pyx_t_5, 0+1, __pyx_t_4);
         __pyx_t_4 = 0;
-        __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_6, __pyx_t_5, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 279, __pyx_L1_error)
+        __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_6, __pyx_t_5, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 364, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_2);
         __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
       }
     }
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-    if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 279, __pyx_L1_error)
+    if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 364, __pyx_L1_error)
     __pyx_t_12 = ((PyArrayObject *)__pyx_t_2);
     {
       __Pyx_BufFmt_StackElem __pyx_stack[1];
@@ -4591,13 +5706,13 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_12bentvoigt_like(CYTHON
         }
       }
       __pyx_pybuffernd_kappa_inf.diminfo[0].strides = __pyx_pybuffernd_kappa_inf.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_kappa_inf.diminfo[0].shape = __pyx_pybuffernd_kappa_inf.rcbuffer->pybuffer.shape[0];
-      if (unlikely(__pyx_t_8 < 0)) __PYX_ERR(0, 279, __pyx_L1_error)
+      if (unlikely(__pyx_t_8 < 0)) __PYX_ERR(0, 364, __pyx_L1_error)
     }
     __pyx_t_12 = 0;
     __pyx_v_kappa_inf = ((PyArrayObject *)__pyx_t_2);
     __pyx_t_2 = 0;
 
-    /* "pzmassfitter/nfwmodeltools.pyx":277
+    /* "pzmassfitter/nfwmodeltools.pyx":362
  *     cdef double rscale
  * 
  *     if mdelta == 0:             # <<<<<<<<<<<<<<
@@ -4607,7 +5722,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_12bentvoigt_like(CYTHON
     goto __pyx_L3;
   }
 
-  /* "pzmassfitter/nfwmodeltools.pyx":282
+  /* "pzmassfitter/nfwmodeltools.pyx":367
  *     else:
  * 
  *         rdelta = (3*abs(mdelta)/(4*massdelta*np.pi*rho_c))**(1./3.)             # <<<<<<<<<<<<<<
@@ -4615,70 +5730,70 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_12bentvoigt_like(CYTHON
  * 
  */
   /*else*/ {
-    __pyx_t_2 = PyFloat_FromDouble((3.0 * fabs(__pyx_v_mdelta))); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 282, __pyx_L1_error)
+    __pyx_t_2 = PyFloat_FromDouble((3.0 * fabs(__pyx_v_mdelta))); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 367, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_6 = PyFloat_FromDouble((4.0 * __pyx_v_massdelta)); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 282, __pyx_L1_error)
+    __pyx_t_6 = PyFloat_FromDouble((4.0 * __pyx_v_massdelta)); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 367, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
-    __pyx_t_5 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 282, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 367, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_pi); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 282, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_pi); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 367, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __pyx_t_5 = PyNumber_Multiply(__pyx_t_6, __pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 282, __pyx_L1_error)
+    __pyx_t_5 = PyNumber_Multiply(__pyx_t_6, __pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 367, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __pyx_t_4 = PyFloat_FromDouble(__pyx_v_rho_c); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 282, __pyx_L1_error)
+    __pyx_t_4 = PyFloat_FromDouble(__pyx_v_rho_c); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 367, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_6 = PyNumber_Multiply(__pyx_t_5, __pyx_t_4); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 282, __pyx_L1_error)
+    __pyx_t_6 = PyNumber_Multiply(__pyx_t_5, __pyx_t_4); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 367, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __pyx_t_4 = __Pyx_PyNumber_Divide(__pyx_t_2, __pyx_t_6); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 282, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyNumber_Divide(__pyx_t_2, __pyx_t_6); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 367, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-    __pyx_t_6 = PyFloat_FromDouble((1. / 3.)); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 282, __pyx_L1_error)
+    __pyx_t_6 = PyFloat_FromDouble((1. / 3.)); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 367, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
-    __pyx_t_2 = PyNumber_Power(__pyx_t_4, __pyx_t_6, Py_None); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 282, __pyx_L1_error)
+    __pyx_t_2 = PyNumber_Power(__pyx_t_4, __pyx_t_6, Py_None); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 367, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
     __pyx_v_rdelta = __pyx_t_2;
     __pyx_t_2 = 0;
 
-    /* "pzmassfitter/nfwmodeltools.pyx":283
+    /* "pzmassfitter/nfwmodeltools.pyx":368
  * 
  *         rdelta = (3*abs(mdelta)/(4*massdelta*np.pi*rho_c))**(1./3.)
  *         rscale = rdelta / cdelta             # <<<<<<<<<<<<<<
  * 
  *         gamma_inf = NFWShear(r_mpc, cdelta, rscale, rho_c_over_sigma_c, delta = massdelta)
  */
-    __pyx_t_2 = PyFloat_FromDouble(__pyx_v_cdelta); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 283, __pyx_L1_error)
+    __pyx_t_2 = PyFloat_FromDouble(__pyx_v_cdelta); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 368, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_6 = __Pyx_PyNumber_Divide(__pyx_v_rdelta, __pyx_t_2); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 283, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyNumber_Divide(__pyx_v_rdelta, __pyx_t_2); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 368, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __pyx_t_13 = __pyx_PyFloat_AsDouble(__pyx_t_6); if (unlikely((__pyx_t_13 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 283, __pyx_L1_error)
+    __pyx_t_13 = __pyx_PyFloat_AsDouble(__pyx_t_6); if (unlikely((__pyx_t_13 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 368, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
     __pyx_v_rscale = __pyx_t_13;
 
-    /* "pzmassfitter/nfwmodeltools.pyx":285
+    /* "pzmassfitter/nfwmodeltools.pyx":370
  *         rscale = rdelta / cdelta
  * 
  *         gamma_inf = NFWShear(r_mpc, cdelta, rscale, rho_c_over_sigma_c, delta = massdelta)             # <<<<<<<<<<<<<<
  *         kappa_inf = NFWKappa(r_mpc, cdelta, rscale, rho_c_over_sigma_c, delta = massdelta)
  * 
  */
-    __pyx_t_6 = __Pyx_GetModuleGlobalName(__pyx_n_s_NFWShear); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 285, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_GetModuleGlobalName(__pyx_n_s_NFWShear); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 370, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
-    __pyx_t_2 = PyFloat_FromDouble(__pyx_v_cdelta); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 285, __pyx_L1_error)
+    __pyx_t_2 = PyFloat_FromDouble(__pyx_v_cdelta); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 370, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_4 = PyFloat_FromDouble(__pyx_v_rscale); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 285, __pyx_L1_error)
+    __pyx_t_4 = PyFloat_FromDouble(__pyx_v_rscale); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 370, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_5 = PyFloat_FromDouble(__pyx_v_rho_c_over_sigma_c); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 285, __pyx_L1_error)
+    __pyx_t_5 = PyFloat_FromDouble(__pyx_v_rho_c_over_sigma_c); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 370, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_3 = PyTuple_New(4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 285, __pyx_L1_error)
+    __pyx_t_3 = PyTuple_New(4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 370, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_INCREF(((PyObject *)__pyx_v_r_mpc));
     __Pyx_GIVEREF(((PyObject *)__pyx_v_r_mpc));
@@ -4692,18 +5807,18 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_12bentvoigt_like(CYTHON
     __pyx_t_2 = 0;
     __pyx_t_4 = 0;
     __pyx_t_5 = 0;
-    __pyx_t_5 = PyDict_New(); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 285, __pyx_L1_error)
+    __pyx_t_5 = PyDict_New(); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 370, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_4 = PyFloat_FromDouble(__pyx_v_massdelta); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 285, __pyx_L1_error)
+    __pyx_t_4 = PyFloat_FromDouble(__pyx_v_massdelta); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 370, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_delta, __pyx_t_4) < 0) __PYX_ERR(0, 285, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_delta, __pyx_t_4) < 0) __PYX_ERR(0, 370, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_6, __pyx_t_3, __pyx_t_5); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 285, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_6, __pyx_t_3, __pyx_t_5); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 370, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    if (!(likely(((__pyx_t_4) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_4, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 285, __pyx_L1_error)
+    if (!(likely(((__pyx_t_4) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_4, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 370, __pyx_L1_error)
     __pyx_t_7 = ((PyArrayObject *)__pyx_t_4);
     {
       __Pyx_BufFmt_StackElem __pyx_stack[1];
@@ -4719,28 +5834,28 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_12bentvoigt_like(CYTHON
         }
       }
       __pyx_pybuffernd_gamma_inf.diminfo[0].strides = __pyx_pybuffernd_gamma_inf.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_gamma_inf.diminfo[0].shape = __pyx_pybuffernd_gamma_inf.rcbuffer->pybuffer.shape[0];
-      if (unlikely(__pyx_t_8 < 0)) __PYX_ERR(0, 285, __pyx_L1_error)
+      if (unlikely(__pyx_t_8 < 0)) __PYX_ERR(0, 370, __pyx_L1_error)
     }
     __pyx_t_7 = 0;
     __pyx_v_gamma_inf = ((PyArrayObject *)__pyx_t_4);
     __pyx_t_4 = 0;
 
-    /* "pzmassfitter/nfwmodeltools.pyx":286
+    /* "pzmassfitter/nfwmodeltools.pyx":371
  * 
  *         gamma_inf = NFWShear(r_mpc, cdelta, rscale, rho_c_over_sigma_c, delta = massdelta)
  *         kappa_inf = NFWKappa(r_mpc, cdelta, rscale, rho_c_over_sigma_c, delta = massdelta)             # <<<<<<<<<<<<<<
  * 
  *     if mdelta < 0.:
  */
-    __pyx_t_4 = __Pyx_GetModuleGlobalName(__pyx_n_s_NFWKappa); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 286, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_GetModuleGlobalName(__pyx_n_s_NFWKappa); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 371, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_5 = PyFloat_FromDouble(__pyx_v_cdelta); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 286, __pyx_L1_error)
+    __pyx_t_5 = PyFloat_FromDouble(__pyx_v_cdelta); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 371, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_3 = PyFloat_FromDouble(__pyx_v_rscale); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 286, __pyx_L1_error)
+    __pyx_t_3 = PyFloat_FromDouble(__pyx_v_rscale); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 371, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_6 = PyFloat_FromDouble(__pyx_v_rho_c_over_sigma_c); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 286, __pyx_L1_error)
+    __pyx_t_6 = PyFloat_FromDouble(__pyx_v_rho_c_over_sigma_c); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 371, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
-    __pyx_t_2 = PyTuple_New(4); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 286, __pyx_L1_error)
+    __pyx_t_2 = PyTuple_New(4); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 371, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_INCREF(((PyObject *)__pyx_v_r_mpc));
     __Pyx_GIVEREF(((PyObject *)__pyx_v_r_mpc));
@@ -4754,18 +5869,18 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_12bentvoigt_like(CYTHON
     __pyx_t_5 = 0;
     __pyx_t_3 = 0;
     __pyx_t_6 = 0;
-    __pyx_t_6 = PyDict_New(); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 286, __pyx_L1_error)
+    __pyx_t_6 = PyDict_New(); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 371, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
-    __pyx_t_3 = PyFloat_FromDouble(__pyx_v_massdelta); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 286, __pyx_L1_error)
+    __pyx_t_3 = PyFloat_FromDouble(__pyx_v_massdelta); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 371, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    if (PyDict_SetItem(__pyx_t_6, __pyx_n_s_delta, __pyx_t_3) < 0) __PYX_ERR(0, 286, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_6, __pyx_n_s_delta, __pyx_t_3) < 0) __PYX_ERR(0, 371, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_2, __pyx_t_6); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 286, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_2, __pyx_t_6); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 371, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-    if (!(likely(((__pyx_t_3) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_3, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 286, __pyx_L1_error)
+    if (!(likely(((__pyx_t_3) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_3, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 371, __pyx_L1_error)
     __pyx_t_12 = ((PyArrayObject *)__pyx_t_3);
     {
       __Pyx_BufFmt_StackElem __pyx_stack[1];
@@ -4781,7 +5896,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_12bentvoigt_like(CYTHON
         }
       }
       __pyx_pybuffernd_kappa_inf.diminfo[0].strides = __pyx_pybuffernd_kappa_inf.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_kappa_inf.diminfo[0].shape = __pyx_pybuffernd_kappa_inf.rcbuffer->pybuffer.shape[0];
-      if (unlikely(__pyx_t_8 < 0)) __PYX_ERR(0, 286, __pyx_L1_error)
+      if (unlikely(__pyx_t_8 < 0)) __PYX_ERR(0, 371, __pyx_L1_error)
     }
     __pyx_t_12 = 0;
     __pyx_v_kappa_inf = ((PyArrayObject *)__pyx_t_3);
@@ -4789,7 +5904,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_12bentvoigt_like(CYTHON
   }
   __pyx_L3:;
 
-  /* "pzmassfitter/nfwmodeltools.pyx":288
+  /* "pzmassfitter/nfwmodeltools.pyx":373
  *         kappa_inf = NFWKappa(r_mpc, cdelta, rscale, rho_c_over_sigma_c, delta = massdelta)
  * 
  *     if mdelta < 0.:             # <<<<<<<<<<<<<<
@@ -4799,16 +5914,16 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_12bentvoigt_like(CYTHON
   __pyx_t_1 = ((__pyx_v_mdelta < 0.) != 0);
   if (__pyx_t_1) {
 
-    /* "pzmassfitter/nfwmodeltools.pyx":289
+    /* "pzmassfitter/nfwmodeltools.pyx":374
  * 
  *     if mdelta < 0.:
  *         gamma_inf = -gamma_inf             # <<<<<<<<<<<<<<
  * 
  * 
  */
-    __pyx_t_3 = PyNumber_Negative(((PyObject *)__pyx_v_gamma_inf)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 289, __pyx_L1_error)
+    __pyx_t_3 = PyNumber_Negative(((PyObject *)__pyx_v_gamma_inf)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 374, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    if (!(likely(((__pyx_t_3) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_3, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 289, __pyx_L1_error)
+    if (!(likely(((__pyx_t_3) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_3, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 374, __pyx_L1_error)
     __pyx_t_7 = ((PyArrayObject *)__pyx_t_3);
     {
       __Pyx_BufFmt_StackElem __pyx_stack[1];
@@ -4824,13 +5939,13 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_12bentvoigt_like(CYTHON
         }
       }
       __pyx_pybuffernd_gamma_inf.diminfo[0].strides = __pyx_pybuffernd_gamma_inf.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_gamma_inf.diminfo[0].shape = __pyx_pybuffernd_gamma_inf.rcbuffer->pybuffer.shape[0];
-      if (unlikely(__pyx_t_8 < 0)) __PYX_ERR(0, 289, __pyx_L1_error)
+      if (unlikely(__pyx_t_8 < 0)) __PYX_ERR(0, 374, __pyx_L1_error)
     }
     __pyx_t_7 = 0;
     __Pyx_DECREF_SET(__pyx_v_gamma_inf, ((PyArrayObject *)__pyx_t_3));
     __pyx_t_3 = 0;
 
-    /* "pzmassfitter/nfwmodeltools.pyx":288
+    /* "pzmassfitter/nfwmodeltools.pyx":373
  *         kappa_inf = NFWKappa(r_mpc, cdelta, rscale, rho_c_over_sigma_c, delta = massdelta)
  * 
  *     if mdelta < 0.:             # <<<<<<<<<<<<<<
@@ -4839,7 +5954,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_12bentvoigt_like(CYTHON
  */
   }
 
-  /* "pzmassfitter/nfwmodeltools.pyx":293
+  /* "pzmassfitter/nfwmodeltools.pyx":378
  * 
  * 
  *     cdef double delta = 0.             # <<<<<<<<<<<<<<
@@ -4848,7 +5963,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_12bentvoigt_like(CYTHON
  */
   __pyx_v_delta = 0.;
 
-  /* "pzmassfitter/nfwmodeltools.pyx":294
+  /* "pzmassfitter/nfwmodeltools.pyx":379
  * 
  *     cdef double delta = 0.
  *     cdef double curPZ = 0.             # <<<<<<<<<<<<<<
@@ -4857,7 +5972,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_12bentvoigt_like(CYTHON
  */
   __pyx_v_curPZ = 0.;
 
-  /* "pzmassfitter/nfwmodeltools.pyx":295
+  /* "pzmassfitter/nfwmodeltools.pyx":380
  *     cdef double delta = 0.
  *     cdef double curPZ = 0.
  *     cdef double beta = 0.             # <<<<<<<<<<<<<<
@@ -4866,7 +5981,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_12bentvoigt_like(CYTHON
  */
   __pyx_v_beta = 0.;
 
-  /* "pzmassfitter/nfwmodeltools.pyx":296
+  /* "pzmassfitter/nfwmodeltools.pyx":381
  *     cdef double curPZ = 0.
  *     cdef double beta = 0.
  *     cdef double g = 0.             # <<<<<<<<<<<<<<
@@ -4875,7 +5990,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_12bentvoigt_like(CYTHON
  */
   __pyx_v_g = 0.;
 
-  /* "pzmassfitter/nfwmodeltools.pyx":299
+  /* "pzmassfitter/nfwmodeltools.pyx":384
  * 
  *     cdef Py_ssize_t i, j, s
  *     cdef DTYPE_T galProb = 0.             # <<<<<<<<<<<<<<
@@ -4884,7 +5999,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_12bentvoigt_like(CYTHON
  */
   __pyx_v_galProb = 0.;
 
-  /* "pzmassfitter/nfwmodeltools.pyx":300
+  /* "pzmassfitter/nfwmodeltools.pyx":385
  *     cdef Py_ssize_t i, j, s
  *     cdef DTYPE_T galProb = 0.
  *     cdef DTYPE_T logProb = 0.             # <<<<<<<<<<<<<<
@@ -4893,19 +6008,19 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_12bentvoigt_like(CYTHON
  */
   __pyx_v_logProb = 0.;
 
-  /* "pzmassfitter/nfwmodeltools.pyx":301
+  /* "pzmassfitter/nfwmodeltools.pyx":386
  *     cdef DTYPE_T galProb = 0.
  *     cdef DTYPE_T logProb = 0.
  *     cdef np.ndarray[DTYPE_T, ndim=1, mode='c'] integrand = np.zeros(npz)             # <<<<<<<<<<<<<<
  * 
  *     for i from nobjs > i >= 0:
  */
-  __pyx_t_6 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 301, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 386, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_zeros); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 301, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_zeros); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 386, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  __pyx_t_6 = PyInt_FromSsize_t(__pyx_v_npz); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 301, __pyx_L1_error)
+  __pyx_t_6 = PyInt_FromSsize_t(__pyx_v_npz); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 386, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __pyx_t_4 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
@@ -4918,14 +6033,14 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_12bentvoigt_like(CYTHON
     }
   }
   if (!__pyx_t_4) {
-    __pyx_t_3 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_6); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 301, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_6); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 386, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
     __Pyx_GOTREF(__pyx_t_3);
   } else {
     #if CYTHON_FAST_PYCALL
     if (PyFunction_Check(__pyx_t_2)) {
       PyObject *__pyx_temp[2] = {__pyx_t_4, __pyx_t_6};
-      __pyx_t_3 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 301, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 386, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
@@ -4934,32 +6049,32 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_12bentvoigt_like(CYTHON
     #if CYTHON_FAST_PYCCALL
     if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
       PyObject *__pyx_temp[2] = {__pyx_t_4, __pyx_t_6};
-      __pyx_t_3 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 301, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 386, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
     } else
     #endif
     {
-      __pyx_t_5 = PyTuple_New(1+1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 301, __pyx_L1_error)
+      __pyx_t_5 = PyTuple_New(1+1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 386, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_5);
       __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_t_4); __pyx_t_4 = NULL;
       __Pyx_GIVEREF(__pyx_t_6);
       PyTuple_SET_ITEM(__pyx_t_5, 0+1, __pyx_t_6);
       __pyx_t_6 = 0;
-      __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_5, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 301, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_5, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 386, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     }
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (!(likely(((__pyx_t_3) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_3, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 301, __pyx_L1_error)
+  if (!(likely(((__pyx_t_3) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_3, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 386, __pyx_L1_error)
   __pyx_t_14 = ((PyArrayObject *)__pyx_t_3);
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
     if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_integrand.rcbuffer->pybuffer, (PyObject*)__pyx_t_14, &__Pyx_TypeInfo_nn___pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS| PyBUF_WRITABLE, 1, 0, __pyx_stack) == -1)) {
       __pyx_v_integrand = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_integrand.rcbuffer->pybuffer.buf = NULL;
-      __PYX_ERR(0, 301, __pyx_L1_error)
+      __PYX_ERR(0, 386, __pyx_L1_error)
     } else {__pyx_pybuffernd_integrand.diminfo[0].strides = __pyx_pybuffernd_integrand.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_integrand.diminfo[0].shape = __pyx_pybuffernd_integrand.rcbuffer->pybuffer.shape[0];
     }
   }
@@ -4967,7 +6082,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_12bentvoigt_like(CYTHON
   __pyx_v_integrand = ((PyArrayObject *)__pyx_t_3);
   __pyx_t_3 = 0;
 
-  /* "pzmassfitter/nfwmodeltools.pyx":303
+  /* "pzmassfitter/nfwmodeltools.pyx":388
  *     cdef np.ndarray[DTYPE_T, ndim=1, mode='c'] integrand = np.zeros(npz)
  * 
  *     for i from nobjs > i >= 0:             # <<<<<<<<<<<<<<
@@ -4976,7 +6091,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_12bentvoigt_like(CYTHON
  */
   for (__pyx_v_i = __pyx_v_nobjs-1; __pyx_v_i >= 0; __pyx_v_i--) {
 
-    /* "pzmassfitter/nfwmodeltools.pyx":306
+    /* "pzmassfitter/nfwmodeltools.pyx":391
  * 
  *         #zero out the array for the new object
  *         for j from npz > j >= 0:             # <<<<<<<<<<<<<<
@@ -4985,7 +6100,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_12bentvoigt_like(CYTHON
  */
     for (__pyx_v_j = __pyx_v_npz-1; __pyx_v_j >= 0; __pyx_v_j--) {
 
-      /* "pzmassfitter/nfwmodeltools.pyx":307
+      /* "pzmassfitter/nfwmodeltools.pyx":392
  *         #zero out the array for the new object
  *         for j from npz > j >= 0:
  *             integrand[j] = 0.             # <<<<<<<<<<<<<<
@@ -4996,7 +6111,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_12bentvoigt_like(CYTHON
       *__Pyx_BufPtrCContig1d(__pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T *, __pyx_pybuffernd_integrand.rcbuffer->pybuffer.buf, __pyx_t_15, __pyx_pybuffernd_integrand.diminfo[0].strides) = 0.;
     }
 
-    /* "pzmassfitter/nfwmodeltools.pyx":310
+    /* "pzmassfitter/nfwmodeltools.pyx":395
  * 
  * 
  *         for j from npz > j >= 0:             # <<<<<<<<<<<<<<
@@ -5005,7 +6120,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_12bentvoigt_like(CYTHON
  */
     for (__pyx_v_j = __pyx_v_npz-1; __pyx_v_j >= 0; __pyx_v_j--) {
 
-      /* "pzmassfitter/nfwmodeltools.pyx":312
+      /* "pzmassfitter/nfwmodeltools.pyx":397
  *         for j from npz > j >= 0:
  * 
  *             curPZ = pz[i,j]             # <<<<<<<<<<<<<<
@@ -5016,7 +6131,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_12bentvoigt_like(CYTHON
       __pyx_t_17 = __pyx_v_j;
       __pyx_v_curPZ = (*__Pyx_BufPtrCContig2d(__pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T *, __pyx_pybuffernd_pz.rcbuffer->pybuffer.buf, __pyx_t_16, __pyx_pybuffernd_pz.diminfo[0].strides, __pyx_t_17, __pyx_pybuffernd_pz.diminfo[1].strides));
 
-      /* "pzmassfitter/nfwmodeltools.pyx":313
+      /* "pzmassfitter/nfwmodeltools.pyx":398
  * 
  *             curPZ = pz[i,j]
  *             if curPZ > 1e-6:             # <<<<<<<<<<<<<<
@@ -5026,7 +6141,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_12bentvoigt_like(CYTHON
       __pyx_t_1 = ((__pyx_v_curPZ > 1e-6) != 0);
       if (__pyx_t_1) {
 
-        /* "pzmassfitter/nfwmodeltools.pyx":315
+        /* "pzmassfitter/nfwmodeltools.pyx":400
  *             if curPZ > 1e-6:
  * 
  *                 beta = betas[j]             # <<<<<<<<<<<<<<
@@ -5036,7 +6151,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_12bentvoigt_like(CYTHON
         __pyx_t_18 = __pyx_v_j;
         __pyx_v_beta = (*__Pyx_BufPtrCContig1d(__pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T *, __pyx_pybuffernd_betas.rcbuffer->pybuffer.buf, __pyx_t_18, __pyx_pybuffernd_betas.diminfo[0].strides));
 
-        /* "pzmassfitter/nfwmodeltools.pyx":317
+        /* "pzmassfitter/nfwmodeltools.pyx":402
  *                 beta = betas[j]
  * 
  *                 g = (beta*gamma_inf[i] / (1 - beta*kappa_inf[i]))             # <<<<<<<<<<<<<<
@@ -5049,11 +6164,11 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_12bentvoigt_like(CYTHON
         __pyx_t_22 = (1.0 - (__pyx_v_beta * (*__Pyx_BufPtrCContig1d(__pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T *, __pyx_pybuffernd_kappa_inf.rcbuffer->pybuffer.buf, __pyx_t_21, __pyx_pybuffernd_kappa_inf.diminfo[0].strides))));
         if (unlikely(__pyx_t_22 == 0)) {
           PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-          __PYX_ERR(0, 317, __pyx_L1_error)
+          __PYX_ERR(0, 402, __pyx_L1_error)
         }
         __pyx_v_g = (__pyx_t_20 / __pyx_t_22);
 
-        /* "pzmassfitter/nfwmodeltools.pyx":320
+        /* "pzmassfitter/nfwmodeltools.pyx":405
  * 
  * 
  *                 delta = ghats[i] - (1+m[i])*g - c[i]             # <<<<<<<<<<<<<<
@@ -5065,7 +6180,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_12bentvoigt_like(CYTHON
         __pyx_t_25 = __pyx_v_i;
         __pyx_v_delta = (((*__Pyx_BufPtrCContig1d(__pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T *, __pyx_pybuffernd_ghats.rcbuffer->pybuffer.buf, __pyx_t_23, __pyx_pybuffernd_ghats.diminfo[0].strides)) - ((1.0 + (*__Pyx_BufPtrCContig1d(__pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T *, __pyx_pybuffernd_m.rcbuffer->pybuffer.buf, __pyx_t_24, __pyx_pybuffernd_m.diminfo[0].strides))) * __pyx_v_g)) - (*__Pyx_BufPtrCContig1d(__pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T *, __pyx_pybuffernd_c.rcbuffer->pybuffer.buf, __pyx_t_25, __pyx_pybuffernd_c.diminfo[0].strides)));
 
-        /* "pzmassfitter/nfwmodeltools.pyx":322
+        /* "pzmassfitter/nfwmodeltools.pyx":407
  *                 delta = ghats[i] - (1+m[i])*g - c[i]
  * 
  *                 integrand[j] = curPZ*voigt(delta, sigma, gamma)             # <<<<<<<<<<<<<<
@@ -5075,7 +6190,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_12bentvoigt_like(CYTHON
         __pyx_t_26 = __pyx_v_j;
         *__Pyx_BufPtrCContig1d(__pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T *, __pyx_pybuffernd_integrand.rcbuffer->pybuffer.buf, __pyx_t_26, __pyx_pybuffernd_integrand.diminfo[0].strides) = (__pyx_v_curPZ * voigt(__pyx_v_delta, __pyx_v_sigma, __pyx_v_gamma));
 
-        /* "pzmassfitter/nfwmodeltools.pyx":313
+        /* "pzmassfitter/nfwmodeltools.pyx":398
  * 
  *             curPZ = pz[i,j]
  *             if curPZ > 1e-6:             # <<<<<<<<<<<<<<
@@ -5085,16 +6200,16 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_12bentvoigt_like(CYTHON
       }
     }
 
-    /* "pzmassfitter/nfwmodeltools.pyx":324
+    /* "pzmassfitter/nfwmodeltools.pyx":409
  *                 integrand[j] = curPZ*voigt(delta, sigma, gamma)
  * 
  *         galProb = np.trapz(integrand, zs)             # <<<<<<<<<<<<<<
  *         logProb = logProb + log(galProb)
  * 
  */
-    __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 324, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 409, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_trapz); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 324, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_trapz); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 409, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __pyx_t_2 = NULL;
@@ -5112,7 +6227,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_12bentvoigt_like(CYTHON
     #if CYTHON_FAST_PYCALL
     if (PyFunction_Check(__pyx_t_5)) {
       PyObject *__pyx_temp[3] = {__pyx_t_2, ((PyObject *)__pyx_v_integrand), ((PyObject *)__pyx_v_zs)};
-      __pyx_t_3 = __Pyx_PyFunction_FastCall(__pyx_t_5, __pyx_temp+1-__pyx_t_8, 2+__pyx_t_8); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 324, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyFunction_FastCall(__pyx_t_5, __pyx_temp+1-__pyx_t_8, 2+__pyx_t_8); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 409, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
       __Pyx_GOTREF(__pyx_t_3);
     } else
@@ -5120,13 +6235,13 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_12bentvoigt_like(CYTHON
     #if CYTHON_FAST_PYCCALL
     if (__Pyx_PyFastCFunction_Check(__pyx_t_5)) {
       PyObject *__pyx_temp[3] = {__pyx_t_2, ((PyObject *)__pyx_v_integrand), ((PyObject *)__pyx_v_zs)};
-      __pyx_t_3 = __Pyx_PyCFunction_FastCall(__pyx_t_5, __pyx_temp+1-__pyx_t_8, 2+__pyx_t_8); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 324, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyCFunction_FastCall(__pyx_t_5, __pyx_temp+1-__pyx_t_8, 2+__pyx_t_8); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 409, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
       __Pyx_GOTREF(__pyx_t_3);
     } else
     #endif
     {
-      __pyx_t_6 = PyTuple_New(2+__pyx_t_8); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 324, __pyx_L1_error)
+      __pyx_t_6 = PyTuple_New(2+__pyx_t_8); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 409, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_6);
       if (__pyx_t_2) {
         __Pyx_GIVEREF(__pyx_t_2); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_2); __pyx_t_2 = NULL;
@@ -5137,16 +6252,16 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_12bentvoigt_like(CYTHON
       __Pyx_INCREF(((PyObject *)__pyx_v_zs));
       __Pyx_GIVEREF(((PyObject *)__pyx_v_zs));
       PyTuple_SET_ITEM(__pyx_t_6, 1+__pyx_t_8, ((PyObject *)__pyx_v_zs));
-      __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_6, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 324, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_6, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 409, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
     }
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __pyx_t_22 = __pyx_PyFloat_AsDouble(__pyx_t_3); if (unlikely((__pyx_t_22 == ((npy_double)-1)) && PyErr_Occurred())) __PYX_ERR(0, 324, __pyx_L1_error)
+    __pyx_t_22 = __pyx_PyFloat_AsDouble(__pyx_t_3); if (unlikely((__pyx_t_22 == ((npy_double)-1)) && PyErr_Occurred())) __PYX_ERR(0, 409, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __pyx_v_galProb = __pyx_t_22;
 
-    /* "pzmassfitter/nfwmodeltools.pyx":325
+    /* "pzmassfitter/nfwmodeltools.pyx":410
  * 
  *         galProb = np.trapz(integrand, zs)
  *         logProb = logProb + log(galProb)             # <<<<<<<<<<<<<<
@@ -5156,7 +6271,7 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_12bentvoigt_like(CYTHON
     __pyx_v_logProb = (__pyx_v_logProb + log(__pyx_v_galProb));
   }
 
-  /* "pzmassfitter/nfwmodeltools.pyx":328
+  /* "pzmassfitter/nfwmodeltools.pyx":413
  * 
  * 
  *     return logProb             # <<<<<<<<<<<<<<
@@ -5164,13 +6279,13 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_12bentvoigt_like(CYTHON
  * 
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_3 = PyFloat_FromDouble(__pyx_v_logProb); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 328, __pyx_L1_error)
+  __pyx_t_3 = PyFloat_FromDouble(__pyx_v_logProb); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 413, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_r = __pyx_t_3;
   __pyx_t_3 = 0;
   goto __pyx_L0;
 
-  /* "pzmassfitter/nfwmodeltools.pyx":252
+  /* "pzmassfitter/nfwmodeltools.pyx":337
  * @cython.boundscheck(False)
  * @cython.wraparound(False)
  * def bentvoigt_like(double mdelta,             # <<<<<<<<<<<<<<
@@ -5219,1227 +6334,6 @@ static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_12bentvoigt_like(CYTHON
   __Pyx_XDECREF((PyObject *)__pyx_v_kappa_inf);
   __Pyx_XDECREF(__pyx_v_rdelta);
   __Pyx_XDECREF((PyObject *)__pyx_v_integrand);
-  __Pyx_XGIVEREF(__pyx_r);
-  __Pyx_RefNannyFinishContext();
-  return __pyx_r;
-}
-
-/* "pzmassfitter/nfwmodeltools.pyx":336
- * @cython.boundscheck(False)
- * @cython.wraparound(False)
- * def bentcolorcut_like(double r_scale,             # <<<<<<<<<<<<<<
- *                np.ndarray[DTYPE_T, ndim=1, mode='c'] r_mpc not None,
- *                np.ndarray[DTYPE_T, ndim=1, mode='c'] ghats not None,
- */
-
-/* Python wrapper */
-static PyObject *__pyx_pw_12pzmassfitter_13nfwmodeltools_15bentcolorcut_like(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyMethodDef __pyx_mdef_12pzmassfitter_13nfwmodeltools_15bentcolorcut_like = {"bentcolorcut_like", (PyCFunction)__pyx_pw_12pzmassfitter_13nfwmodeltools_15bentcolorcut_like, METH_VARARGS|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_12pzmassfitter_13nfwmodeltools_15bentcolorcut_like(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
-  double __pyx_v_r_scale;
-  PyArrayObject *__pyx_v_r_mpc = 0;
-  PyArrayObject *__pyx_v_ghats = 0;
-  PyArrayObject *__pyx_v_sigma_ghat = 0;
-  double __pyx_v_concentration;
-  double __pyx_v_zcluster;
-  double __pyx_v_beta_s;
-  double __pyx_v_beta_s2;
-  PyArrayObject *__pyx_v_boostcor = 0;
-  PyObject *__pyx_r = 0;
-  __Pyx_RefNannyDeclarations
-  __Pyx_RefNannySetupContext("bentcolorcut_like (wrapper)", 0);
-  {
-    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_r_scale,&__pyx_n_s_r_mpc,&__pyx_n_s_ghats,&__pyx_n_s_sigma_ghat,&__pyx_n_s_concentration,&__pyx_n_s_zcluster,&__pyx_n_s_beta_s,&__pyx_n_s_beta_s2,&__pyx_n_s_boostcor,0};
-    PyObject* values[9] = {0,0,0,0,0,0,0,0,0};
-    if (unlikely(__pyx_kwds)) {
-      Py_ssize_t kw_args;
-      const Py_ssize_t pos_args = PyTuple_GET_SIZE(__pyx_args);
-      switch (pos_args) {
-        case  9: values[8] = PyTuple_GET_ITEM(__pyx_args, 8);
-        case  8: values[7] = PyTuple_GET_ITEM(__pyx_args, 7);
-        case  7: values[6] = PyTuple_GET_ITEM(__pyx_args, 6);
-        case  6: values[5] = PyTuple_GET_ITEM(__pyx_args, 5);
-        case  5: values[4] = PyTuple_GET_ITEM(__pyx_args, 4);
-        case  4: values[3] = PyTuple_GET_ITEM(__pyx_args, 3);
-        case  3: values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
-        case  2: values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
-        case  1: values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
-        case  0: break;
-        default: goto __pyx_L5_argtuple_error;
-      }
-      kw_args = PyDict_Size(__pyx_kwds);
-      switch (pos_args) {
-        case  0:
-        if (likely((values[0] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_r_scale)) != 0)) kw_args--;
-        else goto __pyx_L5_argtuple_error;
-        case  1:
-        if (likely((values[1] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_r_mpc)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("bentcolorcut_like", 1, 9, 9, 1); __PYX_ERR(0, 336, __pyx_L3_error)
-        }
-        case  2:
-        if (likely((values[2] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_ghats)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("bentcolorcut_like", 1, 9, 9, 2); __PYX_ERR(0, 336, __pyx_L3_error)
-        }
-        case  3:
-        if (likely((values[3] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_sigma_ghat)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("bentcolorcut_like", 1, 9, 9, 3); __PYX_ERR(0, 336, __pyx_L3_error)
-        }
-        case  4:
-        if (likely((values[4] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_concentration)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("bentcolorcut_like", 1, 9, 9, 4); __PYX_ERR(0, 336, __pyx_L3_error)
-        }
-        case  5:
-        if (likely((values[5] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_zcluster)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("bentcolorcut_like", 1, 9, 9, 5); __PYX_ERR(0, 336, __pyx_L3_error)
-        }
-        case  6:
-        if (likely((values[6] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_beta_s)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("bentcolorcut_like", 1, 9, 9, 6); __PYX_ERR(0, 336, __pyx_L3_error)
-        }
-        case  7:
-        if (likely((values[7] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_beta_s2)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("bentcolorcut_like", 1, 9, 9, 7); __PYX_ERR(0, 336, __pyx_L3_error)
-        }
-        case  8:
-        if (likely((values[8] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_boostcor)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("bentcolorcut_like", 1, 9, 9, 8); __PYX_ERR(0, 336, __pyx_L3_error)
-        }
-      }
-      if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "bentcolorcut_like") < 0)) __PYX_ERR(0, 336, __pyx_L3_error)
-      }
-    } else if (PyTuple_GET_SIZE(__pyx_args) != 9) {
-      goto __pyx_L5_argtuple_error;
-    } else {
-      values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
-      values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
-      values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
-      values[3] = PyTuple_GET_ITEM(__pyx_args, 3);
-      values[4] = PyTuple_GET_ITEM(__pyx_args, 4);
-      values[5] = PyTuple_GET_ITEM(__pyx_args, 5);
-      values[6] = PyTuple_GET_ITEM(__pyx_args, 6);
-      values[7] = PyTuple_GET_ITEM(__pyx_args, 7);
-      values[8] = PyTuple_GET_ITEM(__pyx_args, 8);
-    }
-    __pyx_v_r_scale = __pyx_PyFloat_AsDouble(values[0]); if (unlikely((__pyx_v_r_scale == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 336, __pyx_L3_error)
-    __pyx_v_r_mpc = ((PyArrayObject *)values[1]);
-    __pyx_v_ghats = ((PyArrayObject *)values[2]);
-    __pyx_v_sigma_ghat = ((PyArrayObject *)values[3]);
-    __pyx_v_concentration = __pyx_PyFloat_AsDouble(values[4]); if (unlikely((__pyx_v_concentration == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 340, __pyx_L3_error)
-    __pyx_v_zcluster = __pyx_PyFloat_AsDouble(values[5]); if (unlikely((__pyx_v_zcluster == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 341, __pyx_L3_error)
-    __pyx_v_beta_s = __pyx_PyFloat_AsDouble(values[6]); if (unlikely((__pyx_v_beta_s == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 342, __pyx_L3_error)
-    __pyx_v_beta_s2 = __pyx_PyFloat_AsDouble(values[7]); if (unlikely((__pyx_v_beta_s2 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 343, __pyx_L3_error)
-    __pyx_v_boostcor = ((PyArrayObject *)values[8]);
-  }
-  goto __pyx_L4_argument_unpacking_done;
-  __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("bentcolorcut_like", 1, 9, 9, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 336, __pyx_L3_error)
-  __pyx_L3_error:;
-  __Pyx_AddTraceback("pzmassfitter.nfwmodeltools.bentcolorcut_like", __pyx_clineno, __pyx_lineno, __pyx_filename);
-  __Pyx_RefNannyFinishContext();
-  return NULL;
-  __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_r_mpc), __pyx_ptype_5numpy_ndarray, 0, "r_mpc", 0))) __PYX_ERR(0, 337, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_ghats), __pyx_ptype_5numpy_ndarray, 0, "ghats", 0))) __PYX_ERR(0, 338, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_sigma_ghat), __pyx_ptype_5numpy_ndarray, 0, "sigma_ghat", 0))) __PYX_ERR(0, 339, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_boostcor), __pyx_ptype_5numpy_ndarray, 0, "boostcor", 0))) __PYX_ERR(0, 344, __pyx_L1_error)
-  __pyx_r = __pyx_pf_12pzmassfitter_13nfwmodeltools_14bentcolorcut_like(__pyx_self, __pyx_v_r_scale, __pyx_v_r_mpc, __pyx_v_ghats, __pyx_v_sigma_ghat, __pyx_v_concentration, __pyx_v_zcluster, __pyx_v_beta_s, __pyx_v_beta_s2, __pyx_v_boostcor);
-
-  /* function exit code */
-  goto __pyx_L0;
-  __pyx_L1_error:;
-  __pyx_r = NULL;
-  __pyx_L0:;
-  __Pyx_RefNannyFinishContext();
-  return __pyx_r;
-}
-
-static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_14bentcolorcut_like(CYTHON_UNUSED PyObject *__pyx_self, double __pyx_v_r_scale, PyArrayObject *__pyx_v_r_mpc, PyArrayObject *__pyx_v_ghats, PyArrayObject *__pyx_v_sigma_ghat, double __pyx_v_concentration, double __pyx_v_zcluster, double __pyx_v_beta_s, double __pyx_v_beta_s2, PyArrayObject *__pyx_v_boostcor) {
-  Py_ssize_t __pyx_v_nbins;
-  PyArrayObject *__pyx_v_gamma_inf = 0;
-  PyArrayObject *__pyx_v_kappa_inf = 0;
-  double __pyx_v_g;
-  double __pyx_v_binlogProb;
-  PyObject *__pyx_v_logProb = 0;
-  Py_ssize_t __pyx_v_i;
-  __Pyx_LocalBuf_ND __pyx_pybuffernd_boostcor;
-  __Pyx_Buffer __pyx_pybuffer_boostcor;
-  __Pyx_LocalBuf_ND __pyx_pybuffernd_gamma_inf;
-  __Pyx_Buffer __pyx_pybuffer_gamma_inf;
-  __Pyx_LocalBuf_ND __pyx_pybuffernd_ghats;
-  __Pyx_Buffer __pyx_pybuffer_ghats;
-  __Pyx_LocalBuf_ND __pyx_pybuffernd_kappa_inf;
-  __Pyx_Buffer __pyx_pybuffer_kappa_inf;
-  __Pyx_LocalBuf_ND __pyx_pybuffernd_r_mpc;
-  __Pyx_Buffer __pyx_pybuffer_r_mpc;
-  __Pyx_LocalBuf_ND __pyx_pybuffernd_sigma_ghat;
-  __Pyx_Buffer __pyx_pybuffer_sigma_ghat;
-  PyObject *__pyx_r = NULL;
-  __Pyx_RefNannyDeclarations
-  PyObject *__pyx_t_1 = NULL;
-  PyObject *__pyx_t_2 = NULL;
-  PyObject *__pyx_t_3 = NULL;
-  PyObject *__pyx_t_4 = NULL;
-  PyObject *__pyx_t_5 = NULL;
-  PyObject *__pyx_t_6 = NULL;
-  int __pyx_t_7;
-  PyObject *__pyx_t_8 = NULL;
-  PyArrayObject *__pyx_t_9 = NULL;
-  PyArrayObject *__pyx_t_10 = NULL;
-  double __pyx_t_11;
-  Py_ssize_t __pyx_t_12;
-  Py_ssize_t __pyx_t_13;
-  __pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T __pyx_t_14;
-  Py_ssize_t __pyx_t_15;
-  __pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T __pyx_t_16;
-  __Pyx_RefNannySetupContext("bentcolorcut_like", 0);
-  __pyx_pybuffer_gamma_inf.pybuffer.buf = NULL;
-  __pyx_pybuffer_gamma_inf.refcount = 0;
-  __pyx_pybuffernd_gamma_inf.data = NULL;
-  __pyx_pybuffernd_gamma_inf.rcbuffer = &__pyx_pybuffer_gamma_inf;
-  __pyx_pybuffer_kappa_inf.pybuffer.buf = NULL;
-  __pyx_pybuffer_kappa_inf.refcount = 0;
-  __pyx_pybuffernd_kappa_inf.data = NULL;
-  __pyx_pybuffernd_kappa_inf.rcbuffer = &__pyx_pybuffer_kappa_inf;
-  __pyx_pybuffer_r_mpc.pybuffer.buf = NULL;
-  __pyx_pybuffer_r_mpc.refcount = 0;
-  __pyx_pybuffernd_r_mpc.data = NULL;
-  __pyx_pybuffernd_r_mpc.rcbuffer = &__pyx_pybuffer_r_mpc;
-  __pyx_pybuffer_ghats.pybuffer.buf = NULL;
-  __pyx_pybuffer_ghats.refcount = 0;
-  __pyx_pybuffernd_ghats.data = NULL;
-  __pyx_pybuffernd_ghats.rcbuffer = &__pyx_pybuffer_ghats;
-  __pyx_pybuffer_sigma_ghat.pybuffer.buf = NULL;
-  __pyx_pybuffer_sigma_ghat.refcount = 0;
-  __pyx_pybuffernd_sigma_ghat.data = NULL;
-  __pyx_pybuffernd_sigma_ghat.rcbuffer = &__pyx_pybuffer_sigma_ghat;
-  __pyx_pybuffer_boostcor.pybuffer.buf = NULL;
-  __pyx_pybuffer_boostcor.refcount = 0;
-  __pyx_pybuffernd_boostcor.data = NULL;
-  __pyx_pybuffernd_boostcor.rcbuffer = &__pyx_pybuffer_boostcor;
-  {
-    __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_r_mpc.rcbuffer->pybuffer, (PyObject*)__pyx_v_r_mpc, &__Pyx_TypeInfo_nn___pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 1, 0, __pyx_stack) == -1)) __PYX_ERR(0, 336, __pyx_L1_error)
-  }
-  __pyx_pybuffernd_r_mpc.diminfo[0].strides = __pyx_pybuffernd_r_mpc.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_r_mpc.diminfo[0].shape = __pyx_pybuffernd_r_mpc.rcbuffer->pybuffer.shape[0];
-  {
-    __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_ghats.rcbuffer->pybuffer, (PyObject*)__pyx_v_ghats, &__Pyx_TypeInfo_nn___pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 1, 0, __pyx_stack) == -1)) __PYX_ERR(0, 336, __pyx_L1_error)
-  }
-  __pyx_pybuffernd_ghats.diminfo[0].strides = __pyx_pybuffernd_ghats.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_ghats.diminfo[0].shape = __pyx_pybuffernd_ghats.rcbuffer->pybuffer.shape[0];
-  {
-    __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_sigma_ghat.rcbuffer->pybuffer, (PyObject*)__pyx_v_sigma_ghat, &__Pyx_TypeInfo_nn___pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 1, 0, __pyx_stack) == -1)) __PYX_ERR(0, 336, __pyx_L1_error)
-  }
-  __pyx_pybuffernd_sigma_ghat.diminfo[0].strides = __pyx_pybuffernd_sigma_ghat.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_sigma_ghat.diminfo[0].shape = __pyx_pybuffernd_sigma_ghat.rcbuffer->pybuffer.shape[0];
-  {
-    __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_boostcor.rcbuffer->pybuffer, (PyObject*)__pyx_v_boostcor, &__Pyx_TypeInfo_nn___pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 1, 0, __pyx_stack) == -1)) __PYX_ERR(0, 336, __pyx_L1_error)
-  }
-  __pyx_pybuffernd_boostcor.diminfo[0].strides = __pyx_pybuffernd_boostcor.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_boostcor.diminfo[0].shape = __pyx_pybuffernd_boostcor.rcbuffer->pybuffer.shape[0];
-
-  /* "pzmassfitter/nfwmodeltools.pyx":346
- *                np.ndarray[DTYPE_T, ndim=1, mode='c'] boostcor not None):
- * 
- *     cdef Py_ssize_t nbins = r_mpc.shape[0]             # <<<<<<<<<<<<<<
- * 
- *     cdef np.ndarray[DTYPE_T, ndim=1, mode='c'] gamma_inf = NFWShear(r_mpc, concentration, r_scale, zcluster)
- */
-  __pyx_v_nbins = (__pyx_v_r_mpc->dimensions[0]);
-
-  /* "pzmassfitter/nfwmodeltools.pyx":348
- *     cdef Py_ssize_t nbins = r_mpc.shape[0]
- * 
- *     cdef np.ndarray[DTYPE_T, ndim=1, mode='c'] gamma_inf = NFWShear(r_mpc, concentration, r_scale, zcluster)             # <<<<<<<<<<<<<<
- *     cdef np.ndarray[DTYPE_T, ndim=1, mode='c'] kappa_inf = NFWKappa(r_mpc, concentration, r_scale, zcluster)
- * 
- */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_NFWShear); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 348, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = PyFloat_FromDouble(__pyx_v_concentration); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 348, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = PyFloat_FromDouble(__pyx_v_r_scale); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 348, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_5 = PyFloat_FromDouble(__pyx_v_zcluster); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 348, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_6 = NULL;
-  __pyx_t_7 = 0;
-  if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
-    __pyx_t_6 = PyMethod_GET_SELF(__pyx_t_2);
-    if (likely(__pyx_t_6)) {
-      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_2);
-      __Pyx_INCREF(__pyx_t_6);
-      __Pyx_INCREF(function);
-      __Pyx_DECREF_SET(__pyx_t_2, function);
-      __pyx_t_7 = 1;
-    }
-  }
-  #if CYTHON_FAST_PYCALL
-  if (PyFunction_Check(__pyx_t_2)) {
-    PyObject *__pyx_temp[5] = {__pyx_t_6, ((PyObject *)__pyx_v_r_mpc), __pyx_t_3, __pyx_t_4, __pyx_t_5};
-    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_7, 4+__pyx_t_7); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 348, __pyx_L1_error)
-    __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
-    __Pyx_GOTREF(__pyx_t_1);
-    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  } else
-  #endif
-  #if CYTHON_FAST_PYCCALL
-  if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
-    PyObject *__pyx_temp[5] = {__pyx_t_6, ((PyObject *)__pyx_v_r_mpc), __pyx_t_3, __pyx_t_4, __pyx_t_5};
-    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_7, 4+__pyx_t_7); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 348, __pyx_L1_error)
-    __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
-    __Pyx_GOTREF(__pyx_t_1);
-    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  } else
-  #endif
-  {
-    __pyx_t_8 = PyTuple_New(4+__pyx_t_7); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 348, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_8);
-    if (__pyx_t_6) {
-      __Pyx_GIVEREF(__pyx_t_6); PyTuple_SET_ITEM(__pyx_t_8, 0, __pyx_t_6); __pyx_t_6 = NULL;
-    }
-    __Pyx_INCREF(((PyObject *)__pyx_v_r_mpc));
-    __Pyx_GIVEREF(((PyObject *)__pyx_v_r_mpc));
-    PyTuple_SET_ITEM(__pyx_t_8, 0+__pyx_t_7, ((PyObject *)__pyx_v_r_mpc));
-    __Pyx_GIVEREF(__pyx_t_3);
-    PyTuple_SET_ITEM(__pyx_t_8, 1+__pyx_t_7, __pyx_t_3);
-    __Pyx_GIVEREF(__pyx_t_4);
-    PyTuple_SET_ITEM(__pyx_t_8, 2+__pyx_t_7, __pyx_t_4);
-    __Pyx_GIVEREF(__pyx_t_5);
-    PyTuple_SET_ITEM(__pyx_t_8, 3+__pyx_t_7, __pyx_t_5);
-    __pyx_t_3 = 0;
-    __pyx_t_4 = 0;
-    __pyx_t_5 = 0;
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_8, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 348, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_1);
-    __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-  }
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 348, __pyx_L1_error)
-  __pyx_t_9 = ((PyArrayObject *)__pyx_t_1);
-  {
-    __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_gamma_inf.rcbuffer->pybuffer, (PyObject*)__pyx_t_9, &__Pyx_TypeInfo_nn___pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 1, 0, __pyx_stack) == -1)) {
-      __pyx_v_gamma_inf = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_gamma_inf.rcbuffer->pybuffer.buf = NULL;
-      __PYX_ERR(0, 348, __pyx_L1_error)
-    } else {__pyx_pybuffernd_gamma_inf.diminfo[0].strides = __pyx_pybuffernd_gamma_inf.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_gamma_inf.diminfo[0].shape = __pyx_pybuffernd_gamma_inf.rcbuffer->pybuffer.shape[0];
-    }
-  }
-  __pyx_t_9 = 0;
-  __pyx_v_gamma_inf = ((PyArrayObject *)__pyx_t_1);
-  __pyx_t_1 = 0;
-
-  /* "pzmassfitter/nfwmodeltools.pyx":349
- * 
- *     cdef np.ndarray[DTYPE_T, ndim=1, mode='c'] gamma_inf = NFWShear(r_mpc, concentration, r_scale, zcluster)
- *     cdef np.ndarray[DTYPE_T, ndim=1, mode='c'] kappa_inf = NFWKappa(r_mpc, concentration, r_scale, zcluster)             # <<<<<<<<<<<<<<
- * 
- * 
- */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_NFWKappa); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 349, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_8 = PyFloat_FromDouble(__pyx_v_concentration); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 349, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_8);
-  __pyx_t_5 = PyFloat_FromDouble(__pyx_v_r_scale); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 349, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_4 = PyFloat_FromDouble(__pyx_v_zcluster); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 349, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_3 = NULL;
-  __pyx_t_7 = 0;
-  if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
-    __pyx_t_3 = PyMethod_GET_SELF(__pyx_t_2);
-    if (likely(__pyx_t_3)) {
-      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_2);
-      __Pyx_INCREF(__pyx_t_3);
-      __Pyx_INCREF(function);
-      __Pyx_DECREF_SET(__pyx_t_2, function);
-      __pyx_t_7 = 1;
-    }
-  }
-  #if CYTHON_FAST_PYCALL
-  if (PyFunction_Check(__pyx_t_2)) {
-    PyObject *__pyx_temp[5] = {__pyx_t_3, ((PyObject *)__pyx_v_r_mpc), __pyx_t_8, __pyx_t_5, __pyx_t_4};
-    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_7, 4+__pyx_t_7); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 349, __pyx_L1_error)
-    __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __Pyx_GOTREF(__pyx_t_1);
-    __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  } else
-  #endif
-  #if CYTHON_FAST_PYCCALL
-  if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
-    PyObject *__pyx_temp[5] = {__pyx_t_3, ((PyObject *)__pyx_v_r_mpc), __pyx_t_8, __pyx_t_5, __pyx_t_4};
-    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_7, 4+__pyx_t_7); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 349, __pyx_L1_error)
-    __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __Pyx_GOTREF(__pyx_t_1);
-    __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  } else
-  #endif
-  {
-    __pyx_t_6 = PyTuple_New(4+__pyx_t_7); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 349, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_6);
-    if (__pyx_t_3) {
-      __Pyx_GIVEREF(__pyx_t_3); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_3); __pyx_t_3 = NULL;
-    }
-    __Pyx_INCREF(((PyObject *)__pyx_v_r_mpc));
-    __Pyx_GIVEREF(((PyObject *)__pyx_v_r_mpc));
-    PyTuple_SET_ITEM(__pyx_t_6, 0+__pyx_t_7, ((PyObject *)__pyx_v_r_mpc));
-    __Pyx_GIVEREF(__pyx_t_8);
-    PyTuple_SET_ITEM(__pyx_t_6, 1+__pyx_t_7, __pyx_t_8);
-    __Pyx_GIVEREF(__pyx_t_5);
-    PyTuple_SET_ITEM(__pyx_t_6, 2+__pyx_t_7, __pyx_t_5);
-    __Pyx_GIVEREF(__pyx_t_4);
-    PyTuple_SET_ITEM(__pyx_t_6, 3+__pyx_t_7, __pyx_t_4);
-    __pyx_t_8 = 0;
-    __pyx_t_5 = 0;
-    __pyx_t_4 = 0;
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 349, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_1);
-    __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  }
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 349, __pyx_L1_error)
-  __pyx_t_10 = ((PyArrayObject *)__pyx_t_1);
-  {
-    __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_kappa_inf.rcbuffer->pybuffer, (PyObject*)__pyx_t_10, &__Pyx_TypeInfo_nn___pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 1, 0, __pyx_stack) == -1)) {
-      __pyx_v_kappa_inf = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_kappa_inf.rcbuffer->pybuffer.buf = NULL;
-      __PYX_ERR(0, 349, __pyx_L1_error)
-    } else {__pyx_pybuffernd_kappa_inf.diminfo[0].strides = __pyx_pybuffernd_kappa_inf.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_kappa_inf.diminfo[0].shape = __pyx_pybuffernd_kappa_inf.rcbuffer->pybuffer.shape[0];
-    }
-  }
-  __pyx_t_10 = 0;
-  __pyx_v_kappa_inf = ((PyArrayObject *)__pyx_t_1);
-  __pyx_t_1 = 0;
-
-  /* "pzmassfitter/nfwmodeltools.pyx":352
- * 
- * 
- *     cdef double g = 0.             # <<<<<<<<<<<<<<
- *     cdef double binlogProb = 0.
- *     cdef logProb = 0.
- */
-  __pyx_v_g = 0.;
-
-  /* "pzmassfitter/nfwmodeltools.pyx":353
- * 
- *     cdef double g = 0.
- *     cdef double binlogProb = 0.             # <<<<<<<<<<<<<<
- *     cdef logProb = 0.
- * 
- */
-  __pyx_v_binlogProb = 0.;
-
-  /* "pzmassfitter/nfwmodeltools.pyx":354
- *     cdef double g = 0.
- *     cdef double binlogProb = 0.
- *     cdef logProb = 0.             # <<<<<<<<<<<<<<
- * 
- *     cdef Py_ssize_t i
- */
-  __Pyx_INCREF(__pyx_float_0_);
-  __pyx_v_logProb = __pyx_float_0_;
-
-  /* "pzmassfitter/nfwmodeltools.pyx":358
- *     cdef Py_ssize_t i
- * 
- *     for i from nbins > i >= 0:             # <<<<<<<<<<<<<<
- * 
- *         g = beta_s*gamma_inf / (1 - ((beta_s2/beta_s)*kappa_inf) )
- */
-  for (__pyx_v_i = __pyx_v_nbins-1; __pyx_v_i >= 0; __pyx_v_i--) {
-
-    /* "pzmassfitter/nfwmodeltools.pyx":360
- *     for i from nbins > i >= 0:
- * 
- *         g = beta_s*gamma_inf / (1 - ((beta_s2/beta_s)*kappa_inf) )             # <<<<<<<<<<<<<<
- * 
- *         binlogProb = -0.5*((boostcor[i]*ghats[i] - g)/sigma_ghat[i])**2
- */
-    __pyx_t_1 = PyFloat_FromDouble(__pyx_v_beta_s); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 360, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_2 = PyNumber_Multiply(__pyx_t_1, ((PyObject *)__pyx_v_gamma_inf)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 360, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_2);
-    __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    if (unlikely(__pyx_v_beta_s == 0)) {
-      PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-      __PYX_ERR(0, 360, __pyx_L1_error)
-    }
-    __pyx_t_1 = PyFloat_FromDouble((__pyx_v_beta_s2 / __pyx_v_beta_s)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 360, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_6 = PyNumber_Multiply(__pyx_t_1, ((PyObject *)__pyx_v_kappa_inf)); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 360, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_6);
-    __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __pyx_t_1 = __Pyx_PyInt_SubtractCObj(__pyx_int_1, __pyx_t_6, 1, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 360, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_1);
-    __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-    __pyx_t_6 = __Pyx_PyNumber_Divide(__pyx_t_2, __pyx_t_1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 360, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_6);
-    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __pyx_t_11 = __pyx_PyFloat_AsDouble(__pyx_t_6); if (unlikely((__pyx_t_11 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 360, __pyx_L1_error)
-    __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-    __pyx_v_g = __pyx_t_11;
-
-    /* "pzmassfitter/nfwmodeltools.pyx":362
- *         g = beta_s*gamma_inf / (1 - ((beta_s2/beta_s)*kappa_inf) )
- * 
- *         binlogProb = -0.5*((boostcor[i]*ghats[i] - g)/sigma_ghat[i])**2             # <<<<<<<<<<<<<<
- * 
- *         logProb = logProb + binlogProb
- */
-    __pyx_t_12 = __pyx_v_i;
-    __pyx_t_13 = __pyx_v_i;
-    __pyx_t_14 = (((*__Pyx_BufPtrCContig1d(__pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T *, __pyx_pybuffernd_boostcor.rcbuffer->pybuffer.buf, __pyx_t_12, __pyx_pybuffernd_boostcor.diminfo[0].strides)) * (*__Pyx_BufPtrCContig1d(__pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T *, __pyx_pybuffernd_ghats.rcbuffer->pybuffer.buf, __pyx_t_13, __pyx_pybuffernd_ghats.diminfo[0].strides))) - __pyx_v_g);
-    __pyx_t_15 = __pyx_v_i;
-    __pyx_t_16 = (*__Pyx_BufPtrCContig1d(__pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T *, __pyx_pybuffernd_sigma_ghat.rcbuffer->pybuffer.buf, __pyx_t_15, __pyx_pybuffernd_sigma_ghat.diminfo[0].strides));
-    if (unlikely(__pyx_t_16 == 0)) {
-      PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-      __PYX_ERR(0, 362, __pyx_L1_error)
-    }
-    __pyx_v_binlogProb = (-0.5 * pow((__pyx_t_14 / __pyx_t_16), 2.0));
-
-    /* "pzmassfitter/nfwmodeltools.pyx":364
- *         binlogProb = -0.5*((boostcor[i]*ghats[i] - g)/sigma_ghat[i])**2
- * 
- *         logProb = logProb + binlogProb             # <<<<<<<<<<<<<<
- * 
- *     return logProb
- */
-    __pyx_t_6 = PyFloat_FromDouble(__pyx_v_binlogProb); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 364, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_6);
-    __pyx_t_1 = PyNumber_Add(__pyx_v_logProb, __pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 364, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_1);
-    __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-    __Pyx_DECREF_SET(__pyx_v_logProb, __pyx_t_1);
-    __pyx_t_1 = 0;
-  }
-
-  /* "pzmassfitter/nfwmodeltools.pyx":366
- *         logProb = logProb + binlogProb
- * 
- *     return logProb             # <<<<<<<<<<<<<<
- * 
- * ##################################################
- */
-  __Pyx_XDECREF(__pyx_r);
-  __Pyx_INCREF(__pyx_v_logProb);
-  __pyx_r = __pyx_v_logProb;
-  goto __pyx_L0;
-
-  /* "pzmassfitter/nfwmodeltools.pyx":336
- * @cython.boundscheck(False)
- * @cython.wraparound(False)
- * def bentcolorcut_like(double r_scale,             # <<<<<<<<<<<<<<
- *                np.ndarray[DTYPE_T, ndim=1, mode='c'] r_mpc not None,
- *                np.ndarray[DTYPE_T, ndim=1, mode='c'] ghats not None,
- */
-
-  /* function exit code */
-  __pyx_L1_error:;
-  __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_XDECREF(__pyx_t_2);
-  __Pyx_XDECREF(__pyx_t_3);
-  __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_XDECREF(__pyx_t_5);
-  __Pyx_XDECREF(__pyx_t_6);
-  __Pyx_XDECREF(__pyx_t_8);
-  { PyObject *__pyx_type, *__pyx_value, *__pyx_tb;
-    __Pyx_PyThreadState_declare
-    __Pyx_PyThreadState_assign
-    __Pyx_ErrFetch(&__pyx_type, &__pyx_value, &__pyx_tb);
-    __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_boostcor.rcbuffer->pybuffer);
-    __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_gamma_inf.rcbuffer->pybuffer);
-    __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_ghats.rcbuffer->pybuffer);
-    __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_kappa_inf.rcbuffer->pybuffer);
-    __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_r_mpc.rcbuffer->pybuffer);
-    __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_sigma_ghat.rcbuffer->pybuffer);
-  __Pyx_ErrRestore(__pyx_type, __pyx_value, __pyx_tb);}
-  __Pyx_AddTraceback("pzmassfitter.nfwmodeltools.bentcolorcut_like", __pyx_clineno, __pyx_lineno, __pyx_filename);
-  __pyx_r = NULL;
-  goto __pyx_L2;
-  __pyx_L0:;
-  __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_boostcor.rcbuffer->pybuffer);
-  __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_gamma_inf.rcbuffer->pybuffer);
-  __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_ghats.rcbuffer->pybuffer);
-  __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_kappa_inf.rcbuffer->pybuffer);
-  __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_r_mpc.rcbuffer->pybuffer);
-  __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_sigma_ghat.rcbuffer->pybuffer);
-  __pyx_L2:;
-  __Pyx_XDECREF((PyObject *)__pyx_v_gamma_inf);
-  __Pyx_XDECREF((PyObject *)__pyx_v_kappa_inf);
-  __Pyx_XDECREF(__pyx_v_logProb);
-  __Pyx_XGIVEREF(__pyx_r);
-  __Pyx_RefNannyFinishContext();
-  return __pyx_r;
-}
-
-/* "pzmassfitter/nfwmodeltools.pyx":372
- * @cython.boundscheck(False)
- * @cython.wraparound(False)
- * def bentcolorcut_like(np.ndarray[DTYPE_T, ndim=1, mode='c'] bin_r_mpc not None,             # <<<<<<<<<<<<<<
- *                       double r_scale,
- *                       np.ndarray[DTYPE_T, ndim=1, mode='c'] ghats not None,
- */
-
-/* Python wrapper */
-static PyObject *__pyx_pw_12pzmassfitter_13nfwmodeltools_17bentcolorcut_like(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyMethodDef __pyx_mdef_12pzmassfitter_13nfwmodeltools_17bentcolorcut_like = {"bentcolorcut_like", (PyCFunction)__pyx_pw_12pzmassfitter_13nfwmodeltools_17bentcolorcut_like, METH_VARARGS|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_12pzmassfitter_13nfwmodeltools_17bentcolorcut_like(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
-  PyArrayObject *__pyx_v_bin_r_mpc = 0;
-  double __pyx_v_r_scale;
-  PyArrayObject *__pyx_v_ghats = 0;
-  PyArrayObject *__pyx_v_bin_sigma = 0;
-  double __pyx_v_concentration;
-  double __pyx_v_zcluster;
-  double __pyx_v_avebeta;
-  double __pyx_v_avebeta2;
-  PyArrayObject *__pyx_v_bin_contamboost = 0;
-  PyObject *__pyx_r = 0;
-  __Pyx_RefNannyDeclarations
-  __Pyx_RefNannySetupContext("bentcolorcut_like (wrapper)", 0);
-  {
-    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_bin_r_mpc,&__pyx_n_s_r_scale,&__pyx_n_s_ghats,&__pyx_n_s_bin_sigma,&__pyx_n_s_concentration,&__pyx_n_s_zcluster,&__pyx_n_s_avebeta,&__pyx_n_s_avebeta2,&__pyx_n_s_bin_contamboost,0};
-    PyObject* values[9] = {0,0,0,0,0,0,0,0,0};
-    if (unlikely(__pyx_kwds)) {
-      Py_ssize_t kw_args;
-      const Py_ssize_t pos_args = PyTuple_GET_SIZE(__pyx_args);
-      switch (pos_args) {
-        case  9: values[8] = PyTuple_GET_ITEM(__pyx_args, 8);
-        case  8: values[7] = PyTuple_GET_ITEM(__pyx_args, 7);
-        case  7: values[6] = PyTuple_GET_ITEM(__pyx_args, 6);
-        case  6: values[5] = PyTuple_GET_ITEM(__pyx_args, 5);
-        case  5: values[4] = PyTuple_GET_ITEM(__pyx_args, 4);
-        case  4: values[3] = PyTuple_GET_ITEM(__pyx_args, 3);
-        case  3: values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
-        case  2: values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
-        case  1: values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
-        case  0: break;
-        default: goto __pyx_L5_argtuple_error;
-      }
-      kw_args = PyDict_Size(__pyx_kwds);
-      switch (pos_args) {
-        case  0:
-        if (likely((values[0] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_bin_r_mpc)) != 0)) kw_args--;
-        else goto __pyx_L5_argtuple_error;
-        case  1:
-        if (likely((values[1] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_r_scale)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("bentcolorcut_like", 1, 9, 9, 1); __PYX_ERR(0, 372, __pyx_L3_error)
-        }
-        case  2:
-        if (likely((values[2] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_ghats)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("bentcolorcut_like", 1, 9, 9, 2); __PYX_ERR(0, 372, __pyx_L3_error)
-        }
-        case  3:
-        if (likely((values[3] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_bin_sigma)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("bentcolorcut_like", 1, 9, 9, 3); __PYX_ERR(0, 372, __pyx_L3_error)
-        }
-        case  4:
-        if (likely((values[4] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_concentration)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("bentcolorcut_like", 1, 9, 9, 4); __PYX_ERR(0, 372, __pyx_L3_error)
-        }
-        case  5:
-        if (likely((values[5] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_zcluster)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("bentcolorcut_like", 1, 9, 9, 5); __PYX_ERR(0, 372, __pyx_L3_error)
-        }
-        case  6:
-        if (likely((values[6] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_avebeta)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("bentcolorcut_like", 1, 9, 9, 6); __PYX_ERR(0, 372, __pyx_L3_error)
-        }
-        case  7:
-        if (likely((values[7] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_avebeta2)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("bentcolorcut_like", 1, 9, 9, 7); __PYX_ERR(0, 372, __pyx_L3_error)
-        }
-        case  8:
-        if (likely((values[8] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_bin_contamboost)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("bentcolorcut_like", 1, 9, 9, 8); __PYX_ERR(0, 372, __pyx_L3_error)
-        }
-      }
-      if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "bentcolorcut_like") < 0)) __PYX_ERR(0, 372, __pyx_L3_error)
-      }
-    } else if (PyTuple_GET_SIZE(__pyx_args) != 9) {
-      goto __pyx_L5_argtuple_error;
-    } else {
-      values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
-      values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
-      values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
-      values[3] = PyTuple_GET_ITEM(__pyx_args, 3);
-      values[4] = PyTuple_GET_ITEM(__pyx_args, 4);
-      values[5] = PyTuple_GET_ITEM(__pyx_args, 5);
-      values[6] = PyTuple_GET_ITEM(__pyx_args, 6);
-      values[7] = PyTuple_GET_ITEM(__pyx_args, 7);
-      values[8] = PyTuple_GET_ITEM(__pyx_args, 8);
-    }
-    __pyx_v_bin_r_mpc = ((PyArrayObject *)values[0]);
-    __pyx_v_r_scale = __pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_r_scale == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 373, __pyx_L3_error)
-    __pyx_v_ghats = ((PyArrayObject *)values[2]);
-    __pyx_v_bin_sigma = ((PyArrayObject *)values[3]);
-    __pyx_v_concentration = __pyx_PyFloat_AsDouble(values[4]); if (unlikely((__pyx_v_concentration == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 376, __pyx_L3_error)
-    __pyx_v_zcluster = __pyx_PyFloat_AsDouble(values[5]); if (unlikely((__pyx_v_zcluster == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 377, __pyx_L3_error)
-    __pyx_v_avebeta = __pyx_PyFloat_AsDouble(values[6]); if (unlikely((__pyx_v_avebeta == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 378, __pyx_L3_error)
-    __pyx_v_avebeta2 = __pyx_PyFloat_AsDouble(values[7]); if (unlikely((__pyx_v_avebeta2 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 379, __pyx_L3_error)
-    __pyx_v_bin_contamboost = ((PyArrayObject *)values[8]);
-  }
-  goto __pyx_L4_argument_unpacking_done;
-  __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("bentcolorcut_like", 1, 9, 9, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 372, __pyx_L3_error)
-  __pyx_L3_error:;
-  __Pyx_AddTraceback("pzmassfitter.nfwmodeltools.bentcolorcut_like", __pyx_clineno, __pyx_lineno, __pyx_filename);
-  __Pyx_RefNannyFinishContext();
-  return NULL;
-  __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_bin_r_mpc), __pyx_ptype_5numpy_ndarray, 0, "bin_r_mpc", 0))) __PYX_ERR(0, 372, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_ghats), __pyx_ptype_5numpy_ndarray, 0, "ghats", 0))) __PYX_ERR(0, 374, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_bin_sigma), __pyx_ptype_5numpy_ndarray, 0, "bin_sigma", 0))) __PYX_ERR(0, 375, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_bin_contamboost), __pyx_ptype_5numpy_ndarray, 0, "bin_contamboost", 0))) __PYX_ERR(0, 380, __pyx_L1_error)
-  __pyx_r = __pyx_pf_12pzmassfitter_13nfwmodeltools_16bentcolorcut_like(__pyx_self, __pyx_v_bin_r_mpc, __pyx_v_r_scale, __pyx_v_ghats, __pyx_v_bin_sigma, __pyx_v_concentration, __pyx_v_zcluster, __pyx_v_avebeta, __pyx_v_avebeta2, __pyx_v_bin_contamboost);
-
-  /* function exit code */
-  goto __pyx_L0;
-  __pyx_L1_error:;
-  __pyx_r = NULL;
-  __pyx_L0:;
-  __Pyx_RefNannyFinishContext();
-  return __pyx_r;
-}
-
-static PyObject *__pyx_pf_12pzmassfitter_13nfwmodeltools_16bentcolorcut_like(CYTHON_UNUSED PyObject *__pyx_self, PyArrayObject *__pyx_v_bin_r_mpc, double __pyx_v_r_scale, PyArrayObject *__pyx_v_ghats, PyArrayObject *__pyx_v_bin_sigma, double __pyx_v_concentration, double __pyx_v_zcluster, double __pyx_v_avebeta, double __pyx_v_avebeta2, PyArrayObject *__pyx_v_bin_contamboost) {
-  CYTHON_UNUSED Py_ssize_t __pyx_v_nobjs;
-  Py_ssize_t __pyx_v_nbins;
-  PyArrayObject *__pyx_v_gamma_inf = 0;
-  PyArrayObject *__pyx_v_kappa_inf = 0;
-  CYTHON_UNUSED int __pyx_v_curbin;
-  double __pyx_v_gtilde;
-  double __pyx_v_delta;
-  double __pyx_v_modelg;
-  Py_ssize_t __pyx_v_i;
-  __pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T __pyx_v_logProb;
-  __Pyx_LocalBuf_ND __pyx_pybuffernd_bin_contamboost;
-  __Pyx_Buffer __pyx_pybuffer_bin_contamboost;
-  __Pyx_LocalBuf_ND __pyx_pybuffernd_bin_r_mpc;
-  __Pyx_Buffer __pyx_pybuffer_bin_r_mpc;
-  __Pyx_LocalBuf_ND __pyx_pybuffernd_bin_sigma;
-  __Pyx_Buffer __pyx_pybuffer_bin_sigma;
-  __Pyx_LocalBuf_ND __pyx_pybuffernd_gamma_inf;
-  __Pyx_Buffer __pyx_pybuffer_gamma_inf;
-  __Pyx_LocalBuf_ND __pyx_pybuffernd_ghats;
-  __Pyx_Buffer __pyx_pybuffer_ghats;
-  __Pyx_LocalBuf_ND __pyx_pybuffernd_kappa_inf;
-  __Pyx_Buffer __pyx_pybuffer_kappa_inf;
-  PyObject *__pyx_r = NULL;
-  __Pyx_RefNannyDeclarations
-  PyObject *__pyx_t_1 = NULL;
-  PyObject *__pyx_t_2 = NULL;
-  PyObject *__pyx_t_3 = NULL;
-  PyObject *__pyx_t_4 = NULL;
-  PyObject *__pyx_t_5 = NULL;
-  PyObject *__pyx_t_6 = NULL;
-  int __pyx_t_7;
-  PyObject *__pyx_t_8 = NULL;
-  PyArrayObject *__pyx_t_9 = NULL;
-  PyArrayObject *__pyx_t_10 = NULL;
-  Py_ssize_t __pyx_t_11;
-  Py_ssize_t __pyx_t_12;
-  Py_ssize_t __pyx_t_13;
-  __pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T __pyx_t_14;
-  Py_ssize_t __pyx_t_15;
-  __pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T __pyx_t_16;
-  Py_ssize_t __pyx_t_17;
-  Py_ssize_t __pyx_t_18;
-  __Pyx_RefNannySetupContext("bentcolorcut_like", 0);
-  __pyx_pybuffer_gamma_inf.pybuffer.buf = NULL;
-  __pyx_pybuffer_gamma_inf.refcount = 0;
-  __pyx_pybuffernd_gamma_inf.data = NULL;
-  __pyx_pybuffernd_gamma_inf.rcbuffer = &__pyx_pybuffer_gamma_inf;
-  __pyx_pybuffer_kappa_inf.pybuffer.buf = NULL;
-  __pyx_pybuffer_kappa_inf.refcount = 0;
-  __pyx_pybuffernd_kappa_inf.data = NULL;
-  __pyx_pybuffernd_kappa_inf.rcbuffer = &__pyx_pybuffer_kappa_inf;
-  __pyx_pybuffer_bin_r_mpc.pybuffer.buf = NULL;
-  __pyx_pybuffer_bin_r_mpc.refcount = 0;
-  __pyx_pybuffernd_bin_r_mpc.data = NULL;
-  __pyx_pybuffernd_bin_r_mpc.rcbuffer = &__pyx_pybuffer_bin_r_mpc;
-  __pyx_pybuffer_ghats.pybuffer.buf = NULL;
-  __pyx_pybuffer_ghats.refcount = 0;
-  __pyx_pybuffernd_ghats.data = NULL;
-  __pyx_pybuffernd_ghats.rcbuffer = &__pyx_pybuffer_ghats;
-  __pyx_pybuffer_bin_sigma.pybuffer.buf = NULL;
-  __pyx_pybuffer_bin_sigma.refcount = 0;
-  __pyx_pybuffernd_bin_sigma.data = NULL;
-  __pyx_pybuffernd_bin_sigma.rcbuffer = &__pyx_pybuffer_bin_sigma;
-  __pyx_pybuffer_bin_contamboost.pybuffer.buf = NULL;
-  __pyx_pybuffer_bin_contamboost.refcount = 0;
-  __pyx_pybuffernd_bin_contamboost.data = NULL;
-  __pyx_pybuffernd_bin_contamboost.rcbuffer = &__pyx_pybuffer_bin_contamboost;
-  {
-    __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_bin_r_mpc.rcbuffer->pybuffer, (PyObject*)__pyx_v_bin_r_mpc, &__Pyx_TypeInfo_nn___pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 1, 0, __pyx_stack) == -1)) __PYX_ERR(0, 372, __pyx_L1_error)
-  }
-  __pyx_pybuffernd_bin_r_mpc.diminfo[0].strides = __pyx_pybuffernd_bin_r_mpc.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_bin_r_mpc.diminfo[0].shape = __pyx_pybuffernd_bin_r_mpc.rcbuffer->pybuffer.shape[0];
-  {
-    __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_ghats.rcbuffer->pybuffer, (PyObject*)__pyx_v_ghats, &__Pyx_TypeInfo_nn___pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 1, 0, __pyx_stack) == -1)) __PYX_ERR(0, 372, __pyx_L1_error)
-  }
-  __pyx_pybuffernd_ghats.diminfo[0].strides = __pyx_pybuffernd_ghats.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_ghats.diminfo[0].shape = __pyx_pybuffernd_ghats.rcbuffer->pybuffer.shape[0];
-  {
-    __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_bin_sigma.rcbuffer->pybuffer, (PyObject*)__pyx_v_bin_sigma, &__Pyx_TypeInfo_nn___pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 1, 0, __pyx_stack) == -1)) __PYX_ERR(0, 372, __pyx_L1_error)
-  }
-  __pyx_pybuffernd_bin_sigma.diminfo[0].strides = __pyx_pybuffernd_bin_sigma.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_bin_sigma.diminfo[0].shape = __pyx_pybuffernd_bin_sigma.rcbuffer->pybuffer.shape[0];
-  {
-    __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_bin_contamboost.rcbuffer->pybuffer, (PyObject*)__pyx_v_bin_contamboost, &__Pyx_TypeInfo_nn___pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 1, 0, __pyx_stack) == -1)) __PYX_ERR(0, 372, __pyx_L1_error)
-  }
-  __pyx_pybuffernd_bin_contamboost.diminfo[0].strides = __pyx_pybuffernd_bin_contamboost.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_bin_contamboost.diminfo[0].shape = __pyx_pybuffernd_bin_contamboost.rcbuffer->pybuffer.shape[0];
-
-  /* "pzmassfitter/nfwmodeltools.pyx":385
- * 
- * 
- *     cdef Py_ssize_t nobjs = ghats.shape[0]             # <<<<<<<<<<<<<<
- *     cdef Py_ssize_t nbins = bin_r_mpc.shape[0]
- * 
- */
-  __pyx_v_nobjs = (__pyx_v_ghats->dimensions[0]);
-
-  /* "pzmassfitter/nfwmodeltools.pyx":386
- * 
- *     cdef Py_ssize_t nobjs = ghats.shape[0]
- *     cdef Py_ssize_t nbins = bin_r_mpc.shape[0]             # <<<<<<<<<<<<<<
- * 
- *     cdef np.ndarray[DTYPE_T, ndim=1, mode='c'] gamma_inf = NFWShear(bin_r_mpc, concentration, r_scale, zcluster)
- */
-  __pyx_v_nbins = (__pyx_v_bin_r_mpc->dimensions[0]);
-
-  /* "pzmassfitter/nfwmodeltools.pyx":388
- *     cdef Py_ssize_t nbins = bin_r_mpc.shape[0]
- * 
- *     cdef np.ndarray[DTYPE_T, ndim=1, mode='c'] gamma_inf = NFWShear(bin_r_mpc, concentration, r_scale, zcluster)             # <<<<<<<<<<<<<<
- *     cdef np.ndarray[DTYPE_T, ndim=1, mode='c'] kappa_inf = NFWKappa(bin_r_mpc, concentration, r_scale, zcluster)
- * 
- */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_NFWShear); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 388, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = PyFloat_FromDouble(__pyx_v_concentration); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 388, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = PyFloat_FromDouble(__pyx_v_r_scale); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 388, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_5 = PyFloat_FromDouble(__pyx_v_zcluster); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 388, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_6 = NULL;
-  __pyx_t_7 = 0;
-  if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
-    __pyx_t_6 = PyMethod_GET_SELF(__pyx_t_2);
-    if (likely(__pyx_t_6)) {
-      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_2);
-      __Pyx_INCREF(__pyx_t_6);
-      __Pyx_INCREF(function);
-      __Pyx_DECREF_SET(__pyx_t_2, function);
-      __pyx_t_7 = 1;
-    }
-  }
-  #if CYTHON_FAST_PYCALL
-  if (PyFunction_Check(__pyx_t_2)) {
-    PyObject *__pyx_temp[5] = {__pyx_t_6, ((PyObject *)__pyx_v_bin_r_mpc), __pyx_t_3, __pyx_t_4, __pyx_t_5};
-    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_7, 4+__pyx_t_7); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 388, __pyx_L1_error)
-    __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
-    __Pyx_GOTREF(__pyx_t_1);
-    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  } else
-  #endif
-  #if CYTHON_FAST_PYCCALL
-  if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
-    PyObject *__pyx_temp[5] = {__pyx_t_6, ((PyObject *)__pyx_v_bin_r_mpc), __pyx_t_3, __pyx_t_4, __pyx_t_5};
-    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_7, 4+__pyx_t_7); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 388, __pyx_L1_error)
-    __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
-    __Pyx_GOTREF(__pyx_t_1);
-    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  } else
-  #endif
-  {
-    __pyx_t_8 = PyTuple_New(4+__pyx_t_7); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 388, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_8);
-    if (__pyx_t_6) {
-      __Pyx_GIVEREF(__pyx_t_6); PyTuple_SET_ITEM(__pyx_t_8, 0, __pyx_t_6); __pyx_t_6 = NULL;
-    }
-    __Pyx_INCREF(((PyObject *)__pyx_v_bin_r_mpc));
-    __Pyx_GIVEREF(((PyObject *)__pyx_v_bin_r_mpc));
-    PyTuple_SET_ITEM(__pyx_t_8, 0+__pyx_t_7, ((PyObject *)__pyx_v_bin_r_mpc));
-    __Pyx_GIVEREF(__pyx_t_3);
-    PyTuple_SET_ITEM(__pyx_t_8, 1+__pyx_t_7, __pyx_t_3);
-    __Pyx_GIVEREF(__pyx_t_4);
-    PyTuple_SET_ITEM(__pyx_t_8, 2+__pyx_t_7, __pyx_t_4);
-    __Pyx_GIVEREF(__pyx_t_5);
-    PyTuple_SET_ITEM(__pyx_t_8, 3+__pyx_t_7, __pyx_t_5);
-    __pyx_t_3 = 0;
-    __pyx_t_4 = 0;
-    __pyx_t_5 = 0;
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_8, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 388, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_1);
-    __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-  }
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 388, __pyx_L1_error)
-  __pyx_t_9 = ((PyArrayObject *)__pyx_t_1);
-  {
-    __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_gamma_inf.rcbuffer->pybuffer, (PyObject*)__pyx_t_9, &__Pyx_TypeInfo_nn___pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 1, 0, __pyx_stack) == -1)) {
-      __pyx_v_gamma_inf = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_gamma_inf.rcbuffer->pybuffer.buf = NULL;
-      __PYX_ERR(0, 388, __pyx_L1_error)
-    } else {__pyx_pybuffernd_gamma_inf.diminfo[0].strides = __pyx_pybuffernd_gamma_inf.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_gamma_inf.diminfo[0].shape = __pyx_pybuffernd_gamma_inf.rcbuffer->pybuffer.shape[0];
-    }
-  }
-  __pyx_t_9 = 0;
-  __pyx_v_gamma_inf = ((PyArrayObject *)__pyx_t_1);
-  __pyx_t_1 = 0;
-
-  /* "pzmassfitter/nfwmodeltools.pyx":389
- * 
- *     cdef np.ndarray[DTYPE_T, ndim=1, mode='c'] gamma_inf = NFWShear(bin_r_mpc, concentration, r_scale, zcluster)
- *     cdef np.ndarray[DTYPE_T, ndim=1, mode='c'] kappa_inf = NFWKappa(bin_r_mpc, concentration, r_scale, zcluster)             # <<<<<<<<<<<<<<
- * 
- * 
- */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_NFWKappa); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 389, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_8 = PyFloat_FromDouble(__pyx_v_concentration); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 389, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_8);
-  __pyx_t_5 = PyFloat_FromDouble(__pyx_v_r_scale); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 389, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_4 = PyFloat_FromDouble(__pyx_v_zcluster); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 389, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_3 = NULL;
-  __pyx_t_7 = 0;
-  if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
-    __pyx_t_3 = PyMethod_GET_SELF(__pyx_t_2);
-    if (likely(__pyx_t_3)) {
-      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_2);
-      __Pyx_INCREF(__pyx_t_3);
-      __Pyx_INCREF(function);
-      __Pyx_DECREF_SET(__pyx_t_2, function);
-      __pyx_t_7 = 1;
-    }
-  }
-  #if CYTHON_FAST_PYCALL
-  if (PyFunction_Check(__pyx_t_2)) {
-    PyObject *__pyx_temp[5] = {__pyx_t_3, ((PyObject *)__pyx_v_bin_r_mpc), __pyx_t_8, __pyx_t_5, __pyx_t_4};
-    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_7, 4+__pyx_t_7); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 389, __pyx_L1_error)
-    __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __Pyx_GOTREF(__pyx_t_1);
-    __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  } else
-  #endif
-  #if CYTHON_FAST_PYCCALL
-  if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
-    PyObject *__pyx_temp[5] = {__pyx_t_3, ((PyObject *)__pyx_v_bin_r_mpc), __pyx_t_8, __pyx_t_5, __pyx_t_4};
-    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_7, 4+__pyx_t_7); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 389, __pyx_L1_error)
-    __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __Pyx_GOTREF(__pyx_t_1);
-    __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  } else
-  #endif
-  {
-    __pyx_t_6 = PyTuple_New(4+__pyx_t_7); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 389, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_6);
-    if (__pyx_t_3) {
-      __Pyx_GIVEREF(__pyx_t_3); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_3); __pyx_t_3 = NULL;
-    }
-    __Pyx_INCREF(((PyObject *)__pyx_v_bin_r_mpc));
-    __Pyx_GIVEREF(((PyObject *)__pyx_v_bin_r_mpc));
-    PyTuple_SET_ITEM(__pyx_t_6, 0+__pyx_t_7, ((PyObject *)__pyx_v_bin_r_mpc));
-    __Pyx_GIVEREF(__pyx_t_8);
-    PyTuple_SET_ITEM(__pyx_t_6, 1+__pyx_t_7, __pyx_t_8);
-    __Pyx_GIVEREF(__pyx_t_5);
-    PyTuple_SET_ITEM(__pyx_t_6, 2+__pyx_t_7, __pyx_t_5);
-    __Pyx_GIVEREF(__pyx_t_4);
-    PyTuple_SET_ITEM(__pyx_t_6, 3+__pyx_t_7, __pyx_t_4);
-    __pyx_t_8 = 0;
-    __pyx_t_5 = 0;
-    __pyx_t_4 = 0;
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 389, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_1);
-    __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  }
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 389, __pyx_L1_error)
-  __pyx_t_10 = ((PyArrayObject *)__pyx_t_1);
-  {
-    __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_kappa_inf.rcbuffer->pybuffer, (PyObject*)__pyx_t_10, &__Pyx_TypeInfo_nn___pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 1, 0, __pyx_stack) == -1)) {
-      __pyx_v_kappa_inf = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_kappa_inf.rcbuffer->pybuffer.buf = NULL;
-      __PYX_ERR(0, 389, __pyx_L1_error)
-    } else {__pyx_pybuffernd_kappa_inf.diminfo[0].strides = __pyx_pybuffernd_kappa_inf.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_kappa_inf.diminfo[0].shape = __pyx_pybuffernd_kappa_inf.rcbuffer->pybuffer.shape[0];
-    }
-  }
-  __pyx_t_10 = 0;
-  __pyx_v_kappa_inf = ((PyArrayObject *)__pyx_t_1);
-  __pyx_t_1 = 0;
-
-  /* "pzmassfitter/nfwmodeltools.pyx":392
- * 
- * 
- *     cdef int curbin = 0             # <<<<<<<<<<<<<<
- *     cdef double gtilde = 0.
- *     cdef double delta = 0.
- */
-  __pyx_v_curbin = 0;
-
-  /* "pzmassfitter/nfwmodeltools.pyx":393
- * 
- *     cdef int curbin = 0
- *     cdef double gtilde = 0.             # <<<<<<<<<<<<<<
- *     cdef double delta = 0.
- *     cdef double modelg = 0.
- */
-  __pyx_v_gtilde = 0.;
-
-  /* "pzmassfitter/nfwmodeltools.pyx":394
- *     cdef int curbin = 0
- *     cdef double gtilde = 0.
- *     cdef double delta = 0.             # <<<<<<<<<<<<<<
- *     cdef double modelg = 0.
- * 
- */
-  __pyx_v_delta = 0.;
-
-  /* "pzmassfitter/nfwmodeltools.pyx":395
- *     cdef double gtilde = 0.
- *     cdef double delta = 0.
- *     cdef double modelg = 0.             # <<<<<<<<<<<<<<
- * 
- *     cdef Py_ssize_t i, j, s
- */
-  __pyx_v_modelg = 0.;
-
-  /* "pzmassfitter/nfwmodeltools.pyx":398
- * 
- *     cdef Py_ssize_t i, j, s
- *     cdef DTYPE_T logProb = 0.             # <<<<<<<<<<<<<<
- * 
- * 
- */
-  __pyx_v_logProb = 0.;
-
-  /* "pzmassfitter/nfwmodeltools.pyx":402
- * 
- *     #calculate logprob
- *     for i from nbins > i >= 0:             # <<<<<<<<<<<<<<
- * 
- *         gtilde = bin_contamboost[i] * ghats[i]
- */
-  for (__pyx_v_i = __pyx_v_nbins-1; __pyx_v_i >= 0; __pyx_v_i--) {
-
-    /* "pzmassfitter/nfwmodeltools.pyx":404
- *     for i from nbins > i >= 0:
- * 
- *         gtilde = bin_contamboost[i] * ghats[i]             # <<<<<<<<<<<<<<
- * 
- *         modelg = (avebeta*gamma_inf[i] / (1 - (avebeta2/avebeta)*kappa_inf[i]))
- */
-    __pyx_t_11 = __pyx_v_i;
-    __pyx_t_12 = __pyx_v_i;
-    __pyx_v_gtilde = ((*__Pyx_BufPtrCContig1d(__pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T *, __pyx_pybuffernd_bin_contamboost.rcbuffer->pybuffer.buf, __pyx_t_11, __pyx_pybuffernd_bin_contamboost.diminfo[0].strides)) * (*__Pyx_BufPtrCContig1d(__pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T *, __pyx_pybuffernd_ghats.rcbuffer->pybuffer.buf, __pyx_t_12, __pyx_pybuffernd_ghats.diminfo[0].strides)));
-
-    /* "pzmassfitter/nfwmodeltools.pyx":406
- *         gtilde = bin_contamboost[i] * ghats[i]
- * 
- *         modelg = (avebeta*gamma_inf[i] / (1 - (avebeta2/avebeta)*kappa_inf[i]))             # <<<<<<<<<<<<<<
- * 
- *         delta = gtilde - modelg
- */
-    __pyx_t_13 = __pyx_v_i;
-    __pyx_t_14 = (__pyx_v_avebeta * (*__Pyx_BufPtrCContig1d(__pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T *, __pyx_pybuffernd_gamma_inf.rcbuffer->pybuffer.buf, __pyx_t_13, __pyx_pybuffernd_gamma_inf.diminfo[0].strides)));
-    if (unlikely(__pyx_v_avebeta == 0)) {
-      PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-      __PYX_ERR(0, 406, __pyx_L1_error)
-    }
-    __pyx_t_15 = __pyx_v_i;
-    __pyx_t_16 = (1.0 - ((__pyx_v_avebeta2 / __pyx_v_avebeta) * (*__Pyx_BufPtrCContig1d(__pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T *, __pyx_pybuffernd_kappa_inf.rcbuffer->pybuffer.buf, __pyx_t_15, __pyx_pybuffernd_kappa_inf.diminfo[0].strides))));
-    if (unlikely(__pyx_t_16 == 0)) {
-      PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-      __PYX_ERR(0, 406, __pyx_L1_error)
-    }
-    __pyx_v_modelg = (__pyx_t_14 / __pyx_t_16);
-
-    /* "pzmassfitter/nfwmodeltools.pyx":408
- *         modelg = (avebeta*gamma_inf[i] / (1 - (avebeta2/avebeta)*kappa_inf[i]))
- * 
- *         delta = gtilde - modelg             # <<<<<<<<<<<<<<
- * 
- *         logProb = logProb -.5*(delta/bin_sigma[i])**2  - logsqrt2pi - np.log(bin_sigma[i])
- */
-    __pyx_v_delta = (__pyx_v_gtilde - __pyx_v_modelg);
-
-    /* "pzmassfitter/nfwmodeltools.pyx":410
- *         delta = gtilde - modelg
- * 
- *         logProb = logProb -.5*(delta/bin_sigma[i])**2  - logsqrt2pi - np.log(bin_sigma[i])             # <<<<<<<<<<<<<<
- * 
- * 
- */
-    __pyx_t_17 = __pyx_v_i;
-    __pyx_t_16 = (*__Pyx_BufPtrCContig1d(__pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T *, __pyx_pybuffernd_bin_sigma.rcbuffer->pybuffer.buf, __pyx_t_17, __pyx_pybuffernd_bin_sigma.diminfo[0].strides));
-    if (unlikely(__pyx_t_16 == 0)) {
-      PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-      __PYX_ERR(0, 410, __pyx_L1_error)
-    }
-    __pyx_t_1 = PyFloat_FromDouble((__pyx_v_logProb - (.5 * pow((__pyx_v_delta / __pyx_t_16), 2.0)))); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 410, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_logsqrt2pi); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 410, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_6 = PyNumber_Subtract(__pyx_t_1, __pyx_t_2); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 410, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_6);
-    __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 410, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_log); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 410, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_4);
-    __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __pyx_t_18 = __pyx_v_i;
-    __pyx_t_1 = PyFloat_FromDouble((*__Pyx_BufPtrCContig1d(__pyx_t_12pzmassfitter_13nfwmodeltools_DTYPE_T *, __pyx_pybuffernd_bin_sigma.rcbuffer->pybuffer.buf, __pyx_t_18, __pyx_pybuffernd_bin_sigma.diminfo[0].strides))); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 410, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_5 = NULL;
-    if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_4))) {
-      __pyx_t_5 = PyMethod_GET_SELF(__pyx_t_4);
-      if (likely(__pyx_t_5)) {
-        PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_4);
-        __Pyx_INCREF(__pyx_t_5);
-        __Pyx_INCREF(function);
-        __Pyx_DECREF_SET(__pyx_t_4, function);
-      }
-    }
-    if (!__pyx_t_5) {
-      __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 410, __pyx_L1_error)
-      __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-      __Pyx_GOTREF(__pyx_t_2);
-    } else {
-      #if CYTHON_FAST_PYCALL
-      if (PyFunction_Check(__pyx_t_4)) {
-        PyObject *__pyx_temp[2] = {__pyx_t_5, __pyx_t_1};
-        __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_4, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 410, __pyx_L1_error)
-        __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-        __Pyx_GOTREF(__pyx_t_2);
-        __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-      } else
-      #endif
-      #if CYTHON_FAST_PYCCALL
-      if (__Pyx_PyFastCFunction_Check(__pyx_t_4)) {
-        PyObject *__pyx_temp[2] = {__pyx_t_5, __pyx_t_1};
-        __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_4, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 410, __pyx_L1_error)
-        __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-        __Pyx_GOTREF(__pyx_t_2);
-        __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-      } else
-      #endif
-      {
-        __pyx_t_8 = PyTuple_New(1+1); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 410, __pyx_L1_error)
-        __Pyx_GOTREF(__pyx_t_8);
-        __Pyx_GIVEREF(__pyx_t_5); PyTuple_SET_ITEM(__pyx_t_8, 0, __pyx_t_5); __pyx_t_5 = NULL;
-        __Pyx_GIVEREF(__pyx_t_1);
-        PyTuple_SET_ITEM(__pyx_t_8, 0+1, __pyx_t_1);
-        __pyx_t_1 = 0;
-        __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_8, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 410, __pyx_L1_error)
-        __Pyx_GOTREF(__pyx_t_2);
-        __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-      }
-    }
-    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __pyx_t_4 = PyNumber_Subtract(__pyx_t_6, __pyx_t_2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 410, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_4);
-    __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __pyx_t_16 = __pyx_PyFloat_AsDouble(__pyx_t_4); if (unlikely((__pyx_t_16 == ((npy_double)-1)) && PyErr_Occurred())) __PYX_ERR(0, 410, __pyx_L1_error)
-    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __pyx_v_logProb = __pyx_t_16;
-  }
-
-  /* "pzmassfitter/nfwmodeltools.pyx":413
- * 
- * 
- *     return logProb             # <<<<<<<<<<<<<<
- * 
- * 
- */
-  __Pyx_XDECREF(__pyx_r);
-  __pyx_t_4 = PyFloat_FromDouble(__pyx_v_logProb); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 413, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_4);
-  __pyx_r = __pyx_t_4;
-  __pyx_t_4 = 0;
-  goto __pyx_L0;
-
-  /* "pzmassfitter/nfwmodeltools.pyx":372
- * @cython.boundscheck(False)
- * @cython.wraparound(False)
- * def bentcolorcut_like(np.ndarray[DTYPE_T, ndim=1, mode='c'] bin_r_mpc not None,             # <<<<<<<<<<<<<<
- *                       double r_scale,
- *                       np.ndarray[DTYPE_T, ndim=1, mode='c'] ghats not None,
- */
-
-  /* function exit code */
-  __pyx_L1_error:;
-  __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_XDECREF(__pyx_t_2);
-  __Pyx_XDECREF(__pyx_t_3);
-  __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_XDECREF(__pyx_t_5);
-  __Pyx_XDECREF(__pyx_t_6);
-  __Pyx_XDECREF(__pyx_t_8);
-  { PyObject *__pyx_type, *__pyx_value, *__pyx_tb;
-    __Pyx_PyThreadState_declare
-    __Pyx_PyThreadState_assign
-    __Pyx_ErrFetch(&__pyx_type, &__pyx_value, &__pyx_tb);
-    __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_bin_contamboost.rcbuffer->pybuffer);
-    __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_bin_r_mpc.rcbuffer->pybuffer);
-    __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_bin_sigma.rcbuffer->pybuffer);
-    __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_gamma_inf.rcbuffer->pybuffer);
-    __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_ghats.rcbuffer->pybuffer);
-    __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_kappa_inf.rcbuffer->pybuffer);
-  __Pyx_ErrRestore(__pyx_type, __pyx_value, __pyx_tb);}
-  __Pyx_AddTraceback("pzmassfitter.nfwmodeltools.bentcolorcut_like", __pyx_clineno, __pyx_lineno, __pyx_filename);
-  __pyx_r = NULL;
-  goto __pyx_L2;
-  __pyx_L0:;
-  __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_bin_contamboost.rcbuffer->pybuffer);
-  __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_bin_r_mpc.rcbuffer->pybuffer);
-  __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_bin_sigma.rcbuffer->pybuffer);
-  __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_gamma_inf.rcbuffer->pybuffer);
-  __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_ghats.rcbuffer->pybuffer);
-  __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_kappa_inf.rcbuffer->pybuffer);
-  __pyx_L2:;
-  __Pyx_XDECREF((PyObject *)__pyx_v_gamma_inf);
-  __Pyx_XDECREF((PyObject *)__pyx_v_kappa_inf);
   __Pyx_XGIVEREF(__pyx_r);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
@@ -9079,28 +8973,17 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_a, __pyx_k_a, sizeof(__pyx_k_a), 0, 0, 1, 1},
   {&__pyx_n_s_amp, __pyx_k_amp, sizeof(__pyx_k_amp), 0, 0, 1, 1},
   {&__pyx_n_s_aveEnclosedKappa, __pyx_k_aveEnclosedKappa, sizeof(__pyx_k_aveEnclosedKappa), 0, 0, 1, 1},
-  {&__pyx_n_s_avebeta, __pyx_k_avebeta, sizeof(__pyx_k_avebeta), 0, 0, 1, 1},
-  {&__pyx_n_s_avebeta2, __pyx_k_avebeta2, sizeof(__pyx_k_avebeta2), 0, 0, 1, 1},
   {&__pyx_n_s_avekappa, __pyx_k_avekappa, sizeof(__pyx_k_avekappa), 0, 0, 1, 1},
   {&__pyx_n_s_b, __pyx_k_b, sizeof(__pyx_k_b), 0, 0, 1, 1},
-  {&__pyx_n_s_bentcolorcut_like, __pyx_k_bentcolorcut_like, sizeof(__pyx_k_bentcolorcut_like), 0, 0, 1, 1},
   {&__pyx_n_s_bentvoigt_like, __pyx_k_bentvoigt_like, sizeof(__pyx_k_bentvoigt_like), 0, 0, 1, 1},
   {&__pyx_n_s_beta, __pyx_k_beta, sizeof(__pyx_k_beta), 0, 0, 1, 1},
-  {&__pyx_n_s_beta_s, __pyx_k_beta_s, sizeof(__pyx_k_beta_s), 0, 0, 1, 1},
-  {&__pyx_n_s_beta_s2, __pyx_k_beta_s2, sizeof(__pyx_k_beta_s2), 0, 0, 1, 1},
   {&__pyx_n_s_betas, __pyx_k_betas, sizeof(__pyx_k_betas), 0, 0, 1, 1},
-  {&__pyx_n_s_bin_contamboost, __pyx_k_bin_contamboost, sizeof(__pyx_k_bin_contamboost), 0, 0, 1, 1},
-  {&__pyx_n_s_bin_r_mpc, __pyx_k_bin_r_mpc, sizeof(__pyx_k_bin_r_mpc), 0, 0, 1, 1},
-  {&__pyx_n_s_bin_sigma, __pyx_k_bin_sigma, sizeof(__pyx_k_bin_sigma), 0, 0, 1, 1},
-  {&__pyx_n_s_binlogProb, __pyx_k_binlogProb, sizeof(__pyx_k_binlogProb), 0, 0, 1, 1},
-  {&__pyx_n_s_boostcor, __pyx_k_boostcor, sizeof(__pyx_k_boostcor), 0, 0, 1, 1},
   {&__pyx_n_s_brenth, __pyx_k_brenth, sizeof(__pyx_k_brenth), 0, 0, 1, 1},
   {&__pyx_n_s_c, __pyx_k_c, sizeof(__pyx_k_c), 0, 0, 1, 1},
   {&__pyx_n_s_c200, __pyx_k_c200, sizeof(__pyx_k_c200), 0, 0, 1, 1},
   {&__pyx_n_s_cdelta, __pyx_k_cdelta, sizeof(__pyx_k_cdelta), 0, 0, 1, 1},
   {&__pyx_n_s_concentration, __pyx_k_concentration, sizeof(__pyx_k_concentration), 0, 0, 1, 1},
   {&__pyx_n_s_curPZ, __pyx_k_curPZ, sizeof(__pyx_k_curPZ), 0, 0, 1, 1},
-  {&__pyx_n_s_curbin, __pyx_k_curbin, sizeof(__pyx_k_curbin), 0, 0, 1, 1},
   {&__pyx_n_s_cvs_id, __pyx_k_cvs_id, sizeof(__pyx_k_cvs_id), 0, 0, 1, 1},
   {&__pyx_n_s_delta, __pyx_k_delta, sizeof(__pyx_k_delta), 0, 0, 1, 1},
   {&__pyx_n_s_delta_c, __pyx_k_delta_c, sizeof(__pyx_k_delta_c), 0, 0, 1, 1},
@@ -9112,8 +8995,8 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_galProb, __pyx_k_galProb, sizeof(__pyx_k_galProb), 0, 0, 1, 1},
   {&__pyx_n_s_gamma, __pyx_k_gamma, sizeof(__pyx_k_gamma), 0, 0, 1, 1},
   {&__pyx_n_s_gamma_inf, __pyx_k_gamma_inf, sizeof(__pyx_k_gamma_inf), 0, 0, 1, 1},
+  {&__pyx_n_s_gauss_like, __pyx_k_gauss_like, sizeof(__pyx_k_gauss_like), 0, 0, 1, 1},
   {&__pyx_n_s_ghats, __pyx_k_ghats, sizeof(__pyx_k_ghats), 0, 0, 1, 1},
-  {&__pyx_n_s_gtilde, __pyx_k_gtilde, sizeof(__pyx_k_gtilde), 0, 0, 1, 1},
   {&__pyx_n_s_i, __pyx_k_i, sizeof(__pyx_k_i), 0, 0, 1, 1},
   {&__pyx_n_s_import, __pyx_k_import, sizeof(__pyx_k_import), 0, 0, 1, 1},
   {&__pyx_n_s_integrand, __pyx_k_integrand, sizeof(__pyx_k_integrand), 0, 0, 1, 1},
@@ -9128,8 +9011,6 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_massInsideR, __pyx_k_massInsideR, sizeof(__pyx_k_massInsideR), 0, 0, 1, 1},
   {&__pyx_n_s_massdelta, __pyx_k_massdelta, sizeof(__pyx_k_massdelta), 0, 0, 1, 1},
   {&__pyx_n_s_mdelta, __pyx_k_mdelta, sizeof(__pyx_k_mdelta), 0, 0, 1, 1},
-  {&__pyx_n_s_modelg, __pyx_k_modelg, sizeof(__pyx_k_modelg), 0, 0, 1, 1},
-  {&__pyx_n_s_nbins, __pyx_k_nbins, sizeof(__pyx_k_nbins), 0, 0, 1, 1},
   {&__pyx_kp_u_ndarray_is_not_C_contiguous, __pyx_k_ndarray_is_not_C_contiguous, sizeof(__pyx_k_ndarray_is_not_C_contiguous), 0, 1, 0, 0},
   {&__pyx_kp_u_ndarray_is_not_Fortran_contiguou, __pyx_k_ndarray_is_not_Fortran_contiguou, sizeof(__pyx_k_ndarray_is_not_Fortran_contiguou), 0, 1, 0, 0},
   {&__pyx_n_s_nfwutils, __pyx_k_nfwutils, sizeof(__pyx_k_nfwutils), 0, 0, 1, 1},
@@ -9146,7 +9027,6 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_pzmassfitter_nfwmodeltools, __pyx_k_pzmassfitter_nfwmodeltools, sizeof(__pyx_k_pzmassfitter_nfwmodeltools), 0, 0, 1, 1},
   {&__pyx_n_s_r, __pyx_k_r, sizeof(__pyx_k_r), 0, 0, 1, 1},
   {&__pyx_n_s_r_mpc, __pyx_k_r_mpc, sizeof(__pyx_k_r_mpc), 0, 0, 1, 1},
-  {&__pyx_n_s_r_scale, __pyx_k_r_scale, sizeof(__pyx_k_r_scale), 0, 0, 1, 1},
   {&__pyx_n_s_range, __pyx_k_range, sizeof(__pyx_k_range), 0, 0, 1, 1},
   {&__pyx_n_s_rdelta, __pyx_k_rdelta, sizeof(__pyx_k_rdelta), 0, 0, 1, 1},
   {&__pyx_n_s_rdelta2rs, __pyx_k_rdelta2rs, sizeof(__pyx_k_rdelta2rs), 0, 0, 1, 1},
@@ -9160,14 +9040,13 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_scipy, __pyx_k_scipy, sizeof(__pyx_k_scipy), 0, 0, 1, 1},
   {&__pyx_n_s_scipy_optimize, __pyx_k_scipy_optimize, sizeof(__pyx_k_scipy_optimize), 0, 0, 1, 1},
   {&__pyx_n_s_sigma, __pyx_k_sigma, sizeof(__pyx_k_sigma), 0, 0, 1, 1},
-  {&__pyx_n_s_sigma_ghat, __pyx_k_sigma_ghat, sizeof(__pyx_k_sigma_ghat), 0, 0, 1, 1},
   {&__pyx_n_s_sqrt, __pyx_k_sqrt, sizeof(__pyx_k_sqrt), 0, 0, 1, 1},
+  {&__pyx_n_s_sqrt2pi, __pyx_k_sqrt2pi, sizeof(__pyx_k_sqrt2pi), 0, 0, 1, 1},
   {&__pyx_n_s_test, __pyx_k_test, sizeof(__pyx_k_test), 0, 0, 1, 1},
   {&__pyx_n_s_trapz, __pyx_k_trapz, sizeof(__pyx_k_trapz), 0, 0, 1, 1},
   {&__pyx_kp_u_unknown_dtype_code_in_numpy_pxd, __pyx_k_unknown_dtype_code_in_numpy_pxd, sizeof(__pyx_k_unknown_dtype_code_in_numpy_pxd), 0, 1, 0, 0},
   {&__pyx_n_s_x, __pyx_k_x, sizeof(__pyx_k_x), 0, 0, 1, 1},
   {&__pyx_n_s_x0, __pyx_k_x0, sizeof(__pyx_k_x0), 0, 0, 1, 1},
-  {&__pyx_n_s_zcluster, __pyx_k_zcluster, sizeof(__pyx_k_zcluster), 0, 0, 1, 1},
   {&__pyx_n_s_zeros, __pyx_k_zeros, sizeof(__pyx_k_zeros), 0, 0, 1, 1},
   {&__pyx_n_s_zs, __pyx_k_zs, sizeof(__pyx_k_zs), 0, 0, 1, 1},
   {0, 0, 0, 0, 0, 0, 0}
@@ -9186,17 +9065,17 @@ static int __Pyx_InitCachedConstants(void) {
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__Pyx_InitCachedConstants", 0);
 
-  /* "pzmassfitter/nfwmodeltools.pyx":196
+  /* "pzmassfitter/nfwmodeltools.pyx":197
  * 
  *     # x = r_delta / rs
  *     def f(x):             # <<<<<<<<<<<<<<
  * 
  *         return 3*delta_c*(log(1+x) - (x/(1+x)))/x**3 - delta
  */
-  __pyx_tuple_ = PyTuple_Pack(1, __pyx_n_s_x); if (unlikely(!__pyx_tuple_)) __PYX_ERR(0, 196, __pyx_L1_error)
+  __pyx_tuple_ = PyTuple_Pack(1, __pyx_n_s_x); if (unlikely(!__pyx_tuple_)) __PYX_ERR(0, 197, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple_);
   __Pyx_GIVEREF(__pyx_tuple_);
-  __pyx_codeobj__2 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple_, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Users_dapple_astro_desc_Cluster, __pyx_n_s_f, 196, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__2)) __PYX_ERR(0, 196, __pyx_L1_error)
+  __pyx_codeobj__2 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple_, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Users_dapple_astro_desc_Cluster, __pyx_n_s_f, 197, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__2)) __PYX_ERR(0, 197, __pyx_L1_error)
 
   /* "../../../.conda/envs/lsst/lib/python2.7/site-packages/Cython/Includes/numpy/__init__.pxd":218
  *             if ((flags & pybuf.PyBUF_C_CONTIGUOUS == pybuf.PyBUF_C_CONTIGUOUS)
@@ -9295,113 +9174,101 @@ static int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__11);
   __Pyx_GIVEREF(__pyx_tuple__11);
 
-  /* "pzmassfitter/nfwmodeltools.pyx":57
+  /* "pzmassfitter/nfwmodeltools.pyx":58
  * @cython.boundscheck(False)
  * @cython.wraparound(False)
  * def NFWShear(np.ndarray[np.double_t, ndim=1, mode='c'] r,             # <<<<<<<<<<<<<<
  *               double concentration,
  *               double rs,
  */
-  __pyx_tuple__12 = PyTuple_Pack(14, __pyx_n_s_r, __pyx_n_s_concentration, __pyx_n_s_rs, __pyx_n_s_rho_c_over_sigma_c, __pyx_n_s_delta, __pyx_n_s_delta_c, __pyx_n_s_amp, __pyx_n_s_x, __pyx_n_s_a, __pyx_n_s_b, __pyx_n_s_c, __pyx_n_s_i, __pyx_n_s_npos, __pyx_n_s_g); if (unlikely(!__pyx_tuple__12)) __PYX_ERR(0, 57, __pyx_L1_error)
+  __pyx_tuple__12 = PyTuple_Pack(14, __pyx_n_s_r, __pyx_n_s_concentration, __pyx_n_s_rs, __pyx_n_s_rho_c_over_sigma_c, __pyx_n_s_delta, __pyx_n_s_delta_c, __pyx_n_s_amp, __pyx_n_s_x, __pyx_n_s_a, __pyx_n_s_b, __pyx_n_s_c, __pyx_n_s_i, __pyx_n_s_npos, __pyx_n_s_g); if (unlikely(!__pyx_tuple__12)) __PYX_ERR(0, 58, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__12);
   __Pyx_GIVEREF(__pyx_tuple__12);
-  __pyx_codeobj__13 = (PyObject*)__Pyx_PyCode_New(5, 0, 14, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__12, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Users_dapple_astro_desc_Cluster, __pyx_n_s_NFWShear, 57, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__13)) __PYX_ERR(0, 57, __pyx_L1_error)
+  __pyx_codeobj__13 = (PyObject*)__Pyx_PyCode_New(5, 0, 14, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__12, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Users_dapple_astro_desc_Cluster, __pyx_n_s_NFWShear, 58, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__13)) __PYX_ERR(0, 58, __pyx_L1_error)
 
-  /* "pzmassfitter/nfwmodeltools.pyx":100
+  /* "pzmassfitter/nfwmodeltools.pyx":101
  * @cython.boundscheck(False)
  * @cython.wraparound(False)
  * def NFWKappa(np.ndarray[np.double_t, ndim=1, mode='c'] r,             # <<<<<<<<<<<<<<
  *               double concentration,
  *               double rs,
  */
-  __pyx_tuple__14 = PyTuple_Pack(14, __pyx_n_s_r, __pyx_n_s_concentration, __pyx_n_s_rs, __pyx_n_s_rho_c_over_sigma_c, __pyx_n_s_delta, __pyx_n_s_delta_c, __pyx_n_s_amp, __pyx_n_s_i, __pyx_n_s_npos, __pyx_n_s_kappa, __pyx_n_s_x, __pyx_n_s_a, __pyx_n_s_b, __pyx_n_s_c); if (unlikely(!__pyx_tuple__14)) __PYX_ERR(0, 100, __pyx_L1_error)
+  __pyx_tuple__14 = PyTuple_Pack(14, __pyx_n_s_r, __pyx_n_s_concentration, __pyx_n_s_rs, __pyx_n_s_rho_c_over_sigma_c, __pyx_n_s_delta, __pyx_n_s_delta_c, __pyx_n_s_amp, __pyx_n_s_i, __pyx_n_s_npos, __pyx_n_s_kappa, __pyx_n_s_x, __pyx_n_s_a, __pyx_n_s_b, __pyx_n_s_c); if (unlikely(!__pyx_tuple__14)) __PYX_ERR(0, 101, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__14);
   __Pyx_GIVEREF(__pyx_tuple__14);
-  __pyx_codeobj__15 = (PyObject*)__Pyx_PyCode_New(5, 0, 14, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__14, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Users_dapple_astro_desc_Cluster, __pyx_n_s_NFWKappa, 100, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__15)) __PYX_ERR(0, 100, __pyx_L1_error)
+  __pyx_codeobj__15 = (PyObject*)__Pyx_PyCode_New(5, 0, 14, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__14, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Users_dapple_astro_desc_Cluster, __pyx_n_s_NFWKappa, 101, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__15)) __PYX_ERR(0, 101, __pyx_L1_error)
 
-  /* "pzmassfitter/nfwmodeltools.pyx":143
+  /* "pzmassfitter/nfwmodeltools.pyx":144
  * @cython.boundscheck(False)
  * @cython.wraparound(False)
  * def aveEnclosedKappa(np.ndarray[np.double_t, ndim=1, mode='c'] r,             # <<<<<<<<<<<<<<
  *                      double concentration,
  *                      double rs,
  */
-  __pyx_tuple__16 = PyTuple_Pack(14, __pyx_n_s_r, __pyx_n_s_concentration, __pyx_n_s_rs, __pyx_n_s_rho_c_over_sigma_c, __pyx_n_s_delta, __pyx_n_s_delta_c, __pyx_n_s_amp, __pyx_n_s_i, __pyx_n_s_npos, __pyx_n_s_avekappa, __pyx_n_s_x, __pyx_n_s_a, __pyx_n_s_b, __pyx_n_s_c); if (unlikely(!__pyx_tuple__16)) __PYX_ERR(0, 143, __pyx_L1_error)
+  __pyx_tuple__16 = PyTuple_Pack(14, __pyx_n_s_r, __pyx_n_s_concentration, __pyx_n_s_rs, __pyx_n_s_rho_c_over_sigma_c, __pyx_n_s_delta, __pyx_n_s_delta_c, __pyx_n_s_amp, __pyx_n_s_i, __pyx_n_s_npos, __pyx_n_s_avekappa, __pyx_n_s_x, __pyx_n_s_a, __pyx_n_s_b, __pyx_n_s_c); if (unlikely(!__pyx_tuple__16)) __PYX_ERR(0, 144, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__16);
   __Pyx_GIVEREF(__pyx_tuple__16);
-  __pyx_codeobj__17 = (PyObject*)__Pyx_PyCode_New(5, 0, 14, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__16, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Users_dapple_astro_desc_Cluster, __pyx_n_s_aveEnclosedKappa, 143, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__17)) __PYX_ERR(0, 143, __pyx_L1_error)
+  __pyx_codeobj__17 = (PyObject*)__Pyx_PyCode_New(5, 0, 14, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__16, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Users_dapple_astro_desc_Cluster, __pyx_n_s_aveEnclosedKappa, 144, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__17)) __PYX_ERR(0, 144, __pyx_L1_error)
 
-  /* "pzmassfitter/nfwmodeltools.pyx":189
+  /* "pzmassfitter/nfwmodeltools.pyx":190
  * @cython.boundscheck(False)
  * @cython.wraparound(False)
  * def rdelta2rs(double rdelta,             # <<<<<<<<<<<<<<
  *               double c200,
  *               double delta):
  */
-  __pyx_tuple__18 = PyTuple_Pack(8, __pyx_n_s_rdelta, __pyx_n_s_c200, __pyx_n_s_delta, __pyx_n_s_delta_c, __pyx_n_s_f, __pyx_n_s_f, __pyx_n_s_x0, __pyx_n_s_rs); if (unlikely(!__pyx_tuple__18)) __PYX_ERR(0, 189, __pyx_L1_error)
+  __pyx_tuple__18 = PyTuple_Pack(8, __pyx_n_s_rdelta, __pyx_n_s_c200, __pyx_n_s_delta, __pyx_n_s_delta_c, __pyx_n_s_f, __pyx_n_s_f, __pyx_n_s_x0, __pyx_n_s_rs); if (unlikely(!__pyx_tuple__18)) __PYX_ERR(0, 190, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__18);
   __Pyx_GIVEREF(__pyx_tuple__18);
-  __pyx_codeobj__19 = (PyObject*)__Pyx_PyCode_New(3, 0, 8, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__18, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Users_dapple_astro_desc_Cluster, __pyx_n_s_rdelta2rs, 189, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__19)) __PYX_ERR(0, 189, __pyx_L1_error)
+  __pyx_codeobj__19 = (PyObject*)__Pyx_PyCode_New(3, 0, 8, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__18, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Users_dapple_astro_desc_Cluster, __pyx_n_s_rdelta2rs, 190, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__19)) __PYX_ERR(0, 190, __pyx_L1_error)
 
-  /* "pzmassfitter/nfwmodeltools.pyx":212
+  /* "pzmassfitter/nfwmodeltools.pyx":213
  * @cython.boundscheck(False)
  * @cython.wraparound(False)
  * def rscaleConstM(double mdelta,             # <<<<<<<<<<<<<<
  *                  double c,
  *                  double rho_c,
  */
-  __pyx_tuple__20 = PyTuple_Pack(6, __pyx_n_s_mdelta, __pyx_n_s_c, __pyx_n_s_rho_c, __pyx_n_s_delta, __pyx_n_s_rdelta, __pyx_n_s_rs); if (unlikely(!__pyx_tuple__20)) __PYX_ERR(0, 212, __pyx_L1_error)
+  __pyx_tuple__20 = PyTuple_Pack(6, __pyx_n_s_mdelta, __pyx_n_s_c, __pyx_n_s_rho_c, __pyx_n_s_delta, __pyx_n_s_rdelta, __pyx_n_s_rs); if (unlikely(!__pyx_tuple__20)) __PYX_ERR(0, 213, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__20);
   __Pyx_GIVEREF(__pyx_tuple__20);
-  __pyx_codeobj__21 = (PyObject*)__Pyx_PyCode_New(4, 0, 6, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__20, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Users_dapple_astro_desc_Cluster, __pyx_n_s_rscaleConstM, 212, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__21)) __PYX_ERR(0, 212, __pyx_L1_error)
+  __pyx_codeobj__21 = (PyObject*)__Pyx_PyCode_New(4, 0, 6, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__20, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Users_dapple_astro_desc_Cluster, __pyx_n_s_rscaleConstM, 213, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__21)) __PYX_ERR(0, 213, __pyx_L1_error)
 
-  /* "pzmassfitter/nfwmodeltools.pyx":228
+  /* "pzmassfitter/nfwmodeltools.pyx":229
  * @cython.boundscheck(False)
  * @cython.wraparound(False)
  * def massInsideR(double rs,             # <<<<<<<<<<<<<<
  *                 double c,
  *                 double R,
  */
-  __pyx_tuple__22 = PyTuple_Pack(7, __pyx_n_s_rs, __pyx_n_s_c, __pyx_n_s_R, __pyx_n_s_rho_c, __pyx_n_s_x, __pyx_n_s_delta_c, __pyx_n_s_massInsideR); if (unlikely(!__pyx_tuple__22)) __PYX_ERR(0, 228, __pyx_L1_error)
+  __pyx_tuple__22 = PyTuple_Pack(7, __pyx_n_s_rs, __pyx_n_s_c, __pyx_n_s_R, __pyx_n_s_rho_c, __pyx_n_s_x, __pyx_n_s_delta_c, __pyx_n_s_massInsideR); if (unlikely(!__pyx_tuple__22)) __PYX_ERR(0, 229, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__22);
   __Pyx_GIVEREF(__pyx_tuple__22);
-  __pyx_codeobj__23 = (PyObject*)__Pyx_PyCode_New(4, 0, 7, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__22, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Users_dapple_astro_desc_Cluster, __pyx_n_s_massInsideR, 228, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__23)) __PYX_ERR(0, 228, __pyx_L1_error)
+  __pyx_codeobj__23 = (PyObject*)__Pyx_PyCode_New(4, 0, 7, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__22, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Users_dapple_astro_desc_Cluster, __pyx_n_s_massInsideR, 229, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__23)) __PYX_ERR(0, 229, __pyx_L1_error)
 
   /* "pzmassfitter/nfwmodeltools.pyx":252
+ * @cython.boundscheck(False)
+ * @cython.wraparound(False)
+ * def gauss_like(double mdelta,             # <<<<<<<<<<<<<<
+ *                double cdelta,
+ *                np.ndarray[DTYPE_T, ndim=1, mode='c'] r_mpc not None,
+ */
+  __pyx_tuple__24 = PyTuple_Pack(29, __pyx_n_s_mdelta, __pyx_n_s_cdelta, __pyx_n_s_r_mpc, __pyx_n_s_ghats, __pyx_n_s_zs, __pyx_n_s_betas, __pyx_n_s_pz, __pyx_n_s_m, __pyx_n_s_c, __pyx_n_s_sigma, __pyx_n_s_rho_c, __pyx_n_s_rho_c_over_sigma_c, __pyx_n_s_massdelta, __pyx_n_s_nobjs, __pyx_n_s_npz, __pyx_n_s_gamma_inf, __pyx_n_s_kappa_inf, __pyx_n_s_rscale, __pyx_n_s_rdelta, __pyx_n_s_delta, __pyx_n_s_curPZ, __pyx_n_s_beta, __pyx_n_s_g, __pyx_n_s_i, __pyx_n_s_j, __pyx_n_s_s, __pyx_n_s_galProb, __pyx_n_s_logProb, __pyx_n_s_integrand); if (unlikely(!__pyx_tuple__24)) __PYX_ERR(0, 252, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__24);
+  __Pyx_GIVEREF(__pyx_tuple__24);
+  __pyx_codeobj__25 = (PyObject*)__Pyx_PyCode_New(13, 0, 29, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__24, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Users_dapple_astro_desc_Cluster, __pyx_n_s_gauss_like, 252, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__25)) __PYX_ERR(0, 252, __pyx_L1_error)
+
+  /* "pzmassfitter/nfwmodeltools.pyx":337
  * @cython.boundscheck(False)
  * @cython.wraparound(False)
  * def bentvoigt_like(double mdelta,             # <<<<<<<<<<<<<<
  *                    double cdelta,
  *                    np.ndarray[DTYPE_T, ndim=1, mode='c'] r_mpc not None,
  */
-  __pyx_tuple__24 = PyTuple_Pack(30, __pyx_n_s_mdelta, __pyx_n_s_cdelta, __pyx_n_s_r_mpc, __pyx_n_s_ghats, __pyx_n_s_zs, __pyx_n_s_betas, __pyx_n_s_pz, __pyx_n_s_m, __pyx_n_s_c, __pyx_n_s_sigma, __pyx_n_s_gamma, __pyx_n_s_rho_c, __pyx_n_s_rho_c_over_sigma_c, __pyx_n_s_massdelta, __pyx_n_s_nobjs, __pyx_n_s_npz, __pyx_n_s_gamma_inf, __pyx_n_s_kappa_inf, __pyx_n_s_rscale, __pyx_n_s_rdelta, __pyx_n_s_delta, __pyx_n_s_curPZ, __pyx_n_s_beta, __pyx_n_s_g, __pyx_n_s_i, __pyx_n_s_j, __pyx_n_s_s, __pyx_n_s_galProb, __pyx_n_s_logProb, __pyx_n_s_integrand); if (unlikely(!__pyx_tuple__24)) __PYX_ERR(0, 252, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__24);
-  __Pyx_GIVEREF(__pyx_tuple__24);
-  __pyx_codeobj__25 = (PyObject*)__Pyx_PyCode_New(14, 0, 30, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__24, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Users_dapple_astro_desc_Cluster, __pyx_n_s_bentvoigt_like, 252, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__25)) __PYX_ERR(0, 252, __pyx_L1_error)
-
-  /* "pzmassfitter/nfwmodeltools.pyx":336
- * @cython.boundscheck(False)
- * @cython.wraparound(False)
- * def bentcolorcut_like(double r_scale,             # <<<<<<<<<<<<<<
- *                np.ndarray[DTYPE_T, ndim=1, mode='c'] r_mpc not None,
- *                np.ndarray[DTYPE_T, ndim=1, mode='c'] ghats not None,
- */
-  __pyx_tuple__26 = PyTuple_Pack(16, __pyx_n_s_r_scale, __pyx_n_s_r_mpc, __pyx_n_s_ghats, __pyx_n_s_sigma_ghat, __pyx_n_s_concentration, __pyx_n_s_zcluster, __pyx_n_s_beta_s, __pyx_n_s_beta_s2, __pyx_n_s_boostcor, __pyx_n_s_nbins, __pyx_n_s_gamma_inf, __pyx_n_s_kappa_inf, __pyx_n_s_g, __pyx_n_s_binlogProb, __pyx_n_s_logProb, __pyx_n_s_i); if (unlikely(!__pyx_tuple__26)) __PYX_ERR(0, 336, __pyx_L1_error)
+  __pyx_tuple__26 = PyTuple_Pack(30, __pyx_n_s_mdelta, __pyx_n_s_cdelta, __pyx_n_s_r_mpc, __pyx_n_s_ghats, __pyx_n_s_zs, __pyx_n_s_betas, __pyx_n_s_pz, __pyx_n_s_m, __pyx_n_s_c, __pyx_n_s_sigma, __pyx_n_s_gamma, __pyx_n_s_rho_c, __pyx_n_s_rho_c_over_sigma_c, __pyx_n_s_massdelta, __pyx_n_s_nobjs, __pyx_n_s_npz, __pyx_n_s_gamma_inf, __pyx_n_s_kappa_inf, __pyx_n_s_rscale, __pyx_n_s_rdelta, __pyx_n_s_delta, __pyx_n_s_curPZ, __pyx_n_s_beta, __pyx_n_s_g, __pyx_n_s_i, __pyx_n_s_j, __pyx_n_s_s, __pyx_n_s_galProb, __pyx_n_s_logProb, __pyx_n_s_integrand); if (unlikely(!__pyx_tuple__26)) __PYX_ERR(0, 337, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__26);
   __Pyx_GIVEREF(__pyx_tuple__26);
-  __pyx_codeobj__27 = (PyObject*)__Pyx_PyCode_New(9, 0, 16, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__26, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Users_dapple_astro_desc_Cluster, __pyx_n_s_bentcolorcut_like, 336, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__27)) __PYX_ERR(0, 336, __pyx_L1_error)
-
-  /* "pzmassfitter/nfwmodeltools.pyx":372
- * @cython.boundscheck(False)
- * @cython.wraparound(False)
- * def bentcolorcut_like(np.ndarray[DTYPE_T, ndim=1, mode='c'] bin_r_mpc not None,             # <<<<<<<<<<<<<<
- *                       double r_scale,
- *                       np.ndarray[DTYPE_T, ndim=1, mode='c'] ghats not None,
- */
-  __pyx_tuple__28 = PyTuple_Pack(21, __pyx_n_s_bin_r_mpc, __pyx_n_s_r_scale, __pyx_n_s_ghats, __pyx_n_s_bin_sigma, __pyx_n_s_concentration, __pyx_n_s_zcluster, __pyx_n_s_avebeta, __pyx_n_s_avebeta2, __pyx_n_s_bin_contamboost, __pyx_n_s_nobjs, __pyx_n_s_nbins, __pyx_n_s_gamma_inf, __pyx_n_s_kappa_inf, __pyx_n_s_curbin, __pyx_n_s_gtilde, __pyx_n_s_delta, __pyx_n_s_modelg, __pyx_n_s_i, __pyx_n_s_j, __pyx_n_s_s, __pyx_n_s_logProb); if (unlikely(!__pyx_tuple__28)) __PYX_ERR(0, 372, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__28);
-  __Pyx_GIVEREF(__pyx_tuple__28);
-  __pyx_codeobj__29 = (PyObject*)__Pyx_PyCode_New(9, 0, 21, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__28, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Users_dapple_astro_desc_Cluster, __pyx_n_s_bentcolorcut_like, 372, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__29)) __PYX_ERR(0, 372, __pyx_L1_error)
+  __pyx_codeobj__27 = (PyObject*)__Pyx_PyCode_New(14, 0, 30, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__26, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Users_dapple_astro_desc_Cluster, __pyx_n_s_bentvoigt_like, 337, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__27)) __PYX_ERR(0, 337, __pyx_L1_error)
   __Pyx_RefNannyFinishContext();
   return 0;
   __pyx_L1_error:;
@@ -9411,7 +9278,6 @@ static int __Pyx_InitCachedConstants(void) {
 
 static int __Pyx_InitGlobals(void) {
   if (__Pyx_InitStrings(__pyx_string_tab) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  __pyx_float_0_ = PyFloat_FromDouble(0.); if (unlikely(!__pyx_float_0_)) __PYX_ERR(0, 1, __pyx_L1_error)
   __pyx_float_0_1 = PyFloat_FromDouble(0.1); if (unlikely(!__pyx_float_0_1)) __PYX_ERR(0, 1, __pyx_L1_error)
   __pyx_int_1 = PyInt_FromLong(1); if (unlikely(!__pyx_int_1)) __PYX_ERR(0, 1, __pyx_L1_error)
   __pyx_int_2 = PyInt_FromLong(2); if (unlikely(!__pyx_int_2)) __PYX_ERR(0, 1, __pyx_L1_error)
@@ -9435,8 +9301,6 @@ PyMODINIT_FUNC PyInit_nfwmodeltools(void)
   PyObject *__pyx_t_3 = NULL;
   PyObject *__pyx_t_4 = NULL;
   PyObject *__pyx_t_5 = NULL;
-  PyObject *__pyx_t_6 = NULL;
-  PyObject *__pyx_t_7 = NULL;
   __Pyx_RefNannyDeclarations
   #if CYTHON_REFNANNY
   __Pyx_RefNanny = __Pyx_RefNannyImportAPI("refnanny");
@@ -9512,7 +9376,7 @@ PyMODINIT_FUNC PyInit_nfwmodeltools(void)
   /*--- Variable export code ---*/
   /*--- Function export code ---*/
   /*--- Type init code ---*/
-  if (PyType_Ready(&__pyx_type_12pzmassfitter_13nfwmodeltools___pyx_scope_struct__rdelta2rs) < 0) __PYX_ERR(0, 189, __pyx_L1_error)
+  if (PyType_Ready(&__pyx_type_12pzmassfitter_13nfwmodeltools___pyx_scope_struct__rdelta2rs) < 0) __PYX_ERR(0, 190, __pyx_L1_error)
   __pyx_type_12pzmassfitter_13nfwmodeltools___pyx_scope_struct__rdelta2rs.tp_print = 0;
   __pyx_ptype_12pzmassfitter_13nfwmodeltools___pyx_scope_struct__rdelta2rs = &__pyx_type_12pzmassfitter_13nfwmodeltools___pyx_scope_struct__rdelta2rs;
   /*--- Type import code ---*/
@@ -9583,255 +9447,255 @@ PyMODINIT_FUNC PyInit_nfwmodeltools(void)
   /* "pzmassfitter/nfwmodeltools.pyx":37
  * #########################
  * 
- * logsqrt2pi = np.log(np.sqrt(2*np.pi))             # <<<<<<<<<<<<<<
+ * sqrt2pi = np.sqrt(2*np.pi)             # <<<<<<<<<<<<<<
+ * logsqrt2pi = np.log(sqrt2pi)
  * 
- * DTYPE = np.double
  */
   __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 37, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_log); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 37, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_sqrt); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 37, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_4 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 37, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 37, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_pi); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 37, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_sqrt); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 37, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_5);
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_t_2 = PyNumber_Multiply(__pyx_int_2, __pyx_t_4); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 37, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 37, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_pi); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 37, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_6);
-  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = PyNumber_Multiply(__pyx_int_2, __pyx_t_6); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 37, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_4);
-  __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  __pyx_t_6 = NULL;
-  if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_5))) {
-    __pyx_t_6 = PyMethod_GET_SELF(__pyx_t_5);
-    if (likely(__pyx_t_6)) {
-      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_5);
-      __Pyx_INCREF(__pyx_t_6);
-      __Pyx_INCREF(function);
-      __Pyx_DECREF_SET(__pyx_t_5, function);
-    }
-  }
-  if (!__pyx_t_6) {
-    __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_t_5, __pyx_t_4); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 37, __pyx_L1_error)
-    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __Pyx_GOTREF(__pyx_t_2);
-  } else {
-    #if CYTHON_FAST_PYCALL
-    if (PyFunction_Check(__pyx_t_5)) {
-      PyObject *__pyx_temp[2] = {__pyx_t_6, __pyx_t_4};
-      __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_5, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 37, __pyx_L1_error)
-      __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
-      __Pyx_GOTREF(__pyx_t_2);
-      __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    } else
-    #endif
-    #if CYTHON_FAST_PYCCALL
-    if (__Pyx_PyFastCFunction_Check(__pyx_t_5)) {
-      PyObject *__pyx_temp[2] = {__pyx_t_6, __pyx_t_4};
-      __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_5, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 37, __pyx_L1_error)
-      __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
-      __Pyx_GOTREF(__pyx_t_2);
-      __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    } else
-    #endif
-    {
-      __pyx_t_7 = PyTuple_New(1+1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 37, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_7);
-      __Pyx_GIVEREF(__pyx_t_6); PyTuple_SET_ITEM(__pyx_t_7, 0, __pyx_t_6); __pyx_t_6 = NULL;
-      __Pyx_GIVEREF(__pyx_t_4);
-      PyTuple_SET_ITEM(__pyx_t_7, 0+1, __pyx_t_4);
-      __pyx_t_4 = 0;
-      __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_7, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 37, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_2);
-      __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-    }
-  }
-  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __pyx_t_5 = NULL;
+  __pyx_t_4 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
-    __pyx_t_5 = PyMethod_GET_SELF(__pyx_t_3);
-    if (likely(__pyx_t_5)) {
+    __pyx_t_4 = PyMethod_GET_SELF(__pyx_t_3);
+    if (likely(__pyx_t_4)) {
       PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_3);
-      __Pyx_INCREF(__pyx_t_5);
+      __Pyx_INCREF(__pyx_t_4);
       __Pyx_INCREF(function);
       __Pyx_DECREF_SET(__pyx_t_3, function);
     }
   }
-  if (!__pyx_t_5) {
+  if (!__pyx_t_4) {
     __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 37, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_GOTREF(__pyx_t_1);
   } else {
     #if CYTHON_FAST_PYCALL
     if (PyFunction_Check(__pyx_t_3)) {
-      PyObject *__pyx_temp[2] = {__pyx_t_5, __pyx_t_2};
+      PyObject *__pyx_temp[2] = {__pyx_t_4, __pyx_t_2};
       __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 37, __pyx_L1_error)
-      __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
+      __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     } else
     #endif
     #if CYTHON_FAST_PYCCALL
     if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
-      PyObject *__pyx_temp[2] = {__pyx_t_5, __pyx_t_2};
+      PyObject *__pyx_temp[2] = {__pyx_t_4, __pyx_t_2};
       __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 37, __pyx_L1_error)
-      __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
+      __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     } else
     #endif
     {
-      __pyx_t_7 = PyTuple_New(1+1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 37, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_7);
-      __Pyx_GIVEREF(__pyx_t_5); PyTuple_SET_ITEM(__pyx_t_7, 0, __pyx_t_5); __pyx_t_5 = NULL;
+      __pyx_t_5 = PyTuple_New(1+1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 37, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_5);
+      __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_t_4); __pyx_t_4 = NULL;
       __Pyx_GIVEREF(__pyx_t_2);
-      PyTuple_SET_ITEM(__pyx_t_7, 0+1, __pyx_t_2);
+      PyTuple_SET_ITEM(__pyx_t_5, 0+1, __pyx_t_2);
       __pyx_t_2 = 0;
-      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_7, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 37, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_5, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 37, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
-      __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
+      __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     }
   }
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_logsqrt2pi, __pyx_t_1) < 0) __PYX_ERR(0, 37, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_sqrt2pi, __pyx_t_1) < 0) __PYX_ERR(0, 37, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "pzmassfitter/nfwmodeltools.pyx":39
- * logsqrt2pi = np.log(np.sqrt(2*np.pi))
+  /* "pzmassfitter/nfwmodeltools.pyx":38
+ * 
+ * sqrt2pi = np.sqrt(2*np.pi)
+ * logsqrt2pi = np.log(sqrt2pi)             # <<<<<<<<<<<<<<
+ * 
+ * DTYPE = np.double
+ */
+  __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 38, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_log); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 38, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_5);
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_sqrt2pi); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 38, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  __pyx_t_2 = NULL;
+  if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_5))) {
+    __pyx_t_2 = PyMethod_GET_SELF(__pyx_t_5);
+    if (likely(__pyx_t_2)) {
+      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_5);
+      __Pyx_INCREF(__pyx_t_2);
+      __Pyx_INCREF(function);
+      __Pyx_DECREF_SET(__pyx_t_5, function);
+    }
+  }
+  if (!__pyx_t_2) {
+    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_5, __pyx_t_3); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 38, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+    __Pyx_GOTREF(__pyx_t_1);
+  } else {
+    #if CYTHON_FAST_PYCALL
+    if (PyFunction_Check(__pyx_t_5)) {
+      PyObject *__pyx_temp[2] = {__pyx_t_2, __pyx_t_3};
+      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_5, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 38, __pyx_L1_error)
+      __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
+      __Pyx_GOTREF(__pyx_t_1);
+      __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+    } else
+    #endif
+    #if CYTHON_FAST_PYCCALL
+    if (__Pyx_PyFastCFunction_Check(__pyx_t_5)) {
+      PyObject *__pyx_temp[2] = {__pyx_t_2, __pyx_t_3};
+      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_5, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 38, __pyx_L1_error)
+      __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
+      __Pyx_GOTREF(__pyx_t_1);
+      __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+    } else
+    #endif
+    {
+      __pyx_t_4 = PyTuple_New(1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 38, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_4);
+      __Pyx_GIVEREF(__pyx_t_2); PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_2); __pyx_t_2 = NULL;
+      __Pyx_GIVEREF(__pyx_t_3);
+      PyTuple_SET_ITEM(__pyx_t_4, 0+1, __pyx_t_3);
+      __pyx_t_3 = 0;
+      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_4, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 38, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_1);
+      __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+    }
+  }
+  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_logsqrt2pi, __pyx_t_1) < 0) __PYX_ERR(0, 38, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+
+  /* "pzmassfitter/nfwmodeltools.pyx":40
+ * logsqrt2pi = np.log(sqrt2pi)
  * 
  * DTYPE = np.double             # <<<<<<<<<<<<<<
  * ctypedef np.double_t DTYPE_T
  * 
  */
-  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 39, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 40, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_double); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 39, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_3);
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_double); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 40, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_DTYPE, __pyx_t_3) < 0) __PYX_ERR(0, 39, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_DTYPE, __pyx_t_5) < 0) __PYX_ERR(0, 40, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-  /* "pzmassfitter/nfwmodeltools.pyx":57
+  /* "pzmassfitter/nfwmodeltools.pyx":58
  * @cython.boundscheck(False)
  * @cython.wraparound(False)
  * def NFWShear(np.ndarray[np.double_t, ndim=1, mode='c'] r,             # <<<<<<<<<<<<<<
  *               double concentration,
  *               double rs,
  */
-  __pyx_t_3 = PyCFunction_NewEx(&__pyx_mdef_12pzmassfitter_13nfwmodeltools_1NFWShear, NULL, __pyx_n_s_pzmassfitter_nfwmodeltools); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 57, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_3);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_NFWShear, __pyx_t_3) < 0) __PYX_ERR(0, 57, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  __pyx_t_5 = PyCFunction_NewEx(&__pyx_mdef_12pzmassfitter_13nfwmodeltools_1NFWShear, NULL, __pyx_n_s_pzmassfitter_nfwmodeltools); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 58, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_5);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_NFWShear, __pyx_t_5) < 0) __PYX_ERR(0, 58, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-  /* "pzmassfitter/nfwmodeltools.pyx":100
+  /* "pzmassfitter/nfwmodeltools.pyx":101
  * @cython.boundscheck(False)
  * @cython.wraparound(False)
  * def NFWKappa(np.ndarray[np.double_t, ndim=1, mode='c'] r,             # <<<<<<<<<<<<<<
  *               double concentration,
  *               double rs,
  */
-  __pyx_t_3 = PyCFunction_NewEx(&__pyx_mdef_12pzmassfitter_13nfwmodeltools_3NFWKappa, NULL, __pyx_n_s_pzmassfitter_nfwmodeltools); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 100, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_3);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_NFWKappa, __pyx_t_3) < 0) __PYX_ERR(0, 100, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  __pyx_t_5 = PyCFunction_NewEx(&__pyx_mdef_12pzmassfitter_13nfwmodeltools_3NFWKappa, NULL, __pyx_n_s_pzmassfitter_nfwmodeltools); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 101, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_5);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_NFWKappa, __pyx_t_5) < 0) __PYX_ERR(0, 101, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-  /* "pzmassfitter/nfwmodeltools.pyx":143
+  /* "pzmassfitter/nfwmodeltools.pyx":144
  * @cython.boundscheck(False)
  * @cython.wraparound(False)
  * def aveEnclosedKappa(np.ndarray[np.double_t, ndim=1, mode='c'] r,             # <<<<<<<<<<<<<<
  *                      double concentration,
  *                      double rs,
  */
-  __pyx_t_3 = PyCFunction_NewEx(&__pyx_mdef_12pzmassfitter_13nfwmodeltools_5aveEnclosedKappa, NULL, __pyx_n_s_pzmassfitter_nfwmodeltools); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 143, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_3);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_aveEnclosedKappa, __pyx_t_3) < 0) __PYX_ERR(0, 143, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  __pyx_t_5 = PyCFunction_NewEx(&__pyx_mdef_12pzmassfitter_13nfwmodeltools_5aveEnclosedKappa, NULL, __pyx_n_s_pzmassfitter_nfwmodeltools); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 144, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_5);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_aveEnclosedKappa, __pyx_t_5) < 0) __PYX_ERR(0, 144, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-  /* "pzmassfitter/nfwmodeltools.pyx":189
+  /* "pzmassfitter/nfwmodeltools.pyx":190
  * @cython.boundscheck(False)
  * @cython.wraparound(False)
  * def rdelta2rs(double rdelta,             # <<<<<<<<<<<<<<
  *               double c200,
  *               double delta):
  */
-  __pyx_t_3 = PyCFunction_NewEx(&__pyx_mdef_12pzmassfitter_13nfwmodeltools_7rdelta2rs, NULL, __pyx_n_s_pzmassfitter_nfwmodeltools); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 189, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_3);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_rdelta2rs, __pyx_t_3) < 0) __PYX_ERR(0, 189, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  __pyx_t_5 = PyCFunction_NewEx(&__pyx_mdef_12pzmassfitter_13nfwmodeltools_7rdelta2rs, NULL, __pyx_n_s_pzmassfitter_nfwmodeltools); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 190, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_5);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_rdelta2rs, __pyx_t_5) < 0) __PYX_ERR(0, 190, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-  /* "pzmassfitter/nfwmodeltools.pyx":212
+  /* "pzmassfitter/nfwmodeltools.pyx":213
  * @cython.boundscheck(False)
  * @cython.wraparound(False)
  * def rscaleConstM(double mdelta,             # <<<<<<<<<<<<<<
  *                  double c,
  *                  double rho_c,
  */
-  __pyx_t_3 = PyCFunction_NewEx(&__pyx_mdef_12pzmassfitter_13nfwmodeltools_9rscaleConstM, NULL, __pyx_n_s_pzmassfitter_nfwmodeltools); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 212, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_3);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_rscaleConstM, __pyx_t_3) < 0) __PYX_ERR(0, 212, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  __pyx_t_5 = PyCFunction_NewEx(&__pyx_mdef_12pzmassfitter_13nfwmodeltools_9rscaleConstM, NULL, __pyx_n_s_pzmassfitter_nfwmodeltools); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 213, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_5);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_rscaleConstM, __pyx_t_5) < 0) __PYX_ERR(0, 213, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-  /* "pzmassfitter/nfwmodeltools.pyx":228
+  /* "pzmassfitter/nfwmodeltools.pyx":229
  * @cython.boundscheck(False)
  * @cython.wraparound(False)
  * def massInsideR(double rs,             # <<<<<<<<<<<<<<
  *                 double c,
  *                 double R,
  */
-  __pyx_t_3 = PyCFunction_NewEx(&__pyx_mdef_12pzmassfitter_13nfwmodeltools_11massInsideR, NULL, __pyx_n_s_pzmassfitter_nfwmodeltools); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 228, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_3);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_massInsideR, __pyx_t_3) < 0) __PYX_ERR(0, 228, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  __pyx_t_5 = PyCFunction_NewEx(&__pyx_mdef_12pzmassfitter_13nfwmodeltools_11massInsideR, NULL, __pyx_n_s_pzmassfitter_nfwmodeltools); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 229, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_5);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_massInsideR, __pyx_t_5) < 0) __PYX_ERR(0, 229, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
   /* "pzmassfitter/nfwmodeltools.pyx":252
+ * @cython.boundscheck(False)
+ * @cython.wraparound(False)
+ * def gauss_like(double mdelta,             # <<<<<<<<<<<<<<
+ *                double cdelta,
+ *                np.ndarray[DTYPE_T, ndim=1, mode='c'] r_mpc not None,
+ */
+  __pyx_t_5 = PyCFunction_NewEx(&__pyx_mdef_12pzmassfitter_13nfwmodeltools_13gauss_like, NULL, __pyx_n_s_pzmassfitter_nfwmodeltools); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 252, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_5);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_gauss_like, __pyx_t_5) < 0) __PYX_ERR(0, 252, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+
+  /* "pzmassfitter/nfwmodeltools.pyx":337
  * @cython.boundscheck(False)
  * @cython.wraparound(False)
  * def bentvoigt_like(double mdelta,             # <<<<<<<<<<<<<<
  *                    double cdelta,
  *                    np.ndarray[DTYPE_T, ndim=1, mode='c'] r_mpc not None,
  */
-  __pyx_t_3 = PyCFunction_NewEx(&__pyx_mdef_12pzmassfitter_13nfwmodeltools_13bentvoigt_like, NULL, __pyx_n_s_pzmassfitter_nfwmodeltools); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 252, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_3);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_bentvoigt_like, __pyx_t_3) < 0) __PYX_ERR(0, 252, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-
-  /* "pzmassfitter/nfwmodeltools.pyx":336
- * @cython.boundscheck(False)
- * @cython.wraparound(False)
- * def bentcolorcut_like(double r_scale,             # <<<<<<<<<<<<<<
- *                np.ndarray[DTYPE_T, ndim=1, mode='c'] r_mpc not None,
- *                np.ndarray[DTYPE_T, ndim=1, mode='c'] ghats not None,
- */
-  __pyx_t_3 = PyCFunction_NewEx(&__pyx_mdef_12pzmassfitter_13nfwmodeltools_15bentcolorcut_like, NULL, __pyx_n_s_pzmassfitter_nfwmodeltools); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 336, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_3);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_bentcolorcut_like, __pyx_t_3) < 0) __PYX_ERR(0, 336, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-
-  /* "pzmassfitter/nfwmodeltools.pyx":372
- * @cython.boundscheck(False)
- * @cython.wraparound(False)
- * def bentcolorcut_like(np.ndarray[DTYPE_T, ndim=1, mode='c'] bin_r_mpc not None,             # <<<<<<<<<<<<<<
- *                       double r_scale,
- *                       np.ndarray[DTYPE_T, ndim=1, mode='c'] ghats not None,
- */
-  __pyx_t_3 = PyCFunction_NewEx(&__pyx_mdef_12pzmassfitter_13nfwmodeltools_17bentcolorcut_like, NULL, __pyx_n_s_pzmassfitter_nfwmodeltools); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 372, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_3);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_bentcolorcut_like, __pyx_t_3) < 0) __PYX_ERR(0, 372, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  __pyx_t_5 = PyCFunction_NewEx(&__pyx_mdef_12pzmassfitter_13nfwmodeltools_15bentvoigt_like, NULL, __pyx_n_s_pzmassfitter_nfwmodeltools); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 337, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_5);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_bentvoigt_like, __pyx_t_5) < 0) __PYX_ERR(0, 337, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
   /* "pzmassfitter/nfwmodeltools.pyx":1
  * ##########################             # <<<<<<<<<<<<<<
  * # Implements an NFW model for investigation
  * # of redshift and contamination effects
  */
-  __pyx_t_3 = PyDict_New(); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_3);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_test, __pyx_t_3) < 0) __PYX_ERR(0, 1, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  __pyx_t_5 = PyDict_New(); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_5);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_test, __pyx_t_5) < 0) __PYX_ERR(0, 1, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
   /* "../../../.conda/envs/lsst/lib/python2.7/site-packages/Cython/Includes/numpy/__init__.pxd":997
  *         raise ImportError("numpy.core.umath failed to import")
@@ -9850,8 +9714,6 @@ PyMODINIT_FUNC PyInit_nfwmodeltools(void)
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5);
-  __Pyx_XDECREF(__pyx_t_6);
-  __Pyx_XDECREF(__pyx_t_7);
   if (__pyx_m) {
     if (__pyx_d) {
       __Pyx_AddTraceback("init pzmassfitter.nfwmodeltools", __pyx_clineno, __pyx_lineno, __pyx_filename);
@@ -11684,122 +11546,6 @@ static CYTHON_INLINE PyObject* __Pyx_PyObject_CallOneArg(PyObject *func, PyObjec
   PyErr_SetString(PyExc_ValueError,
      "Buffer acquisition failed on assignment; and then reacquiring the old buffer failed too!");
 }
-
-/* PyIntBinop */
-          #if !CYTHON_COMPILING_IN_PYPY
-static PyObject* __Pyx_PyInt_SubtractCObj(PyObject *op1, PyObject *op2, CYTHON_UNUSED long intval, CYTHON_UNUSED int inplace) {
-    #if PY_MAJOR_VERSION < 3
-    if (likely(PyInt_CheckExact(op2))) {
-        const long a = intval;
-        long x;
-        long b = PyInt_AS_LONG(op2);
-            x = (long)((unsigned long)a - b);
-            if (likely((x^a) >= 0 || (x^~b) >= 0))
-                return PyInt_FromLong(x);
-            return PyLong_Type.tp_as_number->nb_subtract(op1, op2);
-    }
-    #endif
-    #if CYTHON_USE_PYLONG_INTERNALS
-    if (likely(PyLong_CheckExact(op2))) {
-        const long a = intval;
-        long b, x;
-#ifdef HAVE_LONG_LONG
-        const PY_LONG_LONG lla = intval;
-        PY_LONG_LONG llb, llx;
-#endif
-        const digit* digits = ((PyLongObject*)op2)->ob_digit;
-        const Py_ssize_t size = Py_SIZE(op2);
-        if (likely(__Pyx_sst_abs(size) <= 1)) {
-            b = likely(size) ? digits[0] : 0;
-            if (size == -1) b = -b;
-        } else {
-            switch (size) {
-                case -2:
-                    if (8 * sizeof(long) - 1 > 2 * PyLong_SHIFT) {
-                        b = -(long) (((((unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0]));
-                        break;
-#ifdef HAVE_LONG_LONG
-                    } else if (8 * sizeof(PY_LONG_LONG) - 1 > 2 * PyLong_SHIFT) {
-                        llb = -(PY_LONG_LONG) (((((unsigned PY_LONG_LONG)digits[1]) << PyLong_SHIFT) | (unsigned PY_LONG_LONG)digits[0]));
-                        goto long_long;
-#endif
-                    }
-                case 2:
-                    if (8 * sizeof(long) - 1 > 2 * PyLong_SHIFT) {
-                        b = (long) (((((unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0]));
-                        break;
-#ifdef HAVE_LONG_LONG
-                    } else if (8 * sizeof(PY_LONG_LONG) - 1 > 2 * PyLong_SHIFT) {
-                        llb = (PY_LONG_LONG) (((((unsigned PY_LONG_LONG)digits[1]) << PyLong_SHIFT) | (unsigned PY_LONG_LONG)digits[0]));
-                        goto long_long;
-#endif
-                    }
-                case -3:
-                    if (8 * sizeof(long) - 1 > 3 * PyLong_SHIFT) {
-                        b = -(long) (((((((unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0]));
-                        break;
-#ifdef HAVE_LONG_LONG
-                    } else if (8 * sizeof(PY_LONG_LONG) - 1 > 3 * PyLong_SHIFT) {
-                        llb = -(PY_LONG_LONG) (((((((unsigned PY_LONG_LONG)digits[2]) << PyLong_SHIFT) | (unsigned PY_LONG_LONG)digits[1]) << PyLong_SHIFT) | (unsigned PY_LONG_LONG)digits[0]));
-                        goto long_long;
-#endif
-                    }
-                case 3:
-                    if (8 * sizeof(long) - 1 > 3 * PyLong_SHIFT) {
-                        b = (long) (((((((unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0]));
-                        break;
-#ifdef HAVE_LONG_LONG
-                    } else if (8 * sizeof(PY_LONG_LONG) - 1 > 3 * PyLong_SHIFT) {
-                        llb = (PY_LONG_LONG) (((((((unsigned PY_LONG_LONG)digits[2]) << PyLong_SHIFT) | (unsigned PY_LONG_LONG)digits[1]) << PyLong_SHIFT) | (unsigned PY_LONG_LONG)digits[0]));
-                        goto long_long;
-#endif
-                    }
-                case -4:
-                    if (8 * sizeof(long) - 1 > 4 * PyLong_SHIFT) {
-                        b = -(long) (((((((((unsigned long)digits[3]) << PyLong_SHIFT) | (unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0]));
-                        break;
-#ifdef HAVE_LONG_LONG
-                    } else if (8 * sizeof(PY_LONG_LONG) - 1 > 4 * PyLong_SHIFT) {
-                        llb = -(PY_LONG_LONG) (((((((((unsigned PY_LONG_LONG)digits[3]) << PyLong_SHIFT) | (unsigned PY_LONG_LONG)digits[2]) << PyLong_SHIFT) | (unsigned PY_LONG_LONG)digits[1]) << PyLong_SHIFT) | (unsigned PY_LONG_LONG)digits[0]));
-                        goto long_long;
-#endif
-                    }
-                case 4:
-                    if (8 * sizeof(long) - 1 > 4 * PyLong_SHIFT) {
-                        b = (long) (((((((((unsigned long)digits[3]) << PyLong_SHIFT) | (unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0]));
-                        break;
-#ifdef HAVE_LONG_LONG
-                    } else if (8 * sizeof(PY_LONG_LONG) - 1 > 4 * PyLong_SHIFT) {
-                        llb = (PY_LONG_LONG) (((((((((unsigned PY_LONG_LONG)digits[3]) << PyLong_SHIFT) | (unsigned PY_LONG_LONG)digits[2]) << PyLong_SHIFT) | (unsigned PY_LONG_LONG)digits[1]) << PyLong_SHIFT) | (unsigned PY_LONG_LONG)digits[0]));
-                        goto long_long;
-#endif
-                    }
-                default: return PyLong_Type.tp_as_number->nb_subtract(op1, op2);
-            }
-        }
-                x = a - b;
-            return PyLong_FromLong(x);
-#ifdef HAVE_LONG_LONG
-        long_long:
-                llx = lla - llb;
-            return PyLong_FromLongLong(llx);
-#endif
-        
-        
-    }
-    #endif
-    if (PyFloat_CheckExact(op2)) {
-        const long a = intval;
-        double b = PyFloat_AS_DOUBLE(op2);
-            double result;
-            PyFPE_START_PROTECT("subtract", return NULL)
-            result = ((double)a) - (double)b;
-            PyFPE_END_PROTECT(result)
-            return PyFloat_FromDouble(result);
-    }
-    return (inplace ? PyNumber_InPlaceSubtract : PyNumber_Subtract)(op1, op2);
-}
-#endif
 
 /* RaiseException */
           #if PY_MAJOR_VERSION < 3

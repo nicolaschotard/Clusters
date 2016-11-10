@@ -11,5 +11,5 @@ termcolor
 fitsio
 cython
 pymc
-
+pytest
 

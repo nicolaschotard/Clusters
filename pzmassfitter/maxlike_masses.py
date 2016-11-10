@@ -47,62 +47,6 @@ class LensingModel(object):
 
     
 
-#    def makeLikelihood(self, datamanager, parts):
-#
-#        inputcat = datamanager.inputcat
-#
-#        pdz = datamanager.pdz
-#
-#
-#        bin_selectors = self.bin_selectors(inputcat)
-#
-#
-#        parts.r_mpc = [ np.ascontiguousarray(inputcat['r_mpc'][x].astype(np.float64)) for x in bin_selectors ]
-#        parts.ghats = [ np.ascontiguousarray(inputcat['ghats'][x].astype(np.float64)) for x in bin_selectors ]
-#        parts.pdz = [ np.ascontiguousarray(pdz[x].astype(np.float64)) for x in bin_selectors ]
-#
-#
-#        parts.nshapebins = len(bin_selectors)
-#        parts.pdzrange = datamanager.pdzrange
-#
-#        
-#        parts.betas = np.ascontiguousarray(nfwutils.beta_s(parts.pdzrange, parts.zcluster).astype(np.float64))
-#        parts.nzbins = len(parts.betas)
-#
-#        
-#
-#
-#        parts.data = np.empty(parts.nshapebins, dtype=object)
-#
-#
-#        for i, cur_ghats, cur_shape_param, cur_r_mpc, cur_pdz in zip(np.arange(parts.nshapebins), 
-#                                                                     parts.ghats, 
-#                                                                     parts.shape_params, 
-#                                                                     parts.r_mpc, 
-#                                                                     parts.pdz):
-#
-#            @pymc.stochastic(observed=True, name='data_%d' % i)
-#            def data(value = cur_ghats, r_scale = parts.r_scale, shape_params = cur_shape_param,
-#                     r_mpc = cur_r_mpc, pdz = cur_pdz, betas = parts.betas, 
-#                     concentration = parts.concentration,
-#                     zcluster = parts.zcluster):
-#
-#
-#                return self.likelihood_func(r_scale, r_mpc, 
-#                                       value, betas, 
-#                                       pdz, shape_params,
-#                                       concentration, zcluster)
-#
-#
-#
-#
-#
-#            parts.data[i] = data
-#
-#
-#
-
-
     #######################################################
 
     def addCLOps(self, parser):
@@ -280,45 +224,100 @@ class LensingModel(object):
 
 
 
+    #############################
 
-    ########################################################################################
-    # Shape PRIORS
-    ########################
+    def makeShapePrior(self, datamanager, parts):
+        #### This is just a stand-in. Subclass for specific examples.
 
-    def makeFixedPrior(self, manager, parts):
+        inputcat = datamanager.inputcat
 
-        parts.shape_params = self.shapedistro_params
+        parts.shearcal_m = np.zeros(len(inputcat))
+        parts.shearcal_c = np.zeros(len(inputcat))
 
-    ######################
+        parts.sigma = 0.005
 
-
-    def makeSampledPrior(self, manager, parts):
-
-
-        parts.shape_sample_index = [pymc.DiscreteUniform('shape_index_%d' % i, 0, len(x)-1) \
-                                        for i, x in enumerate(self.shapedistro_params)]
-
-        parts.shape_params = np.empty(self.nshapebins, dtype=object)
-        for i, index, samples in zip(range(self.nshapebins), 
-                                     parts.shape_sample_index, 
-                                     self.shapedistro_params):
-
-            @pymc.deterministic(name = 'shape_params_%d' % i)
-            def shape_param_func(index = index, samples = samples):
-                return np.ascontiguousarray(samples[:,index])
-
-            parts.shape_params[i] = shape_param_func
-
-
-    #######################
-
-    def makeNormPrior(self, model, parts):
-
-        parts.shape_params = np.empty(self.nshapebins, dtype=object)
-        for i, (mu, cov) in enumerate(self.shapedistro_params):
-            parts.shape_params[i] = pymc.MvNormalCov('shape_params_%d' % i, mu, cov)
 
     ##############################################################
+    ### Likelihood
+    ###########
+
+
+    def makeLikelihood(self, datamanager, parts):
+
+        inputcat = datamanager.inputcat
+
+        pz = datamanager.pz
+
+        parts.r_mpc = np.ascontiguousarray(inputcat['r_mpc'].astype(np.float64))
+        parts.ghats = np.ascontiguousarray(inputcat['ghats'].astype(np.float64))
+        parts.pz = np.ascontiguousarray(pz.astype(np.float64))
+
+
+
+        parts.zs = np.ascontiguousarray(np.array(datamanager.pdzrange).astype(np.float64))
+
+
+        parts.betas = np.ascontiguousarray(nfwutils.global_cosmology.beta_s(parts.zs, parts.zcluster).astype(np.float64))
+        parts.nzbins = len(parts.betas)
+
+        parts.rho_c = nfwutils.global_cosmology.rho_crit(parts.zcluster)
+        parts.rho_c_over_sigma_c = 1.5 * nfwutils.global_cosmology.angulardist(parts.zcluster) * nfwutils.global_cosmology.beta([1e6], parts.zcluster)[0] * nfwutils.global_cosmology.hubble2(parts.zcluster) / nfwutils.global_cosmology.v_c**2
+
+
+
+
+        parts.data = None
+        for i in range(20):
+
+            try:
+
+                @pymc.stochastic(observed=True, name='data_%d' % i)
+                def data(value = parts.ghats,
+                         mdelta = parts.mdelta,
+                         cdelta = parts.cdelta,
+                         r_mpc = parts.r_mpc,
+                         zs = parts.zs,
+                         betas = parts.betas,
+                         pz = parts.pz, 
+                         shearcal_m = parts.shearcal_m,
+                         shearcal_c = parts.shearcal_c,
+                         sigma = parts.sigma,
+                         rho_c = parts.rho_c,
+                         rho_c_over_sigma_c = parts.rho_c_over_sigma_c,
+                         massdelta = parts.massdelta):                    
+                    
+                    return tools.gauss_like(mdelta,
+                                               cdelta,
+                                               r_mpc,
+                                               value,
+                                               zs, 
+                                               betas, 
+                                               pz, 
+                                               shearcal_m,
+                                               shearcal_c,
+                                               sigma,
+                                               rho_c,
+                                               rho_c_over_sigma_c,
+                                               massdelta)
+
+
+
+
+
+                parts.data = data
+
+
+                break
+            except pymc.ZeroProbability:
+                pass
+
+        if parts.data is None:
+            raise ModelInitException
+
+
+
+
+        #######################
 
 
 
@@ -374,6 +373,20 @@ class ScanModelToFile(object):
 
         pass
 
+
+    ################
+
+    def createOptions(self,
+                      outputFile,
+                      options = None, args = None):
+
+        if options is None:
+            options = varcontainer.VarContainer()
+
+        options.outputFile = outputFile
+        return options, args
+
+
     ##########
 
     def run(self, manager):
@@ -386,7 +399,7 @@ class ScanModelToFile(object):
         scan = np.zeros_like(mass)
         for i, m in enumerate(mass):
             try:
-                model.mass_15mpc.value = m
+                model.mdelta.value = m
                 scan[i] = model.logp
             except pymc.ZeroProbability:
                 scan[i] =  pymc.PyMCObjects.d_neg_inf
@@ -399,8 +412,10 @@ class ScanModelToFile(object):
         manager.cat = ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols)))
         manager.cat.hdu.header.update('EXTNAME', 'OBJECTS')
 
+        manager.cat.saveas('{}.m{}.scan.fits'.format(manager.options.outputFile, int(manager.model.massdelta)))
 
-        self.calcMasses(manager)
+
+#        self.calcMasses(manager)
 
 
     ##########
@@ -437,13 +452,15 @@ class ScanModelToFile(object):
 
     def dump(self, manager):
 
-        manager.cat.saveas(manager.options.outputFile, clobber=True)
+        pass
 
-
-        
-        outputFile = manager.options.outputFile
-        dumpMasses(manager.masses,'%s.mass15mpc' % outputFile)
-
+#        manager.cat.saveas(manager.options.outputFile, clobber=True)
+#
+#
+#        
+#        outputFile = manager.options.outputFile
+#        dumpMasses(manager.masses,'%s.mass15mpc' % outputFile)
+#
 
 
 
@@ -514,11 +531,6 @@ class SampleModelToFile(object):
 
 
 
-        parser.add_option('-s', '--nsamples', dest='nsamples',
-                          help='Number of MCMC samples to draw or scan model', default=None, type='int')
-        parser.add_option('--burn', dest='burn',
-                          help='Number of MCMC samples to discard before calculated mass statistics', 
-                          default=10000, type=int)
 
 
     ##############
@@ -527,6 +539,10 @@ class SampleModelToFile(object):
 
 
         outputFile = manager.options.outputFile
+
+        with open('%s.chain.pkl' % outputFile, 'wb') as output:
+            cPickle.dump(manager.chain, output)
+
 
         dumpMasses(np.array(manager.chain['mdelta'][manager.options.burn:]), '%s.m%d' % (outputFile, manager.massdelta))
 

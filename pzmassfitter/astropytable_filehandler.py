@@ -91,9 +91,10 @@ class AstropyTableFilehandler(object):
 
         manager.open('pdzcat', options.pdzfile, table.Table.read, path='pdz_values')
         manager.open('pdzrange', options.pdzfile, table.Table.read, path='pdz_bins')
+        manager.replace('pdzrange', lambda: manager.pdzrange['zbins'])
 
         manager.matched_pdzcat = matchById(manager.pdzcat, manager.lensingcat, 'id', 'objectId')
-        print manager.matched_pdzcat.keys()
+        
         manager.pz = manager.matched_pdzcat['pdz']  #area normalized, ie density function
 
         z_b = manager.matched_pdzcat['Z_BEST']
@@ -124,17 +125,17 @@ def calcTangentialShear(cat, center, raCol, decCol, g1Col, g2Col):
     e1 = cat[g1Col]
     e2 = cat[g2Col]
 
-    posangle = clusterTools.positionAngle(ra, dec, cluster_ra, cluster_dec) #radians
+    posangle = (np.pi/2.) - clusterTools.positionAngle(ra, dec, cluster_ra, cluster_dec) #radians
+
     r_arcmin = clusterTools.greatCircleDistance(ra, dec, cluster_ra, cluster_dec)*60
 
+    
     cos2phi = np.cos(2*posangle)
     sin2phi = np.sin(2*posangle)
 
-    E = -(e1*cos2phi+e2*sin2phi)
+    E = -(e1*cos2phi - e2*sin2phi)
+    B = -(e1*sin2phi + e2*sin2phi)
 
-    b1 =  e2
-    b2 = -e1
-    B = -(b1*cos2phi+b2*sin2phi)
 
     return r_arcmin, E, B
 

@@ -65,6 +65,11 @@ In the future, release versions will be listed at this `location
 <http://github.com/nicolaschotard/Clusters/releases>`_.
 
 
+Package developers will want to run::
+
+  python setup.py develop
+
+
 Dependencies
 ------------
 

@@ -329,6 +329,8 @@ def mass(argv=None):
                         help="Overwrite the output files if they exist already")
     parser.add_argument("--plot", action='store_true', default=False,
                         help="Make some plots")
+    parser.add_argument("--testing", action="store_true", default=False,
+                        help="Simplify model for testing purposes")
     args = parser.parse_args(argv)
 
     config = cdata.load_config(args.config)
@@ -351,22 +353,29 @@ def mass(argv=None):
 
     ###let's assume that all quality cuts were made previously
 
-    masscontroller = dmstackdriver.controller
+    if args.testing:
+        print 'TESTING!!!!'
+        masscontroller = dmstackdriver.makeTestingController()
+        options, cmdargs  = masscontroller.modelbuilder.createOptions(concentration=4.)
+    else:
+        masscontroller = dmstackdriver.controller
+        options, cmdargs  = masscontroller.modelbuilder.createOptions(concentration=4.)
 
-    options, cmdargs  = masscontroller.modelbuilder.createOptions()
+
+        
     options, cmdargs = masscontroller.filehandler.createOptions(cluster = cluster,
-                                                            zcluster = zcluster,
-                                                            lensingcat = meas,
-                                                            pdzfile = args.pdzfile,
-                                                            cluster_ra = cluster_ra,
-                                                            cluster_dec = cluster_dec,
-                                                            options = options,
-                                                            args = cmdargs)
-    options, cmdargs = masscontroller.runmethod.createOptions(outputFile = args.output,
-                                                          options = options,
-                                                          args = cmdargs)
+                                                                zcluster = zcluster,
+                                                                lensingcat = meas,
+                                                                pdzfile = args.pdzfile,
+                                                                cluster_ra = cluster_ra,
+                                                                cluster_dec = cluster_dec,
+                                                                options = options,
+                                                                args = cmdargs)
 
-    
+    options, cmdargs = masscontroller.runmethod.createOptions(outputFile = args.output,
+                                                                  options = options,
+                                                                  args = cmdargs)
+
     masscontroller.load(options, args)
     masscontroller.run()
     masscontroller.dump()

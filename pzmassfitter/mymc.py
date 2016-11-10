@@ -1081,7 +1081,7 @@ class Engine(list):
     def __call__(self, number=1, struct=None, backends=[stdoutBackend()]):
         try:
             for i in range(number):
-                if i % 1000 == 0:
+                if i % 200 == 0:
                     print 'At Iteration %d' % i
                 for updater in self:
                     for j in range(updater.rate):
