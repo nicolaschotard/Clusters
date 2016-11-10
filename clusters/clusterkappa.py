@@ -20,14 +20,14 @@ e2 = fc['ext_shapeHSM_HsmShapeRegauss_e2']
 # do I need to convert these explicitly to numpy arrays?
 #
 # old code, ignore
-#np.savetxt('filename', numpy.c_[x,y,e1,e2])
+#np.savetxt('filename', np.c_[x,y,e1,e2])
 # also read in raw moments as a diagnostic
 #ixx = fc['ext_shapeHSM_HsmSourceMoments_xx']
 #ixy = fc['ext_shapeHSM_HsmSourceMoments_xy']
 #iyy = fc['ext_shapeHSM_HsmSourceMoments_yy']
 
 #old code, ignore
-#np.savetxt('test2.txt', numpy.c_[x,y,ixx,iyy,ixy])
+#np.savetxt('test2.txt', np.c_[x,y,ixx,iyy,ixy])
 
 # define inner and outer cutoff radii for invlens algorithm
 # TODO these should not be hardcoded, but should be input from the config
@@ -62,7 +62,7 @@ npoints = nxpoints * nypoints
 # store the squares of rinner, router so we don't have to keep computing!
 ri2 = rinner*rinner
 ro2 = router*router
-rmax = sqrt(sizex*sizex+sizey*sizey)
+rmax = np.sqrt(sizex*sizex+sizey*sizey)
 # no objects are ever separated by more than rmax, so we never need to
 # store cutoff weights for r> rmax as an array so we don't have to calculate it on the fly.
 irmax = int(rmax)
@@ -91,20 +91,20 @@ apr2 = aprad*aprad
 
 # now populate all the weight arrays
 
-for i in range(irmax)
+for i in range(irmax):
  r2 = i
- icut = 1 - exp(-r2/(2.0*ri2))
- ocut = exp(-r2/(2.0*ro2))
+ icut = 1 - np.exp(-r2/(2.0*ri2))
+ ocut = np.exp(-r2/(2.0*ro2))
  wt[i] = icut * ocut / r2;
- tanhx = sqrt(r2/(rinner*rinner))
- icut2 = tanh(tanhx/tanhxc)/((tanhx/tanhxc)*(1+exp(tanha-tanhb*tanhx)+exp(tanhc*tanhx-tanhd)))
+ tanhx = np.sqrt(r2/(rinner*rinner))
+ icut2 = np.tanh(tanhx/tanhxc)/((tanhx/tanhxc)*(1+np.exp(tanha-tanhb*tanhx)+np.exp(tanhc*tanhx-tanhd)))
  wtmat[i] = icut2
- wtpot[i] = icut * ocot / sqrt(r2)
- wtinteg[i] = icut * ocut
- wtapmass[i] = 6.0/numpy.pi * (1.0 - r2/apr2)*(r2/apr2) 
- if (r2 > apr2)
+ wtpot[i] = icut * ocut / np.sqrt(r2)
+ wtint[i] = icut * ocut
+ wtapmass[i] = 6.0/np.pi * (1.0 - r2/apr2)*(r2/apr2) 
+ if (r2 > apr2):
   wtapmass[i] = 0
- if (r2 > (theta*theta0))
+ if (r2 > (theta0*theta0)):
   wtmat[i] = 0
 #
 # now let's actually calculate the shear.  The algorithm for all of these images is pretty simple.  
@@ -118,17 +118,28 @@ for i in range(irmax)
 # 4) The sum of the weighted ellipticities is divided by the sum of the weights to provide an output
 # first, loop over  x and y points in output map
 #
-for nyp in range(nxpoints)
-#
+invlensmap=np.zeros((nxpoints,npoints))
+inv45map=np.zeros((nxpoints,npoints))
+maturi=np.zeros((nxpoints,npoints))
+maturi45=np.zeros((nxpoints,npoints))
+apmassmap=np.zeros((nxpoints,npoints))
+apmass45map=np.zeros((nxpoints,npoints))
+potmap=np.zeros((nxpoints,npoints))
+pot45map=np.zeros((nxpoints,npoints))
+intmap=np.zeros((nxpoints,npoints))
+int45map=np.zeros((nxpoints,npoints))
+for nyp in range(nxpoints):
  yp = ymin + (nyp+0.5)*step
- for nxp in range(nypoints)
+ for nxp in range(nypoints):
   xp = xmin + (nxp+0.5)
 # now loop over all the objects in your catalog
 # the new version of the code treats all objects as numpy arrays implicitly.  Will it work?
   dx = x - xp
   dy = y - yp
   r2 = dx * dx + dy * dy
-  nr = int(sqrt(r2))
+  r = np.sqrt(r2)
+  print r
+  nr = np.array(r.tolist(),dtype=int)
   cos2phi = (dx*dx - dy*dy) / r2
   sin2phi = 2.0*dx*dy / r2
   etan = -1.0*( e1 * cos2phi + e2 * sin2phi)
@@ -138,34 +149,34 @@ for nyp in range(nxpoints)
   mat = wtmat[nr] * etan
   mat45 = wtmat[nr] * ecross
   apmass = wtapmass[nr] * etan
-  apm45 = wtapmass[nr] * ecross
+  apmass45 = wtapmass[nr] * ecross
   pot = wtpot[nr] * etan
   pot45 = wtpot[nr] * ecross
   int = wtint[nr] * etan
   int45 = wt[nr] * ecross
   #end loop over objects
   #now populate the 2-d array elements    
-  invlens[nxp][nyp] = np.sum(invlens) /  np.sum(wt[nr])
-  inv45[nxp][nyp] = np.sum(inv45) / np.sum(wt[nr])
+  invlensmap[nxp][nyp] = np.sum(invlens) /  np.sum(wt[nr])
+  inv45map[nxp][nyp] = np.sum(inv45) / np.sum(wt[nr])
   maturi[nxp][nyp] = np.sum(mat) / np.sum(wtmat[nr])
   maturi45[nxp][nyp] = np.sum(mat45) / np.sum(wtmat[nr])
-  apmass[nxp][nyp] = np.sum(apmass) / np.sum(wtapmass[nr])
-  apmass45[nxp][nyp] = np.sum(apmass45) / np.sum(wtapmass[nr])
-  pot[nxp][nyp] = np.sum(pot) / np.sum(wtpot[nr])
-  pot45[nxp][nyp] = np.sum(pot45) / np.sum(wtpot[nr])
-  int[nxp][nyp] = np.sum(int) / np.sum(wtint[nr])
-  int45[nxp][nyp] = np.sum(int45) / np.sum(wtint[nr])
+  apmassmap[nxp][nyp] = np.sum(apmass) / np.sum(wtapmass[nr])
+  apmass45map[nxp][nyp] = np.sum(apmass45) / np.sum(wtapmass[nr])
+  potmap[nxp][nyp] = np.sum(pot) / np.sum(wtpot[nr])
+  pot45map[nxp][nyp] = np.sum(pot45) / np.sum(wtpot[nr])
+  intmap[nxp][nyp] = np.sum(int) / np.sum(wtint[nr])
+  int45map[nxp][nyp] = np.sum(int45) / np.sum(wtint[nr])
   #end x loop
  #end y loop
 #
 # Now we have to write the files out as fits files.
 import astropy.io.fits as pyfits
-hdu = pyfits.PrimaryHDU(invlens)
+hdu = pyfits.PrimaryHDU(invlensmap)
 # to modify header, use this syntax
 hdu.header["cd1_1"]=XXXX
 hdu.writeto("invlens.fits",clobber=True)
 
-hdu = pyfits.PrimaryHDU(inv45)
+hdu = pyfits.PrimaryHDU(inv45map)
 hdu.writeto("inv45.fits", clobber=True)
 
 hdu = pyfits.PrimaryHDU(maturi)
@@ -174,20 +185,20 @@ hdu.writeto("maturi.fits", clobber=True)
 hdu = pyfits.PrimaryHDU(maturi45)
 hdu.writeto("maturi45.fits", clobber=True)
 
-hdu = pyfits.PrimaryHDU(apmass)
+hdu = pyfits.PrimaryHDU(apmassmap)
 hdu.writeto("apmass.fits", clobber=True)
 
-hdu = pyfits.PrimaryHDU(apmass45)
+hdu = pyfits.PrimaryHDU(apmass45map)
 hdu.writeto("apmass45.fits", clobber=True)
 
-hdu = pyfits.PrimaryHDU(pot)
+hdu = pyfits.PrimaryHDU(potmap)
 hdu.writeto("potential.fits", clobber=True)
 
-hdu = pyfits.PrimaryHDU(pot45)
+hdu = pyfits.PrimaryHDU(pot45map)
 hdu.writeto("potential45.fits", clobber=True)
 
-hdu = pyfits.PrimaryHDU(int)
+hdu = pyfits.PrimaryHDU(intmap)
 hdu.writeto("integralshear.fits", clobber=True)
 
-hdu = pyfits.PrimaryHDU(int45)
+hdu = pyfits.PrimaryHDU(int45map)
 hdu.writeto("integralshear45.fits", clobber=True)
