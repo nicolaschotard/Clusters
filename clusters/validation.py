@@ -67,10 +67,10 @@ def stellarLocus(d, mag_type="modelfit_CModel_mag_extcorr", ifilt="i_new", cat='
     
     Test to see whether the colors are okay by plotting stellar loci and comparing with analytical fits.
     
-    First a few color-color (and one mag-color) plots are plotted based on the input magnitudes. Sicne analytical 
+    First a few color-color (and one mag-color) plots are plotted based on the input magnitudes. Since analytical 
     fits are based on SDSS data, the given magnitudes are then converted to SDSS mags. Fits are overplotted
     with the derived SDSS magnitudes, and then residuals are calculated and plotted. The analytical plots are plotted
-    as an intermediarary as well.
+    as an intermediary as well.
     
     Three plots are saved. Nothing is returned.
     
