@@ -115,7 +115,7 @@ class Catalogs(object):
                               flags=afwtable.SOURCE_IO_NO_FOOTPRINTS)
         if self.from_butler['schema'] is None and hasattr(cat, 'getSchema'):
             self.from_butler['schema'] = cat.getSchema()
-        return cat.getColumnView().extract(*kwargs['keys'] if 'keys' in kwargs else "*",
+        return cat.getColumnView().extract(*self.keys[catalog],
                                            copy=True, ordered=True) if table else cat
 
     def _get_catalog(self, dataset, **kwargs):
@@ -142,7 +142,7 @@ class Catalogs(object):
             pbar.update(i + 1)
         pbar.finish()
         print "INFO: Merging the dictionnaries"
-        catadic.update(catalog.getColumnView().extract(*kwargs['keys'] if 'keys' in kwargs else "*",
+        catadic.update(catalog.getColumnView().extract(*self.keys[dataset],
                                                        copy=True, ordered=True))
         # Clean memory before going further
         gc.collect()
@@ -277,7 +277,7 @@ class Catalogs(object):
         self.from_butler['wcs'] = WCS(wcs)
         self.catalogs['wcs'] = Table({k: [wcs[k]] for k in wcs})
 
-    def load_catalogs(self, catalogs, keys=None, **kwargs):
+    def load_catalogs(self, catalogs, **kwargs):
         """Load a list of catalogs.
 
         :param str/list catalogs: A catalog name, or a list of catalogs (see below)
@@ -300,7 +300,7 @@ class Catalogs(object):
         if 'show' in kwargs:
             self.show_keys(catalogs)
             return
-        keys = {} if keys is None else keys
+        keys = {} if 'keys' not in kwargs else kwargs['keys']
         self._load_calexp(**kwargs)
         catalogs = [catalogs] if isinstance(catalogs, str) else catalogs
         for catalog in sorted(catalogs):
