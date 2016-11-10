@@ -7,10 +7,11 @@ from astropy import units as u
 import numpy as N
 import pylab as P
 import math
+import pdb
 
 from . import data as cdata
 
-
+    
 def color_histo(mags):
     """Plot color histograms."""
     filt = (mags['g'] - mags['r']) > 1.2
@@ -252,42 +253,39 @@ def fit_red_sequence(color, mag, **kwargs):
 
 def zphot_cut(zclust, zdata, **kwargs):
     r"""
-    Redshif selection of the galaxies used for analysis.
-    - option 1: hard cut, z_cl+0.1 < z_best < 1.25 (cf WtGIII)
-    - option 2: cut form pdz. \int_0^z_cl p(z) dz < x%
+    Redshif selection of the galaxies used for analysis, using both:
+    - hard cut, z_cl+0.1 < z_best < 1.25 (cf WtGIII)
+    - cut from pdz. \int_0^z_cl p(z) dz < x%
 
     :param float plot: if keywords exists, plot stuff for visual inspection
-
-    Returns bool array of length = len(data), where False means the object does not pass the cut
+    :param float thresh: tolerance x% for the pdz cut method.
+    Returns bool arrays, where False means the object does not pass the cut
     """
     plot = kwargs.get('plot', False)
+    thresh = kwargs.get('thresh', 1.)
 
-    zbest = zdata['Z_BEST']
-    cbest = zdata['CHI_BEST']
-    error = (zbest - zdata['Z_BEST68_LOW'] + zdata['Z_BEST68_HIGH']) / 2.
+    zbest = zdata['pdz_values']['Z_BEST']
+    pdz = zdata['pdz_values']['pdz']
+    zbins = zdata['pdz_bins']
 
-    # basic filters
-    filt = (zbest > 0) & (zbest < 3) & (error < 1) & (cbest < 10)
-    print "INFO: Removing %i objects (over %i) from the list" % \
-        (len(zbest[~filt]), len(zbest))
-    print "       - (zbest > 0) & (zbest < 5) & (error < 1) & (cbest < 10)"
-    zbest, cbest, error = [a[filt] for a in [zbest, cbest, error]]
-    fig = P.figure()
-    ax = fig.add_subplot(131, xlabel='ZBEST')
-    ax.hist(zbest, bins=100)
-    ax.axvline(zclust, color='r')
-    ax.set_title("%i galaxies" % len(zbest))
-    ax = fig.add_subplot(132, xlabel='Error')
-    ax.hist(error, bins=100)
-    ax.set_title("%i galaxies" % len(zbest))
-    ax = fig.add_subplot(133, xlabel='CHI_BEST')
-    ax.hist(cbest, bins=100)
-    ax.set_title("%i galaxies" % len(zbest))
+    # WtGIII hard cuts
+    filt1 = (zbest > zclust + 0.1) & (zbest < 1.25)
 
+    # pdz_based cut
+    cut = (zbins['zbins'] < zclust + 0.1)
+    # probability for the cluster to be located below zclust + 0.1
+    filt2 = N.array([N.trapz(pdzi[cut], zbins['zbins'][cut])*100. < thresh for pdzi in pdz])
+            
     if plot:
+        fig = P.figure()
+        ax = fig.add_subplot(121, xlabel='ZBEST')
+        ax.hist(zbest, bins=100)
+        ax.axvline(zclust + 0.1, color='r')
+        ax.axvline(1.25, color='r')
+        ax.set_title("%i galaxies" % len(zbest))
         P.show()
-
-    return filt
+        
+    return (filt1, filt2)
 
 
 def red_sequence_cut(config, data, **kwargs):
@@ -299,7 +297,7 @@ def red_sequence_cut(config, data, **kwargs):
     Then go back and apply the cut on the entire catalogue as some RS galaxies are 
     located far away from the centre
 
-    Returns bool array of length = len(data), where False means the object does not pass the cut
+    Returns bool array, where False means the object does not pass the cut
 
     List of available kwargs:
 
@@ -324,8 +322,7 @@ def red_sequence_cut(config, data, **kwargs):
     lower_bound = params[0][0] * mag + params[0][1]
     upper_bound = params[1][0] * mag + params[1][1]
     filt = ((color_gr < lower_bound) & (mag < mcut)) | ((color_gr > upper_bound) & (mag < mcut))
-    filt=N.repeat(filt, len(set(data['filter'])))  # to get the cut applied to all filters
-
+    
     return filt
 
 
@@ -333,9 +330,10 @@ def get_background(config, data, zdata=None, zspec=None):
     """Apply different cuts to the data in order to get the background galaxies."""
 
     # Red sequence
-    print "INFO; Flagging red sequence galaxies"
+    print "INFO: Flagging red sequence galaxies"
     rs_flag = red_sequence_cut(config, data)
-    print "INFO; %i galaxies have been flagged as RS" %(sum(~rs_flag) / len(set(data['filter'])))
+    rs_flag=N.repeat(rs_flag, len(set(data['filter'])))  # to get the cut applied to all filters
+    print "INFO: %i galaxies have been flagged as RS" %(sum(~rs_flag) / len(set(data['filter'])))
 
     # Spectroscopic against photometric redshifts
     if zspec is not None:
@@ -345,10 +343,13 @@ def get_background(config, data, zdata=None, zspec=None):
     if zdata is not None:
         zdata = cdata.read_hdf5(zdata)
         print "INFO: Flagging foreground/uncertain objects using redshift information"
-        z_flag = zphot_cut(config['redshift'], zdata[zdata.keys()[0]])
-        print "INFO; %i galaxies have been flagged after redshift cut" %(sum(~z_flag) / len(set(data['filter'])))
+        z_flag1, z_flag2 = zphot_cut(config['redshift'], zdata)
+        print "INFO: %i galaxies have been kept after redshift cut" %(sum(z_flag1))
+        print "INFO: %i galaxies have been kept after redshift cut" %(sum(z_flag2))
+        z_flag1 = N.repeat(z_flag1, len(set(data['filter'])))  # to get the cut applied to all filters
+        z_flag2 = N.repeat(z_flag2, len(set(data['filter'])))  # to get the cut applied to all filters
         
     if zdata is not None:
-        return (rs_flag, z_flag)
+        return (rs_flag, z_flag1, z_flag2)
     else:
         return rs_flag
