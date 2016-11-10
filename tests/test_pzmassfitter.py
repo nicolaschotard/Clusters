@@ -101,7 +101,7 @@ def setupNearPerfectData(m200 = 1e15):
 ######
 
 
-def teardown(tmpdir):
+def cleanuptest(tmpdir):
 
     shutil.rmtree(tmpdir)
 
@@ -138,7 +138,7 @@ def test_pzmassfitter():
 
     
     
-    teardown(tmpdir)
+    cleanuptest(tmpdir)
 
 
 
