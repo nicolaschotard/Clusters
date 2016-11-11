@@ -7,7 +7,7 @@ import numpy as np
 import astropy.table as table
 import astropy.io.fits as pyfits
 import varcontainer
-import nfwutils, clusterTools
+import nfwutils, sphereGeometry
 import ldac
 
 ####################################
@@ -125,9 +125,9 @@ def calcTangentialShear(cat, center, raCol, decCol, g1Col, g2Col):
     e1 = cat[g1Col]
     e2 = cat[g2Col]
 
-    posangle = (np.pi/2.) - clusterTools.positionAngle(ra, dec, cluster_ra, cluster_dec) #radians
+    posangle = (np.pi/2.) - sphereGeometry.positionAngle(ra, dec, cluster_ra, cluster_dec) #radians
 
-    r_arcmin = clusterTools.greatCircleDistance(ra, dec, cluster_ra, cluster_dec)*60
+    r_arcmin = sphereGeometry.greatCircleDistance(ra, dec, cluster_ra, cluster_dec)*60
 
     
     cos2phi = np.cos(2*posangle)

@@ -83,7 +83,7 @@ Crude non-MCMC functionality:
 
 
 
-class Parameter:
+class Parameter(object):
     """
     Class to handle a single free parameter. Can/often should be overriden. The only critical attributes are:
      1. width: initial guess for step lengths. Adaptive CartesianUpdaters change this value.
@@ -112,7 +112,7 @@ class DerivedParameter(Parameter):
         raise Exception('Attempt to set() value of a DerivedParameter.')
 
 
-class postgetter:
+class postgetter(object):
     # needs space and struct to be defined
     # actually returns -2*loglike
     def __init__(self):
@@ -133,7 +133,9 @@ class ParameterSpace(list):
     """
     Class to define sets of parameters (parameter spaces); inherits list. To sample the parameter space, attribute log_posterior must be set to a function of one argument that evaluates the *complete* posterior likelihood, including priors and parameters not in this ParameterSpace.
     """
-    def __init__(self, parameterList=[], log_posterior=None):
+    def __init__(self, parameterList=None, log_posterior=None):
+        if parameterList is None:
+            parameterList = []
         list.__init__(self, parameterList)
         self.log_posterior = log_posterior
     def __str__(self):
@@ -165,7 +167,7 @@ class ParameterSpace(list):
         
 
 
-class Updater:
+class Updater(object):
     """
     Abstract base class for updaters. Do not instantiate directly.
     Constructor arguments:
@@ -790,7 +792,7 @@ try:
 except ImportError:
     pass
 
-class Step:
+class Step(object):
     """
     Abstract base class for proposal methods. Do not instantiate directly.
     """
@@ -898,7 +900,7 @@ class Metropolis(Step):
             self.multiplicity += 1
 
 
-class randNormalExp:
+class randNormalExp(object):
     """
     Functor for providing heavy-tailed proposal lengths: Exponential with probability <ratio> and Gaussian with probability 1-<ratio>.
     Constructor arguments: ratio.
@@ -940,7 +942,7 @@ class randChiExp:
 
 
 # not really necessary to inherit like this, but what the heck
-class Backend:
+class Backend(object):
     """
     Abstract base class for chain storage. Do not instantaite directly.
     """
@@ -1067,7 +1069,7 @@ class Engine(list):
      3. a sequence of Backend objects where the chain is to be stored.
     """
     # todo: make sure directly assigned Updaters get registered
-    def __init__(self, updaterList=[], parameterspace_to_track=None, on_step=None):
+    def __init__(self, updaterList=(), parameterspace_to_track=None, on_step=None):
         list.__init__(self, updaterList)
         for i, updater in enumerate(self):
             self.register_updater(updater, i)
@@ -1078,7 +1080,7 @@ class Engine(list):
     def __setitem__(self, key, value):
         self[key] = value
         self.register_updater(value, key)
-    def __call__(self, number=1, struct=None, backends=[stdoutBackend()]):
+    def __call__(self, number=1, struct=None, backends=(stdoutBackend())):
         try:
             for i in range(number):
                 if i % 200 == 0:
@@ -1184,7 +1186,7 @@ Usage: example(N), where N is one of:
 
 
 
-class ChiSquareLikelihood:
+class ChiSquareLikelihood(object):
     """
     A class to simplify fitting models to Gaussian data. Assign a function to the 'priors' attribute to include non-(improper uniform) priors.
     """

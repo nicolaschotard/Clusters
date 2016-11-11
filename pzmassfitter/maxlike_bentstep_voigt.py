@@ -188,7 +188,7 @@ class BentVoigtShapedistro(mm.LensingModel):
                 pass
 
         if parts.data is None:
-            raise ModelInitException
+            raise mm.ModelInitException
 
 
 

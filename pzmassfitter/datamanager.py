@@ -332,7 +332,12 @@ class DataManager(varcontainer.VarContainer):
 
     ##############################
 
-    def _store(self, name, src, replace = False, args = (), keywords = {}):
+    def _store(self, name, src, replace = False, args = None, keywords = None):
+
+        if args is None:
+            args = ()
+        if keywords is None:
+            keywords = {}
 
 
         try:
