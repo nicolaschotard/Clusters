@@ -24,8 +24,8 @@ ____
 Clusters
 --------
 
-Python package wrapping up the ongoing cluster analysis of the cluster
-LSST/DESC group. For more info, see the two following github
+Python package wrapping up the ongoing cluster analysis of the
+LSST/DESC cluster group. For more info, see the two following github
 repositories:
 
 - A collection of `notebooks <https://github.com/lsst-france/LSST_notebooks>`_ for LSST
@@ -234,7 +234,7 @@ have to run in the right order.
   <http://clusters.readthedocs.io/en/latest/data.html>`_ of the
   documentation for detail)::
 
-    clusters_data config.yaml (--output data.hdf5)
+    clusters_data.py config.yaml (--output data.hdf5)
 
 You can adapt the content of the output file using the ``keys``
 parameter of the config.yaml file.
@@ -245,7 +245,7 @@ parameter of the config.yaml file.
 
 - Get the photometric redshift using LEPHARE::
 
-    clusters_zphot.py config.yaml data.hdf5 (--extinction extinction.hdf) (--output zphot.hdf5)
+    clusters_zphot.py config.yaml data.hdf5 (--extinction extinction.hdf5) (--output zphot.hdf5)
 
 The configuration file(s) used in LEPHARE can be given with the option
 ``--zpara``. The code will loop over the different files and run
@@ -254,11 +254,15 @@ file. This list of configuration files can also be given in the
 CONFIG.yaml file (see above). ``--zpara`` will overwrite what is given
 in the configuration file.
 
-- Extract background galaxies from the whole sample: remove the
-  cluster galaxies (red sequence) and other foreground galaxies using
-  the photometric redshifts::
+- Identify galaxies to be removed from the whole sample: Red sequence galaxies identified from color-color diagrams, foreground galaxies identified using photometric redshifts::
 
-    clusters_getbackground config.yaml input.hdf5 output.hdf5
+    clusters_getbackground.py config.yaml input.hdf5 (--output output.hdf5) 
+          (--zdata zphot.hdf5) (--zmin z_min) (--zmax z_max) (--thresh_prob threshold)
+
+  - input.hdf5 is the catalogue from which magnitudes are read to produce the red sequence cut.
+  - z_min, z_max are used for a 'hard' redshift cut: all galaxies in [z_min, z_max] are flagged.
+  - threshold: if the probability of a galaxy to be located at z < z_cluster + 0.1 is larger than threshold [%], the galaxy is flagged to be removed.
+  - output.hdf5 contains all the input.hdf5 catalogue information, with an additional three columns of boolean (``RS_flag``, ``z_flag_hard``, ``z_flag_pdz``) in the astropy table, corresponding to the three cuts. If True the object passed the cut and is to be kept.
 
 - Compute the shear::
 
