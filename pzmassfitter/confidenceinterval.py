@@ -7,6 +7,7 @@ import numpy as np
 import scipy.integrate as integrate
 import scipy.interpolate as interpolate
 import scipy.optimize as optimize
+import scipy.ndimage
 
 #########################
 
@@ -182,3 +183,42 @@ def optimalHistogram(samples, bins = np.array([25, 50, 100, 200, 400, 800, 1600]
     
 
     return bins[np.argmax(binprobs)]
+
+
+###############
+
+
+
+def Confidence2D(histogram, xedges, yedges, problevel, smooth=None):
+    
+    #first, sort the histogram from high to low
+    sortOrder = np.argsort(histogram.flatten())[::-1]
+    sumprob = np.cumsum(histogram.flatten()[sortOrder])
+    selected = (sumprob/float(np.sum(histogram))) < problevel
+    
+    CLregion = np.zeros(len(sumprob))
+    CLregion[sortOrder[selected]] = 1.
+    CLregion = np.resize(CLregion, histogram.shape)
+    
+    if smooth:
+        CLregion = scipy.ndimage.gaussian_filter(CLregion, smooth)
+    
+    #if we want to plot contours, not meshes, need to create X,Y grids
+    
+    xcenters = (xedges[1:] + xedges[:-1])/2.
+    ycenters = (yedges[1:] + yedges[:-1])/2.
+    
+    Ygrid, Xgrid = np.meshgrid(ycenters, xcenters)
+    
+    return CLregion, Xgrid, Ygrid
+    
+
+
+def calcStdContours(xsamples, ysamples, bins, smooth=0.75):
+
+    histogram, xedges, yedges = np.histogram2d(xsamples, ysamples, bins=bins)
+    CLregion68, Xgrid, Ygrid = Confidence2D(histogram, xedges,yedges, 0.68, smooth=smooth)
+    CLregion95, Xgrid, Ygrid = Confidence2D(histogram, xedges,yedges, 0.95, smooth=smooth)
+    CLregions = CLregion95 + 2*CLregion68
+
+    return Xgrid, Ygrid, CLregions

@@ -96,7 +96,7 @@ class BentVoigtShapedistro(mm.LensingModel):
 #        parts.shearcal_c = shearcal_c
 #
 
-        parts.shearcal_m = np.ones(len(inputcat))
+        parts.shearcal_m = np.zeros(len(inputcat))
         parts.shearcal_c = np.zeros(len(inputcat))
 
 
