@@ -47,35 +47,3 @@ def greatCircleDistance(ra1, dec1, ra2, dec2):
     d2 = np.cos(phi1) * np.cos(phi2) * np.cos(deltaLam)
     denom = d1 + d2
     return np.arctan2(num, denom) * 180. / np.pi
-
-def duffyConcentration(m, z, overdensity):
-    """Compute the Duffy et al. mass concentration relation for a halo
-    with
-    m           - in M_sun/h
-    z           - redshift
-    overdensity - wrt to the critical density
-    """
-    n = 1e5
-    A = 5.71
-    B = -0.084
-    C = -0.47
-    # Get a first estimate of the concentration to convert to M200crit
-    c0 = A * (m / 2e12)**B * (1. + z)**C
-    delta200c = overdensity / 200.
-    minval = 0.2
-    maxval = 5.
-    ratio = minval + np.arange(n) / n * (maxval - minval)
-    res = ratioResid(ratio, c0, delta200c)
-    rRatio = ratio[(res**2).argmin()]
-    mRatio = delta200c * rRatio**3
-    m200c = m / mRatio
-    # Convert input to M200c using the updated concentration
-    nIter = 2
-    for i in range(nIter):
-        c = A * (m200c / 2e12)**B * (1. + z)**C
-        res = ratioResid(ratio, c, delta200c)
-        rRatio = ratio[(res**2).argmin()]
-        mRatio = delta200c * rRatio**3
-        m200c = m / mRatio
-    return A * (m200c / 2e12)**B * (1. + z)**C
-
