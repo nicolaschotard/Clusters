@@ -245,7 +245,7 @@ parameter of the config.yaml file.
 
 - Get the photometric redshift using LEPHARE::
 
-    clusters_zphot.py config.yaml data.hdf5 (--extinction extinction.hdf) (--output zphot.hdf5)
+    clusters_zphot.py config.yaml data.hdf5 (--extinction extinction.hdf5) (--output zphot.hdf5)
 
 The configuration file(s) used in LEPHARE can be given with the option
 ``--zpara``. The code will loop over the different files and run
