@@ -19,7 +19,7 @@ VERSION = '/'.join(os.path.realpath(__file__).split('/')[:-1]) + '/version.yaml'
 __version__ = yaml.load(open(VERSION))['version']
 
 # Package name
-name = 'Clusters'
+name = 'clusters'
 
 # Packages (subdirectories in clusters/)
 packages = find_packages()
