@@ -66,7 +66,7 @@ def setupNearPerfectData(m200 = 1e15):
     sin2phi = np.sin(2*posangle)
 
     e1 = -g_t*cos2phi
-    e2 = g_t*sin2phi
+    e2 = -g_t*sin2phi
 
     deepCoadd_meas = table.Table([seqnr, x_deg, y_deg, e1, e2], names=('id', 'coord_ra_deg', 'coord_dec_deg', 'ext_shapeHSM_HsmShapeRegauss_e1', 'ext_shapeHSM_HsmShapeRegauss_e2'))
 

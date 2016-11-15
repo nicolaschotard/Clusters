@@ -133,8 +133,8 @@ def calcTangentialShear(cat, center, raCol, decCol, g1Col, g2Col):
     cos2phi = np.cos(2*posangle)
     sin2phi = np.sin(2*posangle)
 
-    E = -(e1*cos2phi - e2*sin2phi)
-    B = -(e1*sin2phi + e2*sin2phi)
+    E = -(e1*cos2phi + e2*sin2phi)
+    B =  e1*sin2phi - e2*cos2phi
 
 
     return r_arcmin, E, B
