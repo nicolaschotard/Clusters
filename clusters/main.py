@@ -277,8 +277,8 @@ def getbackground(argv=None):
 
     parser = ArgumentParser(prog=prog, usage=usage, description=description,
                             formatter_class=ArgumentDefaultsHelpFormatter)
-    parser.add_argument('config', help='Configuration (yaml) file')
-    parser.add_argument('cat_data', help='Catalogue file including mqgnitude information (hdf5 output of clusters_data)')
+    parser.add_argument('config', help="Configuration (yaml) file")
+    parser.add_argument('cat_data', help="Catalogue file including magnitude information (*_hdf5 output of clusters_data)")
     parser.add_argument("z_data",
                         help="Photometric redshift data, including pdz information (*_pdz.hdf5 output of clusters_zphot)")
     parser.add_argument("--output", default=False, action='store_true',
@@ -288,9 +288,10 @@ def getbackground(argv=None):
     parser.add_argument("--zmax", type=float,
                         help="Maximum redshift for photoz hard cut")
     parser.add_argument("--thresh_prob", type=float,
-                        help="Threshod redshift probability to select galaxy [%]")
-    parser.add_argument("--plot", default=False, action='store_true',help="Make some plots")
-    parser.add_argument("--overwrite", default=False, action='store_true',help="Will overwrite any pre-existing red sequence and photoz flag in astropy table")
+                        help="Threshod redshift probability to select galaxy (in percent)")
+    parser.add_argument("--plot", default=False, action='store_true', help="Make some plots")
+    parser.add_argument("--overwrite", default=False, action='store_true',
+                            help="Will overwrite any pre-existing red sequence and photoz flag in astropy table")
     args = parser.parse_args(argv)
 
     config = yaml.load(open(args.config))
@@ -325,7 +326,7 @@ def getbackground(argv=None):
             data['z_flag_hard']=Column(z_flag1)
             data['z_flag_pdz']= Column(z_flag2)
         else:
-            print "INFO: Creating flag columns in astropy table'deepCoadd_meas' stored in ", args.input
+            print "INFO: Creating flag columns in astropy table'deepCoadd_meas' stored in ", args.cat_data
             data.add_columns([Column(rs_flag, name='RS_flag'),
                             Column(z_flag1, name='z_flag_hard'),
                             Column(z_flag2, name='z_flag_pdz')])
