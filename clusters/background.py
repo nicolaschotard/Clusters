@@ -328,7 +328,7 @@ def red_sequence_cut(config, data, **kwargs):
     return filt
 
 
-def get_background(config, data, zdata=None, zspec=None, thresh=None, zmin=None, zmax=None):
+def get_background(config, data, zdata, zspec=None, thresh=None, zmin=None, zmax=None, plot=None):
     """Apply different cuts to the data in order to get the background galaxies."""
 
     # Red sequence
@@ -342,16 +342,12 @@ def get_background(config, data, zdata=None, zspec=None, thresh=None, zmin=None,
         print "INFO: Checking photo/spectro redshifts consitancy"
 
     # Photometric redshift cut
-    if zdata is not None:
-        zdata = cdata.read_hdf5(zdata)
-        print "INFO: Flagging foreground/uncertain objects using redshift information"
-        z_flag1, z_flag2 = zphot_cut(config['redshift'], zdata, thresh=thresh, zmin=zmin, zmax=zmax)
-        print "INFO: %i galaxies have been kept after the hard redshift cut" %(sum(z_flag1))
-        print "INFO: %i galaxies have been kept after the pdz redshift cut" %(sum(z_flag2))
-        z_flag1 = N.repeat(z_flag1, len(set(data['filter'])))  # to get the cut applied to all filters
-        z_flag2 = N.repeat(z_flag2, len(set(data['filter'])))  # to get the cut applied to all filters
+    print "INFO: Flagging foreground/uncertain objects using redshift information"
+    z_flag1, z_flag2 = zphot_cut(config['redshift'], zdata, thresh=thresh, zmin=zmin, zmax=zmax, plot=plot)
+    print "INFO: %i galaxies have been kept after the hard redshift cut" %(sum(z_flag1))
+    print "INFO: %i galaxies have been kept after the pdz redshift cut" %(sum(z_flag2))
+    z_flag1 = N.repeat(z_flag1, len(set(data['filter'])))  # to get the cut applied to all filters
+    z_flag2 = N.repeat(z_flag2, len(set(data['filter'])))  # to get the cut applied to all filters
         
-    if zdata is not None:
-        return (rs_flag, z_flag1, z_flag2)
-    else:
-        return rs_flag
+    return (rs_flag, z_flag1, z_flag2)
+    

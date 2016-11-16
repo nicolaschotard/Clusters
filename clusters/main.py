@@ -278,50 +278,63 @@ def getbackground(argv=None):
     parser = ArgumentParser(prog=prog, usage=usage, description=description,
                             formatter_class=ArgumentDefaultsHelpFormatter)
     parser.add_argument('config', help='Configuration (yaml) file')
-    parser.add_argument('input', help='Input data file')
-    parser.add_argument("--output",
-                        help="Name of the output file (hdf5 file)")
-    parser.add_argument("--zdata",
-                        help="Photometric redshift data (hdf5 output of clusters_zphot)")
+    parser.add_argument('cat_data', help='Catalogue file including mqgnitude information (hdf5 output of clusters_data)')
+    parser.add_argument("z_data",
+                        help="Photometric redshift data, including pdz information (*_pdz.hdf5 output of clusters_zphot)")
+    parser.add_argument("--output", default=False, action='store_true',
+                        help="Use --output for the shear catalogue with bkg flags to be stored in a seperate file.")
     parser.add_argument("--zmin", type=float,
                         help="Minimum redshift for photoz hard cut")
     parser.add_argument("--zmax", type=float,
                         help="Maximum redshift for photoz hard cut")
     parser.add_argument("--thresh_prob", type=float,
                         help="Threshod redshift probability to select galaxy [%]")
+    parser.add_argument("--plot", default=False, action='store_true',help="Make some plots")
+    parser.add_argument("--overwrite", default=False, action='store_true',help="Will overwrite any pre-existing red sequence and photoz flag in astropy table")
     args = parser.parse_args(argv)
 
     config = yaml.load(open(args.config))
-    if args.output is None:
-        args.output = os.path.basename(args.config).replace('.yaml',
-                                                            '_background.hdf5')
     if args.zmin is None:
         args.zmin = 0.
     if args.zmax is None:
         args.zmax = config['redshift'] + 0.1
     if args.thresh_prob is None:
         args.thresh_prob = 5.
-         
-    filters = config['filter']
+    if args.output:
+        args.output = os.path.basename(args.cat_data).replace('.hdf5', '_background.hdf5')
+       
+    data = cdata.read_hdf5(args.cat_data)['deepCoadd_forced_src']
 
-    print "INFO: Working on cluster %s (z=%.4f)" % (config['cluster'],
-                                                    config['redshift'])
-    print "INFO: Working on filters", filters
-
-    data = cdata.read_hdf5(args.input)['deepCoadd_forced_src']
-    rs_flag, z_flag1, z_flag2 = background.get_background(config,data,
-                                                          zdata=args.zdata,
-                                                          zmin=args.zmin,
-                                                          zmax=args.zmax,
-                                                          thresh=args.thresh_prob)
-
-    data = cdata.read_hdf5(args.input)['deepCoadd_meas']
-    data.add_columns([Column(rs_flag, name='RS_flag'),
-                    Column(z_flag1, name='z_flag_hard'),
-                    Column(z_flag2, name='z_flag_pdz')])
-
-    data.write(args.output, path='deepCoadd_meas', compression=True,
+    if ('RS_flag' in data.keys() and 'z_flag_hard' in data.keys() and
+        'z_flag_pdz' in data.keys() and not args.overwrite):
+        raise IOError("Columns 'RS_flag' and 'z_flag*' already exist in astropy table 'deepCoadd_src. \
+                       Use --overwrite option to overwrite.")
+    else:
+        zdata = cdata.read_hdf5(args.z_data)
+        rs_flag, z_flag1, z_flag2 = background.get_background(config,data,
+                                                                zdata,
+                                                                zmin=args.zmin,
+                                                                zmax=args.zmax,
+                                                                thresh=args.thresh_prob,
+                                                                plot=args.plot)
+        data = cdata.read_hdf5(args.cat_data)['deepCoadd_meas']
+        if ('RS_flag' in data.keys() and 'z_flag_hard' in data.keys() and \
+            'z_flag_pdz' in data.keys()):
+            print "INFO: Overwriting flag columns in astropy table 'deepCoadd_meas' stored in ", args.cat_data
+            data['RS_flag']=Column(rs_flag)
+            data['z_flag_hard']=Column(z_flag1)
+            data['z_flag_pdz']= Column(z_flag2)
+        else:
+            print "INFO: Creating flag columns in astropy table'deepCoadd_meas' stored in ", args.input
+            data.add_columns([Column(rs_flag, name='RS_flag'),
+                            Column(z_flag1, name='z_flag_hard'),
+                            Column(z_flag2, name='z_flag_pdz')])
+        data.write(args.cat_data, path='deepCoadd_meas', compression=True,
                    serialize_meta=True, append=True, overwrite=True)
+
+        if args.output:
+            data.write(args.output, path='deepCoadd_meas', compression=True,
+                        serialize_meta=True, append=True, overwrite=True)
     
     
 def shear(argv=None):
