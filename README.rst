@@ -275,22 +275,21 @@ in the configuration file.
   galaxies identified from color-color diagrams, foreground galaxies
   identified using photometric redshifts::
 
-    clusters_getbackground.py config.yaml input.hdf5 (--output
-          output.hdf5) (--zdata zphot.hdf5) (--zmin z_min) (--zmax
-          z_max) (--thresh_prob threshold)
+    clusters_getbackground.py config.yaml cat_data.hdf5 z_data.hdf5 (--zmin z_min) 
+                              (--zmax z_max) (--thresh_prob threshold)
 
-  - ``input.hdf5`` is the catalogue from which magnitudes are read to
-    produce the red sequence cut.
+  - ``cat_data.hdf5`` is the catalogue from which magnitudes are read to
+    produce the red sequence cut. After the background galaxies are identified, the astropy table 
+    'deepCoadd_meas' is supplemented 3 boolean 'flag' columns (``RS_flag``,
+    ``z_flag_hard``, ``z_flag_pdz``), corresponding to the RS cut and the hard and pdz redshift cuts. 
+    If True the object passed the cut and is to be kept. If ``--output`` is used, the table is also saved 
+    in a separate   ``*_background.hdf5`` file
+  - ``z_data.hdf5`` is the output file of clusters_zphot.py containing the pdz information.
   - ``z_min``, ``z_max`` are used for a 'hard' redshift cut: all
     galaxies in [``z_min``, ``z_max``] are flagged.
   - threshold: if the probability of a galaxy to be located at z <
     z_cluster + 0.1 is larger than threshold [%], the galaxy is
     flagged to be removed.
-  - output.hdf5 contains all the input.hdf5 catalogue information,
-    with an additional three columns of boolean (``RS_flag``,
-    ``z_flag_hard``, ``z_flag_pdz``) in the astropy table,
-    corresponding to the three cuts. If True the object passed the cut
-    and is to be kept.
 
 - Compute the shear::
 
