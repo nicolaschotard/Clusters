@@ -9,5 +9,5 @@ pep8:
   full: true
 pylint:
   disable:
-    - invalid-name
-    - anomalous-backslash-in-string
+    invalid-name
+    anomalous-backslash-in-string
