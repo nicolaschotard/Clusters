@@ -6,17 +6,24 @@
 # line or from a config file
 from clusters import data
 import numpy as np
+import pdb
 #f = "/home/chotard/Work/scripts/analysis/test_Cluster/MACSJ2243.3-0935_filtered_data.hdf5"
-f = "/Volumes/clustersdata/MACSJ2243.3-0935_filtered_data.hdf5"
+f = "/Volumes/clustersdata/MACSJ2243.3-0935_background.hdf5"
 d = data.read_hdf5(f)
 fc = d['deepCoadd_meas']
 
 # read in the variables.  TODO add a switch that determines which shears to
 # read in (or to do multiple ones.  For now we just use the regauss ones)
-x = fc['x_Src']
+x = np.array(fc['x_Src'])
 y = fc['y_Src']
 e1 = fc['ext_shapeHSM_HsmShapeRegauss_e1']
 e2 = fc['ext_shapeHSM_HsmShapeRegauss_e2']
+flagz = fc['z_flag_pdz']
+filt = (np.abs(e1)<1.2) & (np.abs(e2<1.2) & flagz)
+x = x[filt]
+y = y[filt]
+e1 = e1[filt]
+e2 = e2[filt]
 #
 # do I need to convert these explicitly to numpy arrays?
 #
@@ -32,8 +39,8 @@ e2 = fc['ext_shapeHSM_HsmShapeRegauss_e2']
 
 # define inner and outer cutoff radii for invlens algorithm
 # TODO these should not be hardcoded, but should be input from the config
-# file.  These are deweights to remove the quadratic noisedivergence for galaxies 
-# with dist=0 and the logarithmic divergence for the noise from gals as r->infty.
+# file.  These are deweights to remove the quadratic noise divergence for galaxies 
+# right at the points being considered and the logarithmic divergence for the noise from gals as r->infty.
 # values are stored in pixels!
 rinner = 500.0 
 router = 8000.0
@@ -44,8 +51,8 @@ router = 8000.0
 # TODO make this a parameter file input.
 # TODO remember when we write out the WCS, that cd1_1,cd1_2,cd2_1,and cd2_2
 # are multiplied by step, and crpix1 and crpix2 are divided by step!
-#
-step = 50
+# TODO step set to 200 to make testing faster
+step = 200
 #
 # now calculate the minimum and maximum x and y of catalog
 # and use this to determine the size of image.
@@ -53,6 +60,11 @@ xmin = np.amin(x)
 xmax = np.amax(x)
 ymin = np.amin(y)
 ymax = np.amax(y)
+emax = np.amax(e1)
+emin = np.amin(e1)
+ecmax = np.amax(e2)
+ecmin = np.amin(e2)
+#print emax,emin,ecmax,ecmin
 sizex = xmax - xmin
 sizey = ymax - ymin 
 nxpoints = int(sizex/step)
@@ -66,7 +78,7 @@ ro2 = router*router
 rmax = np.sqrt(sizex*sizex+sizey*sizey)
 # no objects are ever separated by more than rmax, so we never need to
 # store cutoff weights for r> rmax as an array so we don't have to calculate it on the fly.
-irmax = int(rmax)
+irmax = int(rmax+0.5)
 # create an empty weight array for each method.  We want emty weights so that odd values do not
 # get imported by accident
 wt = np.zeros(irmax)
@@ -81,19 +93,19 @@ tanhb=150.0
 tanhc=50.0
 tanhd=47.0
 tanhxc=0.1
-theta0 = 3000.0
+theta0 = 6000.0
 # TODO: the theta0 parameter should be input from the configuration file
 #
 #
 # The Aperture mass radius from Schneider et al. 1998 is set to 3000 TODO: put it in the config file
 #
-aprad = 3000
+aprad = 6000.0
 apr2 = aprad*aprad
 
 # now populate all the weight arrays
 
 for i in range(irmax):
- r2 = i
+ r2 = i*i
  icut = 1 - np.exp(-r2/(2.0*ri2))
  ocut = np.exp(-r2/(2.0*ro2))
  wt[i] = icut * ocut / r2;
@@ -107,6 +119,11 @@ for i in range(irmax):
   wtapmass[i] = 0
  if (r2 > (theta0*theta0)):
   wtmat[i] = 0
+
+wt[0]=0
+wtpot[0]=0
+wtint[0]=0
+wtmat[0]=0
 #
 # now let's actually calculate the shear.  The algorithm for all of these images is pretty simple.  
 # 1) make a grid of (x,y) locations
@@ -120,20 +137,20 @@ for i in range(irmax):
 # first, loop over  x and y points in output map
   #
 #nxpoints, nypoints = 50, 50
-invlensmap=np.zeros((nxpoints,nypoints))
-inv45map=np.zeros((nxpoints,nypoints))
-maturi=np.zeros((nxpoints,nypoints))
-maturi45=np.zeros((nxpoints,nypoints))
-apmassmap=np.zeros((nxpoints,nypoints))
-apmass45map=np.zeros((nxpoints,nypoints))
-potmap=np.zeros((nxpoints,nypoints))
-pot45map=np.zeros((nxpoints,nypoints))
-intmap=np.zeros((nxpoints,nypoints))
-int45map=np.zeros((nxpoints,nypoints))
+invlensmap=np.zeros((nypoints,nxpoints))
+inv45map=np.zeros((nypoints,nxpoints))
+maturi=np.zeros((nypoints,nxpoints))
+maturi45=np.zeros((nypoints,nxpoints))
+apmassmap=np.zeros((nypoints,nxpoints))
+apmass45map=np.zeros((nypoints,nxpoints))
+potmap=np.zeros((nypoints,nxpoints))
+pot45map=np.zeros((nypoints,nxpoints))
+intmap=np.zeros((nypoints,nxpoints))
+int45map=np.zeros((nypoints,nxpoints))
 for nxp in range(nxpoints):
- yp = ymin + (nxp+0.5)*step
+ xp = xmin + (nxp+0.5)*step
  for nyp in range(nypoints):
-  xp = xmin + (nyp+0.5)
+  yp = ymin + (nyp+0.5)*step
 # now loop over all the objects in your catalog
 # the new version of the code treats all objects as numpy arrays implicitly.  Will it work?
   dx = x - xp
@@ -144,7 +161,7 @@ for nxp in range(nxpoints):
   cos2phi = (dx*dx - dy*dy) / r2
   sin2phi = 2.0*dx*dy / r2
   etan = -1.0*( e1 * cos2phi + e2 * sin2phi)
-  ecross = ( e2 * cos2phi - e1 * sin2phi)
+  ecross = -1.0 * ( e2 * cos2phi - e1 * sin2phi)
   invlens = wt[nr] * etan
   inv45 = wt[nr] * ecross
   mat = wtmat[nr] * etan
@@ -156,16 +173,16 @@ for nxp in range(nxpoints):
   integ = wtint[nr] * etan
   int45 = wt[nr] * ecross
   #end loop over objects
-  invlensmap[nxp][nyp] = np.sum(invlens) /  np.sum(wt[nr])
-  inv45map[nxp][nyp] = np.sum(inv45) / np.sum(wt[nr])
-  maturi[nxp][nyp] = np.sum(mat) / np.sum(wtmat[nr])
-  maturi45[nxp][nyp] = np.sum(mat45) / np.sum(wtmat[nr])
-  apmassmap[nxp][nyp] = np.sum(apmass) / np.sum(wtapmass[nr])
-  apmass45map[nxp][nyp] = np.sum(apmass45) / np.sum(wtapmass[nr])
-  potmap[nxp][nyp] = np.sum(pot) / np.sum(wtpot[nr])
-  pot45map[nxp][nyp] = np.sum(pot45) / np.sum(wtpot[nr])
-  intmap[nxp][nyp] = np.sum(integ) / np.sum(wtint[nr])
-  int45map[nxp][nyp] = np.sum(int45) / np.sum(wtint[nr])
+  invlensmap[nyp][nxp] = np.sum(invlens) /  np.sum(wt[nr])
+  inv45map[nyp][nxp] = np.sum(inv45) / np.sum(wt[nr])
+  maturi[nyp][nxp] = np.sum(mat) / np.sum(wtmat[nr])
+  maturi45[nyp][nxp] = np.sum(mat45) / np.sum(wtmat[nr])
+  apmassmap[nyp][nxp] = np.sum(apmass) / np.sum(wtapmass[nr])
+  apmass45map[nyp][nxp] = np.sum(apmass45) / np.sum(wtapmass[nr])
+  potmap[nyp][nxp] = np.sum(pot) / np.sum(wtpot[nr])
+  pot45map[nyp][nxp] = np.sum(pot45) / np.sum(wtpot[nr])
+  intmap[nyp][nxp] = np.sum(integ) / np.sum(wtint[nr])
+  int45map[nyp][nxp] = np.sum(int45) / np.sum(wtint[nr])
   #end x loop
  #end y loop
 #
