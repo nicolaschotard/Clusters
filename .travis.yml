@@ -47,7 +47,7 @@ script:
   - export LEPHAREDIR="$HOME/lephare/lephare_dev"
   - export PATH="$PATH:$HOME/lephare/lephare_dev/source"
   # Run the tests
-  - coverage run --source="clusters" setup.py test
+  - coverage run --source="clusters,pzmassfitter" setup.py test
 
 before_cache:
   - rm -f $HOME/.cache/pip/log/debug.log
