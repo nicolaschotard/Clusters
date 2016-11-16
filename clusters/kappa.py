@@ -1,9 +1,8 @@
-"""Shear analysis."""
+"""Kappa analysis."""
 
 import numpy
-import pylab
-from astropy.table import Table, Column
 from . import data as cdata
+import astropy.io.fits as pyfits
 
 
 def load_data(datafile):
@@ -171,36 +170,12 @@ def analysis(datafile, rinner=500.0, router=8000.0, step=200, theta0=6000.0,
             #end x loop
         #end y loop
     #
-    # Now we have to write the files out as fits files.
-    import astropy.io.fits as pyfits
-    hdu = pyfits.PrimaryHDU(invlensmap)
-    # to modify header, use this syntax
-    #hdu.header["cd1_1"]=XXXX
-    hdu.writeto("invlens.fits",clobber=True)
-    
-    hdu = pyfits.PrimaryHDU(inv45map)
-    hdu.writeto("inv45.fits", clobber=True)
-    
-    hdu = pyfits.PrimaryHDU(maturi)
-    hdu.writeto("maturi.fits", clobber=True)
-    
-    hdu = pyfits.PrimaryHDU(maturi45)
-    hdu.writeto("maturi45.fits", clobber=True)
-    
-    hdu = pyfits.PrimaryHDU(apmassmap)
-    hdu.writeto("apmass.fits", clobber=True)
-    
-    hdu = pyfits.PrimaryHDU(apmass45map)
-    hdu.writeto("apmass45.fits", clobber=True)
-    
-    hdu = pyfits.PrimaryHDU(potmap)
-    hdu.writeto("potential.fits", clobber=True)
-    
-    hdu = pyfits.PrimaryHDU(pot45map)
-    hdu.writeto("potential45.fits", clobber=True)
-    
-    hdu = pyfits.PrimaryHDU(intmap)
-    hdu.writeto("integralshear.fits", clobber=True)
-    
-    hdu = pyfits.PrimaryHDU(int45map)
-    hdu.writeto("integralshear45.fits", clobber=True)
+    # Now write the files out as fits files
+    # To modify header, use this syntax: hdu.header["cd1_1"]=XXXX
+    maps = [invlensmap, inv45map, maturi, maturi45, apmassmap, apmass45map,
+            potmap, pot45map, intmap, int45map]
+    names = ["invlens", "inv45", "maturi", "maturi45", "apmass", "apmass45",
+             "potential", "potential45", "integralshear", "integralshear45"]
+    for cmap, name in zip(maps, names):
+        hdu = pyfits.PrimaryHDU(cmap)
+        hdu.writeto("%s.fits" % name, clobber=True)
