@@ -236,9 +236,26 @@ have to run in the right order.
 
     clusters_data.py config.yaml (--output data.hdf5)
 
-You can adapt the content of the output file using the ``keys``
-parameter of the config.yaml file.
+The memory you will need to load the data from the butler will for now
+depend on the number of catalogs (e.g. the ``forced_src`` catalog),
+patch, visits and CCD you will be loading. For instance, if you try to
+load ~10 patches for 5 filters, and want all the keys of several
+catalogs including the ``forced_src`` one (CCD-based), you could need
+up to 16GB of memory. The **best practice** would thus be to first
+check the list of existing keys of the catalogs you want to load
+(``--show`` option), fill the configuration file with your selected
+list of keys using the ``keys`` parameter for each catalog, and
+finally run ``clusters_data.py`` using this configuration file. You
+can find an example for such cofiguration file `there
+<https://raw.githubusercontent.com/nicolaschotard/Clusters/master/configs/MACSJ2243.3-0935_keys.yaml>`_
+and some detail on how to use the keys in the previous section. This
+will allow you to adapt the content of the output file and work with
+lighter data files.
 
+- Data validation plots can for now be found in the several notebooks available in::
+
+    https://github.com/nicolaschotard/Clusters/tree/master/notebooks
+    
 - Correct the data for Milky Way extinction::
 
     clusters_extinction.py config.yaml data.hdf5 (--output extinction.hdf5)
@@ -254,21 +271,33 @@ file. This list of configuration files can also be given in the
 CONFIG.yaml file (see above). ``--zpara`` will overwrite what is given
 in the configuration file.
 
-- Identify galaxies to be removed from the whole sample: Red sequence galaxies identified from color-color diagrams, foreground galaxies identified using photometric redshifts::
+- Identify galaxies to be removed from the whole sample: Red sequence
+  galaxies identified from color-color diagrams, foreground galaxies
+  identified using photometric redshifts::
 
-    clusters_getbackground.py config.yaml input.hdf5 (--output output.hdf5) 
-          (--zdata zphot.hdf5) (--zmin z_min) (--zmax z_max) (--thresh_prob threshold)
+    clusters_getbackground.py config.yaml input.hdf5 (--output
+          output.hdf5) (--zdata zphot.hdf5) (--zmin z_min) (--zmax
+          z_max) (--thresh_prob threshold)
 
-  - input.hdf5 is the catalogue from which magnitudes are read to produce the red sequence cut.
-  - z_min, z_max are used for a 'hard' redshift cut: all galaxies in [z_min, z_max] are flagged.
-  - threshold: if the probability of a galaxy to be located at z < z_cluster + 0.1 is larger than threshold [%], the galaxy is flagged to be removed.
-  - output.hdf5 contains all the input.hdf5 catalogue information, with an additional three columns of boolean (``RS_flag``, ``z_flag_hard``, ``z_flag_pdz``) in the astropy table, corresponding to the three cuts. If True the object passed the cut and is to be kept.
+  - ``input.hdf5`` is the catalogue from which magnitudes are read to
+    produce the red sequence cut.
+  - ``z_min``, ``z_max`` are used for a 'hard' redshift cut: all
+    galaxies in [``z_min``, ``z_max``] are flagged.
+  - threshold: if the probability of a galaxy to be located at z <
+    z_cluster + 0.1 is larger than threshold [%], the galaxy is
+    flagged to be removed.
+  - output.hdf5 contains all the input.hdf5 catalogue information,
+    with an additional three columns of boolean (``RS_flag``,
+    ``z_flag_hard``, ``z_flag_pdz``) in the astropy table,
+    corresponding to the three cuts. If True the object passed the cut
+    and is to be kept.
 
 - Compute the shear::
 
     clusters_shear config.yaml input.hdf5 output.hdf5
 
-- A pipeline script which run all the above step in a raw with standard options::
+- A pipeline script which run all the above step in a raw with
+  standard options::
 
     clusters_pipeline config.yaml
 
