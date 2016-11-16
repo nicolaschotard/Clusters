@@ -6,11 +6,10 @@
 # line or from a config file
 from clusters import data
 import numpy as np
-import pdb
-#f = "/home/chotard/Work/scripts/analysis/test_Cluster/MACSJ2243.3-0935_filtered_data.hdf5"
-f = "/Volumes/clustersdata/MACSJ2243.3-0935_background.hdf5"
-d = data.read_hdf5(f)
-fc = d['deepCoadd_meas']
+
+f = "/home/chotard/Work/scripts/analysis/test_Cluster/MACSJ2243.3-0935_filtered_data.hdf5"
+#f = "/Volumes/clustersdata/MACSJ2243.3-0935_background.hdf5"
+fc = data.read_hdf5(f, path='deepCoadd_meas', dic=False)
 
 # read in the variables.  TODO add a switch that determines which shears to
 # read in (or to do multiple ones.  For now we just use the regauss ones)
@@ -20,22 +19,7 @@ e1 = fc['ext_shapeHSM_HsmShapeRegauss_e1']
 e2 = fc['ext_shapeHSM_HsmShapeRegauss_e2']
 flagz = fc['z_flag_pdz']
 filt = (np.abs(e1)<1.2) & (np.abs(e2<1.2) & flagz)
-x = x[filt]
-y = y[filt]
-e1 = e1[filt]
-e2 = e2[filt]
-#
-# do I need to convert these explicitly to numpy arrays?
-#
-# old code, ignore
-#np.savetxt('filename', np.c_[x,y,e1,e2])
-# also read in raw moments as a diagnostic
-#ixx = fc['ext_shapeHSM_HsmSourceMoments_xx']
-#ixy = fc['ext_shapeHSM_HsmSourceMoments_xy']
-#iyy = fc['ext_shapeHSM_HsmSourceMoments_yy']
-
-#old code, ignore
-#np.savetxt('test2.txt', np.c_[x,y,ixx,iyy,ixy])
+x, y, e1, e2 = x[filt], y[filt], e1[filt], e2[filt]
 
 # define inner and outer cutoff radii for invlens algorithm
 # TODO these should not be hardcoded, but should be input from the config
@@ -79,8 +63,8 @@ rmax = np.sqrt(sizex*sizex+sizey*sizey)
 # no objects are ever separated by more than rmax, so we never need to
 # store cutoff weights for r> rmax as an array so we don't have to calculate it on the fly.
 irmax = int(rmax+0.5)
-# create an empty weight array for each method.  We want emty weights so that odd values do not
-# get imported by accident
+# create an empty weight array for each method.  We want emty weights so that
+# odd values do not get imported by accident
 wt = np.zeros(irmax)
 wtmat = np.zeros(irmax)
 wtpot = np.zeros(irmax)
