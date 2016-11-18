@@ -1,8 +1,8 @@
 """Kappa analysis."""
 
 import numpy as np
-from . import data as cdata
 import astropy.io.fits as pyfits
+from . import data as cdata
 
 
 class Kappa(object):
@@ -103,6 +103,36 @@ class Kappa(object):
             else:
                 self.weights[weight][0] = 0
 
+    def _get_axis_3dgrid(self, axis='x'):
+        """Construct a grid around the data map.
+
+        Move the grid so its botom left corner match the galaxy which is at the bottom left corner
+        Here, we build a grid either for the x or the y position.
+        """
+        if axis == 'x':
+            cmin = min(self.data['xsrc'])
+            carange = np.arange(self.parameters['nxpoints']) + 0.5
+            ncpoints = self.parameters['nxpoints']
+            nopoints = self.parameters['nypoints']
+        else:
+            cmin = min(self.data['ysrc'])
+            carange = np.arange(self.parameters['nypoints']) + 0.5
+            ncpoints = self.parameters['nypoints']
+            nopoints = self.parameters['nxpoints']
+        cgrid = (cmin +  carange * self.parameters['step'])
+        #cgrid = cgrid.reshape(1, ncpoints).repeat(nopoints, axis=0).reshape(nopoints, ncpoints, 1)
+        if axis == 'x':
+            cgrid = cgrid.reshape(1, ncpoints, 1)
+        else:
+            cgrid = cgrid.reshape(ncpoints, 1, 1)
+        #import gc
+        #gc.collect()
+        #print np.shape(cgrid)
+        return cgrid
+
+    def _get_distances(self):
+        pass
+
     def _get_kappa(self):
         """Now let's actually calculate the shear.
 
@@ -120,28 +150,25 @@ class Kappa(object):
           4) The sum of the weighted ellipticities is divided by the sum of the weights to
              provide an output
         """
-        # Move the grid so its botom left corner match the galaxy which is at the bottom left corner
-        # Here, we build two grids: one for the x position
-        xps = (min(self.data['xsrc']) + (np.arange(self.parameters['nxpoints']) + 0.5) * \
-               self.parameters['step']).reshape(1, self.parameters['nxpoints']).repeat(self.parameters['nypoints'],
-                                                                    axis=0)
-        yps = (min(self.data['ysrc']) + (np.arange(self.parameters['nypoints']) + 0.5) * \
-               self.parameters['step']).reshape(1, self.parameters['nypoints']).repeat(self.parameters['nxpoints'],
-                                                                    axis=0).T
-        ### SHOULD WORK, BUT RAISE A MEMORY ERROR. FIX ME
         # Compute all distance. We get a cube of distances. For each point of the grid, we have an
         # array of distances to all the sources of the catalog. This is a 3d array.
-        dx = self.data['xsrc'].reshape(1, 1, len(self.data['xsrc'])) - \
-             xps.reshape(self.parameters['nypoints'],
-                         self.parameters['nxpoints'], 1)
-        dy = self.data['ysrc'].reshape(1, 1, len(self.data['ysrc'])) - \
-             yps.reshape(self.parameters['nxpoints'],
-                         self.parameters['nypoints'], 1)
-
+        dx = self.data['xsrc'].reshape(1, 1, len(self.data['xsrc'])) - self._get_axis_3dgrid(axis='x')
+        print np.shape(dx)
+        #dx = self.data['xsrc'].reshape(1, 1, len(self.data['xsrc']))  # first reshape to 3d
+        #print np.shape(dx)
+        #dx -= self._get_axis_3dgrid(axis='x')  # then subtract the x 3d grid
+        dy = self.data['ysrc'].reshape(1, 1, len(self.data['ysrc'])) - self._get_axis_3dgrid(axis='y')
+        #r2 = dx**2 - dy**2
+        #cos2phi = (dx**2 - dy**2) / r2
+        #sin2phi = 2.0 * dx * dy / r2
+        self.dx = dx
+        self.dy = dy
+        
+        return
         # Compute rotated ellipticities
-        etan = -1.0 * (self.data['sch1'] * (dx*2 - dy**2) / (dx**2 + dy**2) + \
+        etan = -1.0 * (self.data['sch1'] * (dx**2 - dy**2) / (dx**2 + dy**2) + \
                        self.data['sch2'] * 2.0 * dx * dy / (dx**2 + dy**2))
-        ecross = -1.0 * (self.data['sch2'] * (dx*2 - dy**2) / (dx**2 + dy**2) - \
+        ecross = -1.0 * (self.data['sch2'] * (dx**2 - dy**2) / (dx**2 + dy**2) - \
                          self.data['sch1'] * 2.0 * dx * dy / (dx**2 + dy**2))
 
         # Transform the cube of distances into a cube of integer, it will serve a indexes for weight
