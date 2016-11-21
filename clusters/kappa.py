@@ -66,11 +66,11 @@ class Kappa(object):
         self.maps = self.weights = {}
 
         # Get the weights and the maps
-        self.get_weights()
+        self._get_weights()
         self._get_kappa(xsampling=kwargs.get('xsampling', 100))
-        self.save_maps(self)
+        self.save_maps()
 
-    def get_weights(self):
+    def _get_weights(self):
         """Set up the weights for the invlens algorithm.
 
         No objects are ever separated by more than rmax, so we never need to store cutoff weights
@@ -182,19 +182,17 @@ class Kappa(object):
             raise IOError("WARNING: No maps computed yet.")
 
         for cmap in self.maps:
-            fig = pl.figure() 
+            fig = pl.figure()
             ax = fig.add_subplot(111, xlabel='X-coord (pixel)', ylabel='Y-coord (pixel)')
-            m = ax.imshow(self.maps[cmap], origin='lower')
-            #scat = ax.scatter(ra, dec, c=redshift, cmap=(P.cm.jet))
-            cb = fig.colorbar(m)
+            themap = ax.imshow(self.maps[cmap], origin='lower')
+            cb = fig.colorbar(themap)
             cb.set_label(cmap)
             ax.set_title(cmap)
-            #ax.set_xlim(xmin=min(ra) - 0.001, xmax=max(ra) + 0.001)
-            #ax.set_ylim(ymin=min(dec) - 0.001, ymax=max(dec) + 0.001)
-            #fig.savefig(cmap+".png")
+            fig.savefig(cmap+".png")
         pl.show()
 
-    def save_maps(self, format='fits'):
+    def save_maps(self):
+        """Save the maps in a fits files."""
         # Now write the files out as fits files
         # To modify header, use this syntax: hdu.header["cd1_1"]=XXXX
         for cmap in self.maps:
@@ -207,21 +205,18 @@ def load_data(datafile):
     return cdata.read_hdf5(datafile, path='deepCoadd_meas', dic=False)
 
 
-def get_data(cat, e1='ext_shapeHSM_HsmShapeRegauss_e1', e2='ext_shapeHSM_HsmShapeRegauss_e2'):
-    """Read in the variables.
+def get_cat(datafile, **kwargs):
+    """Get a clean catalog (mostly for test purpose here).
 
-    Input: astropy table for the deepcoad_meas catalog
-    Return: x, y, e1, e2
+    kwargs list can contain:
 
-    .. TODO::  add a switch that determines which shears to read in
-    (or to do multiple ones.  For now we just use the regauss ones.
+    :param string ell1: default is 'ext_shapeHSM_HsmShapeRegauss_e1'
+    :param string ell2: default 'ext_shapeHSM_HsmShapeRegauss_e2'
     """
-    print "Get the main filter"
-    filt = (abs(cat[e1]) < 1.2) & (abs(cat[e2] < 1.2)) & (cat['filter'] == 'i')
-    if 'z_flag_pdz' in cat.keys():
-        print "Add pdz filter"
-        filt &= cat['z_flag_pdz']
-    return [cat[k][filt] for k in ['x_Src', 'y_Src', e1, e2]]
+    ell1 = kwargs.get('ell1', 'ext_shapeHSM_HsmShapeRegauss_e1')
+    ell2 = kwargs.get('ell1', 'ext_shapeHSM_HsmShapeRegauss_e2')
+    cat = load_data(datafile)
+    return cat[(abs(cat[ell1]) < 1.2) & (abs(cat[ell2] < 1.2) & (cat['filter'] == 'i'))]
 
 
 def aperture_mass_maturi_filter(tanhx, **kwargs):
@@ -234,146 +229,3 @@ def aperture_mass_maturi_filter(tanhx, **kwargs):
     return np.tanh(tanhx / tanhxc) / ((tanhx / tanhxc) * \
                                          (1 + np.exp(tanha - tanhb * tanhx) + \
                                           np.exp(tanhc * tanhx-tanhd)))
-
-
-def analysis(datafile, rinner=500.0, router=8000.0, step=200, theta0=6000.0,
-             aprad=6000.0):
-    """Compute the kappa maps.
-
-    Define inner and outer cutoff radii for invlens algorithm file. These are
-    deweights to remove the quadratic noise divergence for galaxies right at the
-    points being considered and the logarithmic divergence for the noise from
-    gals as r->infty. Values are stored in pixels!
-    :param int step: Subsampling step size.  This is the shrink factor by which the
-                     output image is reduced relative to the input image.  So a step
-                     of 50 will take a 10,000x10,000 image and turn it into a 200x200
-                     map.
-                     .. TODO:: remember when we write out the WCS, that
-                     cd1_1,cd1_2,cd2_1,and cd2_2 are multiplied by step, and
-                     crpix1 and crpix2 are divided by step!
-                     Step set to 200 to make testing faster
-    :param frloat aprad: Aperture mass radius from Schneider et al. 98 is set to 3000
-
-    """
-    # Load the catalog
-    print "Loading the data"
-    cat = load_data(datafile)
-
-    # Get the data from the catalog
-    print "Getting the needed arrays"
-    x, y, e1, e2 = get_data(cat)
-
-    # Compute the size of the image in pixel
-    print "Compute the size"
-    sizex = max(x) - min(x)
-    sizey = max(y) - min(y)
-
-    # Determine the size and number of points in the image
-    print "Determine the size and number of points in the image"
-    nxpoints = int(sizex / step)
-    nypoints = int(sizey / step)
-
-    # this sets up the weights for the invlens algorithm
-    # store the squares of rinner, router so we don't have to keep computing!
-    ri2 = rinner*rinner
-    ro2 = router*router
-    rmax = np.sqrt(sizex*sizex+sizey*sizey)
-    # no objects are ever separated by more than rmax, so we never need to
-    # store cutoff weights for r> rmax as an array so we don't have to calculate it on the fly.
-    irmax = int(rmax+0.5)
-    # create an empty weight array for each method.  We want emty weights so that
-    # odd values do not get imported by accident
-    wt = np.zeros(irmax)
-    wtmat = np.zeros(irmax)
-    wtpot = np.zeros(irmax)
-    wtint = np.zeros(irmax)
-    wtapmass = np.zeros(irmax)
-
-    # The Aperture mass radius from Schneider et al. 1998 is set to 3000
-    apr2 = aprad * aprad
-
-    # now populate all the weight arrays
-    print "Now populate all the weight arrays"
-    for i in range(irmax):
-        r2 = i * i
-        icut = 1 - np.exp( -r2 / (2.0 * ri2))
-        ocut = np.exp( -r2 / (2.0 * ro2))
-        icut2 = aperture_mass_maturi_filter(np.sqrt(r2 / (rinner * rinner)))
-        wt[i] = icut * ocut / r2
-        wtmat[i] = icut2
-        wtpot[i] = icut * ocut / np.sqrt(r2)
-        wtint[i] = icut * ocut
-        wtapmass[i] = 6.0/np.pi * (1.0 - r2/apr2)*(r2/apr2) 
-        if (r2 > apr2):
-            wtapmass[i] = 0
-        if (r2 > (theta0*theta0)):
-            wtmat[i] = 0
-
-    wt[0]=0
-    wtpot[0]=0
-    wtint[0]=0
-    wtmat[0]=0
-
-    # now let's actually calculate the shear.  The algorithm for all of these images is pretty simple.
-    # 1) make a grid of (x,y) locations
-    # 2) at each location, loop over all galaxies and calculate the tangential shear
-    # (and 45-degree shear) calculated from a rotation of e_1 and e_2.  First, the direction
-    # connecting the location and the position is calculated, and the sin(2*phi) and cos(2*phi) terms
-    # are  calculated. then
-    #   etan = -1.0*( e1 * cos2phi + e2 * sin2phi)
-    #   ecross = ( e2 * cos2phi - e1 * sin2phi)
-    # 3) The rotated ellipticities are multiplied by a Weight, which depends on the type of map.  
-    # 4) The sum of the weighted ellipticities is divided by the sum of the weights to
-    # provide an output
-
-    
-    # first, loop over  x and y points in output map
-    mapnames = ["invlens", "invlens45", "maturi", "maturi45", "apmass", "apmass45",
-                "potential", "potential45", "integralshear", "integralshear45"]
-    maps = {key: np.zeros((nypoints,nxpoints)) for key in mapnames}
-    print "Now loop over  x and y points in output map"
-    for nxp in range(nxpoints):
-        print nxp+1, nxpoints
-        xp = min(x) + (nxp+0.5)*step
-        for nyp in range(nypoints):
-            yp = min(y) + (nyp+0.5)*step
-            # now loop over all the objects in your catalog
-            # the new version of the code treats all objects as numpy arrays implicitly.  Will it work?
-            dx = x - xp
-            dy = y - yp
-            r2 = dx * dx + dy * dy
-            r = np.sqrt(r2)
-            nr = np.array(r.tolist(),dtype=int)
-            cos2phi = (dx*dx - dy*dy) / r2
-            sin2phi = 2.0*dx*dy / r2
-            etan = -1.0*( e1 * cos2phi + e2 * sin2phi)
-            ecross = -1.0 * ( e2 * cos2phi - e1 * sin2phi)
-            invlens = wt[nr] * etan
-            inv45 = wt[nr] * ecross
-            mat = wtmat[nr] * etan
-            mat45 = wtmat[nr] * ecross
-            apmass = wtapmass[nr] * etan
-            apmass45 = wtapmass[nr] * ecross
-            pot = wtpot[nr] * etan
-            pot45 = wtpot[nr] * ecross
-            integ = wtint[nr] * etan
-            int45 = wt[nr] * ecross
-            #end loop over objects
-            maps['invlens'][nyp][nxp] = np.sum(invlens) /  np.sum(wt[nr])
-            maps['invlens45'][nyp][nxp] = np.sum(inv45) / np.sum(wt[nr])
-            maps['maturi'][nyp][nxp] = np.sum(mat) / np.sum(wtmat[nr])
-            maps['maturi45'][nyp][nxp] = np.sum(mat45) / np.sum(wtmat[nr])
-            maps['apmass'][nyp][nxp] = np.sum(apmass) / np.sum(wtapmass[nr])
-            maps['apmass45'][nyp][nxp] = np.sum(apmass45) / np.sum(wtapmass[nr])
-            maps['potential'][nyp][nxp] = np.sum(pot) / np.sum(wtpot[nr])
-            maps['potential45'][nyp][nxp] = np.sum(pot45) / np.sum(wtpot[nr])
-            maps['integralshear'][nyp][nxp] = np.sum(integ) / np.sum(wtint[nr])
-            maps['integralshear45'][nyp][nxp] = np.sum(int45) / np.sum(wtint[nr])
-            #end x loop
-        #end y loop
-    #
-    # Now write the files out as fits files
-    # To modify header, use this syntax: hdu.header["cd1_1"]=XXXX
-    for cmap in maps:
-        hdu = pyfits.PrimaryHDU(maps[cmap])
-        hdu.writeto("%s.fits" % cmap, clobber=True)
