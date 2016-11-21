@@ -1,6 +1,7 @@
 """Kappa analysis."""
 
 import numpy as np
+import pylab as pl
 import astropy.io.fits as pyfits
 from . import data as cdata
 
@@ -66,7 +67,8 @@ class Kappa(object):
 
         # Get the weights and the maps
         self.get_weights()
-        self._get_kappa()
+        self._get_kappa(xsampling=kwargs.get('xsampling', 100))
+        self.save_maps(self)
 
     def get_weights(self):
         """Set up the weights for the invlens algorithm.
@@ -112,28 +114,15 @@ class Kappa(object):
         if axis == 'x':
             cmin = min(self.data['xsrc'])
             carange = np.arange(self.parameters['nxpoints']) + 0.5
-            ncpoints = self.parameters['nxpoints']
-            nopoints = self.parameters['nypoints']
+            reshapep = (self.parameters['nxpoints'], 1)
         else:
             cmin = min(self.data['ysrc'])
             carange = np.arange(self.parameters['nypoints']) + 0.5
-            ncpoints = self.parameters['nypoints']
-            nopoints = self.parameters['nxpoints']
-        cgrid = (cmin +  carange * self.parameters['step'])
-        #cgrid = cgrid.reshape(1, ncpoints).repeat(nopoints, axis=0).reshape(nopoints, ncpoints, 1)
-        if axis == 'x':
-            cgrid = cgrid.reshape(1, ncpoints, 1)
-        else:
-            cgrid = cgrid.reshape(ncpoints, 1, 1)
-        #import gc
-        #gc.collect()
-        #print np.shape(cgrid)
+            reshapep = (self.parameters['nypoints'], 1)
+        cgrid = (cmin +  carange * self.parameters['step']).reshape(reshapep)
         return cgrid
 
-    def _get_distances(self):
-        pass
-
-    def _get_kappa(self):
+    def _get_kappa(self, xsampling=100):
         """Now let's actually calculate the shear.
 
         The algorithm for all of these images is pretty simple.
@@ -152,42 +141,58 @@ class Kappa(object):
         """
         # Compute all distance. We get a cube of distances. For each point of the grid, we have an
         # array of distances to all the sources of the catalog. This is a 3d array.
-        dx = self.data['xsrc'].reshape(1, 1, len(self.data['xsrc'])) - self._get_axis_3dgrid(axis='x')
-        print np.shape(dx)
-        #dx = self.data['xsrc'].reshape(1, 1, len(self.data['xsrc']))  # first reshape to 3d
-        #print np.shape(dx)
-        #dx -= self._get_axis_3dgrid(axis='x')  # then subtract the x 3d grid
-        dy = self.data['ysrc'].reshape(1, 1, len(self.data['ysrc'])) - self._get_axis_3dgrid(axis='y')
-        #r2 = dx**2 - dy**2
-        #cos2phi = (dx**2 - dy**2) / r2
-        #sin2phi = 2.0 * dx * dy / r2
-        self.dx = dx
-        self.dy = dy
-        
-        return
-        # Compute rotated ellipticities
-        etan = -1.0 * (self.data['sch1'] * (dx**2 - dy**2) / (dx**2 + dy**2) + \
-                       self.data['sch2'] * 2.0 * dx * dy / (dx**2 + dy**2))
-        ecross = -1.0 * (self.data['sch2'] * (dx**2 - dy**2) / (dx**2 + dy**2) - \
-                         self.data['sch1'] * 2.0 * dx * dy / (dx**2 + dy**2))
-
-        # Transform the cube of distances into a cube of integer, it will serve a indexes for weight
-        int_radius = np.array(np.sqrt(dx**2 + dy**2).tolist(), dtype=int)
-
-        # Apply this indexes filter to get the right weigth array for each pixel of the grid
-        # The output is also a 3D array (nxpoints, nypoints, len(x))
-        weights = {cmap: self.weights[cmap][int_radius] for weight in self.weights}
+        dx = self.data['xsrc'].reshape(1, len(self.data['xsrc'])) - self._get_axis_3dgrid(axis='x')
+        dy = self.data['ysrc'].reshape(1, len(self.data['ysrc'])) - self._get_axis_3dgrid(axis='y')
 
         self.maps = {}
-        for cmap in self.weights:
-            sumw = np.sum(weights[cmap], axis=2)
-            if '45' in cmap:
-                self.maps[cmap] = np.sum(weights[cmap] * etan, axis=2) / sumw
-            else:
-                self.maps[cmap] = np.sum(weights[cmap] * ecross, axis=2) / sumw
+        # Now loop over the y axis (explode memory otherwise)
+        xarange = [i for i in range(len(dx)) if not i%xsampling] + [len(dx)]
+        pbar = cdata.progressbar(len(dy) * (len(xarange) - 1))
+        for ii, dyy in enumerate(dy):
+            # also loop over the x axis to pack them into arrays of 'xsampling' items
+            dxs = [dx[xarange[jj]:xarange[jj+1]] for jj in range(len(xarange[:-1]))]
+            etan, ecross, int_radius = [], [], []
+            for jj, dxx in enumerate(dxs):
+                dxxs, dyys = dxx**2, dyy**2
+                square_radius = dxxs + dyys
+                cos2phi = (dxxs - dyys) / square_radius
+                sin2phi = 2.0 * dxx * dyy / square_radius
+                # Compute rotated ellipticities
+                etan.extend(- (self.data['sch1'] * cos2phi + self.data['sch2'] * sin2phi))
+                ecross.extend(- (self.data['sch2'] * cos2phi - self.data['sch1'] * sin2phi))
+                # Transform cube of distances into a cube of integers
+                # (will serve as indexes for weight)
+                int_radius.extend(np.array(np.sqrt(square_radius), dtype=int))
+                pbar.update(ii + jj + (len(xarange) - 2) * ii + 1)
+
+            # Apply this indexes filter to get the right weigth array for each pixel of the grid
+            # The output is also a 3D array (nxpoints, nypoints, len(x))
+            weights = {cmap: self.weights[cmap][int_radius] for cmap in self.weights}
+            for cmap in self.weights:
+                if cmap not in self.maps:
+                    self.maps[cmap] = []
+                sumw = np.sum(weights[cmap], axis=1)
+                cell = ecross if '45' in cmap else etan
+                self.maps[cmap].append(np.sum(weights[cmap] * cell, axis=1) / sumw)
+        pbar.finish()
 
     def plot_maps(self):
-        pass
+        """Plot the redshift sky-map."""
+        if not hasattr(self, 'maps'):
+            raise IOError("WARNING: No maps computed yet.")
+
+        for cmap in self.maps:
+            fig = pl.figure() 
+            ax = fig.add_subplot(111, xlabel='X-coord (pixel)', ylabel='Y-coord (pixel)')
+            m = ax.imshow(self.maps[cmap], origin='lower')
+            #scat = ax.scatter(ra, dec, c=redshift, cmap=(P.cm.jet))
+            cb = fig.colorbar(m)
+            cb.set_label(cmap)
+            ax.set_title(cmap)
+            #ax.set_xlim(xmin=min(ra) - 0.001, xmax=max(ra) + 0.001)
+            #ax.set_ylim(ymin=min(dec) - 0.001, ymax=max(dec) + 0.001)
+            #fig.savefig(cmap+".png")
+        pl.show()
 
     def save_maps(self, format='fits'):
         # Now write the files out as fits files
@@ -212,7 +217,7 @@ def get_data(cat, e1='ext_shapeHSM_HsmShapeRegauss_e1', e2='ext_shapeHSM_HsmShap
     (or to do multiple ones.  For now we just use the regauss ones.
     """
     print "Get the main filter"
-    filt = (abs(cat[e1]) < 1.2) & (abs(cat[e2] < 1.2))
+    filt = (abs(cat[e1]) < 1.2) & (abs(cat[e2] < 1.2)) & (cat['filter'] == 'i')
     if 'z_flag_pdz' in cat.keys():
         print "Add pdz filter"
         filt &= cat['z_flag_pdz']

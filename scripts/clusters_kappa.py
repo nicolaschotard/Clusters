@@ -17,8 +17,8 @@ x = np.array(fc['x_Src'])
 y = fc['y_Src']
 e1 = fc['ext_shapeHSM_HsmShapeRegauss_e1']
 e2 = fc['ext_shapeHSM_HsmShapeRegauss_e2']
-flagz = fc['z_flag_pdz']
-filt = (np.abs(e1)<1.2) & (np.abs(e2<1.2) & flagz)
+#flagz = fc['z_flag_pdz']
+filt = (np.abs(e1) < 1.2) & (np.abs(e2) < 1.2) & (fc['filter'] == 'i') #& flagz)
 x, y, e1, e2 = x[filt], y[filt], e1[filt], e2[filt]
 
 # define inner and outer cutoff radii for invlens algorithm
@@ -131,8 +131,10 @@ potmap=np.zeros((nypoints,nxpoints))
 pot45map=np.zeros((nypoints,nxpoints))
 intmap=np.zeros((nypoints,nxpoints))
 int45map=np.zeros((nypoints,nxpoints))
+print nxpoints, nypoints
 for nxp in range(nxpoints):
  xp = xmin + (nxp+0.5)*step
+ print nxp, nxpoints
  for nyp in range(nypoints):
   yp = ymin + (nyp+0.5)*step
 # now loop over all the objects in your catalog
