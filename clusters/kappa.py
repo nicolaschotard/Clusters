@@ -2,6 +2,7 @@
 
 import numpy as np
 import pylab as pl
+import numba
 import astropy.io.fits as pyfits
 from . import data as cdata
 
@@ -19,6 +20,9 @@ class Kappa(object):
         :param list filt: filter to apply
         """
         assert len(xsrc) == len(ysrc) == len(sch1) == len(sch2)
+
+        # numba?
+        self.use_numba = kwargs.get("numba", False)
 
         # Make sure all list are actually numpy arrays
         xsrc, ysrc, sch1, sch2 = [np.array(x) for x in [xsrc, ysrc, sch1, sch2]]
@@ -144,6 +148,8 @@ class Kappa(object):
         dx = self.data['xsrc'].reshape(1, len(self.data['xsrc'])) - self._get_axis_3dgrid(axis='x')
         dy = self.data['ysrc'].reshape(1, len(self.data['ysrc'])) - self._get_axis_3dgrid(axis='y')
 
+        if self.use_numba:
+            print "Using numba to fastenspeed up the process!"
         self.maps = {}
         # Now loop over the y axis (explode memory otherwise)
         xarange = [i for i in range(len(dx)) if not i%xsampling] + [len(dx)]
@@ -153,16 +159,28 @@ class Kappa(object):
             dxs = [dx[xarange[jj]:xarange[jj+1]] for jj in range(len(xarange[:-1]))]
             etan, ecross, int_radius = [], [], []
             for jj, dxx in enumerate(dxs):
-                dxxs, dyys = dxx**2, dyy**2
-                square_radius = dxxs + dyys
-                cos2phi = (dxxs - dyys) / square_radius
-                sin2phi = 2.0 * dxx * dyy / square_radius
-                # Compute rotated ellipticities
-                etan.extend(- (self.data['sch1'] * cos2phi + self.data['sch2'] * sin2phi))
-                ecross.extend(- (self.data['sch2'] * cos2phi - self.data['sch1'] * sin2phi))
-                # Transform cube of distances into a cube of integers
-                # (will serve as indexes for weight)
-                int_radius.extend(np.array(np.sqrt(square_radius), dtype=int))
+                if self.use_numba:
+                    dxxs, dyys = squared_array(dxx), squared_array(dyy)
+                    square_radius = sum_arrays(dxxs, dyys)
+                    cos2phi = compute_cos2phi(dxxs, dyys, square_radius)
+                    sin2phi = compute_sin2phi(dxx, dyy, square_radius)
+                    # Compute rotated ellipticities
+                    etan.extend(compute_etan(self.data['sch1'], self.data['sch2'], cos2phi, sin2phi))
+                    ecross.extend(compute_ecross(self.data['sch1'], self.data['sch2'], cos2phi, sin2phi))
+                    # Transform cube of distances into a cube of integers
+                    # (will serve as indexes for weight)
+                    int_radius.extend(np.array(sqrt_array(square_radius), dtype=int))
+                else:
+                    dxxs, dyys = dxx**2, dyy**2
+                    square_radius = dxxs + dyys
+                    cos2phi = (dxxs - dyys) / square_radius
+                    sin2phi = 2.0 * dxx * dyy / square_radius
+                    # Compute rotated ellipticities
+                    etan.extend(- (self.data['sch1'] * cos2phi + self.data['sch2'] * sin2phi))
+                    ecross.extend(- (self.data['sch2'] * cos2phi - self.data['sch1'] * sin2phi))
+                    # Transform cube of distances into a cube of integers
+                    # (will serve as indexes for weight)
+                    int_radius.extend(np.array(np.sqrt(square_radius), dtype=int))
                 pbar.update(ii + jj + (len(xarange) - 2) * ii + 1)
 
             # Apply this indexes filter to get the right weigth array for each pixel of the grid
@@ -198,6 +216,41 @@ class Kappa(object):
         for cmap in self.maps:
             hdu = pyfits.PrimaryHDU(self.maps[cmap])
             hdu.writeto("%s.fits" % cmap, clobber=True)
+
+
+@numba.vectorize
+def squared_array(x):
+    return x**2
+
+
+@numba.vectorize
+def sqrt_array(x):
+    return x**(1/2)
+
+
+@numba.vectorize
+def sum_arrays(x, y):
+    return x + y
+
+
+@numba.vectorize
+def compute_cos2phi(dxs, dys, square_radius):
+    return (dxs - dys) / square_radius
+
+
+@numba.vectorize
+def compute_sin2phi(dx, dy, square_radius):
+    return 2.0 * dx * dy / square_radius
+
+
+@numba.vectorize
+def compute_etan(sch1, sch2, cos2phi, sin2phi):
+    return - (sch1 * cos2phi + sch2 * sin2phi)
+
+
+@numba.vectorize
+def compute_ecross(sch1, sch2, cos2phi, sin2phi):
+    return - (sch2 * cos2phi - sch1 * sin2phi)
 
 
 def load_data(datafile):

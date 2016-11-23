@@ -12,4 +12,5 @@ fitsio
 cython
 pymc
 pytest
+numba
 
