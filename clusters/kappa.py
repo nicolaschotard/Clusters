@@ -1,8 +1,12 @@
 """Kappa analysis."""
 
+import sys
 import numpy as np
 import pylab as pl
-import numba
+try:
+    import numba
+except ImportError:
+    print "WARNING: numba module cannot be imported."
 import astropy.io.fits as pyfits
 from . import data as cdata
 
@@ -22,7 +26,7 @@ class Kappa(object):
         assert len(xsrc) == len(ysrc) == len(sch1) == len(sch2)
 
         # numba?
-        self.use_numba = kwargs.get("numba", False)
+        self.use_numba = kwargs.get("numba", False) and 'numba' in sys.modules'
 
         # Make sure all list are actually numpy arrays
         xsrc, ysrc, sch1, sch2 = [np.array(x.tolist()) for x in [xsrc, ysrc, sch1, sch2]]
