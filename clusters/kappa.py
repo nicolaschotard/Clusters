@@ -25,7 +25,7 @@ class Kappa(object):
         self.use_numba = kwargs.get("numba", False)
 
         # Make sure all list are actually numpy arrays
-        xsrc, ysrc, sch1, sch2 = [np.array(x) for x in [xsrc, ysrc, sch1, sch2]]
+        xsrc, ysrc, sch1, sch2 = [np.array(x.tolist()) for x in [xsrc, ysrc, sch1, sch2]]
 
         # Do we have to filter?
         if kwargs.get('filt', None) is not None:
@@ -71,6 +71,8 @@ class Kappa(object):
 
         # Get the weights and the maps
         self._get_weights()
+        #if self.use_numba:
+        #    self._get_kappa_numba(xsampling=kwargs.get('xsampling', 100))
         self._get_kappa(xsampling=kwargs.get('xsampling', 100))
         self.save_maps()
 
@@ -149,27 +151,33 @@ class Kappa(object):
         dy = self.data['ysrc'].reshape(1, len(self.data['ysrc'])) - self._get_axis_3dgrid(axis='y')
 
         if self.use_numba:
-            print "Using numba to fastenspeed up the process!"
-        self.maps = {}
-        # Now loop over the y axis (explode memory otherwise)
+            print "Using numba to speed up the process!"
+            self.maps = {}
+        # also loop over the x axis to pack them into arrays of 'xsampling' items
         xarange = [i for i in range(len(dx)) if not i%xsampling] + [len(dx)]
+        dxs = [dx[xarange[jj]:xarange[jj+1]] for jj in range(len(xarange[:-1]))]
+        # Now loop over the y axis (explode memory otherwise)
         pbar = cdata.progressbar(len(dy) * (len(xarange) - 1))
         for ii, dyy in enumerate(dy):
-            # also loop over the x axis to pack them into arrays of 'xsampling' items
-            dxs = [dx[xarange[jj]:xarange[jj+1]] for jj in range(len(xarange[:-1]))]
             etan, ecross, int_radius = [], [], []
             for jj, dxx in enumerate(dxs):
                 if self.use_numba:
-                    dxxs, dyys = squared_array(dxx), squared_array(dyy)
-                    square_radius = sum_arrays(dxxs, dyys)
-                    cos2phi = compute_cos2phi(dxxs, dyys, square_radius)
-                    sin2phi = compute_sin2phi(dxx, dyy, square_radius)
-                    # Compute rotated ellipticities
-                    etan.extend(compute_etan(self.data['sch1'], self.data['sch2'], cos2phi, sin2phi))
-                    ecross.extend(compute_ecross(self.data['sch1'], self.data['sch2'], cos2phi, sin2phi))
-                    # Transform cube of distances into a cube of integers
-                    # (will serve as indexes for weight)
-                    int_radius.extend(np.array(sqrt_array(square_radius), dtype=int))
+                    if 1:
+                        cetan, cecross, cint_radius = get_params(dxx, dyy, self.data['sch1'], self.data['sch2'])
+                        etan.extend(cetan)
+                        ecross.extend(cecross)
+                        int_radius.extend(cint_radius)
+                    else:
+                        dxxs, dyys = squared_array(dxx), squared_array(dyy)
+                        square_radius = sum_arrays(dxxs, dyys)
+                        cos2phi = compute_cos2phi(dxxs, dyys, square_radius)
+                        sin2phi = compute_sin2phi(dxx, dyy, square_radius)
+                        # Compute rotated ellipticities
+                        etan.extend(compute_etan(self.data['sch1'], self.data['sch2'], cos2phi, sin2phi))
+                        ecross.extend(compute_ecross(self.data['sch1'], self.data['sch2'], cos2phi, sin2phi))
+                        # Transform cube of distances into a cube of integers
+                        # (will serve as indexes for weight)
+                        int_radius.extend(np.array(sqrt_array(square_radius), dtype=int))
                 else:
                     dxxs, dyys = dxx**2, dyy**2
                     square_radius = dxxs + dyys
@@ -193,6 +201,39 @@ class Kappa(object):
                 cell = ecross if '45' in cmap else etan
                 self.maps[cmap].append(np.sum(weights[cmap] * cell, axis=1) / sumw)
         pbar.finish()
+
+    def _get_kappa_numba(self, xsampling=100):
+        """Now let's actually calculate the shear.
+
+        The algorithm for all of these images is pretty simple.
+          1) make a grid of (x,y) locations
+          2) at each location, loop over all galaxies and calculate the tangential shear
+             (and 45-degree shear) calculated from a rotation of e_1 and e_2.  First, the direction
+             connecting the location and the position is calculated, and the sin(2*phi) and
+             cos(2*phi) terms are  calculated. Then
+                cos2phi = (dx*2 - dy**2) / squared_radius
+                sin2phi = 2.0 * dx * dy / squared_radius
+                etan = -1.0*( e1 * cos2phi + e2 * sin2phi)
+                ecross = ( e2 * cos2phi - e1 * sin2phi)
+          3) The rotated ellipticities are multiplied by a Weight, which depends on the type of map.
+          4) The sum of the weighted ellipticities is divided by the sum of the weights to
+             provide an output
+        """
+        # Compute all distance. We get a cube of distances. For each point of the grid, we have an
+        # array of distances to all the sources of the catalog. This is a 3d array.
+        dx = self.data['xsrc'].reshape(1, len(self.data['xsrc'])) - self._get_axis_3dgrid(axis='x')
+        dy = self.data['ysrc'].reshape(1, len(self.data['ysrc'])) - self._get_axis_3dgrid(axis='y')
+
+        if self.use_numba:
+            print "Using numba to fastenspeed up the process!"
+        xarange = [i for i in range(len(dx)) if not i%xsampling] + [len(dx)]
+        dxs = [dx[xarange[jj]:xarange[jj+1]] for jj in range(len(xarange[:-1]))]
+        pbar = cdata.progressbar(len(dy) * (len(xarange) - 1))
+        maps = np.array(sorted(self.weights.keys()))
+        isetan = np.array([0 if '45' in cmap else 1 for cmap in maps], dtype='bool')
+        weights = np.array([self.weights[cmap] for cmap in maps])
+        self.maps = test_all_numba(dxs, dy, self.data['sch1'], self.data['sch2'], weights, isetan) #, pbar)
+        pbar.finish()                
 
     def plot_maps(self):
         """Plot the redshift sky-map."""
@@ -218,6 +259,21 @@ class Kappa(object):
             hdu.writeto("%s.fits" % cmap, clobber=True)
 
 
+@numba.jit
+def get_params(dx, dy, sch1, sch2):
+    dxs, dys = squared_array(dx), squared_array(dy)
+    square_radius = sum_arrays(dxs, dys)
+    cos2phi = compute_cos2phi(dxs, dys, square_radius)
+    sin2phi = compute_sin2phi(dx, dy, square_radius)
+    # Compute rotated ellipticities
+    #return compute_etan(sch1, sch2, cos2phi, sin2phi)
+    etan = compute_etan(sch1, sch2, cos2phi, sin2phi)
+    ecross = compute_ecross(sch1, sch2, cos2phi, sin2phi)
+    # Transform cube of distances into a cube of integers
+    # (will serve as indexes for weight)
+    int_radius = np.array(sqrt_array(square_radius), dtype=int)
+    return etan, ecross, int_radius
+
 @numba.vectorize
 def squared_array(x):
     return x**2
@@ -225,7 +281,7 @@ def squared_array(x):
 
 @numba.vectorize
 def sqrt_array(x):
-    return x**(1/2)
+    return x**(1./2)
 
 
 @numba.vectorize
@@ -251,6 +307,68 @@ def compute_etan(sch1, sch2, cos2phi, sin2phi):
 @numba.vectorize
 def compute_ecross(sch1, sch2, cos2phi, sin2phi):
     return - (sch2 * cos2phi - sch1 * sin2phi)
+
+
+@numba.vectorize
+def test_all_numba(dx, dy, sch1, sch2, weights, isetan):
+    maps = np.zeros((len(isetan), len(dy), len(dx)))
+    for ii, dyy in enumerate(dy):
+        # also loop over the x axis to pack them into arrays of 'xsampling' items
+        etan = np.zeros((len(dx)-1, len(dx[0]), len(dy[0])))
+        ecross = np.zeros((len(dx)-1, len(dx[0]), len(dy[0])))
+        int_radius = np.zeros((len(dx)-1, len(dx[0]), len(dy[0])))
+        for jj, dxx in enumerate(dx):
+            dxxs = squared_array(dxx)
+            dyys = squared_array(dyy)
+            square_radius = sum_arrays(dxxs, dyys)
+            cos2phi = compute_cos2phi(dxxs, dyys, square_radius)
+            sin2phi = compute_sin2phi(dxx, dyy, square_radius)
+            # Compute rotated ellipticities
+            if jj != (len(dx) - 1):
+                etan[jj] = compute_etan(sch1, sch2, cos2phi, sin2phi)
+                #etan.extend(compute_etan(sch1, sch2, cos2phi, sin2phi))
+                #etan = np.concatenate([etan, compute_etan(sch1, sch2, cos2phi, sin2phi)])
+                ecross[jj] = compute_ecross(sch1, sch2, cos2phi, sin2phi)
+                #ecross.extend(compute_ecross(sch1, sch2, cos2phi, sin2phi))
+                #ecross = np.concatenate([ecross, compute_ecross(sch1, sch2, cos2phi, sin2phi)])
+                # Transform cube of distances into a cube of integers
+                # (will serve as indexes for weight)
+                int_radius[jj] = np.array(sqrt_array(square_radius), dtype=int)
+                #int_radius.extend(np.array(sqrt_array(square_radius), dtype=int))
+                #int_radius = np.concatenate([int_radius, np.array(sqrt_array(square_radius), dtype=int)])
+            else:
+                letan = compute_etan(sch1, sch2, cos2phi, sin2phi)
+                lecross = compute_ecross(sch1, sch2, cos2phi, sin2phi)
+                lint_radius = np.array(sqrt_array(square_radius), dtype=int)
+                #            pbar.update(ii + jj + (len(dx) - 1) * ii + 1)
+        a = np.zeros((6, 10))
+        b = np.ones((6, 10))
+        c = np.ones((3, 10))
+        d = np.concatenate([a, b])
+        e = np.concatenate([a, c])
+        continue
+        a = np.concatenate(etan)
+        b = np.concatenate([a, [letan]])
+        print np.shape(a), np.shape(letan)
+        continue        
+        etan = np.concatenate([np.concatenate(etan), letan])
+        continue
+        ecross = np.concatenate([np.concatenate(ecross), lecross])
+        int_radius = np.concatenate([np.concatenate(int_radius), lint_radius])
+        # Apply this indexes filter to get the right weigth array for each pixel of the grid
+        # The output is also a 3D array (nxpoints, nypoints, len(x))
+        nweights = np.zeros((len(weights), len(int_radius), len(int_radius[0])))
+        continue
+        for kk, weight in enumerate(weights):
+            nweights[kk] = weight[int_radius]
+        for mm, ise in enumerate(isetan):
+            sumw = np.sum(nweights[mm], axis=1)
+            if ise:
+                cell = etan
+            else:
+                cell = ecross
+            maps[mm][ii] = np.sum(nweights[mm] * cell, axis=1) / sumw
+    return np.array(maps)
 
 
 def load_data(datafile):
