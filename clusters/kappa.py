@@ -26,7 +26,7 @@ class Kappa(object):
         assert len(xsrc) == len(ysrc) == len(sch1) == len(sch2)
 
         # numba?
-        self.use_numba = kwargs.get("numba", False) and 'numba' in sys.modules'
+        self.use_numba = kwargs.get("numba", False) and 'numba' in sys.modules
 
         # Make sure all list are actually numpy arrays
         xsrc, ysrc, sch1, sch2 = [np.array(x.tolist()) for x in [xsrc, ysrc, sch1, sch2]]
