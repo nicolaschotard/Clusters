@@ -73,7 +73,7 @@ class Kappa(object):
         self._get_weights()
         #if self.use_numba:
         #    self._get_kappa_numba(xsampling=kwargs.get('xsampling', 100))
-        self._get_kappa(xsampling=kwargs.get('xsampling', 100))
+        self._get_kappa(xsampling=kwargs.get('xsampling', 10))
         self.save_maps()
 
     def _get_weights(self):
@@ -162,22 +162,10 @@ class Kappa(object):
             etan, ecross, int_radius = [], [], []
             for jj, dxx in enumerate(dxs):
                 if self.use_numba:
-                    if 1:
-                        cetan, cecross, cint_radius = get_params(dxx, dyy, self.data['sch1'], self.data['sch2'])
-                        etan.extend(cetan)
-                        ecross.extend(cecross)
-                        int_radius.extend(cint_radius)
-                    else:
-                        dxxs, dyys = squared_array(dxx), squared_array(dyy)
-                        square_radius = sum_arrays(dxxs, dyys)
-                        cos2phi = compute_cos2phi(dxxs, dyys, square_radius)
-                        sin2phi = compute_sin2phi(dxx, dyy, square_radius)
-                        # Compute rotated ellipticities
-                        etan.extend(compute_etan(self.data['sch1'], self.data['sch2'], cos2phi, sin2phi))
-                        ecross.extend(compute_ecross(self.data['sch1'], self.data['sch2'], cos2phi, sin2phi))
-                        # Transform cube of distances into a cube of integers
-                        # (will serve as indexes for weight)
-                        int_radius.extend(np.array(sqrt_array(square_radius), dtype=int))
+                    cetan, cecross, cint_radius = get_params(dxx, dyy, self.data['sch1'], self.data['sch2'])
+                    etan.extend(cetan)
+                    ecross.extend(cecross)
+                    int_radius.extend(cint_radius)
                 else:
                     dxxs, dyys = dxx**2, dyy**2
                     square_radius = dxxs + dyys
@@ -307,68 +295,6 @@ def compute_etan(sch1, sch2, cos2phi, sin2phi):
 @numba.vectorize
 def compute_ecross(sch1, sch2, cos2phi, sin2phi):
     return - (sch2 * cos2phi - sch1 * sin2phi)
-
-
-@numba.vectorize
-def test_all_numba(dx, dy, sch1, sch2, weights, isetan):
-    maps = np.zeros((len(isetan), len(dy), len(dx)))
-    for ii, dyy in enumerate(dy):
-        # also loop over the x axis to pack them into arrays of 'xsampling' items
-        etan = np.zeros((len(dx)-1, len(dx[0]), len(dy[0])))
-        ecross = np.zeros((len(dx)-1, len(dx[0]), len(dy[0])))
-        int_radius = np.zeros((len(dx)-1, len(dx[0]), len(dy[0])))
-        for jj, dxx in enumerate(dx):
-            dxxs = squared_array(dxx)
-            dyys = squared_array(dyy)
-            square_radius = sum_arrays(dxxs, dyys)
-            cos2phi = compute_cos2phi(dxxs, dyys, square_radius)
-            sin2phi = compute_sin2phi(dxx, dyy, square_radius)
-            # Compute rotated ellipticities
-            if jj != (len(dx) - 1):
-                etan[jj] = compute_etan(sch1, sch2, cos2phi, sin2phi)
-                #etan.extend(compute_etan(sch1, sch2, cos2phi, sin2phi))
-                #etan = np.concatenate([etan, compute_etan(sch1, sch2, cos2phi, sin2phi)])
-                ecross[jj] = compute_ecross(sch1, sch2, cos2phi, sin2phi)
-                #ecross.extend(compute_ecross(sch1, sch2, cos2phi, sin2phi))
-                #ecross = np.concatenate([ecross, compute_ecross(sch1, sch2, cos2phi, sin2phi)])
-                # Transform cube of distances into a cube of integers
-                # (will serve as indexes for weight)
-                int_radius[jj] = np.array(sqrt_array(square_radius), dtype=int)
-                #int_radius.extend(np.array(sqrt_array(square_radius), dtype=int))
-                #int_radius = np.concatenate([int_radius, np.array(sqrt_array(square_radius), dtype=int)])
-            else:
-                letan = compute_etan(sch1, sch2, cos2phi, sin2phi)
-                lecross = compute_ecross(sch1, sch2, cos2phi, sin2phi)
-                lint_radius = np.array(sqrt_array(square_radius), dtype=int)
-                #            pbar.update(ii + jj + (len(dx) - 1) * ii + 1)
-        a = np.zeros((6, 10))
-        b = np.ones((6, 10))
-        c = np.ones((3, 10))
-        d = np.concatenate([a, b])
-        e = np.concatenate([a, c])
-        continue
-        a = np.concatenate(etan)
-        b = np.concatenate([a, [letan]])
-        print np.shape(a), np.shape(letan)
-        continue        
-        etan = np.concatenate([np.concatenate(etan), letan])
-        continue
-        ecross = np.concatenate([np.concatenate(ecross), lecross])
-        int_radius = np.concatenate([np.concatenate(int_radius), lint_radius])
-        # Apply this indexes filter to get the right weigth array for each pixel of the grid
-        # The output is also a 3D array (nxpoints, nypoints, len(x))
-        nweights = np.zeros((len(weights), len(int_radius), len(int_radius[0])))
-        continue
-        for kk, weight in enumerate(weights):
-            nweights[kk] = weight[int_radius]
-        for mm, ise in enumerate(isetan):
-            sumw = np.sum(nweights[mm], axis=1)
-            if ise:
-                cell = etan
-            else:
-                cell = ecross
-            maps[mm][ii] = np.sum(nweights[mm] * cell, axis=1) / sumw
-    return np.array(maps)
 
 
 def load_data(datafile):
