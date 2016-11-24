@@ -27,6 +27,12 @@ class Kappa(object):
 
         # numba?
         self.use_numba = kwargs.get("numba", False) and 'numba' in sys.modules
+        if self.use_numba:
+            for func in to_jit:
+                apply_decorator(func, numba.jit)
+            for func in to_vectorize:
+                apply_decorator(func, numba.vectorize)
+
 
         # Make sure all list are actually numpy arrays
         xsrc, ysrc, sch1, sch2 = [np.array(x.tolist()) for x in [xsrc, ysrc, sch1, sch2]]
@@ -75,8 +81,6 @@ class Kappa(object):
 
         # Get the weights and the maps
         self._get_weights()
-        #if self.use_numba:
-        #    self._get_kappa_numba(xsampling=kwargs.get('xsampling', 100))
         self._get_kappa(xsampling=kwargs.get('xsampling', 10))
         self.save_maps()
 
@@ -155,7 +159,7 @@ class Kappa(object):
         dy = self.data['ysrc'].reshape(1, len(self.data['ysrc'])) - self._get_axis_3dgrid(axis='y')
 
         if self.use_numba:
-            print "Using numba to speed up the process!"
+            print "Using numba to slightly speed up the process!"
             self.maps = {}
         # also loop over the x axis to pack them into arrays of 'xsampling' items
         xarange = [i for i in range(len(dx)) if not i%xsampling] + [len(dx)]
@@ -194,39 +198,6 @@ class Kappa(object):
                 self.maps[cmap].append(np.sum(weights[cmap] * cell, axis=1) / sumw)
         pbar.finish()
 
-    def _get_kappa_numba(self, xsampling=100):
-        """Now let's actually calculate the shear.
-
-        The algorithm for all of these images is pretty simple.
-          1) make a grid of (x,y) locations
-          2) at each location, loop over all galaxies and calculate the tangential shear
-             (and 45-degree shear) calculated from a rotation of e_1 and e_2.  First, the direction
-             connecting the location and the position is calculated, and the sin(2*phi) and
-             cos(2*phi) terms are  calculated. Then
-                cos2phi = (dx*2 - dy**2) / squared_radius
-                sin2phi = 2.0 * dx * dy / squared_radius
-                etan = -1.0*( e1 * cos2phi + e2 * sin2phi)
-                ecross = ( e2 * cos2phi - e1 * sin2phi)
-          3) The rotated ellipticities are multiplied by a Weight, which depends on the type of map.
-          4) The sum of the weighted ellipticities is divided by the sum of the weights to
-             provide an output
-        """
-        # Compute all distance. We get a cube of distances. For each point of the grid, we have an
-        # array of distances to all the sources of the catalog. This is a 3d array.
-        dx = self.data['xsrc'].reshape(1, len(self.data['xsrc'])) - self._get_axis_3dgrid(axis='x')
-        dy = self.data['ysrc'].reshape(1, len(self.data['ysrc'])) - self._get_axis_3dgrid(axis='y')
-
-        if self.use_numba:
-            print "Using numba to fastenspeed up the process!"
-        xarange = [i for i in range(len(dx)) if not i%xsampling] + [len(dx)]
-        dxs = [dx[xarange[jj]:xarange[jj+1]] for jj in range(len(xarange[:-1]))]
-        pbar = cdata.progressbar(len(dy) * (len(xarange) - 1))
-        maps = np.array(sorted(self.weights.keys()))
-        isetan = np.array([0 if '45' in cmap else 1 for cmap in maps], dtype='bool')
-        weights = np.array([self.weights[cmap] for cmap in maps])
-        self.maps = test_all_numba(dxs, dy, self.data['sch1'], self.data['sch2'], weights, isetan) #, pbar)
-        pbar.finish()                
-
     def plot_maps(self):
         """Plot the redshift sky-map."""
         if not hasattr(self, 'maps'):
@@ -251,7 +222,25 @@ class Kappa(object):
             hdu.writeto("%s.fits" % cmap, clobber=True)
 
 
-@numba.jit
+to_jit = []
+to_vectorize = []
+
+
+def numba_jit(func):
+    to_jit.append(func)
+    return func
+
+
+def numba_vectorize(func):
+    to_vectorize.append(func)
+    return func
+
+
+def apply_decorator(func, decorator):
+    globals()[func.func_name] = decorator(func)
+
+
+@numba_jit
 def get_params(dx, dy, sch1, sch2):
     dxs, dys = squared_array(dx), squared_array(dy)
     square_radius = sum_arrays(dxs, dys)
@@ -266,37 +255,37 @@ def get_params(dx, dy, sch1, sch2):
     int_radius = np.array(sqrt_array(square_radius), dtype=int)
     return etan, ecross, int_radius
 
-@numba.vectorize
+@numba_vectorize
 def squared_array(x):
     return x**2
 
 
-@numba.vectorize
+@numba_vectorize
 def sqrt_array(x):
     return x**(1./2)
 
 
-@numba.vectorize
+@numba_vectorize
 def sum_arrays(x, y):
     return x + y
 
 
-@numba.vectorize
+@numba_vectorize
 def compute_cos2phi(dxs, dys, square_radius):
     return (dxs - dys) / square_radius
 
 
-@numba.vectorize
+@numba_vectorize
 def compute_sin2phi(dx, dy, square_radius):
     return 2.0 * dx * dy / square_radius
 
 
-@numba.vectorize
+@numba_vectorize
 def compute_etan(sch1, sch2, cos2phi, sin2phi):
     return - (sch1 * cos2phi + sch2 * sin2phi)
 
 
-@numba.vectorize
+@numba_vectorize
 def compute_ecross(sch1, sch2, cos2phi, sin2phi):
     return - (sch2 * cos2phi - sch1 * sin2phi)
 

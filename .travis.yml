@@ -46,6 +46,14 @@ script:
   - export LEPHAREWORK="$HOME/lephare/lephare_work"
   - export LEPHAREDIR="$HOME/lephare/lephare_dev"
   - export PATH="$PATH:$HOME/lephare/lephare_dev/source"
+  # Get PDZ
+  - wget http://www.stsci.edu/~dcoe/BPZ/bpz-1.99.3.tar.gz
+  - tar -xvf bpz-1.99.3.tar.gz
+  - mv bpz-1.99.3 $HOME/
+  - export BPZPATH="$HOME/bpz-1.99.3"
+  - export PYTHONPATH=$PYTHONPATH:$BPZPATH
+  - alias bpz="python $BPZPATH/bpz.py"
+  - export NUMERIX=numpy
   # Run the tests
   - coverage run --source="clusters,pzmassfitter" setup.py test
 
