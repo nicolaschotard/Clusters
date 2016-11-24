@@ -54,6 +54,13 @@ script:
   - export PYTHONPATH=$PYTHONPATH:$BPZPATH
   - alias bpz="python $BPZPATH/bpz.py"
   - export NUMERIX=numpy
+  - cd $BPZPATH/FILTER/
+  - cp $LEPHAREDIR/filt/cfht/megacam/*.pb .
+  - for f in *.pb; do mv "$f" "CFHT_megacam_${f%.pb}.res"; done
+  - cd -
+  - wget https://lapp-owncloud.in2p3.fr/index.php/s/FP1vSMB7emLxwwg/download -O MACSJ2243.3-0935_zphot_megacam_zphot_test_.in
+  - wget https://lapp-owncloud.in2p3.fr/index.php/s/HZbzCFLoy8Lcmwx/download -O MACSJ2243.3-0935_zphot_megacam_zphot_test.columns
+  - bpz MACSJ2243.3-0935_zphot_megacam_zphot_test_.in -INTERP 2
   # Run the tests
   - coverage run --source="clusters,pzmassfitter" setup.py test
 
