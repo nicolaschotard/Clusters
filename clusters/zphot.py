@@ -1,15 +1,15 @@
-"""Photometric redshift analysis. Includes a wrapper to LEPHARE."""
+"""Photometric redshift analysis. Includes a wrapper to LEPHARE and BPZ.
+
+- LEPHARE: http://www.cfht.hawaii.edu/~arnouts/LEPHARE/lephare.html
+- BPZ: http://www.stsci.edu/~dcoe/BPZ
+"""
 
 import os
 import sys
-import numpy as N
-import pdb
-import pylab as P
-import seaborn
 import subprocess
+import numpy as N
+import pylab as P
 from scipy.optimize import curve_fit
-from scipy.integrate import simps
-
 from astropy.io import ascii
 from astropy.table import Table
 from astropy.coordinates import SkyCoord
@@ -17,7 +17,10 @@ from astropy.coordinates import SkyCoord
 
 class LEPHARE(object):
 
-    """Wrapper to the LEPHARE photometric redshift code."""
+    """Wrapper to the LEPHARE photometric redshift code.
+
+    http://www.cfht.hawaii.edu/~arnouts/LEPHARE/lephare.html
+    """
 
     def __init__(self, magnitudes, errors, zpara=None, spectro_file=None, **kwargs):
         """
@@ -45,19 +48,15 @@ class LEPHARE(object):
 
         self.spectro_file = spectro_file
         # Name of created files?
-        self.files = {}
+        prefix = ""
         if 'basename' in kwargs:
-            self.files['input'] = kwargs['basename'] + "_zphot.in"
-            self.files['output'] = kwargs['basename'] + "_zphot.out"
-            self.files['pdz_output'] = kwargs['basename'] + "_zphot"
+            prefix = kwargs['basename'] + "_"
         elif 'cname' in kwargs:
-            self.files['input'] = kwargs['cname'] + "_zphot.in"
-            self.files['output'] = kwargs['cname'] + "_zphot.out"
-            self.files['pdz_output'] = kwargs['basename'] + "_zphot"
-        else:
-            self.files['input'] = "zphot.in"
-            self.files['output'] = "zphot.out"
-            self.files['pdz_output'] = kwargs['basename'] + "_zphot"
+            prefix = kwargs['cname'] + "_"
+        self.files = {}
+        self.files['input'] = prefix + "zphot.in"
+        self.files['output'] = prefix + "zphot.out"
+        self.files['pdz_output'] = prefix + "zphot"
         self.files['all_input'] = self.files['input'].replace('.in', '.all')
 
         # Initialize lephare output variables
@@ -76,7 +75,7 @@ class LEPHARE(object):
         f = open(self.files['input'], 'w')
         if self.spectro_file is None:
             # No spectroscopic redshift file provided in config.yaml
-            # --> only need the SHORT format for LePhare input file    
+            # --> only need the SHORT format for LePhare input file
             if 'filters' in self.kwargs:
                 f.write("# id " + " ".join(["mag_%s" % filt for filt in self.kwargs['filters']]) +
                         " " + " ".join(["err_mag_%s" % filt for filt in self.kwargs['filters']]) +
@@ -104,9 +103,10 @@ class LEPHARE(object):
                         " context" + " zspec" + "\n")
                 context = 31  # tells LePhare to run using the u, g, r, i and z bands.
                 for i, mags in enumerate(N.concatenate([self.data['mag'], self.data['err']]).T):
-                    f.write("%i %s %s\n" % (i, " ".join(["%.3f" % m for m in mags]), " ".join(("%i" % context,"%.3f" % zp[i]))))
+                    f.write("%i %s %s\n" % (i, " ".join(["%.3f" % m for m in mags]),
+                                            " ".join(("%i" % context, "%.3f" % zp[i]))))
                 f.close()
-        if 'ra' in self.kwargs: 
+        if 'ra' in self.kwargs:
             f = open(self.files['all_input'], 'w')
             if 'filters' in self.kwargs is not None:
                 f.write("# id ID RA DEC " +
@@ -189,13 +189,15 @@ class LEPHARE(object):
         cmd += " -CAT_OUT " + self.files['output']
         cmd += " -PDZ_OUT " + self.files['pdz_output']
         print "INFO: Will run '%s'" % cmd
-    
+
         self.lephare_out = subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True)
         print "INFO: LEPHARE output summary (full output in self.lephare_out)"
         print "\n".join(["   " + zo for zo in self.lephare_out.split("\n")[-6:]])
-    
-        self.data_out = LEPHARO(self.files['output'],self.files['pdz_output'],all_input=self.files['all_input'])
-        
+
+        self.data_out = LEPHARO(self.files['output'], self.files['pdz_output'],
+                                all_input=self.files['all_input'])
+
+
 class LEPHARO(object):
 
     """Read LEPHARE output file."""
@@ -335,6 +337,109 @@ class LEPHARO(object):
         fig.savefig(self.files['output'].replace('.out', '') + "_redshift_map.png")
 
 
+class BPZ(object):
+
+    """Wrapper to the BPZ photometric redshift code.
+
+    http://www.stsci.edu/~dcoe/BPZ"""
+
+    def __init__(self, magnitudes, errors, **kwargs):
+        """
+        Run the BPZ progam (zphota).
+
+        :param list magnitudes: Magnitudes. A list of list
+        :param list errors: Error on magnitudes. Same shape as the magnitude list.
+
+        Kwargs include the following list of possible parameters
+
+        :param string basename: Base name for all created files
+        :param string cname: Name of the studied cluster. If basename if not given,
+                             it will be used as base name for all created file
+        :param string filters: filter list
+        :param list ra: list of ra
+        :param list dec: list of dec
+        :param list id: list of ID
+        """
+        self.data = {'mag': magnitudes, 'err': errors}
+        self.kwargs = kwargs
+
+        # Name of created files?
+        prefix = ""
+        if 'basename' in kwargs:
+            prefix = kwargs['basename'] + "_"
+        elif 'cname' in kwargs:
+            prefix = kwargs['cname'] + "_"
+        self.files = {}
+        self.files['input'] = prefix + "bpz.in"
+        self.files['flux_comparison'] = prefix + "bpz.flux_comparison"
+        self.files['bpz'] = prefix + "bpz.bpz"
+        self.files['probs'] = prefix + "bpz.probs"
+        self.files['columns'] = prefix + "bpz.columns"
+        self.files = {}
+
+        self.files['all_input'] = self.files['input'].replace('.in', '.all')
+
+        # Initialize BPZ output variables
+        self.bpz_out = None
+        self.data_out = None
+
+        self.write_input()
+
+    def write_input(self):
+        """
+        Create and write files needed to run BPZ.
+
+        - the input data file for BPZ
+        - a similar file containing the sources ID along with their RA DEC.
+        """
+        f = open(self.files['input'], 'w')
+        if 'filters' in self.kwargs:
+            f.write("# id " + " ".join(["mag_%s" % filt for filt in self.kwargs['filters']]) +
+                    " " + " ".join(["err_mag_%s" % filt for filt in self.kwargs['filters']]) +
+                    "\n")
+            for i, mags in enumerate(N.concatenate([self.data['mag'], self.data['err']]).T):
+                f.write("%i %s\n" % (i, " ".join(["%.3f" % m for m in mags])))
+                
+            f.close()
+            print "INFO: Input data saved in", self.files['input']
+        if 'ra' in self.kwargs:
+            f = open(self.files['all_input'], 'w')
+            if 'filters' in self.kwargs is not None:
+                f.write("# id ID RA DEC " +
+                        " ".join(["mag_%s" % filt for filt in self.kwargs['filters']]) + " " +
+                        " ".join(["err_mag_%s" % filt for filt in self.kwargs['filters']]) +
+                        "\n")
+            for i, mags in enumerate(N.concatenate([self.data['mag'], self.data['err']]).T):
+                f.write("%i %i %f %f %s\n" % (i, self.kwargs['id'][i],
+                                              self.kwargs['ra'][i], self.kwargs['dec'][i],
+                                              " ".join(["%.3f" % m for m in mags])))
+            f.close()
+            print "INFO: All data saved in", self.files['all_input']
+
+    def run(self):
+        """
+        Run BPZ.
+
+        Configuration file must exist in the current directory.
+
+        .. todo:: Build the configuration file on the fly (the .columns)
+        """
+        if not os.path.exists(self.files['columns']):
+            raise ValueError("%s does not exist" % self.files['columns'])
+
+        # build command line
+        cmd = "bpz %s -INTERP 2" % self.files['input']
+        print "INFO: Will run '%s'" % cmd
+
+        self.bpz_out = subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True)
+        print "INFO: BPZ output summary (full output in self.bpz_out)"
+        print "\n".join(["   " + zo for zo in self.bpz_out.split("\n")[-6:]])
+
+        # Build a BPZO class
+        #self.data_out = BPZO(self.files['output'], self.files['pdz_output'],
+        #                     all_input=self.files['all_input'])
+
+
 def dict_to_array(d, filters='ugriz'):
     """Transform a dictionnary into a list of arrays."""
     return N.array([N.array(d[f]) for f in filters])
@@ -367,18 +472,19 @@ class ZSPEC(object):
         # Check whether duplicate galaxies exist in the spectroz sample
         # and remove them. Ideally would average out the various occurances.
         # (To be done later)
-        ra=['{:.9}'.format(x) for x in self.data['ra']]
-        dec=['{:.9}'.format(x) for x in self.data['dec']]
-        radec = N.core.defchararray.add(ra, dec) 
+        ra = ['{:.9}'.format(x) for x in self.data['ra']]
+        dec = ['{:.9}'.format(x) for x in self.data['dec']]
+        radec = N.core.defchararray.add(ra, dec)
         unique_radec, good = N.unique(radec, return_index=True)
-        if (len(unique_radec) < len(radec)):
-            print "INFO: There are " + str(len(radec) - len(unique_radec)) + " duplicate galaxies in spectroz sample. They are removed."
-        bad = N.delete(N.arange(len(self.data)),good)
+        if len(unique_radec) < len(radec):
+            print "INFO: There are " + str(len(radec) - len(unique_radec)) + \
+                " duplicate galaxies in spectroz sample. They are removed."
+        bad = N.delete(N.arange(len(self.data)), good)
         self.data.remove_rows(bad)
 
         self.skycoords = SkyCoord(self.data['ra'], self.data['dec'], unit=unit)
         self.zphot = self.skycoords_phot = self.match = None
-        
+
     def load_zphot(self, ra, dec, zphot, unit='deg'): 
         """Load the photometric informations and match them to the spectro ones.
 
@@ -429,12 +535,12 @@ class ZSPEC(object):
         scat = ax.scatter(sdist, zphot - zspec, color='k')
         ax.set_title("%i galaxies" % len(self.match[filt]))
         ax.set_xscale('log')
-        ax.set_xlim([1.,1.e6])
-        ax.set_ylim([-1.,3.5])
+        ax.set_xlim([1., 1.e6])
+        ax.set_ylim([-1., 3.5])
 
         if path_to_png is not None:
             fig.savefig(path_to_png)
-        
+
         fig = P.figure()
 
         # radec scatter plot of all catalogue and zspec galaxies
@@ -445,15 +551,17 @@ class ZSPEC(object):
 
         # radec scatter plot of matched catalogue and zspec galaxies, within the cut criterion
         ax = fig.add_subplot(122, xlabel='ra', ylabel='dec')
-        ax.scatter(self.skycoords_phot.ra[self.match['idx'][filt]], self.skycoords_phot.dec[self.match['idx'][filt]],
+        ax.scatter(self.skycoords_phot.ra[self.match['idx'][filt]],
+                   self.skycoords_phot.dec[self.match['idx'][filt]],
                    color='k', label='Photo-z', s=5)
-        ax.scatter(self.skycoords.ra[filt], self.skycoords.dec[filt], color='r', label='Spectro-z', s=5)
+        ax.scatter(self.skycoords.ra[filt], self.skycoords.dec[filt],
+                   color='r', label='Spectro-z', s=5)
 
         if path_to_png is not None:
-            fig.savefig(path_to_png.replace('.png','_map.png'))
+            fig.savefig(path_to_png.replace('.png', '_map.png'))
 
         P.show()
-        
+
     def scatter(self, zclust, cluster=None, cut=0.1, stability=False):
         """Redshift scatter in the cluster.
 

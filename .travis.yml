@@ -46,7 +46,7 @@ script:
   - export LEPHAREWORK="$HOME/lephare/lephare_work"
   - export LEPHAREDIR="$HOME/lephare/lephare_dev"
   - export PATH="$PATH:$HOME/lephare/lephare_dev/source"
-  # Get PDZ
+  # Get BPZ
   - wget http://www.stsci.edu/~dcoe/BPZ/bpz-1.99.3.tar.gz
   - tar -xvf bpz-1.99.3.tar.gz
   - mv bpz-1.99.3 $HOME/
@@ -57,9 +57,9 @@ script:
   - cp $LEPHAREDIR/filt/cfht/megacam/*.pb .
   - for f in *.pb; do mv "$f" "CFHT_megacam_${f%.pb}.res"; done
   - cd -
-  - wget https://lapp-owncloud.in2p3.fr/index.php/s/FP1vSMB7emLxwwg/download -O megacam_pbz_test.columns
-  - wget https://lapp-owncloud.in2p3.fr/index.php/s/HZbzCFLoy8Lcmwx/download -O megacam_pbz_test.in
-  - python $BPZPATH/bpz.py megacam_pbz_test.in -INTERP 2
+  - wget https://lapp-owncloud.in2p3.fr/index.php/s/FP1vSMB7emLxwwg/download -O megacam_bpz_test.columns
+  - wget https://lapp-owncloud.in2p3.fr/index.php/s/HZbzCFLoy8Lcmwx/download -O megacam_bpz_test.in
+  - python $BPZPATH/bpz.py megacam_bpz_test.in -INTERP 2
   # Run the tests
   - coverage run --source="clusters,pzmassfitter" setup.py test
 
