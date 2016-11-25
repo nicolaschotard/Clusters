@@ -57,8 +57,8 @@ script:
   - cp $LEPHAREDIR/filt/cfht/megacam/*.pb .
   - for f in *.pb; do mv "$f" "CFHT_megacam_${f%.pb}.res"; done
   - cd -
-  - wget https://lapp-owncloud.in2p3.fr/index.php/s/FP1vSMB7emLxwwg/download -O megacam_pbz_test.in
-  - wget https://lapp-owncloud.in2p3.fr/index.php/s/HZbzCFLoy8Lcmwx/download -O megacam_pbz_test.columns
+  - wget https://lapp-owncloud.in2p3.fr/index.php/s/FP1vSMB7emLxwwg/download -O megacam_pbz_test.columns
+  - wget https://lapp-owncloud.in2p3.fr/index.php/s/HZbzCFLoy8Lcmwx/download -O megacam_pbz_test.in
   - python $BPZPATH/bpz.py megacam_pbz_test.in -INTERP 2
   # Run the tests
   - coverage run --source="clusters,pzmassfitter" setup.py test
