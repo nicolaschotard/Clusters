@@ -375,8 +375,6 @@ class BPZ(object):
         self.files['bpz'] = prefix + "bpz.bpz"
         self.files['probs'] = prefix + "bpz.probs"
         self.files['columns'] = prefix + "bpz.columns"
-        self.files = {}
-
         self.files['all_input'] = self.files['input'].replace('.in', '.all')
 
         # Initialize BPZ output variables
@@ -384,6 +382,7 @@ class BPZ(object):
         self.data_out = None
 
         self.write_input()
+        self.build_columns_file()
 
     def write_input(self):
         """
@@ -416,6 +415,23 @@ class BPZ(object):
             f.close()
             print "INFO: All data saved in", self.files['all_input']
 
+    def build_columns_file(self):
+        """Build and write the 'columns' file.
+
+        Hardcoded for test purpose.
+        """
+        f = open(self.files['columns'], 'w')
+        f.write("# Filter  columns  AB/Vega  zp_error  zp_offset\n")
+        f.write("CFHT_megacam_up     2, 7   AB        0.01      -0.012\n")
+        f.write("CFHT_megacam_gp     3, 8   AB        0.01      0.017\n")
+        f.write("CFHT_megacam_rp     4, 9   AB        0.01      0.002\n")
+        f.write("CFHT_megacam_ip     5, 10  AB        0.01      -0.008\n")
+        f.write("CFHT_megacam_zp     6,11   AB        0.01      0.027\n")
+        f.write("M_0                 4\n")
+        #f.write("Z_S                  13\n")
+        f.write("ID                    1\n")
+        f.close()
+
     def run(self):
         """
         Run BPZ.
@@ -424,16 +440,21 @@ class BPZ(object):
 
         .. todo:: Build the configuration file on the fly (the .columns)
         """
+        if not os.getenv('BPZPATH'):
+            mess = "BPZPATH if not defined. Please install BPZ "
+            mess += "(see http://www.stsci.edu/~dcoe/BPZ/install.html)."
+            raise IOError(mess)
+
         if not os.path.exists(self.files['columns']):
-            raise ValueError("%s does not exist" % self.files['columns'])
+            raise IOError("%s does not exist" % self.files['columns'])
 
         # build command line
-        cmd = "bpz %s -INTERP 2" % self.files['input']
+        cmd = "python $BPZPATH/bpz.py %s -INTERP 2" % self.files['input']
         print "INFO: Will run '%s'" % cmd
 
         self.bpz_out = subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True)
         print "INFO: BPZ output summary (full output in self.bpz_out)"
-        print "\n".join(["   " + zo for zo in self.bpz_out.split("\n")[-6:]])
+        print "\n".join(["   " + zo for zo in self.bpz_out.split("\n")[:20]])
 
         # Build a BPZO class
         #self.data_out = BPZO(self.files['output'], self.files['pdz_output'],

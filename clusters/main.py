@@ -1,11 +1,11 @@
 """Main entry points for scripts."""
 
 import os
-import yaml
 import sys
-from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
-import numpy as N
+import numpy
 from astropy.table import Table, Column, hstack
+import yaml
+from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 
 from . import data as cdata
 from . import extinction as cextinction
@@ -167,6 +167,8 @@ def photometric_redshift(argv=None):
                         help="Magnitude name [default]")
     parser.add_argument("--data",
                         help="LEPHARE output file, used for the analysis only (plots)")
+    parser.add_argument("--bpz", action="store_true", default=False,
+                        help="Run BPZ instead of LEPHARE (TESTING!)")
     args = parser.parse_args(argv)
 
     config = cdata.load_config(args.config)
@@ -202,6 +204,20 @@ def photometric_redshift(argv=None):
     # Make sure the selected magnitude does exist in the data table
     if args.mag not in data.keys():
         raise IOError("%s is not a column of the input table" % args.mag)
+
+    # Run BPZ
+    if args.bpz:
+        print "INFO: Running BPZ"
+        kwargs = {'basename': config['cluster'],
+                  'filters': [f for f in config['filter'] if f in set(data['filter'].tolist())],
+                  'ra': data['coord_ra_deg'][data['filter'] == config['filter'][0]],
+                  'dec': data['coord_dec_deg'][data['filter'] == config['filter'][0]],
+                  'id': data['objectId'][data['filter'] == config['filter'][0]]}
+        bpz = czphot.BPZ([data[args.mag][data['filter'] == f] for f in kwargs['filters']],
+                         [data[args.mag.replace("_extcorr", "") + "Sigma"][data['filter'] == f]
+                          for f in kwargs['filters']], **kwargs)
+        bpz.run()
+        sys.exit(0)
 
     # Run LEPHARE
     print "INFO: LEPHARE will run on", len(data) / len(config['filter']), "sources"
@@ -243,8 +259,8 @@ def photometric_redshift(argv=None):
         pdz_bins_tab = Table([zphot.data_out.pdz_zbins], names=['zbins'])
 
         # Converts LePhare likelihood to actual probability density
-        for i in N.arange(len(zphot.data_out.pdz_val)):
-            norm = N.trapz(zphot.data_out.pdz_val[:, i], zphot.data_out.pdz_zbins)
+        for i in numpy.arange(len(zphot.data_out.pdz_val)):
+            norm = numpy.trapz(zphot.data_out.pdz_val[:, i], zphot.data_out.pdz_zbins)
             new_pdz_val = zphot.data_out.pdz_val[:, i] / norm
             zphot.data_out.pdz_val[:, i] = new_pdz_val
 
