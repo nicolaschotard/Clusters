@@ -501,7 +501,8 @@ class BPZO(object):
         self.nsources = len(self.data_dict['Z_B'])
 
         self.pdz_zbins = N.arange(zmin,zmax+dz,dz)
-        self.pdz_val = N.loadtxt(self.files['pdz_output'], unpack=True)
+        # first column of BPZ probs file is ID, need to skip it
+        self.pdz_val = N.loadtxt(self.files['pdz_output'], unpack=True, usecols=np.arange(1,len(pdz_zbins)+1))
 
     def read_input(self):
         """Read the input."""
