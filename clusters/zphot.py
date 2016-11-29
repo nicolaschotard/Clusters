@@ -372,8 +372,8 @@ class BPZ(object):
         self.files = {}
         self.files['input'] = prefix + "bpz.in"
         self.files['flux_comparison'] = prefix + "bpz.flux_comparison"
-        self.files['bpz'] = prefix + "bpz.bpz"
-        self.files['probs'] = prefix + "bpz.probs"
+        self.files['output'] = prefix + "bpz.bpz"
+        self.files['pdz_output'] = prefix + "bpz.probs"
         self.files['columns'] = prefix + "bpz.columns"
         self.files['all_input'] = self.files['input'].replace('.in', '.all')
 
@@ -422,12 +422,12 @@ class BPZ(object):
         """
         f = open(self.files['columns'], 'w')
         f.write("# Filter  columns  AB/Vega  zp_error  zp_offset\n")
-        f.write("CFHT_megacam_up     2, 7   AB        0.01      -0.012\n")
-        f.write("CFHT_megacam_gp     3, 8   AB        0.01      0.017\n")
-        f.write("CFHT_megacam_rp     4, 9   AB        0.01      0.002\n")
-        f.write("CFHT_megacam_ip     5, 10  AB        0.01      -0.008\n")
-        f.write("CFHT_megacam_zp     6,11   AB        0.01      0.027\n")
-        f.write("M_0                 4\n")
+        f.write("CFHT_megacam_up     2, 7   AB        0.01      0.00\n")
+        f.write("CFHT_megacam_gp     3, 8   AB        0.01      0.00\n")
+        f.write("CFHT_megacam_rp     4, 9   AB        0.01      0.00\n")
+        f.write("CFHT_megacam_ip     5, 10  AB        0.01      0.00\n")
+        f.write("CFHT_megacam_zp     6,11   AB        0.01      0.00\n")
+        f.write("M_0                 6\n")
         #f.write("Z_S                  13\n")
         f.write("ID                    1\n")
         f.close()
@@ -457,13 +457,163 @@ class BPZ(object):
         print "\n".join(["   " + zo for zo in self.bpz_out.split("\n")[:20]])
 
         # Build a BPZO class
-        #self.data_out = BPZO(self.files['output'], self.files['pdz_output'],
-        #                     all_input=self.files['all_input'])
+        self.data_out = BPZO(self.files['output'], self.files['pdz_output'],
+                             all_input=self.files['all_input'])
 
 
 def dict_to_array(d, filters='ugriz'):
     """Transform a dictionnary into a list of arrays."""
     return N.array([N.array(d[f]) for f in filters])
+
+
+class BPZO(object):
+
+    """Read BPZ output file."""
+
+    def __init__(self, zphot_output, zphot_pdz_output, all_input=None):
+        """Read the BPZ progam Output (bpz output)."""
+        self.files = {}
+        self.files['output'] = zphot_output
+        self.files['pdz_output'] = zphot_pdz_output
+        if all_input is not None:
+            self.files['input'] = all_input
+            self.read_input()
+        self.read()
+
+    def read(self):
+        """Read the output."""
+        f = open(self.files['output'], 'r')
+        self.header = [l for l in f if l.startswith('##')]
+        f.seek(0)
+        self.variables = [l[4:].replace(' ','').split('\n')[0] for l in f if l.startswith('# ')]
+        f.seek(0)
+        # BPZ does not provide a zbins file.
+        # Needs to create it from zmin, zmax and dz specified in output file
+        zmin = float([line.split('=')[1] for line in f if 'ZMIN' in line][0])
+        f.seek(0)
+        zmax = float([line.split('=')[1] for line in f if 'ZMAX' in line][0])
+        f.seek(0)
+        dz = float([line.split('=')[1] for line in f if 'DZ' in line][0])
+        f.close()
+
+        self.data_array = N.loadtxt(self.files['output'], unpack=True)
+        self.data_dict = {v: a for v, a in zip(self.variables, self.data_array)}
+        self.nsources = len(self.data_dict['Z_B'])
+
+        self.pdz_zbins = N.arange(zmin,zmax+dz,dz)
+        self.pdz_val = N.loadtxt(self.files['pdz_output'], unpack=True)
+
+    def read_input(self):
+        """Read the input."""
+        data = N.loadtxt(self.files['input'], unpack=True)
+        f = open(self.files['input'], 'r')
+        l = f.readlines()[0]
+        self.input_data = {k: d for k, d in zip(l[2:-1].split(), data)}
+        f.close()
+
+    def hist(self, param, **kwargs):
+        """Plot histograms.
+
+        Possible kwargs
+
+        :params float minv: Lower value of the histogram
+        :params float maxv: Upper value of the histogram
+        :params int nbins: Number of bins. Default is 10.
+        :params string xlabel: An xlbal for the figure
+        :params string title: A title for the figure
+        :params float zclust: Redshift of the studies cluster
+        """
+        # Get the data and apply some cut if asked
+        pval = self.data_dict[param]
+        filt = N.array([1] * len(pval), dtype='bool')
+        if 'minv' in kwargs:
+            filt &= (pval >= kwargs['minv'])
+        if 'maxv' in kwargs:
+            filt &= (pval <= kwargs['maxv'])
+        pval = pval[filt]
+
+        # Plot the histogram
+        fig = P.figure()
+        ax = fig.add_subplot(111, ylabel='#')
+        ax.hist(pval, bins=kwargs['nbins'] if 'nbins' in kwargs else 10)
+        xlabel = kwargs['xlabel'] if 'xlabel' in kwargs else param
+        ax.set_xlabel(xlabel)
+        if 'title' in kwargs:
+            ax.set_title(kwargs['title'])
+        if 'zclust' in kwargs:
+            ax.axvline(kwargs['zclust'], color='r',
+                       label='Cluster redshift (%.4f)' % kwargs['zclust'])
+            ax.legend(loc='best')
+
+        # Save the figure
+        fig.savefig(self.files['output'].replace('.out', '') + "_" + xlabel + "_zphot_hist.png")
+
+    def plot(self, px, py, **kwargs):
+        """
+        Plot x vs. y.
+
+        Possible kwargs are:
+        :params float minx: lower limit of the x axis
+        :params float maxx: upper limit of the x axis
+        :params float miny: lower limit of the y axis
+        :params float maxy: upper limit of the y axis
+        :params string xlabel: label of the x axis
+        :params string ylabel: label of the y axis
+        :params string title: title of the figure
+        """
+        pvalx = self.data_dict[px]
+        pvaly = self.data_dict[py]
+        filt = N.array([1] * len(pvalx), dtype='bool')
+        if 'minx' in kwargs and kwargs['minx'] is not None:
+            filt &= (pvalx >= kwargs['minx'])
+        if 'maxx' in kwargs and kwargs['maxx'] is not None:
+            filt &= (pvalx <= kwargs['maxx'])
+        if 'miny' in kwargs and kwargs['miny'] is not None:
+            filt &= (pvaly >= kwargs['miny'])
+        if 'maxy' in kwargs and kwargs['maxy'] is not None:
+            filt &= (pvaly <= kwargs['maxy'])
+        pvalx, pvaly = pvalx[filt], pvaly[filt]
+        fig = P.figure()
+        ax = fig.add_subplot(111)
+        ax.scatter(pvalx, pvaly)
+        if 'xlabel' in kwargs and kwargs['xlabel'] is not None:
+            px = kwargs['xlabel']
+        if 'ylabel' in kwargs and kwargs['ylabel'] is not None:
+            py = kwargs['ylabel']
+        ax.set_xlabel(px)
+        ax.set_ylabel(py)
+        if 'title' in kwargs and kwargs['title'] is not None:
+            ax.set_title(kwargs['title'])
+
+        if 'figname' in kwargs and kwargs['figname'] is not None:
+            fig.savefig(self.files['output'].replace('.out', '') + "_%s_vs_%s_zphot.png" % (py, px))
+        else:
+            fig.savefig("%s_vs_%s_zphot.png" % (py, px))
+
+    def plot_map(self, title=None, zmin=0, zmax=999):
+        """Plot the redshift sky-map."""
+        if not hasattr(self, 'input_data'):
+            print "WARNING: No input data given. Cannot plot the redshift map."
+            return
+
+        ra, dec, redshift = self.input_data['RA'], self.input_data['DEC'], self.data_dict['Z_BEST']
+
+        # redshift has to be >= 0
+        filt = (redshift >= zmin) & (redshift < zmax)
+        ra, dec, redshift = ra[filt], dec[filt], redshift[filt]
+
+        fig = P.figure() 
+        ax = fig.add_subplot(111, xlabel='RA (deg)', ylabel='DEC (deg)')
+        scat = ax.scatter(ra, dec, c=redshift, cmap=(P.cm.jet))
+        cb = fig.colorbar(scat)
+        cb.set_label('Photometric redshift')
+        if title is not None:
+            ax.set_title(title)
+        ax.set_xlim(xmin=min(ra) - 0.001, xmax=max(ra) + 0.001)
+        ax.set_ylim(ymin=min(dec) - 0.001, ymax=max(dec) + 0.001)
+        fig.savefig(self.files['output'].replace('.out', '') + "_redshift_map.png")
+
+
 
 
 class ZSPEC(object):

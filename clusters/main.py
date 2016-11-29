@@ -14,6 +14,7 @@ from . import shear as cshear
 from . import background
 from pzmassfitter import dmstackdriver
 
+import pdb
 
 def load_data(argv=None):
     """Load data from the DM stack butler."""
@@ -213,10 +214,11 @@ def photometric_redshift(argv=None):
                   'ra': data['coord_ra_deg'][data['filter'] == config['filter'][0]],
                   'dec': data['coord_dec_deg'][data['filter'] == config['filter'][0]],
                   'id': data['objectId'][data['filter'] == config['filter'][0]]}
-        bpz = czphot.BPZ([data[args.mag][data['filter'] == f] for f in kwargs['filters']],
+        zphot = czphot.BPZ([data[args.mag][data['filter'] == f] for f in kwargs['filters']],
                          [data[args.mag.replace("_extcorr", "") + "Sigma"][data['filter'] == f]
                           for f in kwargs['filters']], **kwargs)
-        bpz.run()
+        zphot.run()
+        pdb.set_trace()
         sys.exit(0)
 
     # Run LEPHARE
