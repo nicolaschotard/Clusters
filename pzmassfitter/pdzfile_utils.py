@@ -2,17 +2,11 @@
 # Utilities to deal with BPZ pdz file ops
 #########################
 
-import sys, re, cPickle
+import sys
+import re
 import numpy as np
 import astropy.io.fits as pyfits
-import ldac
-
-
-##########################
-
-__cvs_id__ = "$Id$"
-
-##########################
+from . import ldac
 
 
 class PDZManager(object):
@@ -38,21 +32,21 @@ class PDZManager(object):
             raise IndexError
 
         return self.pdzcat[self.index[key]][1]
-    
+
     ####################
 
     def _buildIndex(self):
 
         self.index = {}
-        for i, id in enumerate(self.pdzcat['SeqNr']):
-            self.index[id] = i
+        for i, iid in enumerate(self.pdzcat['SeqNr']):
+            self.index[iid] = i
 
     #####################
 
     def _buildPDZRange(self):
-        
-        self.pdzrange = np.arange(self.pdzcat.hdu.header['MINPDZ'], 
-                                  self.pdzcat.hdu.header['MAXPDZ'], 
+
+        self.pdzrange = np.arange(self.pdzcat.hdu.header['MINPDZ'],
+                                  self.pdzcat.hdu.header['MAXPDZ'],
                                   self.pdzcat.hdu.header['PDZSTEP'])
 
     ######################
@@ -87,7 +81,7 @@ class PDZManager(object):
         input = open(pdzfile)
 
         headerline = input.readline()
-        match = re.search('z=arange\((.+)\)', headerline)
+        match = re.search(r'z=arange\((.+)\)', headerline)
         assert(match is not None)
         minPDZ, maxPDZ, pdzstep = map(float, match.group(1).split(','))
 
@@ -103,11 +97,10 @@ class PDZManager(object):
             ids.append(id)
             pdzs.append(pdz)
 
-        nobjects = len(pdzs)
         npdzs = len(np.arange(minPDZ, maxPDZ, pdzstep))
 
-        cols = [pyfits.Column(name = 'SeqNr', format = 'J', array = np.array(ids)),
-                pyfits.Column(name = 'pdz', format = '%dE' % npdzs, array = np.array(pdzs))]
+        cols = [pyfits.Column(name='SeqNr', format='J', array=np.array(ids)),
+                pyfits.Column(name='pdz', format='%dE' % npdzs, array=np.array(pdzs))]
 
         pdzs = ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols)))
 
@@ -115,12 +108,11 @@ class PDZManager(object):
         pdzs.hdu.header.update('MAXPDZ', maxPDZ)
         pdzs.hdu.header.update('PDZSTEP', pdzstep)
 
-        
         return cls(pdzs)
 
 
     ##########################
-    
+
     @classmethod
     def open(cls, pdzfile, table='OBJECTS'):
         '''opens a pdzfile saved by PDZManager'''
@@ -131,11 +123,6 @@ class PDZManager(object):
 
     ##########################
 
-        
-
-
-        
-    
 
 ############################################
 
@@ -155,18 +142,16 @@ def createPDZcat(seqnr, pdzrange, pdz):
     maxPDZ = np.max(pdzrange) + pdzstep
     assert((np.arange(minPDZ, maxPDZ, pdzstep) == pdzrange).all())
 
-    cols = [pyfits.Column(name = 'SeqNr', format = 'J', array = seqnr),
-            pyfits.Column(name = 'pdz', format = '%dE' % npdzs, array = pdz)]
+    cols = [pyfits.Column(name='SeqNr', format='J', array=seqnr),
+            pyfits.Column(name='pdz', format='%dE' % npdzs, array=pdz)]
 
     pdzs = ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols)))
 
     pdzs.hdu.header.update('MINPDZ', minPDZ)
     pdzs.hdu.header.update('MAXPDZ', maxPDZ)
     pdzs.hdu.header.update('PDZSTEP', pdzstep)
-    
-    return pdzs
 
-    
+    return pdzs
 
 ##############################################
 

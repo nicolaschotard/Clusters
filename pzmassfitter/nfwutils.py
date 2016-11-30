@@ -2,11 +2,10 @@
 # Utilities to calculate NFW Halo Properties
 ###############################
 
-from scipy.integrate import quad
-import numpy as np
-import varcontainer as vc
-import scipy.optimize
 import copy
+import numpy as np
+import scipy.optimize
+from scipy.integrate import quad
 
 #############################
 
@@ -47,7 +46,7 @@ class ComovingDistMemoization(object):
 
 class Cosmology(object):
 
-    def __init__(self, omega_m = 0.3, omega_l = 0.7, h = 0.7, w = -1, omega_r = 0., G = std_G):
+    def __init__(self, omega_m=0.3, omega_l=0.7, h=0.7, w=-1, omega_r=0., G=std_G):
 
         self.omega_m = omega_m
         self.omega_l = omega_l
@@ -61,18 +60,20 @@ class Cosmology(object):
 
     def __copy__(self):
 
-        return Cosmology(omega_m = self.omega_m, omega_l = self.omega_l, h = self.h, w = self.w, omega_r = self.omega_r, G = self.G)
+        return Cosmology(omega_m=self.omega_m, omega_l=self.omega_l,
+                         h=self.h, w=self.w, omega_r=self.omega_r, G=self.G)
 
     def get_H0(self):
-        return 100*self.h  #km/s/MPC
+        return 100 * self.h  #km/s/MPC
 
     H0 = property(get_H0)
 
     def hubble2(self, z):
 
         inv_a = 1.+z
-        return (self.omega_r*inv_a**4 + self.omega_m*inv_a**3 + \
-                  self.omega_l*(inv_a**(3*(1+self.w))) + (1 - self.omega_m - self.omega_l - self.omega_r)*inv_a**2)*self.H0**2
+        return (self.omega_r * inv_a**4 + self.omega_m * inv_a**3 +
+                self.omega_l * (inv_a**(3 * (1+self.w))) +
+                (1 - self.omega_m - self.omega_l - self.omega_r) * inv_a**2) * self.H0**2
 
     def Ez(self, z):
 
@@ -84,7 +85,7 @@ class Cosmology(object):
     hubble_length = property(get_hubble_length)
 
 
-    def _integral_1pzOverEz3(self, z_min, z_max = np.inf):
+    def _integral_1pzOverEz3(self, z_min, z_max=np.inf):
 
         def integrand(z):
             return (1.0 + z) / (self.Ez(z))**3
@@ -102,7 +103,7 @@ class Cosmology(object):
 
     def rho_crit(self, z):
 
-        return 3.*self.hubble2(z)/(8*np.pi*self.G)
+        return 3. * self.hubble2(z)/(8 * np.pi * self.G)
 
     def angulardist(self, z, z2=None):
 
@@ -135,11 +136,13 @@ class Cosmology(object):
 
 ###################################
 
-class CosmologyFixedException(Exception): pass
+class CosmologyFixedException(Exception):
+    pass
+
 
 class CosmologySingleton(object):
 
-    def __init__(self, startCosmology = None, isMutable = True):
+    def __init__(self, startCosmology=None, isMutable=True):
         self.isMutable = isMutable
 
 
@@ -166,23 +169,23 @@ class CosmologySingleton(object):
 
 ###################################
 
-std_cosmology = CosmologySingleton(isMutable = False)
+std_cosmology = CosmologySingleton(isMutable=False)
     
 global_cosmology = CosmologySingleton()
 
 
 ##################################
 
-def deltaC(c, delta = 200.):
+def deltaC(c, delta=200.):
 
     c = float(c)
 
-    return (delta/3.)*c**3/(np.log(1+c) - (c/(1+c)))
+    return (delta/3.) * c**3/(np.log(1+c) - (c/(1+c)))
 
 
 ###################################
 
-def density(r, rs, c, z, cosmology = global_cosmology):
+def density(r, rs, c, z, cosmology=global_cosmology):
 
     x = r/rs
 
@@ -190,38 +193,38 @@ def density(r, rs, c, z, cosmology = global_cosmology):
 
     rho_c = cosmology.rho_crit(z)
 
-    return delta_c*rho_c/(x*((1+x)**2))
+    return delta_c * rho_c/(x * ((1+x)**2))
 
 
 ##################################
 
-def delta_vir(z, cosmology = global_cosmology):
+def delta_vir(z, cosmology=global_cosmology):
 
 
     #Bryan & Norman 1998
 
-    omega_z = cosmology.omega_m*cosmology.rho_crit(0.)*((1+z)**3)/cosmology.rho_crit(z)
+    omega_z = cosmology.omega_m * cosmology.rho_crit(0.) * ((1+z)**3)/cosmology.rho_crit(z)
 
     x = omega_z - 1
 
-    d_v = 18*np.pi**2 - 82*x - 39*x**2 
+    d_v = 18 * np.pi**2 - 82 * x - 39 * x**2 
 
     return d_v
 
 
 ###################################
 
-def massInsideR(rs, c, z, R, cosmology = global_cosmology):
+def massInsideR(rs, c, z, R, cosmology=global_cosmology):
 
     x = R/rs
     delta_c = deltaC(c)
     rho_c = cosmology.rho_crit(z)
 
-    return (np.log(1+x) - (x/(1+x)))*4*np.pi*delta_c*rho_c*rs**3
+    return (np.log(1+x) - (x/(1+x))) * 4 * np.pi * delta_c * rho_c * rs**3
 
 ##############
 
-def RsMassInsideR(mass, c, z, R, cosmology = global_cosmology):
+def RsMassInsideR(mass, c, z, R, cosmology=global_cosmology):
 
     delta_c = deltaC(c)
     rho_c = cosmology.rho_crit(z)
@@ -230,7 +233,7 @@ def RsMassInsideR(mass, c, z, R, cosmology = global_cosmology):
 
         xp = R/x
 
-        return (np.log(1+xp) - (xp/(1+xp)))*4*np.pi*delta_c*rho_c*x**3 - mass
+        return (np.log(1+xp) - (xp/(1+xp))) * 4 * np.pi * delta_c * rho_c * x**3 - mass
 
     try:
         rs = scipy.optimize.brenth(f, 0.01, 10.)
@@ -244,32 +247,30 @@ def RsMassInsideR(mass, c, z, R, cosmology = global_cosmology):
 
 ###################################
 
-def massInsideR_amp(rs, amp, z, R, cosmology = global_cosmology):
+def massInsideR_amp(rs, amp, z, R, cosmology=global_cosmology):
 
     Dl = cosmology.angulardist(z)
-    
+
     betainf = cosmology.beta([1e6], z)[0]
 
     sigma_c_4pi = cosmology.v_c**2 / (cosmology.G * Dl * betainf)
 
-    deltac_rhoc_rs3_4pi = sigma_c_4pi*amp*rs**2
+    deltac_rhoc_rs3_4pi = sigma_c_4pi * amp * rs**2
 
     x = R / rs
 
-    return (np.log(1+x) - (x/(1+x)))*deltac_rhoc_rs3_4pi
+    return (np.log(1+x) - (x/(1+x))) * deltac_rhoc_rs3_4pi
 
 ###################################
 
 def rdelta2rs(rdelta, c, delta):
 
     delta_c = deltaC(c)
-    
+
     # x = r_delta / rs
     def f(x):
-        
-        return 3*delta_c*(np.log(1+x) - (x/(1+x)))/x**3 - delta
+        return 3 * delta_c * (np.log(1+x) - (x/(1+x)))/x**3 - delta
 
-    
     x0 = scipy.optimize.brenth(f, 0.1, 20)
 
     return rdelta / x0
@@ -280,46 +281,44 @@ def rdelta2rs(rdelta, c, delta):
 def rdelta(rs, c, delta):
 
     delta_c = deltaC(c)
-    
+
     # x = r_delta / rs
     def f(x):
-        
-        return 3*delta_c*(np.log(1+x) - (x/(1+x)))/x**3 - delta
+        return 3 * delta_c * (np.log(1 + x) - (x / (1 + x))) / x**3 - delta
 
-    
     x0 = scipy.optimize.brenth(f, 0.1, 20)
 
-    return x0*rs
+    return x0 * rs
 
 ####################################
 
-def Mdelta(rs, c, z, delta, cosmology = global_cosmology):
+def Mdelta(rs, c, z, delta, cosmology=global_cosmology):
 
     r_delta = rdelta(rs, c, delta)
 
     rho_c = cosmology.rho_crit(z)
 
-    return delta*rho_c*(4*np.pi/3)*r_delta**3
+    return delta * rho_c * (4 * np.pi/3) * r_delta**3
 
 
 ######################################
 
-def rdeltaConstM(mdelta,z, delta, cosmology = global_cosmology):
+def rdeltaConstM(mdelta,z, delta, cosmology=global_cosmology):
 
     rho_c = cosmology.rho_crit(z)
 
-    rdelta = (3*mdelta/(4*delta*np.pi*rho_c))**(1./3.)
+    rdelta = (3 * mdelta/(4 * delta * np.pi * rho_c))**(1./3.)
 
     return rdelta
 
 #######################################
 
 
-def rscaleConstM(mdelta, c200, z, delta, cosmology = global_cosmology):
+def rscaleConstM(mdelta, c200, z, delta, cosmology=global_cosmology):
 
     rho_c = cosmology.rho_crit(z)
 
-    rdelta = (3*mdelta/(4*delta*np.pi*rho_c))**(1./3.)
+    rdelta = (3 * mdelta/(4 * delta * np.pi * rho_c))**(1./3.)
 
     if delta == 200.:
         return rdelta / c200
