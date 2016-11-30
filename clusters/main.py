@@ -218,7 +218,7 @@ def photometric_redshift(argv=None):
                          [data[args.mag.replace("_extcorr", "") + "Sigma"][data['filter'] == f]
                           for f in kwargs['filters']], **kwargs)
         zphot.run()
-        pdb.set_trace()
+        #pdb.set_trace()
         sys.exit(0)
 
     # Run LEPHARE
