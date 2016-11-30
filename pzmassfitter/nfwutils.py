@@ -2,7 +2,6 @@
 # Utilities to calculate NFW Halo Properties
 ###############################
 
-from numpy import *
 from scipy.integrate import quad
 import numpy as np
 import varcontainer as vc
@@ -11,20 +10,21 @@ import copy
 
 #############################
 
-std_G=4.3e-9 # Newton's const   in Mpc (km/s)^2 M_sol^{-1
+std_G = 4.3e-9 # Newton's const   in Mpc (km/s)^2 M_sol^{-1
 v_c = 299792.458 #km/s
 
 #############################
 
 class ComovingDistMemoization(object):
 
-    def __init__(self, cosmology, memotable = None):
+    def __init__(self, cosmology, memotable=None):
 
         if memotable is None:
             memotable = {}
 
         self.memotable = memotable
         self.cosmology = cosmology
+
     def __call__(self, z):
 
 
@@ -36,7 +36,7 @@ class ComovingDistMemoization(object):
             return 1./np.sqrt(self.cosmology.hubble2(z))
 
         y, err = quad(integrand, 0, z)
-    
+
         dist = self.cosmology.v_c * y  #to get proper units, ie to put in the hubble length
 
         self.memotable[z] = dist
@@ -62,8 +62,6 @@ class Cosmology(object):
     def __copy__(self):
 
         return Cosmology(omega_m = self.omega_m, omega_l = self.omega_l, h = self.h, w = self.w, omega_r = self.omega_r, G = self.G)
-        
-    
 
     def get_H0(self):
         return 100*self.h  #km/s/MPC
@@ -87,13 +85,12 @@ class Cosmology(object):
 
 
     def _integral_1pzOverEz3(self, z_min, z_max = np.inf):
-		
+
         def integrand(z):
             return (1.0 + z) / (self.Ez(z))**3
-		
+
         y, err = quad(integrand, z_min, z_max)
         return y
-
 
     def UnnormedGrowthFactor(self, z):
 
@@ -102,29 +99,24 @@ class Cosmology(object):
     def GrowthFactor(self, z):
 
         return self.UnnormedGrowthFactor(z)/self.UnnormedGrowthFactor(0.)
-    
 
     def rho_crit(self, z):
 
         return 3.*self.hubble2(z)/(8*np.pi*self.G)
 
-
-    def angulardist(self, z, z2 = None):
+    def angulardist(self, z, z2=None):
 
         if z2 is None:
             return self.comovingdist(z) / (1+z)
 
         return (self.comovingdist(z2) - self.comovingdist(z)) / (1+z2)
 
-
-
-
     def beta(self, z, zcluster):
 
-        Ds = array([self.angulardist(zi) for zi in z])
-        Dls = array([self.angulardist(zcluster, zi) for zi in z])
+        Ds = np.array([self.angulardist(zi) for zi in z])
+        Dls = np.array([self.angulardist(zcluster, zi) for zi in z])
 
-        Dls_over_Ds = zeros_like(Dls)
+        Dls_over_Ds = np.zeros_like(Dls)
         Dls_over_Ds[Ds > 0] = Dls[Ds > 0] / Ds[Ds > 0]
         Dls_over_Ds[Dls <= 0] = 0
 
@@ -241,7 +233,6 @@ def RsMassInsideR(mass, c, z, R, cosmology = global_cosmology):
         return (np.log(1+xp) - (xp/(1+xp)))*4*np.pi*delta_c*rho_c*x**3 - mass
 
     try:
-    
         rs = scipy.optimize.brenth(f, 0.01, 10.)
 
     except ValueError, e:
@@ -250,7 +241,6 @@ def RsMassInsideR(mass, c, z, R, cosmology = global_cosmology):
         raise e
 
     return rs
-    
 
 ###################################
 

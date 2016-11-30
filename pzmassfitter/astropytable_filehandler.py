@@ -6,9 +6,10 @@
 import numpy as np
 import astropy.table as table
 import astropy.io.fits as pyfits
-import varcontainer
-import nfwutils, sphereGeometry
-import ldac
+from . import varcontainer
+from . import nfwutils
+from . import sphereGeometry
+from . import ldac
 
 ####################################
 
@@ -22,7 +23,7 @@ class AstropyTableFilehandler(object):
 
     def __init__(self):
 
-        self.cuts =  []
+        self.cuts = []
 
     ######
 
@@ -30,7 +31,7 @@ class AstropyTableFilehandler(object):
         #not designed to be run from the command line
 
         raise NotImplementedError
-    
+
     ######
 
     def createOptions(self, cluster, zcluster,
@@ -42,7 +43,7 @@ class AstropyTableFilehandler(object):
                       decCol = 'coord_dec_deg',
                       g1Col = 'ext_shapeHSM_HsmShapeRegauss_e1',
                       g2Col = 'ext_shapeHSM_HsmShapeRegauss_e2',
-                      options = None, args = None):
+                      options=None, args=None):
 
         if options is None:
             options = varcontainer.VarContainer()
@@ -70,21 +71,21 @@ class AstropyTableFilehandler(object):
         options = manager.options
 
         manager.lensingcat = options.lensingcat
-        
+
         manager.clustername = options.cluster
         manager.zcluster    = options.zcluster
 
 
 
-        r_arcmin, E, B = calcTangentialShear(cat = manager.lensingcat, 
-                                             center = (options.cluster_ra, options.cluster_dec),
-                                             raCol = options.raCol,
-                                             decCol = options.decCol,
-                                             g1Col = options.g1Col,
-                                             g2Col = options.g2Col)
+        r_arcmin, E, B = calcTangentialShear(cat=manager.lensingcat,
+                                             center=(options.cluster_ra, options.cluster_dec),
+                                             raCol=options.raCol,
+                                             decCol=options.decCol,
+                                             g1Col=options.g1Col,
+                                             g2Col=options.g2Col)
 
 
-        r_mpc = r_arcmin * (1./60.) * (np.pi / 180. ) * nfwutils.global_cosmology.angulardist(options.zcluster)
+        r_mpc = r_arcmin * (1./60.) * (np.pi / 180.) * nfwutils.global_cosmology.angulardist(options.zcluster)
 
 #        size = manager.lensingcat[options.sizeCol] / options.psfsize
 #        snratio = manager.lensingcat[options.snratioCol]
@@ -99,22 +100,18 @@ class AstropyTableFilehandler(object):
 
         z_b = manager.matched_pdzcat['Z_BEST']
 
-        cols = [pyfits.Column(name='SeqNr', format = 'J', array = manager.lensingcat['id']),
-                pyfits.Column(name = 'r_mpc', format = 'E', array = r_mpc),
-#                pyfits.Column(name = 'size', format = 'E', array = size),
-#                pyfits.Column(name = 'snratio', format = 'E', array = snratio),
-                pyfits.Column(name = 'z_b', format = 'E', array = z_b),
-                pyfits.Column(name = 'ghats', format = 'E', array = E),
-                pyfits.Column(name = 'B', format = 'E',  array = B)]
+        cols = [pyfits.Column(name='SeqNr', format='J', array=manager.lensingcat['id']),
+                pyfits.Column(name='r_mpc', format='E', array=r_mpc),
+#                pyfits.Column(name='size', format='E', array=size),
+#                pyfits.Column(name='snratio', format='E', array=snratio),
+                pyfits.Column(name='z_b', format='E', array=z_b),
+                pyfits.Column(name='ghats', format='E', array=E),
+                pyfits.Column(name='B', format='E', array=B)]
 
         manager.store('inputcat', ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols))))
 
 
-
-
-
 #############
-
 
 
 def calcTangentialShear(cat, center, raCol, decCol, g1Col, g2Col):
@@ -130,11 +127,11 @@ def calcTangentialShear(cat, center, raCol, decCol, g1Col, g2Col):
     r_arcmin = sphereGeometry.greatCircleDistance(ra, dec, cluster_ra, cluster_dec)*60
 
     
-    cos2phi = np.cos(2*posangle)
-    sin2phi = np.sin(2*posangle)
+    cos2phi = np.cos(2 * posangle)
+    sin2phi = np.sin(2 * posangle)
 
-    E = -(e1*cos2phi + e2*sin2phi)
-    B =  e1*sin2phi - e2*cos2phi
+    E = -(e1*cos2phi + e2 * sin2phi)
+    B =  e1*sin2phi - e2 * cos2phi
 
 
     return r_arcmin, E, B
@@ -145,9 +142,6 @@ def calcTangentialShear(cat, center, raCol, decCol, g1Col, g2Col):
 
 def matchById(firstcat, othercat, otherid='SeqNr', selfid='SeqNr'):
     '''Returns a subset of this catalog, that matches the order of the provided catalog'''
-
-
-
     order = {}
     for i, x in enumerate(firstcat[selfid]):
         order[x] = i

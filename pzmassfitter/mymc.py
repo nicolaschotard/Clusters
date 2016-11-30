@@ -1,7 +1,5 @@
 # Copyright (C) 2011, 2012 Adam Mantz
-"""
-A module for Markov Chain Monte Carlo. See help() and example().
-"""
+"""A module for Markov Chain Monte Carlo. See help() and example()."""
 
 import csv
 import cPickle as pickle
@@ -79,8 +77,6 @@ Crude non-MCMC functionality:
 1. ParameterSpace.optimize provides deterministic minimization (using scipy.optimize.fmin_powell) to get an decent initial fit. This is not very efficient.
 2. Updater.set_covariance_from_hessian uses finite differencing to estimate an appropriate cartesian width in each direction. This will fail if the state is not in a local minimum, or just because.
 """
-
-
 
 
 class Parameter(object):
@@ -195,15 +191,18 @@ class Updater(object):
         if self.adapt:
             self.R = None
         self.rate = 1
+        
     def restore(self, filename):
         f = open(filename, 'rb')
         s = pickle.load(f)
         self.restoreBits(s)
         f.close()
+
     def save(self, filename):
         f = open(filename, 'wb')
         pickle.dump(self.saveBits(), f)
         f.close()
+
     def set_step(self, step):
         if step is None:
             return
@@ -213,7 +212,9 @@ class Updater(object):
 
 class CartesianUpdater(Updater):
     """
-    Abstract base class for updaters that proposal one parameter at a time. Do not instantiate directly.
+    Abstract base class for updaters that proposal one parameter at a time. 
+
+    Do not instantiate directly.
     """
     def __init__(self, space, step, adapt_every, adapt_starting, on_adapt, parallel):
         Updater.__init__(self, space, step, adapt_every, adapt_starting, on_adapt, parallel)
@@ -237,6 +238,7 @@ class CartesianUpdater(Updater):
                 self.gatherAdapt = self.gatherSerial
         self.current_direction = 0
         self.origin = 0.0
+
     def __call__(self, struct):
         if self.adapt and self.count >= self.adapt_start and self.count % self.adapt_every == 0:
             self.do_adapt(struct)
@@ -246,6 +248,7 @@ class CartesianUpdater(Updater):
             self.origin = self.space[self.current_direction]()
             self.step(struct)
             self.accumulate()
+
     def accumulate(self):
         if self.adapt:
             # Golub, Chan and Levesque one-pass mean and variance algorithm
@@ -260,6 +263,7 @@ class CartesianUpdater(Updater):
                 p.width = stdevs[i]
         if not self.onAdapt is None:
             self.onAdapt(struct)
+            
     def gatherFilesys(self):
         filename = parallel_filename_base + self.pid + self.uind + parallel_filename_ext
         self.save(filename)
@@ -291,6 +295,7 @@ class CartesianUpdater(Updater):
             W = grandVarMean / j
 #            self.R = np.sqrt( (self.count-1.0)/self.count + B/(self.count*W) )
         return np.sqrt( (moment2 - moment1**2/total) / (total - 1.0) )
+
     def gatherMPI(self):
         alls = self.saveBits()
         alls = self.comm.allgather(alls)
@@ -314,11 +319,14 @@ class CartesianUpdater(Updater):
             W = grandVarMean / len(alls)
             self.R = np.sqrt( (self.count-1.0)/self.count + B/(self.count*W) )
         return np.sqrt( (moment2 - moment1**2/total) / (total - 1.0) )
+
     def gatherSerial(self):
         return np.sqrt( self.variances / (self.count-1.0) )
+
     def move(self, x):
         p = self.space[self.current_direction]
         p.set(self.origin + x * p.width)
+
     def restoreBits(self, s):
         self.count = s['count']
         if s['type'] == 'Cartesian':
@@ -333,11 +341,13 @@ class CartesianUpdater(Updater):
             self.variances = s['covariances'].diagonal()
         else:
             raise Exception('CartesianUpdater.restoreBits: error restoring updater state -- unknown updater type')
+
     def saveBits(self):
         if self.adapt:
             return {'type': 'Cartesian', 'count': self.count, 'means': self.means, 'variances': self.variances, 'widths': [p.width for p in self.space]}
         else:
             return None
+
     def scatter(self, struct, ntries=10):
         c = self.current_direction
         origin = [p() for p in self.space]
@@ -355,6 +365,7 @@ class CartesianUpdater(Updater):
         self.engine.current_logP = self.space.log_posterior(struct)
         self.current_direction = c
         return False
+
     def set_covariance(self, cov):
         ok = True
         for i, p in enumerate(self.space):
@@ -363,6 +374,7 @@ class CartesianUpdater(Updater):
             else:
                 ok = False
         return ok
+
     def set_covariance_from_hessian(self, struct, h=0.1):
         ok = True
         g = postgetter()
@@ -752,6 +764,7 @@ try:
         for j, p in enumerate(up.space):
             p.set(x[j])
         return up.space.log_posterior(up.structptr)
+            
     class emceeUpdater(Updater):
         """
     Updater that uses the EMCEE Hammer (http://danfm.ca/emcee/ and arxiv:1202.3665).
@@ -1029,6 +1042,7 @@ class headerTextBackend(Backend):
             db[key] = np.array(db[key])
         return db
 
+
 class stdoutBackend(textBackend):
     """
     Class to simply print a chain to the terminal without storing it.
@@ -1036,9 +1050,13 @@ class stdoutBackend(textBackend):
     def __init__(self):
         textBackend.__init__(self, sys.stdout)
 
+
 class dictBackend(dict, Backend):
     """
-    Class to store a chain in a dictionary (inherits dict). If a Parameter has a non-empty string-type name attribute, the corresponding key is that name, otherise it is a reference to the Parameter object itself.
+    Class to store a chain in a dictionary (inherits dict). 
+
+    If a Parameter has a non-empty string-type name attribute, the corresponding key
+    is that name, otherise it is a reference to the Parameter object itself.
     """
     def __call__(self, space):
         for p in space:
@@ -1053,7 +1071,6 @@ class dictBackend(dict, Backend):
             except KeyError:
                 self[key] = []
                 self[key].append(p())
-
 
 
 class Engine(list):
@@ -1077,9 +1094,11 @@ class Engine(list):
         self.onStep = on_step
         self.count = 0
         self.current_logP = None
+
     def __setitem__(self, key, value):
         self[key] = value
         self.register_updater(value, key)
+
     def __call__(self, number=1, struct=None, backends=(stdoutBackend())):
         try:
             for i in range(number):
@@ -1096,6 +1115,7 @@ class Engine(list):
                         backend(self.space)
         except KeyboardInterrupt:
             print "Interrupted by keyboard with count = " + str(self.count)
+
     def register_updater(self, updater, index):
         updater.engine = self
         updater.index = index
