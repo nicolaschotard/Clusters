@@ -14,8 +14,6 @@ from . import shear as cshear
 from . import background
 from pzmassfitter import dmstackdriver
 
-import pdb
-
 def load_data(argv=None):
     """Load data from the DM stack butler."""
     description = """Load data from the DM stack butler."""
@@ -181,15 +179,14 @@ def photometric_redshift(argv=None):
     if args.output is None:
         args.output = os.path.basename(args.input).replace('.hdf5', '_zphot.hdf5')
         if not args.overwrite and os.path.exists(args.output):
-            raise IOError("Output already exists. Remove themit or use --overwrite.")
+            raise IOError("Output already exists. Remove it or use --overwrite.")
 
     if args.pdz_output is None:
         args.pdz_output = os.path.basename(args.input).replace('.hdf5', '_zphot_pdz.hdf5')
         if not args.overwrite and os.path.exists(args.output):
-            raise IOError("Output already exists. Remove themit or use --overwrite.")
+            raise IOError("Output already exists. Remove it or use --overwrite.")
 
     print "INFO: Working on cluster %s (z=%.4f)" % (config['cluster'], config['redshift'])
-    print "INFO: Working on filters", config['filter']
 
     # Load the data
     print "INFO: Loading the data from", args.input
@@ -206,6 +203,10 @@ def photometric_redshift(argv=None):
     if args.mag not in data.keys():
         raise IOError("%s is not a column of the input table" % args.mag)
 
+    # If a spectroscopic sample is provided, LEPHARE will run using the adaptative method
+    # (zero points determination)
+    spectro_file = None if 'zspectro_file' not in config else config['zspectro_file']
+
     # Run BPZ
     if args.bpz:
         print "INFO: Running BPZ"
@@ -218,68 +219,51 @@ def photometric_redshift(argv=None):
                          [data[args.mag.replace("_extcorr", "") + "Sigma"][data['filter'] == f]
                           for f in kwargs['filters']], **kwargs)
         zphot.run()
-        #pdb.set_trace()
-        sys.exit(0)
-
+        path = "bpz"
+        zphot.data_out.save_ztable(args.output, path, is_overwrite=args.overwrite)
+        path_pdz = "pdz_values"
+        path_bins = "pdz_bins" 
+        zphot.data_out.save_pdztable(args.pdz_output, path_pdz, path_bins,
+                                         is_overwrite=args.overwrite, is_bpz=True)
+        
     # Run LEPHARE
-    print "INFO: LEPHARE will run on", len(data) / len(config['filter']), "sources"
+    else:
+        print "INFO: LEPHARE will run on", len(data) / len(config['filter']), "sources"
+        
+        if args.zpara is None:
+            args.zpara = os.environ["LEPHAREDIR"] + \
+              "/config/zphot_megacam.para" if 'zpara' not in config else config['zpara']
+   
+        for i, zpara in enumerate(args.zpara.split(',') if isinstance(args.zpara, str) else args.zpara):
+            print "\nINFO: Configuration for LEPHARE from:", zpara
+            kwargs = {'basename': config['cluster'] + '_' + zpara.split('/')[-1].replace('.para', ''),
+                    'filters': [f for f in config['filter'] if f in set(data['filter'].tolist())],
+                    'ra': data['coord_ra_deg'][data['filter'] == config['filter'][0]],
+                    'dec': data['coord_dec_deg'][data['filter'] == config['filter'][0]],
+                    'id': data['objectId'][data['filter'] == config['filter'][0]]}
+            zphot = czphot.LEPHARE([data[args.mag][data['filter'] == f] for f in kwargs['filters']],
+                                   [data[args.mag.replace("_extcorr", "") +"Sigma"][data['filter'] == f]
+                                     for f in kwargs['filters']], zpara=zpara, spectro_file=spectro_file,
+                                   **kwargs)
+            zphot.check_config()
+            zphot.run()
 
-    if args.zpara is None:
-        args.zpara = os.environ["LEPHAREDIR"] + \
-                     "/config/zphot_megacam.para" if 'zpara' not in config else config['zpara']
+            path = "lph_%s" % zpara.split('/')[-1].replace('.para', '')
+            is_overwrite = args.overwrite if i==0 else False
+            is_append = True if i!=0 else False
+            zphot.data_out.save_ztable(args.output, path, is_overwrite=is_overwrite, is_append=is_append)
+            if i==0:
+                # For the moment, only save pdz for the first .para configuration
+                # Could change the keys names according to iteration (like for save_ztable, above) and
+                # append but get_background looks for "pdz_values" and "pdz_bins" only, cannot change
+                # path names without further modifying get_background. Don't want to do that just now.
+                path_pdz = "pdz_values"
+                path_bins = "pdz_bins"
+                zphot.data_out.save_pdztable(args.pdz_output, path_pdz, path_bins, is_overwrite=is_overwrite)
 
-    # If a spectroscopic sample is provided, LEPHARE will run using the adaptative method
-    # (zero points determination)
-    spectro_file = None if 'zspectro_file' not in config else config['zspectro_file']
-
-    for i, zpara in enumerate(args.zpara.split(',') if isinstance(args.zpara, str) else args.zpara):
-        print "\nINFO: Configuration for LEPHARE from:", zpara
-        kwargs = {'basename': config['cluster'] + '_' + zpara.split('/')[-1].replace('.para', ''),
-                  'filters': [f for f in config['filter'] if f in set(data['filter'].tolist())],
-                  'ra': data['coord_ra_deg'][data['filter'] == config['filter'][0]],
-                  'dec': data['coord_dec_deg'][data['filter'] == config['filter'][0]],
-                  'id': data['objectId'][data['filter'] == config['filter'][0]]}
-        zphot = czphot.LEPHARE([data[args.mag][data['filter'] == f] for f in kwargs['filters']],
-                               [data[args.mag.replace("_extcorr", "") +
-                                     "Sigma"][data['filter'] == f]
-                                for f in kwargs['filters']],
-                               zpara=zpara, spectro_file=spectro_file, **kwargs)
-        zphot.check_config()
-        zphot.run()
-
-        # Create a new table and save it
-        path = "zphot_%s" % zpara.split('/')[-1].replace('.para', '')
-        new_tab = hstack([data['objectId',
-                               'coord_ra_deg',
-                               'coord_dec_deg'][data['filter'] == config['filter'][0]],
-                          Table(zphot.data_out.data_dict)], join_type='inner')
-        new_tab.write(args.output, path=path, compression=True, serialize_meta=True,
-                      overwrite=args.overwrite if i == 0 else False,
-                      append=False if i == 0 else True)
-        print "INFO: LEPHARE data saved in", args.output, "as", path
-
-        pdz_bins_tab = Table([zphot.data_out.pdz_zbins], names=['zbins'])
-
-        # Converts LePhare likelihood to actual probability density
-        for i in numpy.arange(len(zphot.data_out.pdz_val)):
-            norm = numpy.trapz(zphot.data_out.pdz_val[:, i], zphot.data_out.pdz_zbins)
-            new_pdz_val = zphot.data_out.pdz_val[:, i] / norm
-            zphot.data_out.pdz_val[:, i] = new_pdz_val
-
-        # hstack creates a table where col0=objectId, col1=zbest and col2
-        # contains 1d arrays with the pdz values
-        pdz_val_tab = hstack([Table([data['objectId'][data['filter'] == config['filter'][0]]]),
-                              Table([zphot.data_out.data_dict['Z_BEST']], names=['Z_BEST']),
-                              Table([zphot.data_out.pdz_val.T], names=['pdz'])])
-
-        pdz_val_tab.write(args.pdz_output, path='pdz_values', compression=True,
-                          serialize_meta=True, overwrite=args.overwrite)
-        pdz_bins_tab.write(args.pdz_output, path='pdz_bins', compression=True,
-                           serialize_meta=True, append=True)
-        print "INFO: LEPHARE zphot distributions saved in", args.pdz_output
-
-        if args.plot:
-            doplot(zphot.data_out, config,
+    # Plot
+    if args.plot:
+        doplot(zphot.data_out, config,
                    float(args.zrange.split(',')[0]),
                    float(args.zrange.split(',')[1]))
 

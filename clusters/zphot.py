@@ -11,9 +11,8 @@ import numpy as N
 import pylab as P
 from scipy.optimize import curve_fit
 from astropy.io import ascii
-from astropy.table import Table
+from astropy.table import Table, Column, hstack
 from astropy.coordinates import SkyCoord
-
 
 class LEPHARE(object):
 
@@ -194,148 +193,8 @@ class LEPHARE(object):
         print "INFO: LEPHARE output summary (full output in self.lephare_out)"
         print "\n".join(["   " + zo for zo in self.lephare_out.split("\n")[-6:]])
 
-        self.data_out = LEPHARO(self.files['output'], self.files['pdz_output'],
-                                all_input=self.files['all_input'])
-
-
-class LEPHARO(object):
-
-    """Read LEPHARE output file."""
-
-    def __init__(self, zphot_output, zphot_pdz_output, all_input=None):
-        """Read the LEPHARE progam Output (zphota output)."""
-        self.files = {}
-        self.files['output'] = zphot_output
-        self.files['pdz_output'] = zphot_pdz_output
-        if all_input is not None:
-            self.files['input'] = all_input
-            self.read_input()
-        self.read()
-
-    def read(self):
-        """Read the output."""
-        f = open(self.files['output'], 'r')
-        self.header = [l for l in f if l.startswith('#')]
-        f.close()
-        self.data_array = N.loadtxt(self.files['output'], unpack=True)
-        self.variables = N.loadtxt(os.getenv('LEPHAREDIR') +
-                                   "/config/zphot_output.para", dtype='string')
-        self.data_dict = {v: a for v, a in zip(self.variables, self.data_array)}
-        self.nsources = len(self.data_dict['Z_BEST'])
-
-        self.pdz_zbins = N.loadtxt(self.files['pdz_output']+'.zph', unpack=True)
-        self.pdz_val = N.loadtxt(self.files['pdz_output']+'.pdz', unpack=True)
-
-    def read_input(self):
-        """Read the input."""
-        data = N.loadtxt(self.files['input'], unpack=True)
-        f = open(self.files['input'], 'r')
-        l = f.readlines()[0]
-        self.input_data = {k: d for k, d in zip(l[2:-1].split(), data)}
-        f.close()
-
-    def hist(self, param, **kwargs):
-        """Plot histograms.
-
-        Possible kwargs
-
-        :params float minv: Lower value of the histogram
-        :params float maxv: Upper value of the histogram
-        :params int nbins: Number of bins. Default is 10.
-        :params string xlabel: An xlbal for the figure
-        :params string title: A title for the figure
-        :params float zclust: Redshift of the studies cluster
-        """
-        # Get the data and apply some cut if asked
-        pval = self.data_dict[param]
-        filt = N.array([1] * len(pval), dtype='bool')
-        if 'minv' in kwargs:
-            filt &= (pval >= kwargs['minv'])
-        if 'maxv' in kwargs:
-            filt &= (pval <= kwargs['maxv'])
-        pval = pval[filt]
-
-        # Plot the histogram
-        fig = P.figure()
-        ax = fig.add_subplot(111, ylabel='#')
-        ax.hist(pval, bins=kwargs['nbins'] if 'nbins' in kwargs else 10)
-        xlabel = kwargs['xlabel'] if 'xlabel' in kwargs else param
-        ax.set_xlabel(xlabel)
-        if 'title' in kwargs:
-            ax.set_title(kwargs['title'])
-        if 'zclust' in kwargs:
-            ax.axvline(kwargs['zclust'], color='r',
-                       label='Cluster redshift (%.4f)' % kwargs['zclust'])
-            ax.legend(loc='best')
-
-        # Save the figure
-        fig.savefig(self.files['output'].replace('.out', '') + "_" + xlabel + "_zphot_hist.png")
-
-    def plot(self, px, py, **kwargs):
-        """
-        Plot x vs. y.
-
-        Possible kwargs are:
-        :params float minx: lower limit of the x axis
-        :params float maxx: upper limit of the x axis
-        :params float miny: lower limit of the y axis
-        :params float maxy: upper limit of the y axis
-        :params string xlabel: label of the x axis
-        :params string ylabel: label of the y axis
-        :params string title: title of the figure
-        """
-        pvalx = self.data_dict[px]
-        pvaly = self.data_dict[py]
-        filt = N.array([1] * len(pvalx), dtype='bool')
-        if 'minx' in kwargs and kwargs['minx'] is not None:
-            filt &= (pvalx >= kwargs['minx'])
-        if 'maxx' in kwargs and kwargs['maxx'] is not None:
-            filt &= (pvalx <= kwargs['maxx'])
-        if 'miny' in kwargs and kwargs['miny'] is not None:
-            filt &= (pvaly >= kwargs['miny'])
-        if 'maxy' in kwargs and kwargs['maxy'] is not None:
-            filt &= (pvaly <= kwargs['maxy'])
-        pvalx, pvaly = pvalx[filt], pvaly[filt]
-        fig = P.figure()
-        ax = fig.add_subplot(111)
-        ax.scatter(pvalx, pvaly)
-        if 'xlabel' in kwargs and kwargs['xlabel'] is not None:
-            px = kwargs['xlabel']
-        if 'ylabel' in kwargs and kwargs['ylabel'] is not None:
-            py = kwargs['ylabel']
-        ax.set_xlabel(px)
-        ax.set_ylabel(py)
-        if 'title' in kwargs and kwargs['title'] is not None:
-            ax.set_title(kwargs['title'])
-
-        if 'figname' in kwargs and kwargs['figname'] is not None:
-            fig.savefig(self.files['output'].replace('.out', '') + "_%s_vs_%s_zphot.png" % (py, px))
-        else:
-            fig.savefig("%s_vs_%s_zphot.png" % (py, px))
-
-    def plot_map(self, title=None, zmin=0, zmax=999):
-        """Plot the redshift sky-map."""
-        if not hasattr(self, 'input_data'):
-            print "WARNING: No input data given. Cannot plot the redshift map."
-            return
-
-        ra, dec, redshift = self.input_data['RA'], self.input_data['DEC'], self.data_dict['Z_BEST']
-
-        # redshift has to be >= 0
-        filt = (redshift >= zmin) & (redshift < zmax)
-        ra, dec, redshift = ra[filt], dec[filt], redshift[filt]
-
-        fig = P.figure() 
-        ax = fig.add_subplot(111, xlabel='RA (deg)', ylabel='DEC (deg)')
-        scat = ax.scatter(ra, dec, c=redshift, cmap=(P.cm.jet))
-        cb = fig.colorbar(scat)
-        cb.set_label('Photometric redshift')
-        if title is not None:
-            ax.set_title(title)
-        ax.set_xlim(xmin=min(ra) - 0.001, xmax=max(ra) + 0.001)
-        ax.set_ylim(ymin=min(dec) - 0.001, ymax=max(dec) + 0.001)
-        fig.savefig(self.files['output'].replace('.out', '') + "_redshift_map.png")
-
+        self.data_out = ZPHOTO(self.files['output'], self.files['pdz_output'],zcode_name='lph',
+                                   all_input=self.files['all_input'], **self.kwargs)
 
 class BPZ(object):
 
@@ -449,61 +308,109 @@ class BPZ(object):
             raise IOError("%s does not exist" % self.files['columns'])
 
         # build command line
-        cmd = "python $BPZPATH/bpz.py %s -INTERP 2" % self.files['input']
+        cmd = "python $BPZPATH/bpz.py %s -INTERP 2  -ZMIN 0. -ZMAX 6. -DZ 0.02" % self.files['input']
         print "INFO: Will run '%s'" % cmd
 
         self.bpz_out = subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True)
         print "INFO: BPZ output summary (full output in self.bpz_out)"
         print "\n".join(["   " + zo for zo in self.bpz_out.split("\n")[:20]])
 
-        # Build a BPZO class
-        self.data_out = BPZO(self.files['output'], self.files['pdz_output'],
-                             all_input=self.files['all_input'])
+        self.data_out = ZPHOTO(self.files['output'], self.files['pdz_output'],
+                                   zcode_name='bpz',all_input=self.files['all_input'], **self.kwargs)
+    
+class ZPHOTO(object):
 
+    """Read photoz code (LePhare, BPZ) output file and creates/saves astropy tables"""
 
-def dict_to_array(d, filters='ugriz'):
-    """Transform a dictionnary into a list of arrays."""
-    return N.array([N.array(d[f]) for f in filters])
-
-
-class BPZO(object):
-
-    """Read BPZ output file."""
-
-    def __init__(self, zphot_output, zphot_pdz_output, all_input=None):
-        """Read the BPZ progam Output (bpz output)."""
+    def __init__(self, zphot_output, zphot_pdz_output, zcode_name='lph', all_input=None, **kwargs):
+        """Read the photoz progam (LePhare, BPZ, ...) output."""
         self.files = {}
         self.files['output'] = zphot_output
         self.files['pdz_output'] = zphot_pdz_output
+        self.kwargs = kwargs
         if all_input is not None:
             self.files['input'] = all_input
             self.read_input()
+        self.code=zcode_name
         self.read()
 
     def read(self):
         """Read the output."""
         f = open(self.files['output'], 'r')
-        self.header = [l for l in f if l.startswith('##')]
-        f.seek(0)
-        self.variables = [l[4:].replace(' ','').split('\n')[0] for l in f if l.startswith('# ')]
-        f.seek(0)
-        # BPZ does not provide a zbins file.
-        # Needs to create it from zmin, zmax and dz specified in output file
-        zmin = float([line.split('=')[1] for line in f if 'ZMIN' in line][0])
-        f.seek(0)
-        zmax = float([line.split('=')[1] for line in f if 'ZMAX' in line][0])
-        f.seek(0)
-        dz = float([line.split('=')[1] for line in f if 'DZ' in line][0])
-        f.close()
-
         self.data_array = N.loadtxt(self.files['output'], unpack=True)
-        self.data_dict = {v: a for v, a in zip(self.variables, self.data_array)}
-        self.nsources = len(self.data_dict['Z_B'])
+        
+        if self.code=='lph':
+            self.header = [l for l in f if l.startswith('#')]
+            f.close()
+            self.variables = N.loadtxt(os.getenv('LEPHAREDIR') +
+                                    "/config/zphot_output.para", dtype='string')
+            self.data_dict = {v: a for v, a in zip(self.variables, self.data_array)}
+            self.nsources = len(self.data_dict['Z_BEST'])
+            self.pdz_zbins = N.loadtxt(self.files['pdz_output']+'.zph', unpack=True)
+            self.pdz_val = N.loadtxt(self.files['pdz_output']+'.pdz', unpack=True)
 
-        self.pdz_zbins = N.arange(zmin, zmax + dz, dz)
-        # first column of BPZ probs file is ID, need to skip it
-        self.pdz_val = N.loadtxt(self.files['pdz_output'], unpack=True,
+        elif self.code=='bpz':
+            self.header = [l for l in f if l.startswith('##')]
+            f.seek(0)
+            self.variables = [l[4:].replace(' ','').split('\n')[0] for l in f if l.startswith('# ')]
+            f.seek(0)
+            # BPZ does not provide a zbins file.
+            # Needs to create it from zmin, zmax and dz specified in output file
+            zmin = float([line.split('=')[1] for line in f if 'ZMIN' in line][0])
+            f.seek(0)
+            zmax = float([line.split('=')[1] for line in f if 'ZMAX' in line][0])
+            f.seek(0)
+            dz = float([line.split('=')[1] for line in f if 'DZ' in line][0])
+            f.close()
+            self.data_dict = {v: a for v, a in zip(self.variables, self.data_array)}
+            self.nsources = len(self.data_dict['Z_B'])
+            self.pdz_zbins = N.arange(zmin, zmax + dz, dz)
+            self.pdz_val = N.loadtxt(self.files['pdz_output'], unpack=True,
                                  usecols=N.arange(1, len(self.pdz_zbins) + 1))
+     
+    def save_ztable(self, file_out, path_output, is_overwrite=False, is_append=False):
+        """
+        Save the main output of photoz code (z_best, chi^2, etc.) 
+        into astropy table. 
+        """
+        new_tab = hstack([Table([self.kwargs['id']]), Table([self.kwargs['ra']]),
+                              Table([self.kwargs['dec']]), Table(self.data_dict)],
+                             join_type='inner')
+  
+        new_tab.write(file_out, path=path_output, compression=True, serialize_meta=True,
+                        overwrite=is_overwrite, append=is_append)
+    
+        print "INFO: ", self.code, "data saved in", file_out, "as", path_output
+
+    def save_pdztable(self, file_out, path_pdz, path_bins, is_overwrite=False, is_append=False, is_bpz=False):
+        """
+        Save the redshift pdf P(z) of photoz code output
+        into astropy table. 
+        """
+        zbest_str='Z_BEST' if self.code=='lph' else 'Z_B'
+        
+        pdz_bins_tab = Table([self.pdz_zbins], names=['zbins'])
+
+        # Converts LePhare or BPZ likelihood to actual probability density
+        for i in N.arange(len(self.pdz_val)):
+            norm = N.trapz(self.pdz_val[:, i], self.pdz_zbins)
+            new_pdz_val = self.pdz_val[:, i] / norm
+            self.pdz_val[:, i] = new_pdz_val
+
+        # hstack creates a table where col0=objectId, col1=zbest and col2
+        # contains 1d arrays with the pdz values
+        pdz_val_tab = hstack([Table([self.kwargs['id']]),
+                            Table([self.data_dict[zbest_str]], names=['Z_BEST']),
+                            Table([self.pdz_val.T], names=['pdz'])])
+
+        pdz_val_tab.write(file_out, path=path_pdz, compression=True,
+                        serialize_meta=True, overwrite=is_overwrite, append=is_append)
+        pdz_bins_tab.write(file_out, path=path_bins, compression=True,
+                        serialize_meta=True, append=True)
+
+        print "INFO: zphot distributions saved in", file_out, "as", path_pdz
+        print "INFO: z bins saved in", file_out, "as", path_bins
+
 
     def read_input(self):
         """Read the input."""
@@ -615,6 +522,11 @@ class BPZO(object):
         ax.set_ylim(ymin=min(dec) - 0.001, ymax=max(dec) + 0.001)
         fig.savefig(self.files['output'].replace('.out', '') + "_redshift_map.png")
 
+
+
+def dict_to_array(d, filters='ugriz'):
+    """Transform a dictionnary into a list of arrays."""
+    return N.array([N.array(d[f]) for f in filters])
 
 
 
