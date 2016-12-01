@@ -5,7 +5,7 @@ import sys
 import numpy
 from astropy.table import Table, Column, hstack
 import yaml
-from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
+from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter, FileType
 
 from . import data as cdata
 from . import extinction as cextinction
@@ -13,6 +13,8 @@ from . import zphot as czphot
 from . import shear as cshear
 from . import background
 from pzmassfitter import dmstackdriver
+
+import pdb
 
 def load_data(argv=None):
     """Load data from the DM stack butler."""
@@ -155,7 +157,9 @@ def photometric_redshift(argv=None):
                         help="Output of clusters_extinction (hdf5 file)."
                         "Use to compute the extinction-corrected magnitudes.")
     parser.add_argument("--overwrite", action="store_true", default=False,
-                        help="Overwrite the output files if they exist already")
+                        help="Overwrite the output files if they already exist")
+    parser.add_argument("--append", action="store_true", default=False,
+                        help="Append result to the output files if they already exist")
     parser.add_argument("--zpara",
                         help="Comma-separated LEPHARE configuration files (zphot.para)")
     parser.add_argument("--plot", action='store_true', default=False,
@@ -178,14 +182,14 @@ def photometric_redshift(argv=None):
 
     if args.output is None:
         args.output = os.path.basename(args.input).replace('.hdf5', '_zphot.hdf5')
-        if not args.overwrite and os.path.exists(args.output):
-            raise IOError("Output already exists. Remove it or use --overwrite.")
-
+        if not args.overwrite and not args.append and os.path.exists(args.output):
+            raise IOError("Output already exists. Remove it or use --overwrite or use --append.")
+            
     if args.pdz_output is None:
         args.pdz_output = os.path.basename(args.input).replace('.hdf5', '_zphot_pdz.hdf5')
-        if not args.overwrite and os.path.exists(args.output):
-            raise IOError("Output already exists. Remove it or use --overwrite.")
-
+        if not args.overwrite and not args.append and os.path.exists(args.output):
+            raise IOError("Output already exists. Remove it or use --overwrite or use --append.")
+            
     print "INFO: Working on cluster %s (z=%.4f)" % (config['cluster'], config['redshift'])
 
     # Load the data
@@ -220,11 +224,11 @@ def photometric_redshift(argv=None):
                           for f in kwargs['filters']], **kwargs)
         zphot.run()
         path = "bpz"
-        zphot.data_out.save_ztable(args.output, path, is_overwrite=args.overwrite)
-        path_pdz = "pdz_values"
-        path_bins = "pdz_bins"
+        zphot.data_out.save_ztable(args.output, path, is_overwrite=args.overwrite, is_append=args.append)
+        path_pdz = "bpz_pdz_values"
+        path_bins = "bpz_pdz_bins"
         zphot.data_out.save_pdztable(args.pdz_output, path_pdz, path_bins,
-                                    is_overwrite=args.overwrite)
+                                    is_overwrite=args.overwrite, is_append=args.append)
 
     # Run LEPHARE
     else:
@@ -258,10 +262,10 @@ def photometric_redshift(argv=None):
                 # and append but get_background looks for "pdz_values" and "pdz_bins" only, cannot
                 # change path names without further modifying get_background.
                 # Don't want to do that just now.
-                path_pdz = "pdz_values"
-                path_bins = "pdz_bins"
+                path_pdz = "lph_pdz_values"
+                path_bins = "lph_pdz_bins"
                 zphot.data_out.save_pdztable(args.pdz_output, path_pdz, path_bins,
-                                                 is_overwrite=is_overwrite)
+                                                 is_overwrite=is_overwrite, is_append=is_append)
 
     # Plot
     if args.plot:
@@ -285,8 +289,10 @@ def getbackground(argv=None):
     parser.add_argument('cat_data', help="Catalogue file including magnitude information (*_hdf5 output of clusters_data)")
     parser.add_argument("z_data",
                         help="Photometric redshift data, including pdz information (*_pdz.hdf5 output of clusters_zphot)")
-    parser.add_argument("--output", default=False, action='store_true',
-                        help="Use --output for the shear catalogue with bkg flags to be stored in a seperate file.")
+    parser.add_argument("--zcode",
+                        help="Name of the photoz code used, 'lph' or 'bpz'.")
+    parser.add_argument("--output",
+                        help="Filename for the shear catalogue with bkg flags to also be stored in a seperate file.")
     parser.add_argument("--zmin", type=float,
                         help="Minimum redshift for photoz hard cut")
     parser.add_argument("--zmax", type=float,
@@ -305,41 +311,48 @@ def getbackground(argv=None):
         args.zmax = config['redshift'] + 0.1
     if args.thresh_prob is None:
         args.thresh_prob = 5.
-    if args.output:
+    if args.output is None:
         args.output = os.path.basename(args.cat_data).replace('.hdf5', '_background.hdf5')
-       
-    data = cdata.read_hdf5(args.cat_data)['deepCoadd_forced_src']
+    if args.zcode is None:
+        print 'INFO: No photoz code specified with --zcode option: using LePhare (lph) as default'
+        args.zcode = 'lph'
 
-    if ('RS_flag' in data.keys() and 'z_flag_hard' in data.keys() and
-        'z_flag_pdz' in data.keys() and not args.overwrite):
+    data = cdata.read_hdf5(args.cat_data)['deepCoadd_forced_src']
+    keys = cdata.read_hdf5(args.cat_data)['deepCoadd_meas'].keys()
+    
+    if ('RS_flag' in keys and ('z_flag_hard_' + args.zcode) in keys and
+        ('z_flag_pdz_' + args.zcode) in keys and not args.overwrite):
         raise IOError("Columns 'RS_flag' and 'z_flag*' already exist in astropy table 'deepCoadd_src. \
                        Use --overwrite option to overwrite.")
     else:
         zdata = cdata.read_hdf5(args.z_data)
         rs_flag, z_flag1, z_flag2 = background.get_background(config,data,
-                                                                zdata,
-                                                                zmin=args.zmin,
-                                                                zmax=args.zmax,
-                                                                thresh=args.thresh_prob,
-                                                                plot=args.plot)
+                                                              zdata,
+                                                              zmin=args.zmin,
+                                                              zmax=args.zmax,
+                                                              zcode_name=args.zcode,
+                                                              thresh=args.thresh_prob,
+                                                              plot=args.plot)
         data = cdata.read_hdf5(args.cat_data)['deepCoadd_meas']
-        if ('RS_flag' in data.keys() and 'z_flag_hard' in data.keys() and \
-            'z_flag_pdz' in data.keys()):
+        if ('RS_flag' in keys or ('z_flag_hard_' + args.zcode) in keys or \
+            ('z_flag_pdz_' + args.zcode) in keys):
             print "INFO: Overwriting flag columns in astropy table 'deepCoadd_meas' stored in ", args.cat_data
-            data['RS_flag']=Column(rs_flag)
-            data['z_flag_hard']=Column(z_flag1)
-            data['z_flag_pdz']= Column(z_flag2)
+            data['RS_flag'] = Column(rs_flag)
+            data['z_flag_hard_'+ args.zcode] = Column(z_flag1)
+            data['z_flag_pdz_'+ args.zcode] = Column(z_flag2)
         else:
-            print "INFO: Creating flag columns in astropy table'deepCoadd_meas' stored in ", args.cat_data
+            print "INFO: Creating flag columns in astropy table 'deepCoadd_meas' stored in ", args.cat_data
             data.add_columns([Column(rs_flag, name='RS_flag'),
-                            Column(z_flag1, name='z_flag_hard'),
-                            Column(z_flag2, name='z_flag_pdz')])
+                            Column(z_flag1, name='z_flag_hard_'+ args.zcode),
+                            Column(z_flag2, name='z_flag_pdz_'+ args.zcode)])
+
         data.write(args.cat_data, path='deepCoadd_meas', compression=True,
                    serialize_meta=True, append=True, overwrite=True)
 
-        if args.output:
-            data.write(args.output, path='deepCoadd_meas', compression=True,
-                        serialize_meta=True, append=True, overwrite=True)
+        
+        print "INFO: Also saving table 'deepCoadd_meas' with added flag columns in ", args.output
+        data.write(args.output, path='deepCoadd_meas', compression=True,
+                   serialize_meta=True, append=True, overwrite=args.overwrite)
     
     
 def shear(argv=None):

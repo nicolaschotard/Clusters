@@ -263,10 +263,11 @@ def zphot_cut(zclust, zdata, **kwargs):
     thresh = kwargs.get('thresh', 5.)
     zmin = kwargs.get('zmin', zclust + 0.1)
     zmax = kwargs.get('zmax', 1.25)
+    zcode_name = kwargs.get('zcode_name', 'lph')
 
-    zbest = zdata['pdz_values']['Z_BEST']
-    pdz = zdata['pdz_values']['pdz']
-    zbins = zdata['pdz_bins']
+    zbest = zdata[zcode_name + '_pdz_values']['Z_BEST']
+    pdz = zdata[zcode_name + '_pdz_values']['pdz']
+    zbins = zdata[zcode_name + '_pdz_bins']
 
     # WtGIII hard cuts
     filt1 = (zbest > zmin) & (zbest < zmax)
@@ -329,7 +330,7 @@ def red_sequence_cut(config, data, **kwargs):
     return filt
 
 
-def get_background(config, data, zdata, zspec=None, thresh=None, zmin=None, zmax=None, plot=None):
+def get_background(config, data, zdata, zspec=None, zcode_name=None, thresh=None, zmin=None, zmax=None, plot=None):
     """Apply different cuts to the data in order to get the background galaxies."""
 
     # Red sequence
@@ -345,7 +346,7 @@ def get_background(config, data, zdata, zspec=None, thresh=None, zmin=None, zmax
     # Photometric redshift cut
     print "INFO: Flagging foreground/uncertain objects using redshift information"
     z_flag1, z_flag2 = zphot_cut(config['redshift'], zdata, thresh=thresh,
-                                 zmin=zmin, zmax=zmax, plot=plot)
+                                 zmin=zmin, zmax=zmax, plot=plot, zcode_name=zcode_name)
     print "INFO: %i galaxies have been kept after the hard redshift cut" %(sum(z_flag1))
     print "INFO: %i galaxies have been kept after the pdz redshift cut" %(sum(z_flag2))
     z_flag1 = N.repeat(z_flag1, len(set(data['filter'])))  # to get the cut applied to all filters
