@@ -3,12 +3,16 @@
 import sys
 import numpy as np
 import pylab as pl
+import seaborn
 try:
     import numba
 except ImportError:
-    print "WARNING: numba module cannot be imported."
+    print "WARNING: optional module numba cannot be imported."
 import astropy.io.fits as pyfits
 from . import data as cdata
+
+
+#seaborn.set(style='white')
 
 
 class Kappa(object):
@@ -198,18 +202,41 @@ class Kappa(object):
                 self.maps[cmap].append(np.sum(weights[cmap] * cell, axis=1) / sumw)
         pbar.finish()
 
-    def plot_maps(self):
+    def plot_maps(self, clust_coord=None, wcs=None, pmap=pl.cm.afmhot):
         """Plot the redshift sky-map."""
         if not hasattr(self, 'maps'):
             raise IOError("WARNING: No maps computed yet.")
-
-        for cmap in self.maps:
-            fig = pl.figure()
+        for cmap in self.maps.keys()[:1]:
+            fig = pl.figure(figsize=(12, 12))
             ax = fig.add_subplot(111, xlabel='X-coord (pixel)', ylabel='Y-coord (pixel)')
-            themap = ax.imshow(self.maps[cmap], origin='lower')
-            cb = fig.colorbar(themap)
+            extent = (min(self.data['xsrc']) + 0.5, max(self.data['xsrc']) + 0.5,
+                      min(self.data['ysrc']) + 0.5, max(self.data['ysrc']) + 0.5)
+            themap = ax.imshow(self.maps[cmap], origin='lower', zorder=0, cmap=pmap, extent=extent)
+            cb = fig.colorbar(themap, pad=0.15 if wcs is not None else 0.05)
             cb.set_label(cmap)
-            ax.set_title(cmap)
+            pl.figtext(.5, 0.95, cmap, fontsize=20, ha='center')
+            ax.scatter(self.data['xsrc'] - 0.5, self.data['ysrc'] - 0.5,
+                       s=3, color='b', zorder=1, alpha=0.4)
+            if clust_coord is not None:
+                x, y = cdata.skycoord_to_pixel(clust_coord, wcs)
+                ax.plot(x, y, color='g', ms=15, mew=3, marker='x')
+            if wcs is not None:
+                ra = cdata.pixel_to_skycoord(ax.get_xticks(),
+                                             [np.mean(self.data['ysrc'])] * len(ax.get_xticks()),
+                                             wcs).ra.value
+                dec = cdata.pixel_to_skycoord([np.mean(self.data['xsrc'])] * len(ax.get_yticks()),
+                                              ax.get_yticks(),
+                                              wcs).dec.value
+                ax2 = ax.twiny()
+                ax2.set_xlim(ax.get_xlim())
+                ax2.set_xticks(ax.get_xticks())
+                ax2.set_xticklabels(["%.2f" % r for r in ra])
+                ax2.set_xlabel("RA (deg)")
+                ax2 = ax.twinx()
+                ax2.set_ylim(ax.get_ylim())
+                ax2.set_yticks(ax.get_yticks())
+                ax2.set_yticklabels(["%.2f" % r for r in dec])
+                ax2.set_ylabel("DEC (deg)")
             fig.savefig(cmap+".png")
         pl.show()
 
@@ -291,8 +318,13 @@ def compute_ecross(sch1, sch2, cos2phi, sin2phi):
 
 
 def load_data(datafile):
-    """Load the needed data."""
+    """Load the needed deepCoadd_meas catalog."""
     return cdata.read_hdf5(datafile, path='deepCoadd_meas', dic=False)
+
+
+def load_wcs(datafile):
+    """Load the WCS."""
+    return cdata.load_wcs(cdata.read_hdf5(datafile, 'wcs', dic=False))
 
 
 def get_cat(datafile, **kwargs):
