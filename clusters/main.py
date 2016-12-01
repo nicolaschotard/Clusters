@@ -222,50 +222,52 @@ def photometric_redshift(argv=None):
         path = "bpz"
         zphot.data_out.save_ztable(args.output, path, is_overwrite=args.overwrite)
         path_pdz = "pdz_values"
-        path_bins = "pdz_bins" 
+        path_bins = "pdz_bins"
         zphot.data_out.save_pdztable(args.pdz_output, path_pdz, path_bins,
-                                         is_overwrite=args.overwrite, is_bpz=True)
-        
+                                    is_overwrite=args.overwrite)
+
     # Run LEPHARE
     else:
         print "INFO: LEPHARE will run on", len(data) / len(config['filter']), "sources"
         
         if args.zpara is None:
             args.zpara = os.environ["LEPHAREDIR"] + \
-              "/config/zphot_megacam.para" if 'zpara' not in config else config['zpara']
-   
+                        "/config/zphot_megacam.para" if 'zpara' not in config else config['zpara']
+
         for i, zpara in enumerate(args.zpara.split(',') if isinstance(args.zpara, str) else args.zpara):
             print "\nINFO: Configuration for LEPHARE from:", zpara
             kwargs = {'basename': config['cluster'] + '_' + zpara.split('/')[-1].replace('.para', ''),
-                    'filters': [f for f in config['filter'] if f in set(data['filter'].tolist())],
-                    'ra': data['coord_ra_deg'][data['filter'] == config['filter'][0]],
-                    'dec': data['coord_dec_deg'][data['filter'] == config['filter'][0]],
-                    'id': data['objectId'][data['filter'] == config['filter'][0]]}
+                      'filters': [f for f in config['filter'] if f in set(data['filter'].tolist())],
+                      'ra': data['coord_ra_deg'][data['filter'] == config['filter'][0]],
+                      'dec': data['coord_dec_deg'][data['filter'] == config['filter'][0]],
+                      'id': data['objectId'][data['filter'] == config['filter'][0]]}
             zphot = czphot.LEPHARE([data[args.mag][data['filter'] == f] for f in kwargs['filters']],
-                                   [data[args.mag.replace("_extcorr", "") +"Sigma"][data['filter'] == f]
-                                     for f in kwargs['filters']], zpara=zpara, spectro_file=spectro_file,
-                                   **kwargs)
+                                   [data[args.mag.replace("_extcorr", "") + "Sigma"][data['filter'] == f]
+                                   for f in kwargs['filters']],
+                                   zpara=zpara, spectro_file=spectro_file, **kwargs)
             zphot.check_config()
             zphot.run()
 
             path = "lph_%s" % zpara.split('/')[-1].replace('.para', '')
-            is_overwrite = args.overwrite if i==0 else False
-            is_append = True if i!=0 else False
+            is_overwrite = args.overwrite if i == 0 else False
+            is_append = True if i != 0 else False
             zphot.data_out.save_ztable(args.output, path, is_overwrite=is_overwrite, is_append=is_append)
-            if i==0:
+            if i == 0:
                 # For the moment, only save pdz for the first .para configuration
-                # Could change the keys names according to iteration (like for save_ztable, above) and
-                # append but get_background looks for "pdz_values" and "pdz_bins" only, cannot change
-                # path names without further modifying get_background. Don't want to do that just now.
+                # Could change the keys names according to iteration (like for save_ztable, above)
+                # and append but get_background looks for "pdz_values" and "pdz_bins" only, cannot
+                # change path names without further modifying get_background.
+                # Don't want to do that just now.
                 path_pdz = "pdz_values"
                 path_bins = "pdz_bins"
-                zphot.data_out.save_pdztable(args.pdz_output, path_pdz, path_bins, is_overwrite=is_overwrite)
+                zphot.data_out.save_pdztable(args.pdz_output, path_pdz, path_bins,
+                                                 is_overwrite=is_overwrite)
 
     # Plot
     if args.plot:
         doplot(zphot.data_out, config,
-                   float(args.zrange.split(',')[0]),
-                   float(args.zrange.split(',')[1]))
+                float(args.zrange.split(',')[0]),
+                float(args.zrange.split(',')[1]))
 
     if args.plot:
         czphot.P.show()

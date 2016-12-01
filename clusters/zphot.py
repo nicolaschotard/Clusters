@@ -11,8 +11,9 @@ import numpy as N
 import pylab as P
 from scipy.optimize import curve_fit
 from astropy.io import ascii
-from astropy.table import Table, Column, hstack
+from astropy.table import Table, hstack
 from astropy.coordinates import SkyCoord
+
 
 class LEPHARE(object):
 
@@ -36,7 +37,7 @@ class LEPHARE(object):
         :param string cname: Name of the studied cluster. If basename if not given,
          it will be used as base name for all created file
         :param string filters: filter list
-        :param list ra: list of ra
+3        :param list ra: list of ra
         :param list dec: list of dec
         :param list id: list of ID
         """
@@ -193,14 +194,17 @@ class LEPHARE(object):
         print "INFO: LEPHARE output summary (full output in self.lephare_out)"
         print "\n".join(["   " + zo for zo in self.lephare_out.split("\n")[-6:]])
 
-        self.data_out = ZPHOTO(self.files['output'], self.files['pdz_output'],zcode_name='lph',
+        self.data_out = ZPHOTO(self.files['output'], self.files['pdz_output'], zcode_name='lph',
                                    all_input=self.files['all_input'], **self.kwargs)
 
+        
 class BPZ(object):
 
-    """Wrapper to the BPZ photometric redshift code.
+    """
+    Wrapper to the BPZ photometric redshift code.
 
-    http://www.stsci.edu/~dcoe/BPZ"""
+    http://www.stsci.edu/~dcoe/BPZ
+    """
 
     def __init__(self, magnitudes, errors, **kwargs):
         """
@@ -257,7 +261,7 @@ class BPZ(object):
                     "\n")
             for i, mags in enumerate(N.concatenate([self.data['mag'], self.data['err']]).T):
                 f.write("%i %s\n" % (i, " ".join(["%.3f" % m for m in mags])))
-                
+
             f.close()
             print "INFO: Input data saved in", self.files['input']
         if 'ra' in self.kwargs:
@@ -316,8 +320,10 @@ class BPZ(object):
         print "\n".join(["   " + zo for zo in self.bpz_out.split("\n")[:20]])
 
         self.data_out = ZPHOTO(self.files['output'], self.files['pdz_output'],
-                                   zcode_name='bpz',all_input=self.files['all_input'], **self.kwargs)
-    
+                                   zcode_name='bpz', all_input=self.files['all_input'],
+                                   **self.kwargs)
+
+
 class ZPHOTO(object):
 
     """Read photoz code (LePhare, BPZ) output file and creates/saves astropy tables"""
@@ -331,28 +337,28 @@ class ZPHOTO(object):
         if all_input is not None:
             self.files['input'] = all_input
             self.read_input()
-        self.code=zcode_name
+        self.code = zcode_name
         self.read()
 
     def read(self):
         """Read the output."""
         f = open(self.files['output'], 'r')
         self.data_array = N.loadtxt(self.files['output'], unpack=True)
-        
-        if self.code=='lph':
+
+        if self.code == 'lph':
             self.header = [l for l in f if l.startswith('#')]
             f.close()
             self.variables = N.loadtxt(os.getenv('LEPHAREDIR') +
                                     "/config/zphot_output.para", dtype='string')
             self.data_dict = {v: a for v, a in zip(self.variables, self.data_array)}
             self.nsources = len(self.data_dict['Z_BEST'])
-            self.pdz_zbins = N.loadtxt(self.files['pdz_output']+'.zph', unpack=True)
-            self.pdz_val = N.loadtxt(self.files['pdz_output']+'.pdz', unpack=True)
+            self.pdz_zbins = N.loadtxt(self.files['pdz_output'] + '.zph', unpack=True)
+            self.pdz_val = N.loadtxt(self.files['pdz_output'] + '.pdz', unpack=True)
 
-        elif self.code=='bpz':
+        elif self.code == 'bpz':
             self.header = [l for l in f if l.startswith('##')]
             f.seek(0)
-            self.variables = [l[4:].replace(' ','').split('\n')[0] for l in f if l.startswith('# ')]
+            self.variables = [l[4:].replace(' ', '').split('\n')[0] for l in f if l.startswith('# ')]
             f.seek(0)
             # BPZ does not provide a zbins file.
             # Needs to create it from zmin, zmax and dz specified in output file
@@ -367,11 +373,10 @@ class ZPHOTO(object):
             self.pdz_zbins = N.arange(zmin, zmax + dz, dz)
             self.pdz_val = N.loadtxt(self.files['pdz_output'], unpack=True,
                                  usecols=N.arange(1, len(self.pdz_zbins) + 1))
-     
+
     def save_ztable(self, file_out, path_output, is_overwrite=False, is_append=False):
         """
-        Save the main output of photoz code (z_best, chi^2, etc.) 
-        into astropy table. 
+        Save the main output of photoz code (z_best, chi^2, etc.) into astropy table. 
         """
         new_tab = hstack([Table([self.kwargs['id']]), Table([self.kwargs['ra']]),
                               Table([self.kwargs['dec']]), Table(self.data_dict)],
@@ -382,13 +387,12 @@ class ZPHOTO(object):
     
         print "INFO: ", self.code, "data saved in", file_out, "as", path_output
 
-    def save_pdztable(self, file_out, path_pdz, path_bins, is_overwrite=False, is_append=False, is_bpz=False):
+    def save_pdztable(self, file_out, path_pdz, path_bins, is_overwrite=False, is_append=False):
         """
-        Save the redshift pdf P(z) of photoz code output
-        into astropy table. 
+        Save the redshift pdf P(z) of photoz code output into astropy table. 
         """
-        zbest_str='Z_BEST' if self.code=='lph' else 'Z_B'
-        
+        zbest_str = 'Z_BEST' if self.code=='lph' else 'Z_B'
+
         pdz_bins_tab = Table([self.pdz_zbins], names=['zbins'])
 
         # Converts LePhare or BPZ likelihood to actual probability density
@@ -400,17 +404,16 @@ class ZPHOTO(object):
         # hstack creates a table where col0=objectId, col1=zbest and col2
         # contains 1d arrays with the pdz values
         pdz_val_tab = hstack([Table([self.kwargs['id']]),
-                            Table([self.data_dict[zbest_str]], names=['Z_BEST']),
-                            Table([self.pdz_val.T], names=['pdz'])])
+                                  Table([self.data_dict[zbest_str]], names=['Z_BEST']),
+                                  Table([self.pdz_val.T], names=['pdz'])])
 
         pdz_val_tab.write(file_out, path=path_pdz, compression=True,
-                        serialize_meta=True, overwrite=is_overwrite, append=is_append)
+                              serialize_meta=True, overwrite=is_overwrite, append=is_append)
         pdz_bins_tab.write(file_out, path=path_bins, compression=True,
-                        serialize_meta=True, append=True)
+                               serialize_meta=True, append=True)
 
         print "INFO: zphot distributions saved in", file_out, "as", path_pdz
         print "INFO: z bins saved in", file_out, "as", path_bins
-
 
     def read_input(self):
         """Read the input."""
@@ -523,11 +526,9 @@ class ZPHOTO(object):
         fig.savefig(self.files['output'].replace('.out', '') + "_redshift_map.png")
 
 
-
 def dict_to_array(d, filters='ugriz'):
     """Transform a dictionnary into a list of arrays."""
     return N.array([N.array(d[f]) for f in filters])
-
 
 
 class ZSPEC(object):
