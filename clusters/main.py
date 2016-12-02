@@ -419,6 +419,8 @@ def mass(argv=None):
                         help="Make some plots")
     parser.add_argument("--testing", action="store_true", default=False,
                         help="Simplify model for testing purposes")
+    parser.add_argument("--zcode",
+                        help="Name of the photoz code used, 'lph' or 'bpz'.")
     args = parser.parse_args(argv)
 
     config = cdata.load_config(args.config)
@@ -426,6 +428,12 @@ def mass(argv=None):
         args.output = args.input.replace('.hdf5', '_mass.hdf5')
         if not args.overwrite and os.path.exists(args.output):
             raise IOError("Output already exists. Remove them or use --overwrite.")
+
+    if args.zcode is None:
+        print 'INFO: No photoz code specified with --zcode option: using LePhare (lph) as default'
+        args.zcode = 'lph_'
+    elif zcode == 'none':
+        args.zcode = ''
 
     print "INFO: Working on cluster %s (z=%.4f)" % (config['cluster'], config['redshift'])
     print "INFO: Working on filters", config['filter']
@@ -464,7 +472,7 @@ def mass(argv=None):
                                                                 pdzfile=args.pdzfile,
                                                                 cluster_ra=cluster_ra,
                                                                 cluster_dec=cluster_dec,
-                                                                prefix='lph_',
+                                                                prefix=args.zcode,
                                                                 options=options,
                                                                 args=cmdargs)
 

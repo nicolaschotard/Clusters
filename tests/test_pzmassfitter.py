@@ -116,10 +116,10 @@ def test_pzmassfitter():
 
         tmpdir, shearcatfile, pdzfile, configfile = setupNearPerfectData(m200)
 
-        argv = '--testing --output {tmpdir}/mass.out {configfile} {shearcatfile} {pdzfile}'.format(tmpdir = tmpdir,
-                                                                                         configfile = configfile,
-                                                                                         shearcatfile = shearcatfile,
-                                                                                         pdzfile = pdzfile).split()
+        argv = '--zcode none --testing --output {tmpdir}/mass.out {configfile} {shearcatfile} {pdzfile}'.format(tmpdir=tmpdir,
+                                                                                                                configfile=configfile,
+                                                                                                                shearcatfile=shearcatfile,
+                                                                                                                pdzfile=pdzfile).split()
 
         clusters.main.mass(argv)
 
