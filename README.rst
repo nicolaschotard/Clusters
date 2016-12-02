@@ -77,9 +77,12 @@ Dependencies
 installs below):
 
 - Python 2.7 and libraries listed in the `requirements <requirements.txt>`_ file
-- The LSST DM `stack <https://developer.lsst.io/build-ci/lsstsw.html>`_. 
-- `LEPHARE <http://cesam.lam.fr/lephare/lephare.html>`_ (Photometric
-  Analysis for Redshift Estimate)
+- The LSST DM `stack <https://developer.lsst.io/build-ci/lsstsw.html>`_.
+
+Photometric redshift estimators:
+
+- `LEPHARE <http://cesam.lam.fr/lephare/lephare.html>`_
+- `BPZ <http://www.stsci.edu/~dcoe/BPZ/>`_
 
 Python
 ``````
@@ -162,6 +165,41 @@ environment variables (use setenv if needed)::
 
 You should now be able to run ``clusters_zphot.py`` (only tested on
 linux systems).
+
+BPZ quick install
+`````````````````
+
+The following steps can be copied/pasted in order to install and test
+BPZ quickly. It supposes that LEPHARE has been installed following the
+procedure shown in the previous section (you need
+``$LEPHAREDIR/filt/cfht/megacam/\*.pb``). Here are the `official
+install instruction <http://www.stsci.edu/~dcoe/BPZ/install.html>`_
+for BPZ.
+
+Get BPZ::
+
+  export MYDIR="an install dir" # change that line
+  cd MYDIR
+  wget http://www.stsci.edu/~dcoe/BPZ/bpz-1.99.3.tar.gz
+  tar -xvf bpz-1.99.3.tar.gz
+
+Create needed enironment vairables::
+
+  export BPZPATH="$MYDIR/bpz-1.99.3"
+  export PYTHONPATH=$PYTHONPATH:$BPZPATH
+  export NUMERIX=numpy
+
+Create the filter files using the LEPHARE install::
+  
+  cd $BPZPATH/FILTER/
+  cp $LEPHAREDIR/filt/cfht/megacam/*.pb .
+  for f in *.pb; do mv "$f" "CFHT_megacam_${f%.pb}.res"; done
+
+Test the install and the megacam filter::
+  
+  wget https://lapp-owncloud.in2p3.fr/index.php/s/FP1vSMB7emLxwwg/download -O megacam_bpz.columns
+  wget https://lapp-owncloud.in2p3.fr/index.php/s/HZbzCFLoy8Lcmwx/download -O megacam_bpz.in
+  python $BPZPATH/bpz.py megacam_bpz.in -INTERP 2
 
 
 Configuration file
@@ -378,7 +416,7 @@ Raw DM stack outputs
 If you have installed ``Clusters`` but do not have any data to run it
 on, you can use one of our re-processing outputs for
 MACSJ2243.3-0935. The corresponding configuration file is stored
-`there <configs/MACSJ2243.3-0935.yaml>`_. To use it, you either need
+under `configs/ <configs/MACSJ2243.3-0935.yaml>`_. To use it, you either need
 to be connected at CC-IN2P3, or change the path to the butler inside
 the config file (if you already have a copy of this data). You could
 also mount sps on your personal computer (see this `how to
