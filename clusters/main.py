@@ -432,7 +432,7 @@ def mass(argv=None):
     if args.zcode is None:
         print 'INFO: No photoz code specified with --zcode option: using LePhare (lph) as default'
         args.zcode = 'lph_'
-    elif zcode == 'none':
+    elif args.zcode == 'none':
         args.zcode = ''
 
     print "INFO: Working on cluster %s (z=%.4f)" % (config['cluster'], config['redshift'])
