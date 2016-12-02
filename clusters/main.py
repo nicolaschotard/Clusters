@@ -464,6 +464,7 @@ def mass(argv=None):
                                                                 pdzfile=args.pdzfile,
                                                                 cluster_ra=cluster_ra,
                                                                 cluster_dec=cluster_dec,
+                                                                prefix='lph_',
                                                                 options=options,
                                                                 args=cmdargs)
 

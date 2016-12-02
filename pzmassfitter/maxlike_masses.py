@@ -5,12 +5,15 @@
 
 from __future__ import with_statement
 import cPickle
-import numpy as np, pymc
+import pymc
+import numpy as np
 import astropy.io.fits as pyfits
-import nfwmodeltools as tools, varcontainer
-import nfwutils, ldac
-import confidenceinterval as ci
-import pymc_mymcmc_adapter as pma
+from . import ldac
+from . import nfwutils
+from . import varcontainer
+from . import nfwmodeltools as tools
+from . import confidenceinterval as ci
+from . import pymc_mymcmc_adapter as pma
 
 ##########################
 
@@ -34,7 +37,8 @@ Use the -h option, after specifying the filehandler and shapedistro to see all a
 ######################
 
 
-class ModelInitException(Exception): pass    
+class ModelInitException(Exception):
+    pass
 
 
 ##########################
@@ -45,58 +49,53 @@ class LensingModel(object):
 
         self.cuts = [self.modelCut]
 
-    
-
     #######################################################
 
     def addCLOps(self, parser):
 
         parser.add_option('--deltaz95low', dest='deltaz95low',
-                          help = 'Lower limit on the width of the PDZ',
-                          type='float', default = -1)
+                          help='Lower limit on the width of the PDZ',
+                          type='float', default=-1)
         parser.add_option('--deltaz95high', dest='deltaz95high',
-                          help = 'Upper limit on the with of the PDZ',
-                          type='float', default = 2.5)
+                          help='Upper limit on the with of the PDZ',
+                          type='float', default=2.5)
         parser.add_option('--zbhigh', dest='zbhigh',
-                          help = 'Upper limit on photoz point estimate',
-                          type='float', default = 1.25)
+                          help='Upper limit on photoz point estimate',
+                          type='float', default=1.25)
         parser.add_option('--zcut', dest='zcut',
-                          help = 'To what deltaZ behind the cluster should galaxies be exlucded?',
-                          type='float', default = 0.1)
+                          help='To what deltaZ behind the cluster should galaxies be exlucded?',
+                          type='float', default=0.1)
         parser.add_option('--masslow', dest='masslow',
-                          help = 'Mass prior low cutoff',
-                          type = 'float', default = 1e13)
+                          help='Mass prior low cutoff',
+                          type='float', default=1e13)
         parser.add_option('--masshigh', dest='masshigh',
-                          help = 'Mass prior high cutoff',
-                          type = 'float', default = 1e16)
+                          help='Mass prior high cutoff',
+                          type='float', default=1e16)
         parser.add_option('--ztypecut', dest='ztypecut',
                           help='Turn on type dependent redshift cuts',
-                          default = False, action='store_true')
+                          default=False, action='store_true')
         parser.add_option('--radlow', dest='radlow',
-                          help = 'Low radius cutoff wrt cluster center, Mpc',
-                          default = 0.75, type = 'float')
+                          help='Low radius cutoff wrt cluster center, Mpc',
+                          default=0.75, type='float')
         parser.add_option('--radhigh', dest='radhigh',
-                          help = 'High radius cutoff wrt cluster center, Mpc',
-                          default = 3.0, type='float')
+                          help='High radius cutoff wrt cluster center, Mpc',
+                          default=3.0, type='float')
         parser.add_option('--concentration', dest='concentration',
-                          help = 'Assumed concentration in the fit',
-                          default = None, type='float')
+                          help='Assumed concentration in the fit',
+                          default=None, type='float')
         parser.add_option('--logprior', dest='logprior',
-                          help = 'Turn on log10 mass prior',
-                          default = False, action = 'store_true')
-
-                          
+                          help='Turn on log10 mass prior',
+                          default=False, action='store_true')
 
 
     #######################################################
 
 
-
-    def createOptions(self, deltaz95low = -1, deltaz95high = 2.5, zbhigh = 1.25,
-                      zcut = 0.1, masslow = 1e13, masshigh = 1e16,
-                      ztypecut = False, radlow = 0.75, radhigh = 3.0, 
-                      concentration = None, delta=200.,
-                      options = None, args = None):
+    def createOptions(self, deltaz95low=-1, deltaz95high=2.5, zbhigh=1.25,
+                      zcut=0.1, masslow=1e13, masshigh=1e16,
+                      ztypecut=False, radlow=0.75, radhigh=3.0,
+                      concentration=None, delta=200.,
+                      options=None, args=None):
 
         if options is None:
             options = varcontainer.VarContainer()
@@ -115,9 +114,6 @@ class LensingModel(object):
 
         return options, None
 
-
-
-
     #######################################################
 
 
@@ -131,15 +127,12 @@ class LensingModel(object):
         minMPC = options.radlow   #*manager.r500
         maxMPC = options.radhigh  #*manager.r500
 
-        goodObjs = np.logical_and( \
-                   np.logical_and(np.logical_and(manager.inputcat['r_mpc'] > minMPC, 
-                                                 manager.inputcat['r_mpc'] < maxMPC),
-                                  np.logical_and(manager.inputcat['z_b'] > 0,
-                                                 manager.inputcat['z_b'] < options.zbhigh)),
-                   np.abs(manager.inputcat['ghats']) < 5)
-
-        
-
+        goodObjs = np.logical_and(
+            np.logical_and(np.logical_and(manager.inputcat['r_mpc'] > minMPC,
+                                          manager.inputcat['r_mpc'] < maxMPC),
+                           np.logical_and(manager.inputcat['z_b'] > 0,
+                                          manager.inputcat['z_b'] < options.zbhigh)),
+            np.abs(manager.inputcat['ghats']) < 5)
 
 # Definition of pdz is changing, need to change this.
 #        pdz = manager.pdz
@@ -156,8 +149,6 @@ class LensingModel(object):
 #                                   delta95Z < options.deltaz95high)
 #
 
-
-
         if options.zcut is None:
 
             zcut = np.ones(len(manager.inputcat)) == 1
@@ -170,10 +161,10 @@ class LensingModel(object):
         if options.ztypecut:
             zt = inputcat['z_t']
             zb = inputcat['z_b']
-            
+
             type1 = np.logical_and(zt >= 1, zt < 2)
             ztypecut[type1] = np.logical_and(type1, zb < 1.15)
-            
+
             type2 = np.logical_and(zt >= 2, zt < 3)
             ztypecut[type2] = np.logical_and(type2, zb < 1.3)
 
@@ -186,17 +177,11 @@ class LensingModel(object):
             type5 = np.logical_and(zt >= 5, zt < 6)
             ztypecut[type5] = False
 
-        
-            
 #        basic_cuts = reduce(np.logical_and, [goodObjs, deltaZcut, zcut, ztypecut])
         basic_cuts = reduce(np.logical_and, [goodObjs, zcut, ztypecut])
 
 
         return basic_cuts
-
-
-
-
 
     ########################################################################################
 
@@ -205,12 +190,11 @@ class LensingModel(object):
 
         options = manager.options
 
-
         if options.concentration is None:
-            parts.log10concentration = pymc.TruncatedNormal('log10concentration', 0.6, 1./0.116**2, 
-                                                      np.log10(1.), np.log10(10.))   #tau!
+            parts.log10concentration = pymc.TruncatedNormal('log10concentration', 0.6, 1. / 0.116**2, 
+                                                            np.log10(1.), np.log10(10.))   #tau!
             @pymc.deterministic
-            def cdelta(log10concentration = parts.log10concentration):
+            def cdelta(log10concentration=parts.log10concentration):
                 return 10**log10concentration
             parts.cdelta = cdelta
         else:
@@ -252,16 +236,16 @@ class LensingModel(object):
         parts.ghats = np.ascontiguousarray(inputcat['ghats'].astype(np.float64))
         parts.pz = np.ascontiguousarray(pz.astype(np.float64))
 
-
-
         parts.zs = np.ascontiguousarray(np.array(datamanager.pdzrange).astype(np.float64))
-
 
         parts.betas = np.ascontiguousarray(nfwutils.global_cosmology.beta_s(parts.zs, parts.zcluster).astype(np.float64))
         parts.nzbins = len(parts.betas)
 
         parts.rho_c = nfwutils.global_cosmology.rho_crit(parts.zcluster)
-        parts.rho_c_over_sigma_c = 1.5 * nfwutils.global_cosmology.angulardist(parts.zcluster) * nfwutils.global_cosmology.beta([1e6], parts.zcluster)[0] * nfwutils.global_cosmology.hubble2(parts.zcluster) / nfwutils.global_cosmology.v_c**2
+        parts.rho_c_over_sigma_c = 1.5 * nfwutils.global_cosmology.angulardist(parts.zcluster) * \
+                                   nfwutils.global_cosmology.beta([1e6], parts.zcluster)[0] * \
+                                   nfwutils.global_cosmology.hubble2(parts.zcluster) / \
+                                   nfwutils.global_cosmology.v_c**2
 
 
 
@@ -272,40 +256,36 @@ class LensingModel(object):
             try:
 
                 @pymc.stochastic(observed=True, name='data_%d' % i)
-                def data(value = parts.ghats,
-                         mdelta = parts.mdelta,
-                         cdelta = parts.cdelta,
-                         r_mpc = parts.r_mpc,
-                         zs = parts.zs,
-                         betas = parts.betas,
-                         pz = parts.pz, 
-                         shearcal_m = parts.shearcal_m,
-                         shearcal_c = parts.shearcal_c,
-                         sigma = parts.sigma,
-                         rho_c = parts.rho_c,
-                         rho_c_over_sigma_c = parts.rho_c_over_sigma_c,
-                         massdelta = parts.massdelta):                    
-                    
+                def data(value=parts.ghats,
+                         mdelta=parts.mdelta,
+                         cdelta=parts.cdelta,
+                         r_mpc=parts.r_mpc,
+                         zs=parts.zs,
+                         betas=parts.betas,
+                         pz=parts.pz,
+                         shearcal_m=parts.shearcal_m,
+                         shearcal_c=parts.shearcal_c,
+                         sigma=parts.sigma,
+                         rho_c=parts.rho_c,
+                         rho_c_over_sigma_c=parts.rho_c_over_sigma_c,
+                         massdelta=parts.massdelta):
+
                     return tools.gauss_like(mdelta,
-                                               cdelta,
-                                               r_mpc,
-                                               value,
-                                               zs, 
-                                               betas, 
-                                               pz, 
-                                               shearcal_m,
-                                               shearcal_c,
-                                               sigma,
-                                               rho_c,
-                                               rho_c_over_sigma_c,
-                                               massdelta)
-
-
-
+                                            cdelta,
+                                            r_mpc,
+                                            value,
+                                            zs,
+                                            betas,
+                                            pz,
+                                            shearcal_m,
+                                            shearcal_c,
+                                            sigma,
+                                            rho_c,
+                                            rho_c_over_sigma_c,
+                                            massdelta)
 
 
                 parts.data = data
-
 
                 break
             except pymc.ZeroProbability:
@@ -314,36 +294,22 @@ class LensingModel(object):
         if parts.data is None:
             raise ModelInitException
 
-
-
-
         #######################
 
-
-
-    def makeModelParts(self, datamanager, parts = None):
+    def makeModelParts(self, datamanager, parts=None):
 
         if parts is None:
             parts = varcontainer.VarContainer()
 
         parts.zcluster = datamanager.zcluster
 
-
         for i in range(10):
-
             try:
-
                 self.makeShapePrior(datamanager, parts)
-
                 self.makeModelPrior(datamanager, parts)
-
                 self.makeLikelihood(datamanager, parts)
-
                 return parts
-            
-
             except pymc.ZeroProbability:
-
                 pass
 
         raise ModelInitException
@@ -352,25 +318,18 @@ class LensingModel(object):
     #############
 
     def createModel(self, datamanager):
-
         datamanager.ngalaxies = len(datamanager.inputcat)
-
         parts = self.makeModelParts(datamanager)
-
         return pymc.Model(parts)
-
-
 
 
 #########################################################################
 #########################################################################    
 
 
-
 class ScanModelToFile(object):
 
     def addCLOps(self, parser):
-
         pass
 
 
@@ -378,7 +337,7 @@ class ScanModelToFile(object):
 
     def createOptions(self,
                       outputFile,
-                      options = None, args = None):
+                      options=None, args=None):
 
         if options is None:
             options = varcontainer.VarContainer()
@@ -402,21 +361,17 @@ class ScanModelToFile(object):
                 model.mdelta.value = m
                 scan[i] = model.logp
             except pymc.ZeroProbability:
-                scan[i] =  pymc.PyMCObjects.d_neg_inf
+                scan[i] = pymc.PyMCObjects.d_neg_inf
 
-        
-
-
-        cols = [ pyfits.Column(name = 'Mass', format = 'E', array = mass),
-                 pyfits.Column(name = 'prob', format = 'E', array = scan)]
+        cols = [pyfits.Column(name='Mass', format='E', array=mass),
+                pyfits.Column(name='prob', format='E', array=scan)]
         manager.cat = ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols)))
         manager.cat.hdu.header.update('EXTNAME', 'OBJECTS')
 
-        manager.cat.saveas('{}.m{}.scan.fits'.format(manager.options.outputFile, int(manager.model.massdelta)))
-
+        manager.cat.saveas('{}.m{}.scan.fits'.format(manager.options.outputFile,
+                                                     int(manager.model.massdelta)))
 
 #        self.calcMasses(manager)
-
 
     ##########
 
@@ -440,18 +395,10 @@ class ScanModelToFile(object):
             cdf_pick = np.random.uniform()
             inbin = np.logical_and(np.roll(buffered_cdf, 1) <= cdf_pick, buffered_cdf > cdf_pick)
             manager.masses[i] = masses[inbin[1:-1]][0]
-            
-
-
-
-        
-
-
 
     ##########
 
     def dump(self, manager):
-
         pass
 
 #        manager.cat.saveas(manager.options.outputFile, clobber=True)
@@ -462,30 +409,23 @@ class ScanModelToFile(object):
 #        dumpMasses(manager.masses,'%s.mass15mpc' % outputFile)
 #
 
-
-
-
     ##########
 
 
     def finalize(self, manager):
         pass
 
-
-
 ################################################
+
 
 class SampleModelToFile(object):
 
-    
     def run(self, manager):
-
 
         model = manager.model
         nsamples = manager.options.nsamples
         outputFile = manager.options.outputFile
         burn = manager.options.burn
-
 
         mcmc_manager = varcontainer.VarContainer()
         mcmc_options = varcontainer.VarContainer()
@@ -503,10 +443,6 @@ class SampleModelToFile(object):
 
         manager.chain = mcmc_manager.chain
 
-
-
-
-
     ############
 
     def addCLOps(self, parser):
@@ -517,9 +453,9 @@ class SampleModelToFile(object):
 
     def createOptions(self,
                       outputFile,
-                      nsamples = 2000,
-                      burn = 500,
-                      options = None, args = None):
+                      nsamples=2000,
+                      burn=500,
+                      options=None, args=None):
 
         if options is None:
             options = varcontainer.VarContainer()
@@ -528,10 +464,6 @@ class SampleModelToFile(object):
         options.nsamples = nsamples
         options.burn = burn
         return options, args
-
-
-
-
 
     ##############
 
@@ -544,28 +476,24 @@ class SampleModelToFile(object):
             cPickle.dump(manager.chain, output)
 
 
-        dumpMasses(np.array(manager.chain['mdelta'][manager.options.burn:]), '%s.m%d' % (outputFile, manager.massdelta))
+        dumpMasses(np.array(manager.chain['mdelta'][manager.options.burn:]),
+                   '%s.m%d' % (outputFile, manager.massdelta))
 
 
     ##############
 
     def finalize(self, manager):
-
-
         pass
 
 
     ######################
 
 
-
 def dumpMasses(masses, outputFile):
-
 
     with open('%s.mass.pkl' % outputFile, 'wb') as output:
         cPickle.dump(masses, output)
-        
-        
+
     mean = np.mean(masses)
     stddev = np.std(masses)
     quantiles = pymc.utils.quantiles(masses, qlist=[2.5, 15.8, 25, 50, 75, 84.1, 97.5])
@@ -573,7 +501,6 @@ def dumpMasses(masses, outputFile):
     hpd95 = pymc.utils.hpd(masses, 0.05)
     ml, (m, p) = ci.maxDensityConfidenceRegion(masses)
     lml, (lm, lp) = ci.maxDensityConfidenceRegion(np.log10(masses))
-
 
     with open('%s.mass.summary.txt' % outputFile, 'w') as output:
         output.write('mean\t%e\n' % mean)

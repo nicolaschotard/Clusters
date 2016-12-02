@@ -173,7 +173,7 @@ The following steps can be copied/pasted in order to install and test
 BPZ quickly. It supposes that LEPHARE has been installed following the
 procedure shown in the previous section (you need
 ``$LEPHAREDIR/filt/cfht/megacam/\*.pb``). Here are the `official
-install instruction <http://www.stsci.edu/~dcoe/BPZ/install.html>`_
+install instructions <http://www.stsci.edu/~dcoe/BPZ/install.html>`_
 for BPZ.
 
 Get BPZ::

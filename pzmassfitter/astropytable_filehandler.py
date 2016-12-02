@@ -41,6 +41,7 @@ class AstropyTableFilehandler(object):
                       decCol='coord_dec_deg',
                       g1Col='ext_shapeHSM_HsmShapeRegauss_e1',
                       g2Col='ext_shapeHSM_HsmShapeRegauss_e2',
+                      prefix='lph',
                       options=None, args=None):
 
         if options is None:
@@ -52,6 +53,7 @@ class AstropyTableFilehandler(object):
         options.cluster_ra = cluster_ra
         options.cluster_dec = cluster_dec
         options.pdzfile = pdzfile
+        options.prefix = prefix
 
         options.raCol = raCol
         options.decCol = decCol
@@ -69,9 +71,7 @@ class AstropyTableFilehandler(object):
         manager.lensingcat = options.lensingcat
 
         manager.clustername = options.cluster
-        manager.zcluster    = options.zcluster
-
-
+        manager.zcluster = options.zcluster
 
         r_arcmin, E, B = calcTangentialShear(cat=manager.lensingcat,
                                              center=(options.cluster_ra, options.cluster_dec),
@@ -87,8 +87,8 @@ class AstropyTableFilehandler(object):
 #        size = manager.lensingcat[options.sizeCol] / options.psfsize
 #        snratio = manager.lensingcat[options.snratioCol]
 
-        manager.open('pdzcat', options.pdzfile, table.Table.read, path='pdz_values')
-        manager.open('pdzrange', options.pdzfile, table.Table.read, path='pdz_bins')
+        manager.open('pdzcat', options.pdzfile, table.Table.read, path=options.prefix + 'pdz_values')
+        manager.open('pdzrange', options.pdzfile, table.Table.read, path=options.prefix + 'pdz_bins')
         manager.replace('pdzrange', lambda: manager.pdzrange['zbins'])
 
         manager.matched_pdzcat = matchById(manager.pdzcat, manager.lensingcat, 'id', 'objectId')
