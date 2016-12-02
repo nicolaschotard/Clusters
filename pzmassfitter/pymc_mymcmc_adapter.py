@@ -3,22 +3,26 @@
 #    mymc.
 ###############################
 
+import csv
+import sys
+import os
+import cPickle
 import operator
+import pymc
 import numpy as np
 try:
     from mpi4py import MPI
 except ImportError:
     pass
-import pymc, mymc
-import cPickle, os
-import load_chains
-import csv, sys
+from . import mymc
+from . import load_chains
 
 
 ###############################
 
+
 class CompositeParameter(mymc.Parameter):
-    def __init__(self, masterobj, index, width = 0.1):
+    def __init__(self, masterobj, index, width=0.1):
         self.masterobj = masterobj
         self.index = index
         self.name = '%s_%d' % (self.masterobj.__name__, self.index)
@@ -40,8 +44,9 @@ class CompositeParameter(mymc.Parameter):
 
 ##############################
 
+
 class WrapperParameter(mymc.Parameter):
-    def __init__(self, masterobj, width = 0.1):
+    def __init__(self, masterobj, width=0.1):
         self.masterobj = masterobj
         self.name = self.masterobj.__name__
 
@@ -58,9 +63,8 @@ class WrapperParameter(mymc.Parameter):
     value = property(get_value, set)
 
 
-
-
 #################################
+
 
 class DerivedWrappedParameter(mymc.DerivedParameter):
     def __init__(self, masterobj):
@@ -73,16 +77,20 @@ class DerivedWrappedParameter(mymc.DerivedParameter):
 
 ##################################
 
+
 class DerivedAttribute(mymc.DerivedParameter):
     def __init__(self, masterobj, attr):
         self.masterobj = masterobj
         self.attr = attr
         self.name = self.attr
+
     def get_value(self):
         return getattr(self.masterobj, self.attr)
+
     value = property(get_value)
-        
+
 #################################
+
 
 class DerivedFunction(mymc.DerivedParameter):
     def __init__(self, func, name, *args, **kw):
@@ -90,17 +98,20 @@ class DerivedFunction(mymc.DerivedParameter):
         self.args = args
         self.kw = kw
         self.name = name
+
     def get_value(self):
         return self.func(*self.args, **self.kw)
+
     value = property(get_value)
-        
+
 #################################
+
 
 def wrapModel(model):
 
     parameters = []
     deterministics = []
-    
+
     stochastics = []
     potentials = []
     observed = []
@@ -133,44 +144,42 @@ def wrapModel(model):
             observed.append(o)
 
 
-    parameters = sorted(parameters, key = operator.attrgetter('name'))
-    deterministics = sorted(deterministics, key = operator.attrgetter('name'))
+    parameters = sorted(parameters, key=operator.attrgetter('name'))
+    deterministics = sorted(deterministics, key=operator.attrgetter('name'))
 
-    stochastics = sorted(stochastics, key = operator.attrgetter('__name__'))
-    potentials = sorted(potentials, key = operator.attrgetter('__name__'))
-    observed = sorted(observed, key = operator.attrgetter('__name__'))
+    stochastics = sorted(stochastics, key=operator.attrgetter('__name__'))
+    potentials = sorted(potentials, key=operator.attrgetter('__name__'))
+    observed = sorted(observed, key=operator.attrgetter('__name__'))
 
     print [x.__name__ for x in stochastics]
     print [x.__name__ for x in potentials]
     print [x.__name__ for x in observed]
-    
+
     all_logp = stochastics + potentials + observed
 
     print [x.__name__ for x in all_logp]
 
     def posterior(thing):
         try:
-            logp = reduce(lambda x,y: x + y.logp, all_logp, 0.)
+            logp = reduce(lambda x, y: x + y.logp, all_logp, 0.)
         except pymc.ZeroProbability as zpexc:
             logp = -np.infty
         return logp
 
     def likelihood():
         try:
-            logp = reduce(lambda x,y: x + y.logp, observed, 0.)
+            logp = reduce(lambda x, y: x + y.logp, observed, 0.)
         except pymc.ZeroProbability as zpexc:
             logp = -np.infty
         return logp
 
     deterministics.append(DerivedFunction(likelihood, 'likelihood'))
     deterministics.append(DerivedFunction(posterior, 'posterior', None))
-                          
-
 
     space = mymc.ParameterSpace(parameters, posterior)
 
     trace = mymc.ParameterSpace(deterministics + parameters)
-    
+
     return space, trace
 
 #################################
@@ -194,11 +203,11 @@ class MyMCRunner(object):
 
 
         space, trace = wrapModel(manager.model)
-        
+
         step = mymc.Slice()
 
-
-        updater = mymc.MultiDimRotationUpdater(space, step, options.adapt_every, options.adapt_after, parallel = parallel)
+        updater = mymc.MultiDimRotationUpdater(space, step, options.adapt_every,
+                                               options.adapt_after, parallel=parallel)
 
         bitsfile = '%s.bits.%d' % (options.outputFile, manager.mpi_rank)
         chainfile = '%s.chain.%d' % (options.outputFile, manager.mpi_rank)
@@ -206,8 +215,6 @@ class MyMCRunner(object):
         writeHeader = True
         if options.restore is True:
 
-
-            
             #  load previous proposal distribution
             if os.path.exists(bitsfile):
                 with open(bitsfile, 'rb') as input:
@@ -219,14 +226,7 @@ class MyMCRunner(object):
                 writeHeader = False
                 chain = load_chains.loadChains([chainfile])
                 for param in space:
-                    param.set(chain[param.name][0,-1])
-
-
-                
-
-                    
-                    
-        
+                    param.set(chain[param.name][0, -1])
 
         manager.engine = mymc.Engine([updater], trace)
 
@@ -236,14 +236,10 @@ class MyMCRunner(object):
         manager.chainfile = open(chainfile, 'a')
         manager.textout = mymc.headerTextBackend(manager.chainfile, trace, writeHeader=writeHeader)
 
-
-
-
-        
         backends = [manager.textout]
 
         manager.engine(options.nsamples, None, backends)
-                                     
+
         with open(bitsfile, 'wb') as output:
             cPickle.dump(updater.saveBits(), output)
 
@@ -254,28 +250,26 @@ class MyMCRunner(object):
 
 
         parser.add_option('-s', '--nsamples', dest='nsamples',
-                          help='Number of MCMC samples to draw or scan model', default=None, type='int')
+                          help='Number of MCMC samples to draw or scan model',
+                          default=None, type='int')
         parser.add_option('--adaptevery', dest='adapt_every',
-                          help = 'Adapt MCMC chain every X steps', default = 100, type='int')
+                          help='Adapt MCMC chain every X steps', default=100, type='int')
         parser.add_option('--adaptafter', dest='adapt_after',
-                          help = 'Start adapting MCMC chain aftter X steps', default = 100, type='int')
+                          help='Start adapting MCMC chain aftter X steps', default=100, type='int')
         parser.add_option('--burn', dest='burn',
-                          help='Number of MCMC samples to discard before calculated mass statistics', 
+                          help='Number of MCMC samples to discard before calculated mass statistics',
                           default=10000, type=int)
-        parser.add_option('--singlecore', default = False,
-                          action = 'store_true',
+        parser.add_option('--singlecore', default=False,
+                          action='store_true',
                           help='Turn off MPI for test runs on single machines')
-
-
-
 
     #############
 
     def dump(self, manager):
 
-        mm.dumpMasses(np.array(manager.chain['mass_15mpc'][manager.options.burn:]), '%s.mass15mpc.%d' % (manager.options.outputFile, manager.mpi_rank))
+        mm.dumpMasses(np.array(manager.chain['mass_15mpc'][manager.options.burn:]),
+                      '%s.mass15mpc.%d' % (manager.options.outputFile, manager.mpi_rank))
 
-    
     #############
 
     def finalize(self, manager):
@@ -299,33 +293,28 @@ class MyMCMemRunner(object):
             parallel = None
             manager.mpi_rank = 0
 
-
         space, trace = wrapModel(manager.model)
-        
+
         step = mymc.Slice()
 
         if len(space) == 1:
-            updater = mymc.CartesianSequentialUpdater(space, step, options.adapt_every, options.adapt_after, parallel = parallel)
+            updater = mymc.CartesianSequentialUpdater(space, step, options.adapt_every,
+                                                      options.adapt_after, parallel=parallel)
         else:
-            updater = mymc.MultiDimRotationUpdater(space, step, options.adapt_every, options.adapt_after, parallel = parallel)
+            updater = mymc.MultiDimRotationUpdater(space, step, options.adapt_every,
+                                                   options.adapt_after, parallel=parallel)
 
         manager.engine = mymc.Engine([updater], trace)
 
         manager.chain = mymc.dictBackend()
 
-
-        
         backends = [manager.chain]
 
         manager.engine(options.nsamples, None, backends)
-                                     
-                    
-
 
     ############
 
     def addCLOps(self, parser):
-
         pass
 
     #############
@@ -343,9 +332,10 @@ class MyMCMemRunner(object):
             fields = chain.keys()
             nrows = len(chain[fields[0]])
 
-            writer = csv.DictWriter(output, fields, restval = '!', delimiter = ' ', quoting=csv.QUOTE_MINIMAL, )
+            writer = csv.DictWriter(output, fields, restval='!', delimiter=' ',
+                                    quoting=csv.QUOTE_MINIMAL, )
 
-            if sys.version_info < (2,7):
+            if sys.version_info < (2, 7):
                 writer.writer.writerow(self.writer.fieldnames)
             else:
                 writer.writeheader()
@@ -356,12 +346,7 @@ class MyMCMemRunner(object):
                     towrite[field] = chain[field][i]
                 writer.writerow(towrite)
 
-
-
-
-    
     #############
 
     def finalize(self, manager):
-
         pass

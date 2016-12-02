@@ -1100,7 +1100,7 @@ class textBackend(Backend):
     def __init__(self, file):
         self.file = file
     def __call__(self, space):
-        st=''
+        st = ''
         for p in space:
             st = st + ' ' + str(p())
         st = st + '\n'
@@ -1119,7 +1119,7 @@ class textBackend(Backend):
                 values = [float(key) for key in keys]
                 for i, val in enumerate(values):
                     keys[i] = 'V' + str(i + 1)
-                    d[keys[i]] = [ val ]
+                    d[keys[i]] = [val]
             except ValueError:
                 for key in keys:
                     d[key] = []
@@ -1142,12 +1142,12 @@ class headerTextBackend(Backend):
     """
     Like textBackend, but automatically reads/writes a header line with the parameter names.
     """
-    def __init__(self, file, space, writeHeader = True):
+    def __init__(self, file, space, writeHeader=True):
         self.fields = [p.name for p in space]
-        self.writer = csv.DictWriter(file, self.fields, restval = '!', delimiter = ' ',
+        self.writer = csv.DictWriter(file, self.fields, restval='!', delimiter=' ',
                                      quoting=csv.QUOTE_MINIMAL,)
         if writeHeader is True:
-            if sys.version_info < (2,7):
+            if sys.version_info < (2, 7):
                 self.writer.writer.writerow(self.writer.fieldnames)
             else:
                 self.writer.writeheader()
@@ -1161,7 +1161,7 @@ class headerTextBackend(Backend):
     @classmethod
     def readToDict(cls, filename, quiet=True):
         db = {}
-        reader = csv.DictReader(open(filename), delimiter = ' ', quoting=csv.QUOTE_MINIMAL)
+        reader = csv.DictReader(open(filename), delimiter=' ', quoting=csv.QUOTE_MINIMAL)
         for i, row in enumerate(reader):
 
             for key in row.keys():
@@ -1186,7 +1186,7 @@ class stdoutBackend(textBackend):
 
 class dictBackend(dict, Backend):
     """
-    Class to store a chain in a dictionary (inherits dict). 
+    Class to store a chain in a dictionary (inherits dict).
 
     If a Parameter has a non-empty string-type name attribute, the corresponding key
     is that name, otherise it is a reference to the Parameter object itself.
@@ -1210,11 +1210,11 @@ class Engine(list):
     """
     Class to organize Updaters of ParameterSpaces and run the MCMC (inherits list).
     Constructor arguments:
-     1. sequence of Updater objects. If Updaters are added any other way, the register_updater( ) 
+     1. sequence of Updater objects. If Updaters are added any other way, the register_updater( )
     method must be used.
-     2. a ParameterSpace of Parameters whose values are to be stored at each step. This need not 
+     2. a ParameterSpace of Parameters whose values are to be stored at each step. This need not
     be the same as the ParameterSpace(s) referred to by the Updaters.
-     3. a function of one argument to be called after each step (i.e. each time that each Updater 
+     3. a function of one argument to be called after each step (i.e. each time that each Updater
     has been called).
     To run a chain, use the () method. Arguments:
      1. number of iterations (every Updater is called for a single iteration).
@@ -1261,7 +1261,8 @@ class Engine(list):
 def example(number=None):
     if number == 1:
         print """
-# Here is a simple example. As shown it will run in non-parallel mode; comments indicate what to do for parallelization.
+# Here is a simple example. As shown it will run in non-parallel mode; comments indicate what 
+# to do for parallelization.
 
 from mymc import *
 ## for MPI
@@ -1274,14 +1275,19 @@ y = Parameter(name='y')
 
 ### This is the object that will be passed to the likelihood function.
 ### In this simple case, it just holds the parameter objects, but in general it could be anything.
-### E.g., usually it would also contain or point to the data being used to constrain the model. A good idea is to write the state of any updaters to a file after each adaptation (using the on_adapt functionality), in which case keeping pointers to the updaters here is convenient. Also commonly useful: a DerivedParameter which holds the value of the posterior log-density for each sample.
+### E.g., usually it would also contain or point to the data being used to constrain the model. 
+### A good idea is to write the state of any updaters to a file after each adaptation (using the 
+### on_adapt functionality), in which case keeping pointers to the updaters here is convenient. 
+### Also commonly useful: a DerivedParameter which holds the value of the posterior log-density 
+### for each sample.
 class Thing:
     def __init__(self, x, y):
         self.x = x
         self.y = y
 thing = Thing(x, y)
 
-### The log-posterior function. Here we just assume a bivariate Gaussian posterior with marginal standard deviations s(x)=2 and s(y)=3, correlation coefficient 0.75, and means <x>=-1, <y>=1.
+### The log-posterior function. Here we just assume a bivariate Gaussian posterior with marginal 
+### standard deviations s(x)=2 and s(y)=3, correlation coefficient 0.75, and means <x>=-1, <y>=1.
 def post(thing):
     r = 0.75
     sx = 2.0
@@ -1293,15 +1299,19 @@ def post(thing):
 ### Create a parameter space consisting of x and y, and associate the log-posterior function with it.
 space = ParameterSpace([thing.x, thing.y], post)
 
-### If we'd bothered to define a DerivedParameter in Thing which would hold the posterior density, we might want to define a larger ParameterSpace and pass it to the Engine later on to be saved in the Backends (instead of space).
+### If we'd bothered to define a DerivedParameter in Thing which would hold the posterior density, 
+### we might want to define a larger ParameterSpace and pass it to the Engine later on to be saved 
+### in the Backends (instead of space).
 #trace = ParameterSpace([thing.x, thing.y, thing.logP])
 
-### Use slice sampling for robustness. Adapt the proposal distribution every 100 iterations starting with the 100th.
+### Use slice sampling for robustness. Adapt the proposal distribution every 100 iterations 
+### starting with the 100th.
 step = Slice()
 parallel = None
 ## for MPI parallelization
 # parallel = MPI.COMM_WORLD
-## for parallelization via the filesystem, this would have to be set to a different value for each concurrently running instance
+## for parallelization via the filesystem, this would have to be set to a different value for 
+## each concurrently running instance
 #parallel = 1
 updater = MultiDimSequentialUpdater(space, step, 100, 100, parallel=parallel)
 
@@ -1331,15 +1341,14 @@ chainfile.close()
     else:
         print """
 Usage: example(N), where N is one of:
- 1. A very simple example where the posterior is bivariate Gaussian, to illustrate setting up and running the engine.
+ 1. A very simple example where the posterior is bivariate Gaussian, to illustrate setting 
+    up and running the engine.
 """
-
-
 
 
 class ChiSquareLikelihood(object):
     """
-    A class to simplify fitting models to Gaussian data. 
+    A class to simplify fitting models to Gaussian data.
 
     Assign a function to the 'priors' attribute to include non-(improper uniform) priors.
     """
@@ -1365,9 +1374,6 @@ class ChiSquareLikelihood(object):
             chisq += ((self.model(self.x[j], struct) - y) / self.err[j])**2
         self.chisquare.value = chisq
         return -0.5 * chisq
-
-
-
 
 # Todo:
 # 1. An Updater class that simply goes through an existing sequence, for importance sampling.

@@ -11,11 +11,9 @@ from . import nfwutils
 from . import sphereGeometry
 from . import ldac
 
-####################################
-
-
 
 ####################################
+
 
 class AstropyTableFilehandler(object):
 
@@ -39,10 +37,10 @@ class AstropyTableFilehandler(object):
                       pdzfile,
                       cluster_ra,
                       cluster_dec,
-                      raCol = 'coord_ra_deg',
-                      decCol = 'coord_dec_deg',
-                      g1Col = 'ext_shapeHSM_HsmShapeRegauss_e1',
-                      g2Col = 'ext_shapeHSM_HsmShapeRegauss_e2',
+                      raCol='coord_ra_deg',
+                      decCol='coord_dec_deg',
+                      g1Col='ext_shapeHSM_HsmShapeRegauss_e1',
+                      g2Col='ext_shapeHSM_HsmShapeRegauss_e2',
                       options=None, args=None):
 
         if options is None:
@@ -55,12 +53,10 @@ class AstropyTableFilehandler(object):
         options.cluster_dec = cluster_dec
         options.pdzfile = pdzfile
 
-
-        options.raCol      = raCol
-        options.decCol     = decCol
-        options.g1Col      = g1Col
-        options.g2Col      = g2Col
-
+        options.raCol = raCol
+        options.decCol = decCol
+        options.g1Col = g1Col
+        options.g2Col = g2Col
 
         return options, args
 
@@ -85,7 +81,8 @@ class AstropyTableFilehandler(object):
                                              g2Col=options.g2Col)
 
 
-        r_mpc = r_arcmin * (1./60.) * (np.pi / 180.) * nfwutils.global_cosmology.angulardist(options.zcluster)
+        r_mpc = r_arcmin * (1. / 60.) * (np.pi / 180.) * \
+                nfwutils.global_cosmology.angulardist(options.zcluster)
 
 #        size = manager.lensingcat[options.sizeCol] / options.psfsize
 #        snratio = manager.lensingcat[options.snratioCol]
@@ -95,7 +92,7 @@ class AstropyTableFilehandler(object):
         manager.replace('pdzrange', lambda: manager.pdzrange['zbins'])
 
         manager.matched_pdzcat = matchById(manager.pdzcat, manager.lensingcat, 'id', 'objectId')
-        
+
         manager.pz = manager.matched_pdzcat['pdz']  #area normalized, ie density function
 
         z_b = manager.matched_pdzcat['Z_BEST']
@@ -108,7 +105,8 @@ class AstropyTableFilehandler(object):
                 pyfits.Column(name='ghats', format='E', array=E),
                 pyfits.Column(name='B', format='E', array=B)]
 
-        manager.store('inputcat', ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols))))
+        manager.store('inputcat',
+                      ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols))))
 
 
 #############
@@ -122,17 +120,15 @@ def calcTangentialShear(cat, center, raCol, decCol, g1Col, g2Col):
     e1 = cat[g1Col]
     e2 = cat[g2Col]
 
-    posangle = (np.pi/2.) - sphereGeometry.positionAngle(ra, dec, cluster_ra, cluster_dec) #radians
+    posangle = (np.pi / 2.) - sphereGeometry.positionAngle(ra, dec, cluster_ra, cluster_dec) #radians
 
-    r_arcmin = sphereGeometry.greatCircleDistance(ra, dec, cluster_ra, cluster_dec)*60
+    r_arcmin = sphereGeometry.greatCircleDistance(ra, dec, cluster_ra, cluster_dec) * 60
 
-    
     cos2phi = np.cos(2 * posangle)
     sin2phi = np.sin(2 * posangle)
 
-    E = -(e1*cos2phi + e2 * sin2phi)
-    B =  e1*sin2phi - e2 * cos2phi
-
+    E = -(e1 * cos2phi + e2 * sin2phi)
+    B = e1 * sin2phi - e2 * cos2phi
 
     return r_arcmin, E, B
 
@@ -141,16 +137,16 @@ def calcTangentialShear(cat, center, raCol, decCol, g1Col, g2Col):
 
 
 def matchById(firstcat, othercat, otherid='SeqNr', selfid='SeqNr'):
-    '''Returns a subset of this catalog, that matches the order of the provided catalog'''
+    """Returns a subset of this catalog, that matches the order of the provided catalog."""
     order = {}
     for i, x in enumerate(firstcat[selfid]):
         order[x] = i
 
-    keepOrder = []
+    keeporder = []
     for x in othercat[otherid]:
         if x in order:
-            keepOrder.append(order[x])
+            keeporder.append(order[x])
 
-    keep = np.array(keepOrder)
+    keep = np.array(keeporder)
     matched = firstcat[keep]
     return matched

@@ -2,10 +2,9 @@
 
 import os
 import sys
-import numpy
 from astropy.table import Table, Column, hstack
 import yaml
-from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter, FileType
+from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 
 from . import data as cdata
 from . import extinction as cextinction
@@ -14,7 +13,8 @@ from . import shear as cshear
 from . import background
 from pzmassfitter import dmstackdriver
 
-import pdb
+#import pdb
+
 
 def load_data(argv=None):
     """Load data from the DM stack butler."""
@@ -184,12 +184,12 @@ def photometric_redshift(argv=None):
         args.output = os.path.basename(args.input).replace('.hdf5', '_zphot.hdf5')
         if not args.overwrite and not args.append and os.path.exists(args.output):
             raise IOError("Output already exists. Remove it or use --overwrite or use --append.")
-            
+
     if args.pdz_output is None:
         args.pdz_output = os.path.basename(args.input).replace('.hdf5', '_zphot_pdz.hdf5')
         if not args.overwrite and not args.append and os.path.exists(args.output):
             raise IOError("Output already exists. Remove it or use --overwrite or use --append.")
-            
+
     print "INFO: Working on cluster %s (z=%.4f)" % (config['cluster'], config['redshift'])
 
     # Load the data
@@ -220,34 +220,38 @@ def photometric_redshift(argv=None):
                   'dec': data['coord_dec_deg'][data['filter'] == config['filter'][0]],
                   'id': data['objectId'][data['filter'] == config['filter'][0]]}
         zphot = czphot.BPZ([data[args.mag][data['filter'] == f] for f in kwargs['filters']],
-                         [data[args.mag.replace("_extcorr", "") + "Sigma"][data['filter'] == f]
-                          for f in kwargs['filters']], **kwargs)
+                           [data[args.mag.replace("_extcorr", "") + "Sigma"][data['filter'] == f]
+                            for f in kwargs['filters']], **kwargs)
         zphot.run()
         path = "bpz"
-        zphot.data_out.save_ztable(args.output, path, is_overwrite=args.overwrite, is_append=args.append)
+        zphot.data_out.save_ztable(args.output, path, is_overwrite=args.overwrite,
+                                   is_append=args.append)
         path_pdz = "bpz_pdz_values"
         path_bins = "bpz_pdz_bins"
         zphot.data_out.save_pdztable(args.pdz_output, path_pdz, path_bins,
-                                    is_overwrite=args.overwrite, is_append=args.append)
+                                     is_overwrite=args.overwrite, is_append=args.append)
 
     # Run LEPHARE
     else:
         print "INFO: LEPHARE will run on", len(data) / len(config['filter']), "sources"
-        
+
         if args.zpara is None:
             args.zpara = os.environ["LEPHAREDIR"] + \
                         "/config/zphot_megacam.para" if 'zpara' not in config else config['zpara']
 
-        for i, zpara in enumerate(args.zpara.split(',') if isinstance(args.zpara, str) else args.zpara):
+        for i, zpara in enumerate(args.zpara.split(',') if isinstance(args.zpara, str) \
+                                  else args.zpara):
             print "\nINFO: Configuration for LEPHARE from:", zpara
-            kwargs = {'basename': config['cluster'] + '_' + zpara.split('/')[-1].replace('.para', ''),
+            kwargs = {'basename': config['cluster'] + \
+                      '_' + zpara.split('/')[-1].replace('.para', ''),
                       'filters': [f for f in config['filter'] if f in set(data['filter'].tolist())],
                       'ra': data['coord_ra_deg'][data['filter'] == config['filter'][0]],
                       'dec': data['coord_dec_deg'][data['filter'] == config['filter'][0]],
                       'id': data['objectId'][data['filter'] == config['filter'][0]]}
             zphot = czphot.LEPHARE([data[args.mag][data['filter'] == f] for f in kwargs['filters']],
-                                   [data[args.mag.replace("_extcorr", "") + "Sigma"][data['filter'] == f]
-                                   for f in kwargs['filters']],
+                                   [data[args.mag.replace("_extcorr", "") + \
+                                         "Sigma"][data['filter'] == f]
+                                    for f in kwargs['filters']],
                                    zpara=zpara, spectro_file=spectro_file, **kwargs)
             zphot.check_config()
             zphot.run()
@@ -255,7 +259,8 @@ def photometric_redshift(argv=None):
             path = "lph_%s" % zpara.split('/')[-1].replace('.para', '')
             is_overwrite = args.overwrite if i == 0 else False
             is_append = True if i != 0 else False
-            zphot.data_out.save_ztable(args.output, path, is_overwrite=is_overwrite, is_append=is_append)
+            zphot.data_out.save_ztable(args.output, path, is_overwrite=is_overwrite,
+                                       is_append=is_append)
             if i == 0:
                 # For the moment, only save pdz for the first .para configuration
                 # Could change the keys names according to iteration (like for save_ztable, above)
@@ -265,13 +270,13 @@ def photometric_redshift(argv=None):
                 path_pdz = "lph_pdz_values"
                 path_bins = "lph_pdz_bins"
                 zphot.data_out.save_pdztable(args.pdz_output, path_pdz, path_bins,
-                                                 is_overwrite=is_overwrite, is_append=is_append)
+                                             is_overwrite=is_overwrite, is_append=is_append)
 
     # Plot
     if args.plot:
         doplot(zphot.data_out, config,
-                float(args.zrange.split(',')[0]),
-                float(args.zrange.split(',')[1]))
+               float(args.zrange.split(',')[0]),
+               float(args.zrange.split(',')[1]))
 
     if args.plot:
         czphot.P.show()
@@ -286,13 +291,16 @@ def getbackground(argv=None):
     parser = ArgumentParser(prog=prog, usage=usage, description=description,
                             formatter_class=ArgumentDefaultsHelpFormatter)
     parser.add_argument('config', help="Configuration (yaml) file")
-    parser.add_argument('cat_data', help="Catalogue file including magnitude information (*_hdf5 output of clusters_data)")
+    parser.add_argument('cat_data', help="Catalogue file including magnitude information"
+                        " (*_hdf5 output of clusters_data)")
     parser.add_argument("z_data",
-                        help="Photometric redshift data, including pdz information (*_pdz.hdf5 output of clusters_zphot)")
+                        help="Photometric redshift data, including pdz information "
+                        "(*_pdz.hdf5 output of clusters_zphot)")
     parser.add_argument("--zcode",
                         help="Name of the photoz code used, 'lph' or 'bpz'.")
     parser.add_argument("--output",
-                        help="Filename for the shear catalogue with bkg flags to also be stored in a seperate file.")
+                        help="Filename for the shear catalogue with bkg flags to also be stored "
+                        "in a seperate file.")
     parser.add_argument("--zmin", type=float,
                         help="Minimum redshift for photoz hard cut")
     parser.add_argument("--zmax", type=float,
@@ -301,7 +309,8 @@ def getbackground(argv=None):
                         help="Threshod redshift probability to select galaxy (in percent)")
     parser.add_argument("--plot", default=False, action='store_true', help="Make some plots")
     parser.add_argument("--overwrite", default=False, action='store_true',
-                            help="Will overwrite any pre-existing red sequence and photoz flag in astropy table")
+                        help="Will overwrite any pre-existing red sequence and photoz flag "
+                        "in astropy table")
     args = parser.parse_args(argv)
 
     config = yaml.load(open(args.config))
@@ -319,15 +328,14 @@ def getbackground(argv=None):
 
     data = cdata.read_hdf5(args.cat_data)['deepCoadd_forced_src']
     keys = cdata.read_hdf5(args.cat_data)['deepCoadd_meas'].keys()
-    
+
     if ('RS_flag' in keys and ('z_flag_hard_' + args.zcode) in keys and
         ('z_flag_pdz_' + args.zcode) in keys and not args.overwrite):
-        raise IOError("Columns 'RS_flag' and 'z_flag*' already exist in astropy table 'deepCoadd_src. \
-                       Use --overwrite option to overwrite.")
+        raise IOError("Columns 'RS_flag' and 'z_flag*' already exist in astropy table" + \
+                      " 'deepCoadd_src. Use --overwrite option to overwrite.")
     else:
         zdata = cdata.read_hdf5(args.z_data)
-        rs_flag, z_flag1, z_flag2 = background.get_background(config,data,
-                                                              zdata,
+        rs_flag, z_flag1, z_flag2 = background.get_background(config, data, zdata,
                                                               zmin=args.zmin,
                                                               zmax=args.zmax,
                                                               zcode_name=args.zcode,
@@ -336,25 +344,26 @@ def getbackground(argv=None):
         data = cdata.read_hdf5(args.cat_data)['deepCoadd_meas']
         if ('RS_flag' in keys or ('z_flag_hard_' + args.zcode) in keys or \
             ('z_flag_pdz_' + args.zcode) in keys):
-            print "INFO: Overwriting flag columns in astropy table 'deepCoadd_meas' stored in ", args.cat_data
+            print "INFO: Overwriting flag columns in astropy table 'deepCoadd_meas' stored in ", \
+                args.cat_data
             data['RS_flag'] = Column(rs_flag)
             data['z_flag_hard_'+ args.zcode] = Column(z_flag1)
             data['z_flag_pdz_'+ args.zcode] = Column(z_flag2)
         else:
-            print "INFO: Creating flag columns in astropy table 'deepCoadd_meas' stored in ", args.cat_data
+            print "INFO: Creating flag columns in astropy table 'deepCoadd_meas' stored in ", \
+                args.cat_data
             data.add_columns([Column(rs_flag, name='RS_flag'),
-                            Column(z_flag1, name='z_flag_hard_'+ args.zcode),
-                            Column(z_flag2, name='z_flag_pdz_'+ args.zcode)])
+                              Column(z_flag1, name='z_flag_hard_'+ args.zcode),
+                              Column(z_flag2, name='z_flag_pdz_'+ args.zcode)])
 
         data.write(args.cat_data, path='deepCoadd_meas', compression=True,
                    serialize_meta=True, append=True, overwrite=True)
 
-        
         print "INFO: Also saving table 'deepCoadd_meas' with added flag columns in ", args.output
         data.write(args.output, path='deepCoadd_meas', compression=True,
                    serialize_meta=True, append=True, overwrite=args.overwrite)
-    
-    
+
+
 def shear(argv=None):
     """Compute the shear."""
     description = """Compute the shear."""
@@ -435,31 +444,28 @@ def mass(argv=None):
     if args.testing:
         print 'TESTING!!!!'
         masscontroller = dmstackdriver.makeTestingController()
-        options, cmdargs  = masscontroller.modelbuilder.createOptions(concentration=4.)
-        options, cmdargs = masscontroller.runmethod.createOptions(outputFile = args.output,
-                                                                  options = options,
-                                                                  args = cmdargs)
+        options, cmdargs = masscontroller.modelbuilder.createOptions(concentration=4.)
+        options, cmdargs = masscontroller.runmethod.createOptions(outputFile=args.output,
+                                                                  options=options,
+                                                                  args=cmdargs)
 
     else:
         masscontroller = dmstackdriver.controller
-        options, cmdargs  = masscontroller.modelbuilder.createOptions()
-        options, cmdargs = masscontroller.runmethod.createOptions(outputFile = args.output,
-                                                                  nsamples = 10000,
-                                                                  burn = 2000,
-                                                                  options = options,
-                                                                  args = cmdargs)
+        options, cmdargs = masscontroller.modelbuilder.createOptions()
+        options, cmdargs = masscontroller.runmethod.createOptions(outputFile=args.output,
+                                                                  nsamples=10000,
+                                                                  burn=2000,
+                                                                  options=options,
+                                                                  args=cmdargs)
 
-
-
-        
-    options, cmdargs = masscontroller.filehandler.createOptions(cluster = cluster,
-                                                                zcluster = zcluster,
-                                                                lensingcat = meas,
-                                                                pdzfile = args.pdzfile,
-                                                                cluster_ra = cluster_ra,
-                                                                cluster_dec = cluster_dec,
-                                                                options = options,
-                                                                args = cmdargs)
+    options, cmdargs = masscontroller.filehandler.createOptions(cluster=cluster,
+                                                                zcluster=zcluster,
+                                                                lensingcat=meas,
+                                                                pdzfile=args.pdzfile,
+                                                                cluster_ra=cluster_ra,
+                                                                cluster_dec=cluster_dec,
+                                                                options=options,
+                                                                args=cmdargs)
 
 
     masscontroller.load(options, args)

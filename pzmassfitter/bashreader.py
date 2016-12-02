@@ -59,7 +59,7 @@ class BashConfig(dict):
 
     ###################
 
-    _variableRE = '\${?(\w+)(?:\[(\d+)\])?}?'
+    _variableRE = r'\${?(\w+)(?:\[(\d+)\])?}?'
 
     def _parseVar(self, bashstr):
 
