@@ -41,7 +41,7 @@ class AstropyTableFilehandler(object):
                       decCol='coord_dec_deg',
                       g1Col='ext_shapeHSM_HsmShapeRegauss_e1',
                       g2Col='ext_shapeHSM_HsmShapeRegauss_e2',
-                      prefix='lph',
+                      prefix='',
                       options=None, args=None):
 
         if options is None:
