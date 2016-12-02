@@ -12,7 +12,7 @@ import astropy.io.fits as pyfits
 from . import data as cdata
 
 
-#seaborn.set(style='white')
+seaborn.set(style='ticks')
 
 
 class Kappa(object):
@@ -202,24 +202,37 @@ class Kappa(object):
                 self.maps[cmap].append(np.sum(weights[cmap] * cell, axis=1) / sumw)
         pbar.finish()
 
-    def plot_maps(self, clust_coord=None, wcs=None, pmap=pl.cm.afmhot):
+    def plot_maps(self, clust_coord=None, wcs=None, figsize=(10, 12)):
         """Plot the redshift sky-map."""
         if not hasattr(self, 'maps'):
             raise IOError("WARNING: No maps computed yet.")
-        for cmap in self.maps.keys()[:1]:
-            fig = pl.figure(figsize=(12, 12))
+        print "Plotting the following maps:"
+        for cmap in self.maps:
+            print " - ", cmap
+            fig = pl.figure(figsize=figsize)
             ax = fig.add_subplot(111, xlabel='X-coord (pixel)', ylabel='Y-coord (pixel)')
             extent = (min(self.data['xsrc']) + 0.5, max(self.data['xsrc']) + 0.5,
                       min(self.data['ysrc']) + 0.5, max(self.data['ysrc']) + 0.5)
-            themap = ax.imshow(self.maps[cmap], origin='lower', zorder=0, cmap=pmap, extent=extent)
+            themap = ax.imshow(self.maps[cmap], origin='lower', zorder=0,
+                               cmap=pl.cm.afmhot, extent=extent)
             cb = fig.colorbar(themap, pad=0.15 if wcs is not None else 0.05)
             cb.set_label(cmap)
             pl.figtext(.5, 0.95, cmap, fontsize=20, ha='center')
             ax.scatter(self.data['xsrc'] - 0.5, self.data['ysrc'] - 0.5,
                        s=3, color='b', zorder=1, alpha=0.4)
             if clust_coord is not None:
-                x, y = cdata.skycoord_to_pixel(clust_coord, wcs)
-                ax.plot(x, y, color='g', ms=15, mew=3, marker='x')
+                if clust_coord[0] >= extent[0] and clust_coord[0] <= extent[1] and \
+                   clust_coord[1] >= extent[2] and clust_coord[1] <= extent[3]:
+                    ax.plot(clust_coord[0], clust_coord[1], color='g', ms=25, mew=4, marker='+')
+                elif wcs is None:
+                    print "WARNING: You must provide coordinates in degree + the wcs" + \
+                        " or coordinates in pixel units."
+                    print "         Use wcs = kappa.load_wcs('data.hdf5') to get the wcs."
+                else:
+                    xsrc, ysrc = cdata.skycoord_to_pixel(clust_coord, wcs)
+                    ax.plot(xsrc, ysrc, color='g', ms=25, mew=4, marker='+')
+            ax.set_xlim(xmin=min(self.data['xsrc']), xmax=max(self.data['xsrc']) + 1)
+            ax.set_ylim(ymin=min(self.data['ysrc']), ymax=max(self.data['ysrc']) + 1)
             if wcs is not None:
                 ra = cdata.pixel_to_skycoord(ax.get_xticks(),
                                              [np.mean(self.data['ysrc'])] * len(ax.get_xticks()),
