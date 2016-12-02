@@ -11,16 +11,14 @@
 ########################
 
 from __future__ import with_statement
-import unittest, re, datetime, os
-
-######################################################
-
-__cvs_id__ = "$Id: bashreader.py,v 1.2 2008-10-28 02:22:57 dapple Exp $"
-
-#####################################################
+import unittest
+import re
+import datetime
+import os
 
 
-class DoesNotParseException(Exception): pass
+class DoesNotParseException(Exception):
+    pass
 
 ######################################################
 
@@ -30,7 +28,7 @@ class BashConfig(dict):
        It will also process any bash export statements.
     '''
 
-    def __init__(self, bashstr = None):
+    def __init__(self, bashstr=None):
         self.parse(bashstr)
 
     ###################
@@ -45,7 +43,7 @@ class BashConfig(dict):
 
     def _parseInt(self, bashstr):
 
-        if re.match('^(\d+)$', bashstr):
+        if re.match(r'^(\d+)$', bashstr):
             return int(bashstr)
 
         raise DoesNotParseException
@@ -53,19 +51,19 @@ class BashConfig(dict):
     ###################
 
     def _parseFloat(self, bashstr):
-    
-        if re.match('^[-+]?(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?$', bashstr):
+
+        if re.match(r'^[-+]?(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?$', bashstr):
             return float(bashstr)
 
         raise DoesNotParseException
-        
+
     ###################
 
     _variableRE = '\${?(\w+)(?:\[(\d+)\])?}?'
 
     def _parseVar(self, bashstr):
 
-        match = re.match('^%s$' % BashConfig._variableRE, bashstr)
+        match = re.match(r'^%s$' % BashConfig._variableRE, bashstr)
         if match is None:
             raise DoesNotParseException
 
@@ -74,10 +72,10 @@ class BashConfig(dict):
     ###################
 
     def _replaceVar(self, match):
-        
+
         varname = match.group(1)
         if str.lower(varname) in self:
-            val = getattr(self,str.lower(varname))
+            val = getattr(self, str.lower(varname))
         elif varname in os.environ:
             val = os.environ[varname]
         else:
@@ -86,7 +84,7 @@ class BashConfig(dict):
         index = match.group(2)
         if index is None:
             return val
-    
+
         return val[int(index)]
 
     ###
@@ -94,7 +92,7 @@ class BashConfig(dict):
     def _parseString(self, bashstr):
 
         ###
-        
+
         def subVars(match):
             return str(self._replaceVar(match))
 
@@ -108,7 +106,7 @@ class BashConfig(dict):
 
     def _parseTime(self, bashstr):
 
-        match = re.match('(\d+):(\d+):(\d+)', bashstr)
+        match = re.match(r'(\d+):(\d+):(\d+)', bashstr)
         if match is not None:
             hours = int(match.group(1))
             min = int(match.group(2))
@@ -122,7 +120,7 @@ class BashConfig(dict):
 
     def _parseArray(self, bashstr):
 
-        match = re.match('\((.+)\)', bashstr)
+        match = re.match(r'\((.+)\)', bashstr)
         if match is None:
             raise DoesNotParseException
 
@@ -133,19 +131,18 @@ class BashConfig(dict):
 
     def _parseDict(self, bashstr):
 
-        entries = re.findall('\[(\d+)\]\s*=\s*(.+?)[\s\)]', bashstr)
+        entries = re.findall(r'\[(\d+)\]\s*=\s*(.+?)[\s\)]', bashstr)
 
         if len(entries) == 0:
             raise DoesNotParseException
 
-        return dict([(int(x), self._parseAtomic(y) ) \
-                         for x,y in entries])
+        return dict([(int(x), self._parseAtomic(y) ) for x, y in entries])
 
     ##################
 
     def _parseEval(self, bashstr):
 
-        match = re.match('\$\(\((.+)\)\)', bashstr)
+        match = re.match(r'\$\(\((.+)\)\)', bashstr)
         if match is None:
             raise DoesNotParseException
 
@@ -167,16 +164,16 @@ class BashConfig(dict):
     def _runParsers(self, bashstr, parsers):
 
         for parser in parsers:
-                try:
-                    return parser(bashstr)
-                except DoesNotParseException:
-                    continue
-        
+            try:
+                return parser(bashstr)
+            except DoesNotParseException:
+                continue
+
     ##################
 
     def _parseExport(self, bashstr):
 
-        match = re.match('export ((\w+)(=.+)?)', bashstr)
+        match = re.match(r'export ((\w+)(=.+)?)', bashstr)
         if match is None:
             raise DoesNotParseException
 
@@ -190,7 +187,7 @@ class BashConfig(dict):
 
     def _parseAssignment(self, bashstr):
 
-        match = re.match('(\w+)(?:\[(\w+)\])?=(.+)', bashstr)
+        match = re.match(r'(\w+)(?:\[(\w+)\])?=(.+)', bashstr)
         if match is None:
             raise DoesNotParseException
 
@@ -222,7 +219,7 @@ class BashConfig(dict):
 
     def _parseReadFile(self, bashstr):
 
-        match = re.match('\. (.+)', bashstr)
+        match = re.match(r'\. (.+)', bashstr)
         if match is None:
             raise DoesNotParseException
 
@@ -243,7 +240,7 @@ class BashConfig(dict):
     ###################
 
     def _parseLine(self, bashstr):
-        
+
         lineParsers = [self._parseSemicolon,
                        self._parseReadFile,
                        self._parseAssignment,
@@ -259,9 +256,9 @@ class BashConfig(dict):
             return
 
         lines = map(str.strip, bashstr.splitlines())
-        
+
         for line in lines:
-            
+
             self._parseLine(line)
 
     ###################
@@ -271,9 +268,6 @@ class BashConfig(dict):
         with open(filename) as input:
             for line in input:
                 self._parseLine(line)
-
-
-
 
 #######################################################
 #######################################################
@@ -329,7 +323,7 @@ class TestParseBash(unittest.TestCase):
     def testReadTime(self):
 
         config = parse('REFERENCETIME=22:00:00')
-        self.assertEquals(config.referencetime, datetime.time(22,0,0))
+        self.assertEquals(config.referencetime, datetime.time(22, 0, 0))
 
     ##############
 
@@ -350,7 +344,7 @@ REFERENCETIME=22:00:00
         config = parse(bash)
         self.assertAlmostEquals(config.obslat, 19.82861111, 8)
         self.assertAlmostEquals(config.obslong, 155.48055556, 8)
-        self.assertEquals(config.referencetime, datetime.time(22,0,0))
+        self.assertEquals(config.referencetime, datetime.time(22, 0, 0))
 
     ##############
 
@@ -365,7 +359,6 @@ TEST2=${REF}
         self.assertEquals(config.ref, 5)
         self.assertEquals(config.test, 5)
         self.assertEquals(config.test2, 5)
-        
 
     ##############
 
@@ -426,7 +419,7 @@ TEST2=${STATSALLIM[1]}'''
     def testParseArray(self):
 
         config = parse('TEST=(1 2 3 4)')
-        self.assertEquals(config.test, [1,2,3,4])
+        self.assertEquals(config.test, [1, 2, 3, 4])
 
     ##############
 
@@ -441,7 +434,7 @@ STATSYMAX=$(( ${STATSALLIM[2]} + ${STATSALLIM[4]} / 2 ))
 
 '''
         config = parse(bash)
-        self.assertEquals(config.statsallim, {1:1000,2:2000,3:1000,4:1000})
+        self.assertEquals(config.statsallim, {1:1000, 2:2000, 3:1000, 4:1000})
         self.assertEquals(config.statsxmin, 500)
         self.assertEquals(config.statsxmax, 1500)
         self.assertEquals(config.statsymin, 1500)
@@ -466,7 +459,7 @@ export TEST'''
         self.assertEquals(config.test, 13)
         self.assertTrue('TEST' in os.environ)
         self.assertEquals(os.environ['TEST'], '13')
-        
+
         del os.environ['TEST']
 
     ##################
@@ -484,17 +477,17 @@ export TEST'''
 
     def testReadFile(self):
 
-        file = 'test.ini'
-        
-        if not os.path.exists(file):
-            output = open(file, 'w')
+        cfile = 'test.ini'
+
+        if not os.path.exists(cfile):
+            output = open(cfile, 'w')
             output.write('TEST=5\n')
             output.close()
 
         config = parse('. test.ini')
         self.assertEquals(config.test, 5)
 
-        os.remove(file)
+        os.remove(cfile)
 
     ##################
 
@@ -513,7 +506,7 @@ export TEST'''
         bash = '''TEST=([1]=5 [2]=10)
                   TEST[1]=8'''
         config = parse(bash)
-        self.assertEquals(config.test, {1:8,2:10})
+        self.assertEquals(config.test, {1:8, 2:10})
 
     ####################
 
@@ -526,32 +519,26 @@ export TEST'''
 
     def testParseFile(self):
 
-        file = 'test.ini'
-        
-        if not os.path.exists(file):
-            output = open(file, 'w')
+        cfile = 'test.ini'
+
+        if not os.path.exists(cfile):
+            output = open(cfile, 'w')
             output.write('TEST=5\n')
             output.close()
 
-        config = parseFile('test.ini')
+        config = parseFile(cfile)
         self.assertEquals(config.test, 5)
 
-        os.remove(file)
+        os.remove(cfile)
 
     ###########################
 
-        
-
-        
-        
-
-    
 
 ######################################################
 
 def test():
 
-    testcases = [TestParseBash] 
+    testcases = [TestParseBash]
     suite = unittest.TestSuite(map(unittest.TestLoader().loadTestsFromTestCase,
                                    testcases))
     unittest.TextTestRunner(verbosity=2).run(suite)
@@ -559,6 +546,6 @@ def test():
 ##############################################################
 
 if __name__ == '__main__':
-    
+
     test()
 

@@ -6,12 +6,18 @@
 ######################
 
 from __future__ import with_statement
-import os, pwd, time, datetime, inspect, getpass
-import varcontainer
+import os
+import pwd
+import time
+import datetime
+import inspect
+import getpass
+from . import varcontainer
 
 #######################
 
-class ManagedDataException(Exception): pass
+class ManagedDataException(Exception):
+    pass
 
 #######################
 
@@ -31,9 +37,8 @@ class HistoryCollection(list):
     ###
 
     def log(self):
-        seperator = '*****************\n' 
-        return seperator + seperator.join([ x.log() for x in self ]) + seperator
-            
+        seperator = '*****************\n'
+        return seperator + seperator.join([x.log() for x in self]) + seperator
 
     ###
 
@@ -50,7 +55,7 @@ class HistoryCollection(list):
 #########
 
 class HistoryItem(object):
-    
+
     def __init__(self, action):
 
         self.action = action
@@ -88,7 +93,7 @@ class InitHistoryItem(HistoryItem):
         str = '''
 DataManager Initialized by %(user)s
 ''' % {'user' : getpass.getuser()}
- 
+
         return str
 
 ######
@@ -109,19 +114,19 @@ class StoreHistoryItem(HistoryItem):
 
         if isinstance(self.name, str):
             return '\n%s initialized.\n\n' % self.name
-        
-        return '\n' + '\n'.join([ '%s initialized.' % x for x in self.name ]) + '\n\n'
+
+        return '\n' + '\n'.join(['%s initialized.' % x for x in self.name]) + '\n\n'
 
 #######
 
 class StoreFunctionHistoryItem(HistoryItem):
 
-    def __init__(self, name, method, methodargs, methodkeywords, replace = False):
+    def __init__(self, name, method, methodargs, methodkeywords, replace=False):
 
         action = 'STORE'
         if replace is True:
             action = 'REPLACE'
-        
+
         super(StoreFunctionHistoryItem, self).__init__(action)
 
         self.name = name
@@ -158,11 +163,6 @@ class StoreFunctionHistoryItem(HistoryItem):
        'srcfile' : self.methodsrcfile,
        'srcmoddate' : pretty_localtime(self.methodsrcstat.st_mtime),
        'srccode' : self.methodsrcode}
-       
-
-
-
-        
 
 ######
 
@@ -184,8 +184,6 @@ class OpenHistoryItem(HistoryItem):
 
     def _log(self):
 
-        
-
         str = '''
 %(name)s <==  %(file)s
      Owned by %(owner)s   Modified on %(moddate)s
@@ -202,9 +200,8 @@ class OpenHistoryItem(HistoryItem):
        'keywords' : self.methodkeywords,
        'srcfile' : self.methodsrcfile,
        'srcmoddate' : pretty_localtime(self.methodsrcstat.st_mtime)}
-       
+
         return str
-    
 
 #######
 
@@ -220,7 +217,6 @@ class UpdateHistoryItem(HistoryItem):
         self.methodsrcfile = inspect.getfile(method)
         self.methodsrcstat = os.stat(self.methodsrcfile)
         self.methodsrcode = inspect.getsource(method)
-
 
     ####
 
@@ -246,7 +242,6 @@ class UpdateHistoryItem(HistoryItem):
        'srcfile' : self.methodsrcfile,
        'srcmoddate' : pretty_localtime(self.methodsrcstat.st_mtime),
        'srccode' : self.methodsrcode}
-       
 
 #####################
 
@@ -263,9 +258,6 @@ class CommentHistoryItem(HistoryItem):
 
         return '\n%s\n\n' % self.comment
 
-        
-
-
 
 #######################
 
@@ -281,7 +273,7 @@ class DataManager(varcontainer.VarContainer):
     ############################
 
     def __setitem__(self, name, value):
-        
+
         self._addItem(name, value)
 
     #############################
@@ -291,16 +283,14 @@ class DataManager(varcontainer.VarContainer):
         self.history.append(StoreHistoryItem(name))
         self._addItem(name, value)
 
-
     #############################
-        
+
     def _addItem(self, name, value, replace=False):
 
         if name not in self or replace is True:
             super(DataManager, self).__setitem__(name, value)
         else:
-            raise ManagedDataException        
-        
+            raise ManagedDataException
 
     #############################
 
@@ -313,40 +303,37 @@ class DataManager(varcontainer.VarContainer):
 
     def open(self, name, file, open, *args, **keywords):
 
-        self.history.append(OpenHistoryItem(name = name,
-                                            file = file,
-                                            method = open,
-                                            methodargs = args,
-                                            methodkeywords = keywords))
+        self.history.append(OpenHistoryItem(name=name,
+                                            file=file,
+                                            method=open,
+                                            methodargs=args,
+                                            methodkeywords=keywords))
 
         self._addItem(name, open(file, *args, **keywords))
-
-
 
 
     ##############################
 
     def store(self, name, src, *args, **keywords):
 
-        self._store(name, src, replace = False, args = args, keywords = keywords)
+        self._store(name, src, replace=False, args=args, keywords=keywords)
 
     ##############################
 
-    def _store(self, name, src, replace = False, args = None, keywords = None):
+    def _store(self, name, src, replace=False, args=None, keywords=None):
 
         if args is None:
             args = ()
         if keywords is None:
             keywords = {}
 
-
         try:
             tostore = src(*args, **keywords)
-            self.history.append(StoreFunctionHistoryItem(name = name, 
-                                                         method = src, 
-                                                         methodargs = args, 
-                                                         methodkeywords = keywords, 
-                                                         replace = replace))
+            self.history.append(StoreFunctionHistoryItem(name=name,
+                                                         method=src,
+                                                         methodargs=args,
+                                                         methodkeywords=keywords,
+                                                         replace=replace))
 
         except Exception, e:
             tostore = src
@@ -364,45 +351,28 @@ class DataManager(varcontainer.VarContainer):
 
     def replace(self, name, src, *args, **keywords):
 
-
-
-        self._store(name, src, replace = True, args = args, keywords = keywords)
-
-
+        self._store(name, src, replace=True, args=args, keywords=keywords)
 
     ###############################
 
-            
     def update(self, filterFunction, toUpdate, *args, **keywords):
 
 
         if len(args) == 0 and len(keywords) == 0:
-            
             try:
-        
                 theFilter = filterFunction(self)
-                
             except TypeError:
-
-                
                 theFilter = filterFunction()
-
-
         else:
-            
             theFilter = filterFunction(*args, **keywords)
-            
 
+        self.history.append(UpdateHistoryItem(name=toUpdate.keys(),
+                                              method=filterFunction,
+                                              args=args,
+                                              keywords=keywords))
 
-        self.history.append(UpdateHistoryItem(name = toUpdate.keys(),
-                                              method = filterFunction,
-                                              args = args,
-                                              keywords = keywords))
-
-
-        
         for item, updateFunc in toUpdate.iteritems():
-            
+
             self._addItem(item, getattr(self[item], updateFunc)(theFilter), replace=True)
 
 
@@ -417,12 +387,3 @@ class DataManager(varcontainer.VarContainer):
         self.__getattr__(name).append(othermanager)
 
         self.history.extend(othermanager.history[1:])
-
-    
-
-
-        
-
-
-
-
