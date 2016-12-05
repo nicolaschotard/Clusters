@@ -18,6 +18,7 @@ seaborn.set(style='ticks')
 class Kappa(object):
 
     """Kappa analysis of a shear map."""
+
     def __init__(self, xsrc, ysrc, sch1, sch2, **kwargs):
         """Kappa analysis of a shear map.
 
@@ -36,7 +37,6 @@ class Kappa(object):
                 apply_decorator(func, numba.jit)
             for func in to_vectorize:
                 apply_decorator(func, numba.vectorize)
-
 
         # Make sure all list are actually numpy arrays
         xsrc, ysrc, sch1, sch2 = [np.array(x.tolist()) for x in [xsrc, ysrc, sch1, sch2]]
@@ -99,8 +99,8 @@ class Kappa(object):
         ocut = np.exp(-r2 / (2.0 * self.parameters['router']**2))
         icut2 = aperture_mass_maturi_filter(np.sqrt(r2 / self.parameters['rinner']**2))
         # Is the following formula the right one? 6.0 / pi * ... or (6 / pi) * ...?
-        wtapmass = 6.0 / np.pi * (1.0 - r2/self.parameters['aprad']**2) * \
-                   (r2/self.parameters['aprad']**2)
+        wtapmass = 6.0 / np.pi * (1.0 - r2 / self.parameters['aprad']**2) * \
+                   (r2 / self.parameters['aprad']**2)
 
         # Store them
         self.weights = {"invlens": icut * ocut / r2,
@@ -137,7 +137,7 @@ class Kappa(object):
             cmin = min(self.data['ysrc'])
             carange = np.arange(self.parameters['nypoints']) + 0.5
             reshapep = (self.parameters['nypoints'], 1)
-        cgrid = (cmin +  carange * self.parameters['step']).reshape(reshapep)
+        cgrid = (cmin + carange * self.parameters['step']).reshape(reshapep)
         return cgrid
 
     def _get_kappa(self, xsampling=100):
@@ -166,15 +166,17 @@ class Kappa(object):
             print "Using numba to slightly speed up the process!"
             self.maps = {}
         # also loop over the x axis to pack them into arrays of 'xsampling' items
-        xarange = [i for i in range(len(dx)) if not i%xsampling] + [len(dx)]
-        dxs = [dx[xarange[jj]:xarange[jj+1]] for jj in range(len(xarange[:-1]))]
+        xarange = [i for i in range(len(dx)) if not i % xsampling] + [len(dx)]
+        dxs = [dx[xarange[jj]:xarange[jj + 1]] for jj in range(len(xarange[:-1]))]
         # Now loop over the y axis (explode memory otherwise)
         pbar = cdata.progressbar(len(dy) * (len(xarange) - 1))
         for ii, dyy in enumerate(dy):
             etan, ecross, int_radius = [], [], []
             for jj, dxx in enumerate(dxs):
                 if self.use_numba:
-                    cetan, cecross, cint_radius = get_params(dxx, dyy, self.data['sch1'], self.data['sch2'])
+                    cetan, cecross, cint_radius = get_params(dxx, dyy,
+                                                             self.data['sch1'],
+                                                             self.data['sch2'])
                     etan.extend(cetan)
                     ecross.extend(cecross)
                     int_radius.extend(cint_radius)
@@ -250,7 +252,7 @@ class Kappa(object):
                 ax2.set_yticks(ax.get_yticks())
                 ax2.set_yticklabels(["%.2f" % r for r in dec])
                 ax2.set_ylabel("DEC (deg)")
-            fig.savefig(cmap+".png")
+            fig.savefig(cmap + ".png")
         pl.show()
 
     def save_maps(self):
@@ -267,27 +269,30 @@ to_vectorize = []
 
 
 def numba_jit(func):
+    """Apply jit decorator."""
     to_jit.append(func)
     return func
 
 
 def numba_vectorize(func):
+    """Applu vectorize decorator."""
     to_vectorize.append(func)
     return func
 
 
 def apply_decorator(func, decorator):
+    """Apply a given decorator to a function."""
     globals()[func.func_name] = decorator(func)
 
 
 @numba_jit
 def get_params(dx, dy, sch1, sch2):
+    """Compute tangential and cross ellipticities and filter selection for weight array."""
     dxs, dys = squared_array(dx), squared_array(dy)
     square_radius = sum_arrays(dxs, dys)
     cos2phi = compute_cos2phi(dxs, dys, square_radius)
     sin2phi = compute_sin2phi(dx, dy, square_radius)
     # Compute rotated ellipticities
-    #return compute_etan(sch1, sch2, cos2phi, sin2phi)
     etan = compute_etan(sch1, sch2, cos2phi, sin2phi)
     ecross = compute_ecross(sch1, sch2, cos2phi, sin2phi)
     # Transform cube of distances into a cube of integers
@@ -295,38 +300,46 @@ def get_params(dx, dy, sch1, sch2):
     int_radius = np.array(sqrt_array(square_radius), dtype=int)
     return etan, ecross, int_radius
 
+
 @numba_vectorize
 def squared_array(x):
+    """Squared an array."""
     return x**2
 
 
 @numba_vectorize
 def sqrt_array(x):
+    """Squared root of an array."""
     return x**(1./2)
 
 
 @numba_vectorize
 def sum_arrays(x, y):
+    """Sum two arrays."""
     return x + y
 
 
 @numba_vectorize
 def compute_cos2phi(dxs, dys, square_radius):
+    """Compuet cos 2 phi."""
     return (dxs - dys) / square_radius
 
 
 @numba_vectorize
 def compute_sin2phi(dx, dy, square_radius):
+    """Compute sin 2 phi."""
     return 2.0 * dx * dy / square_radius
 
 
 @numba_vectorize
 def compute_etan(sch1, sch2, cos2phi, sin2phi):
+    """Compute tangential ellipticity."""
     return - (sch1 * cos2phi + sch2 * sin2phi)
 
 
 @numba_vectorize
 def compute_ecross(sch1, sch2, cos2phi, sin2phi):
+    """Compute cross ellipticity."""
     return - (sch2 * cos2phi - sch1 * sin2phi)
 
 
@@ -361,6 +374,7 @@ def aperture_mass_maturi_filter(tanhx, **kwargs):
     tanhc = kwargs.get('tanhc', 50.0)
     tanhd = kwargs.get('tanhd', 47.0)
     tanhxc = kwargs.get('tanhxc', 0.1)
-    return np.tanh(tanhx / tanhxc) / ((tanhx / tanhxc) * \
-                                         (1 + np.exp(tanha - tanhb * tanhx) + \
-                                          np.exp(tanhc * tanhx-tanhd)))
+    return np.tanh(tanhx / tanhxc) / ((tanhx / tanhxc) *
+                                      (1 + np.exp(tanha - tanhb * tanhx) +
+                                       np.exp(tanhc * tanhx-tanhd)))
+
