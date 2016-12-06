@@ -404,8 +404,13 @@ structure as a regulare DM stack output directory::
   └── travis_test.yaml
 
 With this data set, you should be able to test most of the
-``Clusters`` parts, starting with the ``clusters_data.py`` script.
+``Clusters`` parts. You can start with the test suite available in the
+tests directory. To do so, use::
 
+  python setup.py test
+
+It will use the testdata that you have downloaded previoulsy and run
+the tests. This is also usefull if your goal is to add new tests.
 
 Get the data
 ------------
