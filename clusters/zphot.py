@@ -37,7 +37,7 @@ class LEPHARE(object):
         :param string cname: Name of the studied cluster. If basename if not given,
          it will be used as base name for all created file
         :param string filters: filter list
-3        :param list ra: list of ra
+        :param list ra: list of ra
         :param list dec: list of dec
         :param list id: list of ID
         """
