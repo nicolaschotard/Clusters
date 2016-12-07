@@ -152,7 +152,7 @@ followed:
 
 - for mac::
 
-    wget http://lpsc.in2p3.fr/upload/doc/fdd5e8/lephare_macosx.tar.gz -O lephare.tar.gz
+    wget https://lapp-owncloud.in2p3.fr/index.php/s/bMTLiwfGK1SpOqE/download -O lephare.tar.gz
     tar zxf lephare.tar.gz
     
 When the download is complete, exctract the ``lephare`` directory where it
