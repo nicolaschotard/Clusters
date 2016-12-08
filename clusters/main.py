@@ -434,6 +434,8 @@ def mass(argv=None):
         args.zcode = 'lph_'
     elif args.zcode == 'none':
         args.zcode = ''
+    elif not args.zcode.endswith('_'):
+        args.zcode += '_'
 
     print "INFO: Working on cluster %s (z=%.4f)" % (config['cluster'], config['redshift'])
     print "INFO: Working on filters", config['filter']
