@@ -27,6 +27,14 @@ class Kappa(object):
         :param list sch1: schear 1
         :param list sch2: schear 2
         :param list filt: filter to apply
+
+        Possible kwargs:
+
+        :param int step: Step of the grid
+        :param float rinner: Inner cut in pixel
+        :param float router: Outer cut in pixel
+        :param float theta0: Maturi outer cut in pixel
+        :param float aprad: Aperture mass outer cut in pixel
         """
         assert len(xsrc) == len(ysrc) == len(sch1) == len(sch2)
 
