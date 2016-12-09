@@ -90,9 +90,9 @@ class AstropyTableFilehandler(object):
         manager.open('pdzcat', options.pdzfile, table.Table.read, path=options.prefix + 'pdz_values')
         manager.open('pdzrange', options.pdzfile, table.Table.read, path=options.prefix + 'pdz_bins')
         manager.replace('pdzrange', lambda: manager.pdzrange['zbins'])
-
+        # only keep 'i' filter
+        manager.replace('lensingcat', manager.lensingcat[manager.lensingcat["filter"] == 'i'])
         manager.matched_pdzcat = matchById(manager.pdzcat, manager.lensingcat, 'id', 'objectId')
-
         manager.pz = manager.matched_pdzcat['pdz']  #area normalized, ie density function
 
         z_b = manager.matched_pdzcat['Z_BEST']
@@ -149,4 +149,5 @@ def matchById(firstcat, othercat, otherid='SeqNr', selfid='SeqNr'):
 
     keep = np.array(keeporder)
     matched = firstcat[keep]
+    print "INFO: %i matched galaxies kept" % len(matched)
     return matched
