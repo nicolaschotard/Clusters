@@ -91,7 +91,11 @@ class AstropyTableFilehandler(object):
         manager.open('pdzrange', options.pdzfile, table.Table.read, path=options.prefix + 'pdz_bins')
         manager.replace('pdzrange', lambda: manager.pdzrange['zbins'])
         # only keep 'i' filter
-        manager.replace('lensingcat', manager.lensingcat[manager.lensingcat["filter"] == 'i'])
+        if 'filter' in manager.lensingcat.keys():
+            manager.replace('lensingcat', manager.lensingcat[manager.lensingcat["filter"] == 'i'])
+            # pdz cut
+        if 'z_flag_pdz_' + options.prefix[:-1] in manager.lensingcat.keys():
+            manager.replace('lensingcat', manager.lensingcat[manager.lensingcat["z_flag_pdz_bpz"] == True])
         manager.matched_pdzcat = matchById(manager.pdzcat, manager.lensingcat, 'id', 'objectId')
         manager.pz = manager.matched_pdzcat['pdz']  #area normalized, ie density function
 
