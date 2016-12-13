@@ -290,7 +290,7 @@ class BPZ(object):
         f.write("CFHT_megacam_rp     4, 9   AB        0.01      0.00\n")
         f.write("CFHT_megacam_ip     5, 10  AB        0.01      0.00\n")
         f.write("CFHT_megacam_zp     6,11   AB        0.01      0.00\n")
-        f.write("M_0                 6\n")
+        f.write("M_0                 5\n")
         #f.write("Z_S                  13\n")
         f.write("ID                    1\n")
         f.close()
@@ -312,7 +312,7 @@ class BPZ(object):
             raise IOError("%s does not exist" % self.files['columns'])
 
         # build command line
-        cmd = "python $BPZPATH/bpz.py %s -INTERP 2  -ZMIN 0. -ZMAX 6. -DZ 0.02" % self.files['input']
+        cmd = "python $BPZPATH/bpz.py %s  -ZMIN 0. -ZMAX 6. -DZ 0.02" % self.files['input']
         print "INFO: Will run '%s'" % cmd
 
         self.bpz_out = subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True)

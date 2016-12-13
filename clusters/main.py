@@ -186,7 +186,7 @@ def photometric_redshift(argv=None):
             raise IOError("Output already exists. Remove it or use --overwrite or use --append.")
 
     if args.pdz_output is None:
-        args.pdz_output = os.path.basename(args.input).replace('.hdf5', '_zphot_pdz.hdf5')
+        args.pdz_output = args.output.replace('.hdf5', '_pdz.hdf5')
         if not args.overwrite and not args.append and os.path.exists(args.output):
             raise IOError("Output already exists. Remove it or use --overwrite or use --append.")
 
@@ -270,7 +270,7 @@ def photometric_redshift(argv=None):
                 path_pdz = "lph_pdz_values"
                 path_bins = "lph_pdz_bins"
                 zphot.data_out.save_pdztable(args.pdz_output, path_pdz, path_bins,
-                                             is_overwrite=is_overwrite, is_append=is_append)
+                                             is_overwrite=args.overwrite, is_append=args.append)
 
     # Plot
     if args.plot:
