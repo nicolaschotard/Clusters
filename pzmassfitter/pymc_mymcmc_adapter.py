@@ -248,7 +248,7 @@ class MyMCRunner(object):
 
     def addCLOps(self, parser):
 
-
+        
         parser.add_option('-s', '--nsamples', dest='nsamples',
                           help='Number of MCMC samples to draw or scan model',
                           default=None, type='int')

@@ -417,6 +417,8 @@ def mass(argv=None):
                         help="Overwrite the output files if they exist already")
     parser.add_argument("--plot", action='store_true', default=False,
                         help="Make some plots")
+    parser.add_argument("--nsamples", default=10000, type=int,
+                        help="Number of sample to run")
     parser.add_argument("--testing", action="store_true", default=False,
                         help="Simplify model for testing purposes")
     parser.add_argument("--zcode",
@@ -434,6 +436,8 @@ def mass(argv=None):
         args.zcode = 'lph_'
     elif args.zcode == 'none':
         args.zcode = ''
+    elif not args.zcode.endswith('_'):
+        args.zcode += '_'
 
     print "INFO: Working on cluster %s (z=%.4f)" % (config['cluster'], config['redshift'])
     print "INFO: Working on filters", config['filter']
@@ -461,7 +465,7 @@ def mass(argv=None):
         masscontroller = dmstackdriver.controller
         options, cmdargs = masscontroller.modelbuilder.createOptions()
         options, cmdargs = masscontroller.runmethod.createOptions(outputFile=args.output,
-                                                                  nsamples=10000,
+                                                                  nsamples=args.nsamples,
                                                                   burn=2000,
                                                                   options=options,
                                                                   args=cmdargs)
