@@ -217,17 +217,19 @@ class Kappa(object):
         if not hasattr(self, 'maps'):
             raise IOError("WARNING: No maps computed yet.")
         print "Plotting the following maps:"
-        for cmap in self.maps:
+        for cmap in self.maps.keys():
             print " - ", cmap
             fig = pl.figure(figsize=figsize)
-            ax = fig.add_subplot(111, xlabel='X-coord (pixel)', ylabel='Y-coord (pixel)')
+            ax = fig.add_subplot(111)
+            ax.set_xlabel(xlabel='X-coord (pixel)', fontsize=16)
+            ax.set_ylabel(ylabel='Y-coord (pixel)', fontsize=16)
             extent = (min(self.data['xsrc']) + 0.5, max(self.data['xsrc']) + 0.5,
                       min(self.data['ysrc']) + 0.5, max(self.data['ysrc']) + 0.5)
             themap = ax.imshow(self.maps[cmap], origin='lower', zorder=0,
                                cmap=pl.cm.afmhot, extent=extent)
             cb = fig.colorbar(themap, pad=0.15 if wcs is not None else 0.05)
-            cb.set_label(cmap)
-            pl.figtext(.5, 0.95, cmap, fontsize=20, ha='center')
+            cb.set_label(cmap, fontsize=20)
+            cb.ax.tick_params(labelsize=14)
             ax.scatter(self.data['xsrc'] - 0.5, self.data['ysrc'] - 0.5,
                        s=3, color='b', zorder=1, alpha=0.4)
             if clust_coord is not None:
@@ -243,6 +245,7 @@ class Kappa(object):
                     ax.plot(xsrc, ysrc, color='g', ms=25, mew=4, marker='+')
             ax.set_xlim(xmin=min(self.data['xsrc']), xmax=max(self.data['xsrc']) + 1)
             ax.set_ylim(ymin=min(self.data['ysrc']), ymax=max(self.data['ysrc']) + 1)
+            ax.tick_params(axis='both', labelsize=14)
             if wcs is not None:
                 ra = cdata.pixel_to_skycoord(ax.get_xticks(),
                                              [np.mean(self.data['ysrc'])] * len(ax.get_xticks()),
@@ -253,13 +256,13 @@ class Kappa(object):
                 ax2 = ax.twiny()
                 ax2.set_xlim(ax.get_xlim())
                 ax2.set_xticks(ax.get_xticks())
-                ax2.set_xticklabels(["%.2f" % r for r in ra])
-                ax2.set_xlabel("RA (deg)")
+                ax2.set_xticklabels(["%.2f" % r for r in ra], fontsize=14)
+                ax2.set_xlabel("RA (deg)", fontsize=16)
                 ax2 = ax.twinx()
                 ax2.set_ylim(ax.get_ylim())
                 ax2.set_yticks(ax.get_yticks())
-                ax2.set_yticklabels(["%.2f" % r for r in dec])
-                ax2.set_ylabel("DEC (deg)")
+                ax2.set_yticklabels(["%.2f" % r for r in dec], fontsize=14)
+                ax2.set_ylabel("DEC (deg)", fontsize=16)
             fig.savefig(cmap + ".png")
         pl.show()
 
