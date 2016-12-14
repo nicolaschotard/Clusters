@@ -13,7 +13,7 @@ from scipy.optimize import curve_fit
 from astropy.io import ascii
 from astropy.table import Table, hstack
 from astropy.coordinates import SkyCoord
-
+import pdb
 
 class LEPHARE(object):
 
@@ -206,7 +206,7 @@ class BPZ(object):
     http://www.stsci.edu/~dcoe/BPZ
     """
 
-    def __init__(self, magnitudes, errors, **kwargs):
+    def __init__(self, magnitudes, errors, zpara=None, spectro_file=None, **kwargs):
         """
         Run the BPZ progam (zphota).
 
@@ -225,6 +225,8 @@ class BPZ(object):
         """
         self.data = {'mag': magnitudes, 'err': errors}
         self.kwargs = kwargs
+        self.config = zpara
+        self.spectro_file = spectro_file
 
         # Name of created files?
         prefix = ""
@@ -311,8 +313,16 @@ class BPZ(object):
         if not os.path.exists(self.files['columns']):
             raise IOError("%s does not exist" % self.files['columns'])
 
+        # build command line options from param file
+        if self.config is not None:
+            opt_arr = N.genfromtxt(self.config, dtype=None)
+            option = ['--'+opt_arr[i,0]+' '+opt_arr[i,1] for i in N.arange(len(opt_arr))]
+            options = ' '.join(e for e in option)
+        else:
+            options=''
+
         # build command line
-        cmd = "python $BPZPATH/bpz.py %s  -ZMIN 0. -ZMAX 6. -DZ 0.02" % self.files['input']
+        cmd = "python $BPZPATH/bpz.py %s " % self.files['input'] + options
         print "INFO: Will run '%s'" % cmd
 
         self.bpz_out = subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True)

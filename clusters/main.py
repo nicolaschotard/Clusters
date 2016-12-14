@@ -1,5 +1,7 @@
 """Main entry points for scripts."""
 
+import pdb
+import numpy as N
 import os
 import sys
 from astropy.table import Table, Column, hstack
@@ -170,8 +172,6 @@ def photometric_redshift(argv=None):
                         help="Magnitude name [default]")
     parser.add_argument("--data",
                         help="LEPHARE output file, used for the analysis only (plots)")
-    parser.add_argument("--bpz", action="store_true", default=False,
-                        help="Run BPZ instead of LEPHARE (TESTING!)")
     args = parser.parse_args(argv)
 
     config = cdata.load_config(args.config)
@@ -207,71 +207,66 @@ def photometric_redshift(argv=None):
     if args.mag not in data.keys():
         raise IOError("%s is not a column of the input table" % args.mag)
 
-    # If a spectroscopic sample is provided, LEPHARE will run using the adaptative method
-    # (zero points determination)
-    spectro_file = None if 'zspectro_file' not in config else config['zspectro_file']
 
-    # Run BPZ
-    if args.bpz:
-        print "INFO: Running BPZ"
-        kwargs = {'basename': config['cluster'],
-                  'filters': [f for f in config['filter'] if f in set(data['filter'].tolist())],
-                  'ra': data['coord_ra_deg'][data['filter'] == config['filter'][0]],
-                  'dec': data['coord_dec_deg'][data['filter'] == config['filter'][0]],
-                  'id': data['objectId'][data['filter'] == config['filter'][0]]}
-        zphot = czphot.BPZ([data[args.mag][data['filter'] == f] for f in kwargs['filters']],
+    # Loop over all zphot codes present in the config.yaml file
+    for zcode in config['zphot'].keys():
+        # If a spectroscopic sample is provided, LEPHARE/BPZ will run using the adaptative method
+        # (zero points determination)
+        spectro_file = config['zphot'][zcode]['zspectro_file'] if 'zspectro_file' in config['zphot'][zcode] else None
+
+        # Loop over all configurations available for each code
+        for i in N.arange(len(config['zphot'][zcode]['zpara'])):
+            zpara = config['zphot'][zcode]['zpara'][i] if 'zpara' in config['zphot'][zcode] else None
+            kwargs = {'basename': config['cluster'],
+                    'filters': [f for f in config['filter'] if f in set(data['filter'].tolist())],
+                    'ra': data['coord_ra_deg'][data['filter'] == config['filter'][0]],
+                    'dec': data['coord_dec_deg'][data['filter'] == config['filter'][0]],
+                    'id': data['objectId'][data['filter'] == config['filter'][0]]}
+    
+            if zcode == 'bpz': # Run BPZ
+                print "INFO: Running BPZ"
+                zphot = czphot.BPZ([data[args.mag][data['filter'] == f] for f in kwargs['filters']],
                            [data[args.mag.replace("_extcorr", "") + "Sigma"][data['filter'] == f]
-                            for f in kwargs['filters']], **kwargs)
-        zphot.run()
-        path = "bpz"
-        zphot.data_out.save_ztable(args.output, path, is_overwrite=args.overwrite,
+                            for f in kwargs['filters']], zpara=zpara, spectro_file=spectro_file, **kwargs)
+                zphot.run()
+                path = "bpz"
+                zphot.data_out.save_ztable(args.output, path, is_overwrite=args.overwrite,
                                    is_append=args.append)
-        path_pdz = "bpz_pdz_values"
-        path_bins = "bpz_pdz_bins"
-        zphot.data_out.save_pdztable(args.pdz_output, path_pdz, path_bins,
+                path_pdz = "bpz_pdz_values"
+                path_bins = "bpz_pdz_bins"
+                zphot.data_out.save_pdztable(args.pdz_output, path_pdz, path_bins,
                                      is_overwrite=args.overwrite, is_append=args.append)
 
-    # Run LEPHARE
-    else:
-        print "INFO: LEPHARE will run on", len(data) / len(config['filter']), "sources"
+            if zcode == 'lephare': # Run LEPHARE
+                print "INFO: LEPHARE will run on", len(data) / len(config['filter']), "sources"
 
-        if args.zpara is None:
-            args.zpara = os.environ["LEPHAREDIR"] + \
-                        "/config/zphot_megacam.para" if 'zpara' not in config else config['zpara']
+                if zpara == None:
+                    zpara = os.environ["LEPHAREDIR"] + "/config/zphot_megacam.para"
 
-        for i, zpara in enumerate(args.zpara.split(',') if isinstance(args.zpara, str) \
-                                  else args.zpara):
-            print "\nINFO: Configuration for LEPHARE from:", zpara
-            kwargs = {'basename': config['cluster'] + \
-                      '_' + zpara.split('/')[-1].replace('.para', ''),
-                      'filters': [f for f in config['filter'] if f in set(data['filter'].tolist())],
-                      'ra': data['coord_ra_deg'][data['filter'] == config['filter'][0]],
-                      'dec': data['coord_dec_deg'][data['filter'] == config['filter'][0]],
-                      'id': data['objectId'][data['filter'] == config['filter'][0]]}
-            zphot = czphot.LEPHARE([data[args.mag][data['filter'] == f] for f in kwargs['filters']],
-                                   [data[args.mag.replace("_extcorr", "") + \
-                                         "Sigma"][data['filter'] == f]
-                                    for f in kwargs['filters']],
-                                   zpara=zpara, spectro_file=spectro_file, **kwargs)
-            zphot.check_config()
-            zphot.run()
+                print "\nINFO: Configuration for LEPHARE from:", zpara
+                zphot = czphot.LEPHARE([data[args.mag][data['filter'] == f] for f in kwargs['filters']],
+                                       [data[args.mag.replace("_extcorr", "") + \
+                                            "Sigma"][data['filter'] == f] for f in kwargs['filters']],
+                                        zpara=zpara, spectro_file=spectro_file, **kwargs)
+                zphot.check_config()
+                zphot.run()
 
-            path = "lph_%s" % zpara.split('/')[-1].replace('.para', '')
-            is_overwrite = args.overwrite if i == 0 else False
-            is_append = True if i != 0 else False
-            zphot.data_out.save_ztable(args.output, path, is_overwrite=is_overwrite,
-                                       is_append=is_append)
-            if i == 0:
+                path = "lph_%s" % zpara.split('/')[-1].replace('.para', '')
+                is_overwrite = args.overwrite if i == 0 else False
+                is_append = True if i != 0 else False
+                zphot.data_out.save_ztable(args.output, path, is_overwrite=is_overwrite,
+                                            is_append=is_append)
+                if i == 0:
                 # For the moment, only save pdz for the first .para configuration
                 # Could change the keys names according to iteration (like for save_ztable, above)
                 # and append but get_background looks for "pdz_values" and "pdz_bins" only, cannot
                 # change path names without further modifying get_background.
                 # Don't want to do that just now.
-                path_pdz = "lph_pdz_values"
-                path_bins = "lph_pdz_bins"
-                zphot.data_out.save_pdztable(args.pdz_output, path_pdz, path_bins,
-                                             is_overwrite=args.overwrite, is_append=args.append)
-
+                    path_pdz = "lph_pdz_values"
+                    path_bins = "lph_pdz_bins"
+                    zphot.data_out.save_pdztable(args.pdz_output, path_pdz, path_bins,
+                                                    is_overwrite=args.overwrite, is_append=args.append)
+                    
     # Plot
     if args.plot:
         doplot(zphot.data_out, config,
