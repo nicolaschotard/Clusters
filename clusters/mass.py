@@ -1,5 +1,9 @@
 """Mass analysis."""
 
+import seaborn
+import pylab
+import pandas
+import cPickle
 from astropy.table import Column
 from . import data as data
 from . import shear
@@ -23,8 +27,8 @@ def build_table(config='MACSJ2243.3-0935.yaml', datafile='MACSJ2243.3-0935_filte
                                                                                  sigmai]]
 
     params = data.read_hdf5("MACSJ2243.3-0935_filtered_data_zphot.hdf5",
-                            path='zphot_zphot_megacam',
-                            dic=False)['coord_ra_deg', 'coord_dec_deg', 'Z_BEST', 'objectId']
+                            path='bpz', dic=False)['coord_ra_deg', 'coord_dec_deg', 'Z_B',
+                                                   'objectId', 'Z_B_MIN', 'Z_B_MAX']
 
     params = params[[i for i, oid in enumerate(params['objectId']) if oid in objectid]]
     params.add_columns([Column(data=shear.compute_shear(e1i, e2i, distx, disty)[0], name='Tshear'),
@@ -51,3 +55,18 @@ def quality_cuts(table):
             (abs(table["ext_shapeHSM_HsmShapeRegauss_e2"][rfilter] - \
                  table["ext_shapeHSM_HsmShapeRegauss_e2"][ifilter]) < 0.5)
     return filt
+
+
+def plot_pzmassfitter_output(datafile):
+    """Te datafile is the ***.chain.pkl file."""
+    d = cPickle.load(open(datafile))
+    df = pandas.DataFrame(d)
+    g = seaborn.PairGrid(df, diag_sharey=False)
+    g.map_lower(pylab.scatter)
+    g.map_diag(pylab.hist, bins=50)
+    
+    #x = pandas.DataFrame(d['mdelta'])
+    #y = pandas.DataFrame(d['log10concentration'])
+    #seaborn.jointplot(x, y, kind="kde", size=7, space=0)
+    pylab.show()
+    
