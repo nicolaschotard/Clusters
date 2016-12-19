@@ -9,6 +9,7 @@ import sys
 import subprocess
 import numpy as N
 import pylab as P
+import data as cdata
 from scipy.optimize import curve_fit
 from astropy.io import ascii
 from astropy.table import Table, hstack
@@ -194,7 +195,7 @@ class LEPHARE(object):
         print "INFO: LEPHARE output summary (full output in self.lephare_out)"
         print "\n".join(["   " + zo for zo in self.lephare_out.split("\n")[-6:]])
 
-        self.data_out = ZPHOTO(self.files['output'], self.files['pdz_output'], zcode_name='lph',
+        self.data_out = ZPHOTO(self.files['output'], self.files['pdz_output'], zcode_name='lephare',
                                    all_input=self.files['all_input'], **self.kwargs)
 
         
@@ -338,7 +339,7 @@ class ZPHOTO(object):
 
     """Read photoz code (LePhare, BPZ) output file and creates/saves astropy tables"""
 
-    def __init__(self, zphot_output, zphot_pdz_output, zcode_name='lph', all_input=None, **kwargs):
+    def __init__(self, zphot_output, zphot_pdz_output, zcode_name=None, all_input=None, **kwargs):
         """Read the photoz progam (LePhare, BPZ, ...) output."""
         self.files = {}
         self.files['output'] = zphot_output
@@ -355,7 +356,7 @@ class ZPHOTO(object):
         f = open(self.files['output'], 'r')
         self.data_array = N.loadtxt(self.files['output'], unpack=True)
 
-        if self.code == 'lph':
+        if self.code == 'lephare':
             self.header = [l for l in f if l.startswith('#')]
             f.close()
             self.variables = N.loadtxt(os.getenv('LEPHAREDIR') +
@@ -384,14 +385,30 @@ class ZPHOTO(object):
             self.pdz_val = N.loadtxt(self.files['pdz_output'], unpack=True,
                                  usecols=N.arange(1, len(self.pdz_zbins) + 1))
 
-    def save_ztable(self, file_out, path_output, is_overwrite=False, is_append=False):
+    def save_zphot(self, file_out, path_output, is_overwrite=False, is_append=True):
         """
-        Save the main output of photoz code (z_best, chi^2, etc.) into astropy table. 
+        Save the output of photoz code (z_best, chi^2, pdz) into astropy table. 
         """
-        new_tab = hstack([Table([self.kwargs['id']]), Table([self.kwargs['ra']]),
-                              Table([self.kwargs['dec']]), Table(self.data_dict)],
-                             join_type='inner')
-  
+
+        zbins=N.tile(self.pdz_zbins, (len(self.kwargs['id']),1))
+        
+        # Converts LePhare or BPZ likelihood to actual probability density
+        for i in N.arange(len(self.pdz_val.T)):
+            norm = N.trapz(self.pdz_val[:, i], self.pdz_zbins)
+            print i,norm
+            new_pdz_val = self.pdz_val[:, i] / norm
+            self.pdz_val[:, i] = new_pdz_val
+
+          new_tab = hstack([Table([self.kwargs['id']]), Table([self.kwargs['ra']]),
+                          Table([self.kwargs['dec']]), Table(self.data_dict),
+                          Table([zbins], names=['zbins']),
+                          Table([self.pdz_val.T], names=['pdz'])],
+                        join_type='inner')
+
+        if check_path(file_out, path_output) and is_overwrite:
+            data = cdata.read_hdf5(file_out)[path_output]
+            data = new_tab
+        
         new_tab.write(file_out, path=path_output, compression=True, serialize_meta=True,
                         overwrite=is_overwrite, append=is_append)
     

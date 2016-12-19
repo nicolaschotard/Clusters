@@ -153,8 +153,6 @@ def photometric_redshift(argv=None):
     parser.add_argument('input', help='Input data file')
     parser.add_argument("--output",
                         help="Name of the output file (hdf5 file)")
-    parser.add_argument("--pdz_output",
-                        help="Name of the zphot distribution output file (hdf5 file)")
     parser.add_argument("--extinction",
                         help="Output of clusters_extinction (hdf5 file)."
                         "Use to compute the extinction-corrected magnitudes.")
@@ -162,8 +160,6 @@ def photometric_redshift(argv=None):
                         help="Overwrite the output files if they already exist")
     parser.add_argument("--append", action="store_true", default=False,
                         help="Append result to the output files if they already exist")
-    parser.add_argument("--zpara",
-                        help="Comma-separated LEPHARE configuration files (zphot.para)")
     parser.add_argument("--plot", action='store_true', default=False,
                         help="Make some plots")
     parser.add_argument("--zrange", default="0,999",
@@ -171,7 +167,7 @@ def photometric_redshift(argv=None):
     parser.add_argument("--mag", type=str, default='modelfit_CModel_mag',
                         help="Magnitude name [default]")
     parser.add_argument("--data",
-                        help="LEPHARE output file, used for the analysis only (plots)")
+                        help="Photoz output file, used for the analysis only (plots)")
     args = parser.parse_args(argv)
 
     config = cdata.load_config(args.config)
@@ -181,14 +177,7 @@ def photometric_redshift(argv=None):
         sys.exit()
 
     if args.output is None:
-        args.output = os.path.basename(args.input).replace('.hdf5', '_zphot.hdf5')
-        if not args.overwrite and not args.append and os.path.exists(args.output):
-            raise IOError("Output already exists. Remove it or use --overwrite or use --append.")
-
-    if args.pdz_output is None:
-        args.pdz_output = args.output.replace('.hdf5', '_pdz.hdf5')
-        if not args.overwrite and not args.append and os.path.exists(args.output):
-            raise IOError("Output already exists. Remove it or use --overwrite or use --append.")
+        args.output = args.input
 
     print "INFO: Working on cluster %s (z=%.4f)" % (config['cluster'], config['redshift'])
 
@@ -211,7 +200,7 @@ def photometric_redshift(argv=None):
     # Loop over all zphot codes present in the config.yaml file
     for zcode in config['zphot'].keys():
         # If a spectroscopic sample is provided, LEPHARE/BPZ will run using the adaptative method
-        # (zero points determination)
+        # (zero points determination); still to be implemented for BPZ...
         spectro_file = config['zphot'][zcode]['zspectro_file'] if 'zspectro_file' in config['zphot'][zcode] else None
 
         # Loop over all configurations available for each code
@@ -222,51 +211,25 @@ def photometric_redshift(argv=None):
                     'ra': data['coord_ra_deg'][data['filter'] == config['filter'][0]],
                     'dec': data['coord_dec_deg'][data['filter'] == config['filter'][0]],
                     'id': data['objectId'][data['filter'] == config['filter'][0]]}
-    
+            path = zcode + '_' + str(i)    
+            print "INFO: Running", zcode, "using configuration from", zpara
+
             if zcode == 'bpz': # Run BPZ
-                print "INFO: Running BPZ"
                 zphot = czphot.BPZ([data[args.mag][data['filter'] == f] for f in kwargs['filters']],
                            [data[args.mag.replace("_extcorr", "") + "Sigma"][data['filter'] == f]
                             for f in kwargs['filters']], zpara=zpara, spectro_file=spectro_file, **kwargs)
-                zphot.run()
-                path = "bpz"
-                zphot.data_out.save_ztable(args.output, path, is_overwrite=args.overwrite,
-                                   is_append=args.append)
-                path_pdz = "bpz_pdz_values"
-                path_bins = "bpz_pdz_bins"
-                zphot.data_out.save_pdztable(args.pdz_output, path_pdz, path_bins,
-                                     is_overwrite=args.overwrite, is_append=args.append)
-
+               
             if zcode == 'lephare': # Run LEPHARE
-                print "INFO: LEPHARE will run on", len(data) / len(config['filter']), "sources"
-
-                if zpara == None:
-                    zpara = os.environ["LEPHAREDIR"] + "/config/zphot_megacam.para"
-
-                print "\nINFO: Configuration for LEPHARE from:", zpara
                 zphot = czphot.LEPHARE([data[args.mag][data['filter'] == f] for f in kwargs['filters']],
                                        [data[args.mag.replace("_extcorr", "") + \
                                             "Sigma"][data['filter'] == f] for f in kwargs['filters']],
                                         zpara=zpara, spectro_file=spectro_file, **kwargs)
                 zphot.check_config()
-                zphot.run()
-
-                path = "lph_%s" % zpara.split('/')[-1].replace('.para', '')
-                is_overwrite = args.overwrite if i == 0 else False
-                is_append = True if i != 0 else False
-                zphot.data_out.save_ztable(args.output, path, is_overwrite=is_overwrite,
-                                            is_append=is_append)
-                if i == 0:
-                # For the moment, only save pdz for the first .para configuration
-                # Could change the keys names according to iteration (like for save_ztable, above)
-                # and append but get_background looks for "pdz_values" and "pdz_bins" only, cannot
-                # change path names without further modifying get_background.
-                # Don't want to do that just now.
-                    path_pdz = "lph_pdz_values"
-                    path_bins = "lph_pdz_bins"
-                    zphot.data_out.save_pdztable(args.pdz_output, path_pdz, path_bins,
-                                                    is_overwrite=args.overwrite, is_append=args.append)
-                    
+ 
+            zphot.run()
+            zphot.data_out.save_zphot(args.output, path, is_overwrite=args.overwrite,
+                                       is_append=args.append)
+                         
     # Plot
     if args.plot:
         doplot(zphot.data_out, config,
