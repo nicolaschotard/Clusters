@@ -1,6 +1,5 @@
 """Main entry points for scripts."""
 
-import pdb
 import numpy as N
 import os
 import sys
@@ -207,7 +206,7 @@ def photometric_redshift(argv=None):
                     'ra': data['coord_ra_deg'][data['filter'] == config['filter'][0]],
                     'dec': data['coord_dec_deg'][data['filter'] == config['filter'][0]],
                     'id': data['objectId'][data['filter'] == config['filter'][0]]}
-            path = zcode + '_' + str(i+1)    
+            path = 'z_'+zcode + '_' + str(i+1)    
             print "INFO: Running", zcode, "using configuration from", zpara
 
             if zcode == 'bpz': # Run BPZ
@@ -244,13 +243,11 @@ def getbackground(argv=None):
     parser = ArgumentParser(prog=prog, usage=usage, description=description,
                             formatter_class=ArgumentDefaultsHelpFormatter)
     parser.add_argument('config', help="Configuration (yaml) file")
-    parser.add_argument('cat_data', help="Catalogue file including magnitude information"
+    parser.add_argument('data', help="Catalogue file including magnitude information"
                         " (*_hdf5 output of clusters_data)")
-    parser.add_argument("z_data",
+    parser.add_argument("--zdata",
                         help="Photometric redshift data, including pdz information "
                         "(*_pdz.hdf5 output of clusters_zphot)")
-    parser.add_argument("--zcode",
-                        help="Name of the photoz code used, 'lph' or 'bpz'.")
     parser.add_argument("--output",
                         help="Filename for the shear catalogue with bkg flags to also be stored "
                         "in a seperate file.")
@@ -264,6 +261,9 @@ def getbackground(argv=None):
     parser.add_argument("--overwrite", default=False, action='store_true',
                         help="Will overwrite any pre-existing red sequence and photoz flag "
                         "in astropy table")
+    parser.add_argument("--rs", default=False, action='store_true',
+                        help="Also slect galaxy based on red sequence")
+
     args = parser.parse_args(argv)
 
     config = yaml.load(open(args.config))
@@ -272,50 +272,34 @@ def getbackground(argv=None):
     if args.zmax is None:
         args.zmax = config['redshift'] + 0.1
     if args.thresh_prob is None:
-        args.thresh_prob = 5.
+        args.thresh_prob = 1.
     if args.output is None:
-        args.output = os.path.basename(args.cat_data).replace('.hdf5', '_background.hdf5')
-    if args.zcode is None:
-        print 'INFO: No photoz code specified with --zcode option: using LePhare (lph) as default'
-        args.zcode = 'lph'
-
-    data = cdata.read_hdf5(args.cat_data)['deepCoadd_forced_src']
-    keys = cdata.read_hdf5(args.cat_data)['deepCoadd_meas'].keys()
-
-    if ('RS_flag' in keys and ('z_flag_hard_' + args.zcode) in keys and
-        ('z_flag_pdz_' + args.zcode) in keys and not args.overwrite):
-        raise IOError("Columns 'RS_flag' and 'z_flag*' already exist in astropy table" + \
-                      " 'deepCoadd_src. Use --overwrite option to overwrite.")
-    else:
-        zdata = cdata.read_hdf5(args.z_data)
-        rs_flag, z_flag1, z_flag2 = background.get_background(config, data, zdata,
-                                                              zmin=args.zmin,
-                                                              zmax=args.zmax,
-                                                              zcode_name=args.zcode,
-                                                              thresh=args.thresh_prob,
-                                                              plot=args.plot)
-        data = cdata.read_hdf5(args.cat_data)['deepCoadd_meas']
-        if ('RS_flag' in keys or ('z_flag_hard_' + args.zcode) in keys or \
-            ('z_flag_pdz_' + args.zcode) in keys):
-            print "INFO: Overwriting flag columns in astropy table 'deepCoadd_meas' stored in ", \
-                args.cat_data
-            data['RS_flag'] = Column(rs_flag)
-            data['z_flag_hard_'+ args.zcode] = Column(z_flag1)
-            data['z_flag_pdz_'+ args.zcode] = Column(z_flag2)
-        else:
-            print "INFO: Creating flag columns in astropy table 'deepCoadd_meas' stored in ", \
-                args.cat_data
-            data.add_columns([Column(rs_flag, name='RS_flag'),
-                              Column(z_flag1, name='z_flag_hard_'+ args.zcode),
-                              Column(z_flag2, name='z_flag_pdz_'+ args.zcode)])
-
-        data.write(args.cat_data, path='deepCoadd_meas', compression=True,
-                   serialize_meta=True, append=True, overwrite=True)
-
-        print "INFO: Also saving table 'deepCoadd_meas' with added flag columns in ", args.output
-        data.write(args.output, path='deepCoadd_meas', compression=True,
-                   serialize_meta=True, append=True, overwrite=args.overwrite)
-
+        args.output = args.data
+    if args.zdata is None:
+        args.zdata = args.data
+        
+    data = cdata.read_hdf5(args.data)
+    zdata = cdata.read_hdf5(args.zdata)
+    
+    # Loops over all zphot codes paths available
+    for zcode in config['zphot'].keys():
+        keys=[zdata.keys()[i] for i in N.arange(len(zdata.keys())) if zcode in zdata.keys()[i] and not 'flag' in zdata.keys()[i]]
+        for k in keys:
+            z_flag1, z_flag2 = background.get_zphot_background(config, zdata[k],
+                                                         zmin=args.zmin,
+                                                         zmax=args.zmax,
+                                                         zcode_name=zcode,
+                                                         thresh=args.thresh_prob,
+                                                         plot=args.plot)
+            new_tab=hstack([Table([z_flag1], names=['zflag_hard']),
+                           Table([z_flag2], names=['zflag_pdz'])],
+                           join_type='inner')
+            
+            cdata.overwrite_or_append(args.output, 'flag_'+k, new_tab)
+            
+    if args.rs:
+            rs_flag = background.get_rs_background(config, data['deepCoadd_forced_src'])
+            cdata.overwrite_or_append(args.output, 'flag_rs', Table([rs_flag]))
 
 def shear(argv=None):
     """Compute the shear."""

@@ -14,7 +14,7 @@ from scipy.optimize import curve_fit
 from astropy.io import ascii
 from astropy.table import Table, hstack
 from astropy.coordinates import SkyCoord
-import pdb
+#import pdb
 
 class LEPHARE(object):
 
@@ -409,11 +409,15 @@ class ZPHOTO(object):
                           Table([self.pdz_val.T], names=['pdz'])],
                         join_type='inner')
 
+        # Rename BPZ Z_B to Z_BEST to match LePhare
+        if 'Z_B' in new_tab.keys():
+            new_tab.rename_column('Z_B', 'Z_BEST')
+        
         # overwrite keyword of data.write(file,path) does not only overwrites
         # the data in path, but the whole file, i.e. (we lose all other
         # paths in the process) --> overwrite_or_append (see above)
 
-        overwrite_or_append(file_out, path_output, new_tab)
+        cdata.overwrite_or_append(file_out, path_output, new_tab)
           
         print "INFO: ", self.code, "data saved in", file_out, "as", path_output
 
@@ -707,25 +711,3 @@ def gauss(x, *p):
     return A * N.exp(- (x - mu) ** 2 / (2. * sigma ** 2))
 
 
-def overwrite_or_append(filename, path, table):
-    """ 
-    Overwrites or append new path/table to existing file or creates new file
-    
-    The overwrite keyword of data.write(file,path) does not overwrites
-    only the data in path, but the whole file, i.e. (we lose all other
-    paths in the process) --> need to do it by hand
-    """
-        
-    if not os.path.isfile(filename):
-        table.write(filename, path=path, compression=True, serialize_meta=True)
-    else:
-        data = cdata.read_hdf5(filename)
-        if path in data.keys():
-            data[path] = table  # update the table with new values
-            os.remove(filename)  # delete file
-            for p in data.keys():  # rewrite all paths/tables to file
-                data[p].write(filename, path=p, compression=True, serialize_meta=True,
-                               append=True)
-        else:
-             table.write(filename, path=path, compression=True, serialize_meta=True,
-                    append=True) 

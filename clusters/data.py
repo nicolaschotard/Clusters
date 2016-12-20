@@ -1,5 +1,6 @@
 """Data builder and parser for the Clusters package."""
 
+import os
 import yaml
 import numpy
 import h5py
@@ -661,3 +662,27 @@ def plot_patches(catalog, clust_coords=None):
     if clust_coords is not None:
         ax.scatter(clust_coords['ra'], clust_coords['dec'], s=100, marker='s', color='k')
     pylab.show()
+
+
+def overwrite_or_append(filename, path, table):
+    """ 
+    Overwrites or append new path/table to existing file or creates new file
+    
+    The overwrite keyword of data.write(file,path) does not overwrites
+    only the data in path, but the whole file, i.e. (we lose all other
+    paths in the process) --> need to do it by hand
+    """
+        
+    if not os.path.isfile(filename):
+        table.write(filename, path=path, compression=True, serialize_meta=True)
+    else:
+        data = read_hdf5(filename)
+        if path in data.keys():
+            data[path] = table  # update the table with new values
+            os.remove(filename)  # delete file
+            for p in data.keys():  # rewrite all paths/tables to file
+                data[p].write(filename, path=p, compression=True, serialize_meta=True,
+                               append=True)
+        else:
+             table.write(filename, path=path, compression=True, serialize_meta=True,
+                    append=True) 
