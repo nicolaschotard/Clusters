@@ -335,6 +335,7 @@ class BPZ(object):
                                    **self.kwargs)
 
 
+        
 class ZPHOTO(object):
 
     """Read photoz code (LePhare, BPZ) output file and creates/saves astropy tables"""
@@ -385,62 +386,36 @@ class ZPHOTO(object):
             self.pdz_val = N.loadtxt(self.files['pdz_output'], unpack=True,
                                  usecols=N.arange(1, len(self.pdz_zbins) + 1))
 
-    def save_zphot(self, file_out, path_output, is_overwrite=False, is_append=True):
+    def save_zphot(self, file_out, path_output):
         """
         Save the output of photoz code (z_best, chi^2, pdz) into astropy table. 
         """
 
+        # Duplicates the zbins vector for each object.
+        # It is redundant information but astropy tables need each field to have the
+        # same size. Or maybe I'm missing somthing.
         zbins=N.tile(self.pdz_zbins, (len(self.kwargs['id']),1))
         
         # Converts LePhare or BPZ likelihood to actual probability density
         for i in N.arange(len(self.pdz_val.T)):
             norm = N.trapz(self.pdz_val[:, i], self.pdz_zbins)
-            print i,norm
             new_pdz_val = self.pdz_val[:, i] / norm
             self.pdz_val[:, i] = new_pdz_val
 
-          new_tab = hstack([Table([self.kwargs['id']]), Table([self.kwargs['ra']]),
+        # Creates astropy table to be saved in path_output of file_out
+        new_tab = hstack([Table([self.kwargs['id']]), Table([self.kwargs['ra']]),
                           Table([self.kwargs['dec']]), Table(self.data_dict),
                           Table([zbins], names=['zbins']),
                           Table([self.pdz_val.T], names=['pdz'])],
                         join_type='inner')
 
-        if check_path(file_out, path_output) and is_overwrite:
-            data = cdata.read_hdf5(file_out)[path_output]
-            data = new_tab
-        
-        new_tab.write(file_out, path=path_output, compression=True, serialize_meta=True,
-                        overwrite=is_overwrite, append=is_append)
-    
+        # overwrite keyword of data.write(file,path) does not only overwrites
+        # the data in path, but the whole file, i.e. (we lose all other
+        # paths in the process) --> overwrite_or_append (see above)
+
+        overwrite_or_append(file_out, path_output, new_tab)
+          
         print "INFO: ", self.code, "data saved in", file_out, "as", path_output
-
-    def save_pdztable(self, file_out, path_pdz, path_bins, is_overwrite=False, is_append=False):
-        """
-        Save the redshift pdf P(z) of photoz code output into astropy table. 
-        """
-        zbest_str = 'Z_BEST' if self.code=='lph' else 'Z_B'
-
-        pdz_bins_tab = Table([self.pdz_zbins], names=['zbins'])
-
-        # Converts LePhare or BPZ likelihood to actual probability density
-        for i in N.arange(len(self.pdz_val)):
-            norm = N.trapz(self.pdz_val[:, i], self.pdz_zbins)
-            new_pdz_val = self.pdz_val[:, i] / norm
-            self.pdz_val[:, i] = new_pdz_val
-
-        # hstack creates a table where col0=objectId, col1=zbest and col2
-        # contains 1d arrays with the pdz values
-        pdz_val_tab = hstack([Table([self.kwargs['id']]),
-                                  Table([self.data_dict[zbest_str]], names=['Z_BEST']),
-                                  Table([self.pdz_val.T], names=['pdz'])])
-
-        pdz_val_tab.write(file_out, path=path_pdz, compression=True,
-                              serialize_meta=True, overwrite=is_overwrite, append=is_append)
-        pdz_bins_tab.write(file_out, path=path_bins, compression=True,
-                               serialize_meta=True, append=True)
-
-        print "INFO: zphot distributions saved in", file_out, "as", path_pdz
-        print "INFO: z bins saved in", file_out, "as", path_bins
 
     def read_input(self):
         """Read the input."""
@@ -730,3 +705,27 @@ def gauss(x, *p):
     """Model function to be used to fit a gaussian distribution."""
     A, mu, sigma = p
     return A * N.exp(- (x - mu) ** 2 / (2. * sigma ** 2))
+
+
+def overwrite_or_append(filename, path, table):
+    """ 
+    Overwrites or append new path/table to existing file or creates new file
+    
+    The overwrite keyword of data.write(file,path) does not overwrites
+    only the data in path, but the whole file, i.e. (we lose all other
+    paths in the process) --> need to do it by hand
+    """
+        
+    if not os.path.isfile(filename):
+        table.write(filename, path=path, compression=True, serialize_meta=True)
+    else:
+        data = cdata.read_hdf5(filename)
+        if path in data.keys():
+            data[path] = table  # update the table with new values
+            os.remove(filename)  # delete file
+            for p in data.keys():  # rewrite all paths/tables to file
+                data[p].write(filename, path=p, compression=True, serialize_meta=True,
+                               append=True)
+        else:
+             table.write(filename, path=path, compression=True, serialize_meta=True,
+                    append=True) 

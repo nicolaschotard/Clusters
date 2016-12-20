@@ -156,10 +156,6 @@ def photometric_redshift(argv=None):
     parser.add_argument("--extinction",
                         help="Output of clusters_extinction (hdf5 file)."
                         "Use to compute the extinction-corrected magnitudes.")
-    parser.add_argument("--overwrite", action="store_true", default=False,
-                        help="Overwrite the output files if they already exist")
-    parser.add_argument("--append", action="store_true", default=False,
-                        help="Append result to the output files if they already exist")
     parser.add_argument("--plot", action='store_true', default=False,
                         help="Make some plots")
     parser.add_argument("--zrange", default="0,999",
@@ -211,7 +207,7 @@ def photometric_redshift(argv=None):
                     'ra': data['coord_ra_deg'][data['filter'] == config['filter'][0]],
                     'dec': data['coord_dec_deg'][data['filter'] == config['filter'][0]],
                     'id': data['objectId'][data['filter'] == config['filter'][0]]}
-            path = zcode + '_' + str(i)    
+            path = zcode + '_' + str(i+1)    
             print "INFO: Running", zcode, "using configuration from", zpara
 
             if zcode == 'bpz': # Run BPZ
@@ -227,8 +223,7 @@ def photometric_redshift(argv=None):
                 zphot.check_config()
  
             zphot.run()
-            zphot.data_out.save_zphot(args.output, path, is_overwrite=args.overwrite,
-                                       is_append=args.append)
+            zphot.data_out.save_zphot(args.output, path)
                          
     # Plot
     if args.plot:
