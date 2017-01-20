@@ -3,6 +3,7 @@
 import os
 import sys
 from astropy.table import Table, Column, hstack
+from extinctions import reddening
 import yaml
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 
@@ -100,9 +101,9 @@ def extinction(argv=None):
     data = cdata.read_hdf5(args.input, path='deepCoadd_forced_src', dic=False)
 
     # Query for E(b-v) and compute the extinction
-    ebmv = {'ebv_sfd': cextinction.query(data['coord_ra_deg'].tolist(),
-                                         data['coord_dec_deg'].tolist(),
-                                         coordsys='equ', mode='sfd')['EBV_SFD']}
+    red = reddening.Reddening(data['coord_ra_deg'].tolist(), data['coord_dec_deg'].tolist())
+    ebmv = {'ebv_sfd': red.from_argonaut()}
+
     albds = {}
     for k in ebmv:
         albd = cextinction.from_ebv_sfd_to_megacam_albd(ebmv[k])

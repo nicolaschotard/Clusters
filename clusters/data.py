@@ -57,9 +57,9 @@ class Catalogs(object):
             keys = self.butler.getKeys(catalog)
             if 'tract' in keys:
                 keys.pop('tract')
-            dataids = [merge_dicts(dict(zip(keys, v)), {'tract': 0})
-                       for v in self.butler.queryMetadata("forced_src", format=keys)]
-
+            dataids = [merge_dicts(dict(zip(sorted(keys.keys()), v)), {'tract': 0})
+                       for v in self.butler.queryMetadata("forced_src", format=sorted(keys.keys()))]
+                       
         if len(dataids) == 0:
             raise IOError("No dataIds. Check the catalog, the config file, and path to the bulter.")
 

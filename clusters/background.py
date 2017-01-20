@@ -334,10 +334,10 @@ def get_background(config, data, zdata, zspec=None, zcode_name=None, thresh=None
     """Apply different cuts to the data in order to get the background galaxies."""
 
     # Red sequence
-    print "INFO: Flagging red sequence galaxies"
-    rs_flag = red_sequence_cut(config, data)
-    rs_flag = N.repeat(rs_flag, len(set(data['filter'])))  # to get the cut applied to all filters
-    print "INFO: %i galaxies have been flagged as RS" %(sum(~rs_flag) / len(set(data['filter'])))
+    #print "INFO: Flagging red sequence galaxies"
+    #rs_flag = red_sequence_cut(config, data)
+    #s_flag = N.repeat(rs_flag, len(set(data['filter'])))  # to get the cut applied to all filters
+    #print "INFO: %i galaxies have been flagged as RS" %(sum(~rs_flag) / len(set(data['filter'])))
 
     # Spectroscopic against photometric redshifts
     if zspec is not None:
@@ -351,6 +351,6 @@ def get_background(config, data, zdata, zspec=None, zcode_name=None, thresh=None
     print "INFO: %i galaxies have been kept after the pdz redshift cut" %(sum(z_flag2))
     z_flag1 = N.repeat(z_flag1, len(set(data['filter'])))  # to get the cut applied to all filters
     z_flag2 = N.repeat(z_flag2, len(set(data['filter'])))  # to get the cut applied to all filters
+    rs_flag = N.ones_like(z_flag1, dtype=bool)
 
     return (rs_flag, z_flag1, z_flag2)
-
