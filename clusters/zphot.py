@@ -380,6 +380,7 @@ class ZPHOTO(object):
             f.seek(0)
             dz = float([line.split('=')[1] for line in f if 'DZ' in line][0])
             f.close()
+
             self.data_dict = {v: a for v, a in zip(self.variables, self.data_array)}
             self.nsources = len(self.data_dict['Z_B'])
             self.pdz_zbins = N.arange(zmin, zmax + dz, dz)

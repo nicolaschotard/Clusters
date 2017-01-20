@@ -171,7 +171,7 @@ def photometric_redshift(argv=None):
                config, float(args.zrange.split(',')[0]), float(args.zrange.split(',')[1]))
         sys.exit()
 
-    if args.output is None:
+    if args.output is None: # if no output name specified, append table to input file
         args.output = args.input
 
     print "INFO: Working on cluster %s (z=%.4f)" % (config['cluster'], config['redshift'])
@@ -196,18 +196,21 @@ def photometric_redshift(argv=None):
     for zcode in config['zphot'].keys():
         # If a spectroscopic sample is provided, LEPHARE/BPZ will run using the adaptative method
         # (zero points determination); still to be implemented for BPZ...
-        spectro_file = config['zphot'][zcode]['zspectro_file'] if 'zspectro_file' in config['zphot'][zcode] else None
+        # spectro_file = config['zphot'][zcode]['zspectro_file'] if 'zspectro_file' in config['zphot'][zcode] else None
 
         # Loop over all configurations available for each code
         for i in N.arange(len(config['zphot'][zcode]['zpara'])):
             zpara = config['zphot'][zcode]['zpara'][i] if 'zpara' in config['zphot'][zcode] else None
+            spectro_file = config['zphot'][zcode]['zspectro_file'][i] if 'zspectro_file' in config['zphot'][zcode] else None
+            if spectro_file == " ":
+                spectro_file = None
             kwargs = {'basename': config['cluster'],
                     'filters': [f for f in config['filter'] if f in set(data['filter'].tolist())],
                     'ra': data['coord_ra_deg'][data['filter'] == config['filter'][0]],
                     'dec': data['coord_dec_deg'][data['filter'] == config['filter'][0]],
                     'id': data['objectId'][data['filter'] == config['filter'][0]]}
             path = 'z_'+zcode + '_' + str(i+1)    
-            print "INFO: Running", zcode, "using configuration from", zpara
+            print "INFO: Running", zcode, "using configuration from", zpara, spectro_file
 
             if zcode == 'bpz': # Run BPZ
                 zphot = czphot.BPZ([data[args.mag][data['filter'] == f] for f in kwargs['filters']],
