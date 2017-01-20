@@ -203,9 +203,12 @@ class LensingModel(object):
 
         manager.massdelta = options.delta
         parts.massdelta = options.delta
-        parts.mdelta = pymc.Uniform('mdelta', options.masslow,
-                                    options.masshigh)
+        parts.scaledmdelta = pymc.Uniform('scaledmdelta', options.masslow/1e14, options.masshigh/1e14)
 
+        @pymc.deterministic
+        def mdelta(scaledmdelta = parts.scaledmdelta):
+            return 1e14*scaledmdelta
+        parts.mdelta = mdelta
 
 
     #############################

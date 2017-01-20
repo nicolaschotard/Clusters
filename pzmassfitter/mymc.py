@@ -701,10 +701,13 @@ class MultiDimUpdater(Updater):
         try:
             evals, self.basis = np.linalg.eigh(cov)
             self.widths = [self.rescale*np.sqrt(abs(v)) for v in evals]
+
             if not (np.array(self.widths) != 0.).all():
+            
                 print "ERROR: (np.array(self.widths) != 0.).all() != 0. Aborting"
+
                 return False
-            return True
+            return False
         except np.linalg.LinAlgError:
             print "MultiDimUpdater.set_covariance: warning -- aborting due to covariance diagonalization failure"
             return False
