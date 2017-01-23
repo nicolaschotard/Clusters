@@ -43,6 +43,8 @@ class ModelInitException(Exception):
 
 ##########################
 
+massscale = 1e14
+
 class LensingModel(object):
 
     def __init__(self):
@@ -203,9 +205,12 @@ class LensingModel(object):
 
         manager.massdelta = options.delta
         parts.massdelta = options.delta
-        parts.mdelta = pymc.Uniform('mdelta', options.masslow,
-                                    options.masshigh)
+        parts.scaledmdelta = pymc.Uniform('scaledmdelta', options.masslow/massscale, options.masshigh/massscale)
 
+        @pymc.deterministic
+        def mdelta(scaledmdelta = parts.scaledmdelta):
+            return massscale*scaledmdelta
+        parts.mdelta = mdelta
 
 
     #############################
@@ -358,7 +363,7 @@ class ScanModelToFile(object):
         scan = np.zeros_like(mass)
         for i, m in enumerate(mass):
             try:
-                model.mdelta.value = m
+                model.scaledmdelta.value = m/massscale
                 scan[i] = model.logp
             except pymc.ZeroProbability:
                 scan[i] = pymc.PyMCObjects.d_neg_inf
@@ -366,7 +371,7 @@ class ScanModelToFile(object):
         cols = [pyfits.Column(name='Mass', format='E', array=mass),
                 pyfits.Column(name='prob', format='E', array=scan)]
         manager.cat = ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols)))
-        manager.cat.hdu.header.update('EXTNAME', 'OBJECTS')
+        manager.cat.hdu.header.set('EXTNAME', 'OBJECTS')
 
         manager.cat.saveas('{}.m{}.scan.fits'.format(manager.options.outputFile,
                                                      int(manager.model.massdelta)))
