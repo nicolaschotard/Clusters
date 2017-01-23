@@ -14,7 +14,7 @@ from scipy.optimize import curve_fit
 from astropy.io import ascii
 from astropy.table import Table, hstack
 from astropy.coordinates import SkyCoord
-#import pdb
+import pdb
 
 class LEPHARE(object):
 

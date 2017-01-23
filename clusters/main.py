@@ -91,9 +91,10 @@ def extinction(argv=None):
 
     config = cdata.load_config(args.config)
     if args.output is None:
-        args.output = os.path.basename(args.input).replace('.hdf5', '_extinction.hdf5')
-        if not args.overwrite and os.path.exists(args.output):
-            raise IOError("Output already exists. Remove them or use --overwrite.")
+#        args.output = os.path.basename(args.input).replace('.hdf5', '_extinction.hdf5')
+        args.output = args.input
+#        if not args.overwrite and os.path.exists(args.output):
+#            raise IOError("Output already exists. Remove them or use --overwrite.")
 
     print "INFO: Working on cluster %s (z=%.4f)" % (config['cluster'], config['redshift'])
     print "INFO: Working on filters", config['filter']
@@ -113,8 +114,11 @@ def extinction(argv=None):
     # Create a new table and save it
     new_tab = hstack([data['objectId', 'coord_ra', 'coord_dec', 'filter'],
                       Table(ebmv), Table(albds)], join_type='inner')
-    new_tab.write(args.output, path='extinction', compression=True,
-                  serialize_meta=True, overwrite=args.overwrite)
+#    new_tab.write(args.output, path='extinction', compression=True,
+#                  serialize_meta=True, overwrite=args.overwrite)
+
+    cdata.overwrite_or_append(args.output, 'extinction', new_tab)
+
     print "INFO: Milky Way dust extinction correction applied"
     print "INFO: Data saved in", args.output
 
@@ -194,39 +198,37 @@ def photometric_redshift(argv=None):
 
 
     # Loop over all zphot codes present in the config.yaml file
-    for zcode in config['zphot'].keys():
+    for zconfig in config['zphot'].keys():
+        zcode = config['zphot'][zconfig]["code"]
         # If a spectroscopic sample is provided, LEPHARE/BPZ will run using the adaptative method
         # (zero points determination); still to be implemented for BPZ...
         # spectro_file = config['zphot'][zcode]['zspectro_file'] if 'zspectro_file' in config['zphot'][zcode] else None
 
-        # Loop over all configurations available for each code
-        for i in N.arange(len(config['zphot'][zcode]['zpara'])):
-            zpara = config['zphot'][zcode]['zpara'][i] if 'zpara' in config['zphot'][zcode] else None
-            spectro_file = config['zphot'][zcode]['zspectro_file'][i] if 'zspectro_file' in config['zphot'][zcode] else None
-            if spectro_file == " ":
-                spectro_file = None
-            kwargs = {'basename': config['cluster'],
+        zpara = config['zphot'][zconfig]['zpara'] if 'zpara' in config['zphot'][zconfig] else None
+        spectro_file = config['zphot'][zconfig]['zspectro_file'] if 'zspectro_file' in config['zphot'][zconfig] else None
+        kwargs = {'basename': config['cluster'],
                     'filters': [f for f in config['filter'] if f in set(data['filter'].tolist())],
                     'ra': data['coord_ra_deg'][data['filter'] == config['filter'][0]],
                     'dec': data['coord_dec_deg'][data['filter'] == config['filter'][0]],
                     'id': data['objectId'][data['filter'] == config['filter'][0]]}
-            path = 'z_'+zcode + '_' + str(i+1)    
-            print "INFO: Running", zcode, "using configuration from", zpara, spectro_file
+        path = zconfig
+        print "INFO: Running", zcode, "using configuration from", zpara, spectro_file
 
-            if zcode == 'bpz': # Run BPZ
-                zphot = czphot.BPZ([data[args.mag][data['filter'] == f] for f in kwargs['filters']],
-                           [data[args.mag.replace("_extcorr", "") + "Sigma"][data['filter'] == f]
-                            for f in kwargs['filters']], zpara=zpara, spectro_file=spectro_file, **kwargs)
+        if zcode == 'bpz': # Run BPZ
+            zphot = czphot.BPZ([data[args.mag][data['filter'] == f] for f in kwargs['filters']],
+                               [data[args.mag.replace("_extcorr", "") + "Sigma"][data['filter'] == f]
+                                for f in kwargs['filters']],
+                                zpara=zpara, spectro_file=spectro_file, **kwargs)
                
-            if zcode == 'lephare': # Run LEPHARE
-                zphot = czphot.LEPHARE([data[args.mag][data['filter'] == f] for f in kwargs['filters']],
+        if zcode == 'lephare': # Run LEPHARE
+            zphot = czphot.LEPHARE([data[args.mag][data['filter'] == f] for f in kwargs['filters']],
                                        [data[args.mag.replace("_extcorr", "") + \
                                             "Sigma"][data['filter'] == f] for f in kwargs['filters']],
                                         zpara=zpara, spectro_file=spectro_file, **kwargs)
-                zphot.check_config()
+            zphot.check_config()
  
-            zphot.run()
-            zphot.data_out.save_zphot(args.output, path)
+        zphot.run()
+        zphot.data_out.save_zphot(args.output, path)
                          
     # Plot
     if args.plot:
@@ -286,24 +288,28 @@ def getbackground(argv=None):
     zdata = cdata.read_hdf5(args.zdata)
     
     # Loops over all zphot codes paths available
-    for zcode in config['zphot'].keys():
-        keys=[zdata.keys()[i] for i in N.arange(len(zdata.keys())) if zcode in zdata.keys()[i] and not 'flag' in zdata.keys()[i]]
-        for k in keys:
-            z_flag1, z_flag2 = background.get_zphot_background(config, zdata[k],
+#    for zcode in config['zphot'].keys():
+#        keys=[zdata.keys()[i] for i in N.arange(len(zdata.keys())) if zcode in zdata.keys()[i] and not 'flag' in zdata.keys()[i]]
+    
+    for k in config['zphot'].keys():
+        z_config = config['zphot'][k]
+        z_flag1, z_flag2 = background.get_zphot_background(config, zdata[k],
                                                          zmin=args.zmin,
                                                          zmax=args.zmax,
-                                                         zcode_name=zcode,
+                                                         z_config=z_config,
                                                          thresh=args.thresh_prob,
                                                          plot=args.plot)
-            new_tab=hstack([Table([z_flag1], names=['zflag_hard']),
-                           Table([z_flag2], names=['zflag_pdz'])],
+        new_tab=hstack([Table([zdata[k]['objectId']], names=['objectId']), Table([z_flag1], names=['flag_z_hard']),
+                           Table([z_flag2], names=['flag_z_pdz'])],
                            join_type='inner')
             
-            cdata.overwrite_or_append(args.output, 'flag_'+k, new_tab)
+        cdata.overwrite_or_append(args.output, 'flag_'+k, new_tab)
             
     if args.rs:
-            rs_flag = background.get_rs_background(config, data['deepCoadd_forced_src'])
-            cdata.overwrite_or_append(args.output, 'flag_rs', Table([rs_flag]))
+        rs_flag = background.get_rs_background(config, data['deepCoadd_forced_src'])
+        new_tab=hstack([Table([zdata[k]['objectId']], names=['objectId']), Table([rs_flag], names=['flag_rs'])],
+                        join_type='inner')
+        cdata.overwrite_or_append(args.output, 'flag_rs', Table([rs_flag]))
 
 def shear(argv=None):
     """Compute the shear."""

@@ -263,7 +263,6 @@ def zphot_cut(zclust, zdata, **kwargs):
     thresh = kwargs.get('thresh', 5.)
     zmin = kwargs.get('zmin', zclust + 0.1)
     zmax = kwargs.get('zmax', 1.25)
-    zcode_name = kwargs.get('zcode_name', 'lph')
     zbest = zdata['Z_BEST']
     pdz = zdata['pdz']
     zbins = zdata['zbins'][0] # all objects have same zbins, take 0th.
@@ -329,7 +328,7 @@ def red_sequence_cut(config, data, **kwargs):
     return filt
 
 
-def get_zphot_background(config, zdata, zspec=None, zcode_name=None, thresh=None, zmin=None, zmax=None, plot=None):
+def get_zphot_background(config, zdata, zspec=None, z_config=None, thresh=None, zmin=None, zmax=None, plot=None):
     """Return flag based on zphot criterion for galaxy selection."""
 
     # Spectroscopic against photometric redshifts
@@ -337,9 +336,9 @@ def get_zphot_background(config, zdata, zspec=None, zcode_name=None, thresh=None
         print "INFO: Checking photo/spectro redshifts consistency"
 
     # Photometric redshift cut
-    print "INFO: Flagging foreground/uncertain objects using redshift information"
+    print "INFO: Flagging foreground/uncertain objects using redshift information from ", z_config
     z_flag1, z_flag2 = zphot_cut(config['redshift'], zdata, thresh=thresh,
-                                 zmin=zmin, zmax=zmax, plot=plot, zcode_name=zcode_name)
+                                 zmin=zmin, zmax=zmax, plot=plot)
     print "INFO: %i galaxies have been kept after the hard redshift cut" %(sum(z_flag1))
     print "INFO: %i galaxies have been kept after the pdz redshift cut" %(sum(z_flag2))
 
@@ -350,7 +349,6 @@ def get_rs_background(config, data):
 
     print "INFO: Flagging red sequence galaxies"
     rs_flag = red_sequence_cut(config, data)
-    rs_flag = N.repeat(rs_flag, len(set(data['filter'])))  # to get the cut applied to all filters
-    print "INFO: %i galaxies have been flagged as RS" %(sum(~rs_flag) / len(set(data['filter'])))
+    print "INFO: %i galaxies have been flagged as RS" %(sum(~rs_flag))
 
     return rs_flag
