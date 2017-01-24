@@ -357,7 +357,6 @@ def mass(argv=None):
                             formatter_class=ArgumentDefaultsHelpFormatter)
     parser.add_argument('config', help='Configuration (yaml) file')
     parser.add_argument('input', help='Input data file: output of clusters_data.py, i.e, hdf5 file')
-    parser.add_argument('pdzfile', help='Input pdz file: output of clusters_photoz')
     parser.add_argument("--output",
                         help="Name of the output file (hdf5 file)")
     parser.add_argument("--overwrite", action="store_true", default=False,
@@ -368,8 +367,6 @@ def mass(argv=None):
                         help="Number of sample to run")
     parser.add_argument("--testing", action="store_true", default=False,
                         help="Simplify model for testing purposes")
-    parser.add_argument("--zcode",
-                        help="Name of the photoz code used, 'lph' or 'bpz'.")
     args = parser.parse_args(argv)
 
     config = cdata.load_config(args.config)
@@ -378,20 +375,13 @@ def mass(argv=None):
         if not args.overwrite and os.path.exists(args.output):
             raise IOError("Output already exists. Remove them or use --overwrite.")
 
-    if args.zcode is None:
-        print 'INFO: No photoz code specified with --zcode option: using LePhare (lph) as default'
-        args.zcode = 'lph_'
-    elif args.zcode == 'none':
-        args.zcode = ''
-    elif not args.zcode.endswith('_'):
-        args.zcode += '_'
 
     print "INFO: Working on cluster %s (z=%.4f)" % (config['cluster'], config['redshift'])
     print "INFO: Working on filters", config['filter']
 
     # Load the data
     data = cdata.read_hdf5(args.input)
-    meas = data['deepCoadd_meas']
+#    meas = data['deepCoadd_meas']
 
     cluster = config['cluster']
     zcluster = config['redshift']
@@ -419,14 +409,12 @@ def mass(argv=None):
 
     options, cmdargs = masscontroller.filehandler.createOptions(cluster=cluster,
                                                                 zcluster=zcluster,
-                                                                lensingcat=meas,
-                                                                pdzfile=args.pdzfile,
+                                                                cat=data,
+                                                                zconfig=config['zphot'].keys()[0], # Run only on the first zphot configuration
                                                                 cluster_ra=cluster_ra,
                                                                 cluster_dec=cluster_dec,
-                                                                prefix=args.zcode,
                                                                 options=options,
                                                                 args=cmdargs)
-
 
     masscontroller.load(options, args)
     masscontroller.run()

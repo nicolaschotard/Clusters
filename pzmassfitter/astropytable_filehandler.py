@@ -11,7 +11,6 @@ from . import nfwutils
 from . import sphereGeometry
 from . import ldac
 
-
 ####################################
 
 
@@ -33,27 +32,26 @@ class AstropyTableFilehandler(object):
     ######
 
     def createOptions(self, cluster, zcluster,
-                      lensingcat,
-                      pdzfile,
+                      cat, zconfig,
                       cluster_ra,
                       cluster_dec,
                       raCol='coord_ra_deg',
                       decCol='coord_dec_deg',
                       g1Col='ext_shapeHSM_HsmShapeRegauss_e1',
                       g2Col='ext_shapeHSM_HsmShapeRegauss_e2',
-                      prefix='',
                       options=None, args=None):
 
+        
         if options is None:
             options = varcontainer.VarContainer()
 
         options.cluster = cluster
         options.zcluster = zcluster
-        options.lensingcat = lensingcat
         options.cluster_ra = cluster_ra
         options.cluster_dec = cluster_dec
-        options.pdzfile = pdzfile
-        options.prefix = prefix
+
+        options.cat = cat
+        options.zconfig=zconfig
 
         options.raCol = raCol
         options.decCol = decCol
@@ -68,7 +66,9 @@ class AstropyTableFilehandler(object):
 
         options = manager.options
 
-        manager.lensingcat = options.lensingcat
+        manager.lensingcat = options.cat['deepCoadd_meas']
+        manager.zcat = options.cat[options.zconfig]
+        manager.cat = options.cat
 
         manager.clustername = options.cluster
         manager.zcluster = options.zcluster
@@ -86,20 +86,28 @@ class AstropyTableFilehandler(object):
 
 #        size = manager.lensingcat[options.sizeCol] / options.psfsize
 #        snratio = manager.lensingcat[options.snratioCol]
+        
+         # old version                
+#        manager.open('pdzcat', options.pdzfile, table.Table.read, path=options.prefix + 'pdz_values')
+#        manager.open('pdzrange', options.pdzfile, table.Table.read, path=options.prefix + 'pdz_bins')
+#        manager.replace('pdzrange', lambda: manager.pdzrange['zbins'])
 
-        manager.open('pdzcat', options.pdzfile, table.Table.read, path=options.prefix + 'pdz_values')
-        manager.open('pdzrange', options.pdzfile, table.Table.read, path=options.prefix + 'pdz_bins')
-        manager.replace('pdzrange', lambda: manager.pdzrange['zbins'])
+        pdzcat=manager.zcat['pdz']
+        manager.pdzrange=manager.zcat['zbins'][0] # all objects have same zbins, take the first one
+
         # only keep 'i' filter
         if 'filter' in manager.lensingcat.keys():
             manager.replace('lensingcat', manager.lensingcat[manager.lensingcat["filter"] == 'i'])
-            # pdz cut
-        if 'z_flag_pdz_' + options.prefix[:-1] in manager.lensingcat.keys():
-            manager.replace('lensingcat', manager.lensingcat[manager.lensingcat["z_flag_pdz_bpz"] == True])
-        manager.matched_pdzcat = matchById(manager.pdzcat, manager.lensingcat, 'id', 'objectId')
-        manager.pz = manager.matched_pdzcat['pdz']  #area normalized, ie density function
 
-        z_b = manager.matched_pdzcat['Z_BEST']
+        # pdz cut
+#       if 'z_flag_pdz_' + options.prefix[:-1] in manager.lensingcat.keys():
+        if 'flag_' + options.zconfig in manager.cat.keys():
+            manager.replace('lensingcat', manager.lensingcat[manager.cat["flag_"+options.zconfig]['flag_z_pdz'] == True])
+
+        manager.matched_zcat = matchById(manager.zcat, manager.lensingcat, 'id', 'objectId')
+        manager.pz = manager.matched_zcat['pdz']  #area normalized, ie density function
+
+        z_b = manager.matched_zcat['Z_BEST']
 
         cols = [pyfits.Column(name='SeqNr', format='J', array=manager.lensingcat['id']),
                 pyfits.Column(name='r_mpc', format='E', array=r_mpc),
@@ -112,7 +120,8 @@ class AstropyTableFilehandler(object):
         manager.store('inputcat',
                       ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols))))
 
-
+        
+        
 #############
 
 
