@@ -84,7 +84,7 @@ def extinction(argv=None):
     parser.add_argument("--output",
                         help="Name of the output file (hdf5 file)")
     parser.add_argument("--overwrite", action="store_true", default=False,
-                        help="Overwrite the output files if they exist already")
+                        help="Overwrite the paths in the output file if they exist already")
     parser.add_argument("--plot", action='store_true', default=False,
                         help="Make some plots")
     args = parser.parse_args(argv)
@@ -117,7 +117,7 @@ def extinction(argv=None):
 #    new_tab.write(args.output, path='extinction', compression=True,
 #                  serialize_meta=True, overwrite=args.overwrite)
 
-    cdata.overwrite_or_append(args.output, 'extinction', new_tab)
+    cdata.overwrite_or_append(args.output, 'extinction', new_tab, overwrite=args.overwrite)
 
     print "INFO: Milky Way dust extinction correction applied"
     print "INFO: Data saved in", args.output
@@ -168,6 +168,8 @@ def photometric_redshift(argv=None):
                         help="Magnitude name [default]")
     parser.add_argument("--data",
                         help="Photoz output file, used for the analysis only (plots)")
+    parser.add_argument("--overwrite", action="store_true", default=False,
+                        help="Overwrite the paths in the output file if they exist already")
     args = parser.parse_args(argv)
 
     config = cdata.load_config(args.config)
@@ -228,7 +230,7 @@ def photometric_redshift(argv=None):
             zphot.check_config()
  
         zphot.run()
-        zphot.data_out.save_zphot(args.output, path)
+        zphot.data_out.save_zphot(args.output, path, overwrite=args.overwrite)
                          
     # Plot
     if args.plot:
@@ -249,14 +251,14 @@ def getbackground(argv=None):
     parser = ArgumentParser(prog=prog, usage=usage, description=description,
                             formatter_class=ArgumentDefaultsHelpFormatter)
     parser.add_argument('config', help="Configuration (yaml) file")
-    parser.add_argument('data', help="Catalogue file including magnitude information"
+    parser.add_argument('data', help="Catalogue file data.hdf5"
                         " (*_hdf5 output of clusters_data)")
     parser.add_argument("--zdata",
-                        help="Photometric redshift data, including pdz information "
-                        "(*_pdz.hdf5 output of clusters_zphot)")
+                        help="Photometric redshift data file (including pdz information) if not "
+                            "in data.hdf5")
     parser.add_argument("--output",
                         help="Filename for the shear catalogue with bkg flags to also be stored "
-                        "in a seperate file.")
+                        "in a seperate file. If not specified, flags are added to data.hdf5")
     parser.add_argument("--zmin", type=float,
                         help="Minimum redshift for photoz hard cut")
     parser.add_argument("--zmax", type=float,
@@ -265,8 +267,7 @@ def getbackground(argv=None):
                         help="Threshod redshift probability to select galaxy (in percent)")
     parser.add_argument("--plot", default=False, action='store_true', help="Make some plots")
     parser.add_argument("--overwrite", default=False, action='store_true',
-                        help="Will overwrite any pre-existing red sequence and photoz flag "
-                        "in astropy table")
+                       help="Overwrite the paths in the output file if they exist already")
     parser.add_argument("--rs", default=False, action='store_true',
                         help="Also slect galaxy based on red sequence")
 
@@ -286,11 +287,8 @@ def getbackground(argv=None):
         
     data = cdata.read_hdf5(args.data)
     zdata = cdata.read_hdf5(args.zdata)
-    
-    # Loops over all zphot codes paths available
-#    for zcode in config['zphot'].keys():
-#        keys=[zdata.keys()[i] for i in N.arange(len(zdata.keys())) if zcode in zdata.keys()[i] and not 'flag' in zdata.keys()[i]]
-    
+
+    # Loop over all zphot configurations found in config.yaml file
     for k in config['zphot'].keys():
         z_config = config['zphot'][k]
         z_flag1, z_flag2 = background.get_zphot_background(config, zdata[k],
@@ -303,7 +301,7 @@ def getbackground(argv=None):
                            Table([z_flag2], names=['flag_z_pdz'])],
                            join_type='inner')
             
-        cdata.overwrite_or_append(args.output, 'flag_'+k, new_tab)
+        cdata.overwrite_or_append(args.output, 'flag_'+k, new_tab, overwrite=args.overwrite)
             
     if args.rs:
         rs_flag = background.get_rs_background(config, data['deepCoadd_forced_src'])

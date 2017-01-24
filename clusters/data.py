@@ -664,7 +664,7 @@ def plot_patches(catalog, clust_coords=None):
     pylab.show()
 
 
-def overwrite_or_append(filename, path, table):
+def overwrite_or_append(filename, path, table, overwrite=False):
     """ 
     Overwrites or append new path/table to existing file or creates new file
     
@@ -674,15 +674,21 @@ def overwrite_or_append(filename, path, table):
     """
         
     if not os.path.isfile(filename):
+        print "Creating", filename
         table.write(filename, path=path, compression=True, serialize_meta=True)
     else:
         data = read_hdf5(filename)
         if path in data.keys():
-            data[path] = table  # update the table with new values
-            os.remove(filename)  # delete file
-            for p in data.keys():  # rewrite all paths/tables to file
-                data[p].write(filename, path=p, compression=True, serialize_meta=True,
-                               append=True)
+            if (overwrite):
+                print "Overwriting path =", path, " in", filename 
+                data[path] = table  # update the table with new values
+                os.remove(filename)  # delete file
+                for p in data.keys():  # rewrite all paths/tables to file
+                    data[p].write(filename, path=p, compression=True, serialize_meta=True,
+                                append=True)
+            else:
+                raise IOError("Path already exists in hdf5 file. Use --overwrite to overwrite.")
         else:
-             table.write(filename, path=path, compression=True, serialize_meta=True,
+            print "Adding", path, " to", filename 
+            table.write(filename, path=path, compression=True, serialize_meta=True,
                     append=True) 

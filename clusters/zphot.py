@@ -387,7 +387,7 @@ class ZPHOTO(object):
             self.pdz_val = N.loadtxt(self.files['pdz_output'], unpack=True,
                                  usecols=N.arange(1, len(self.pdz_zbins) + 1))
 
-    def save_zphot(self, file_out, path_output):
+    def save_zphot(self, file_out, path_output, overwrite=False):
         """
         Save the output of photoz code (z_best, chi^2, pdz) into astropy table. 
         """
@@ -418,7 +418,7 @@ class ZPHOTO(object):
         # the data in path, but the whole file, i.e. (we lose all other
         # paths in the process) --> overwrite_or_append (see above)
 
-        cdata.overwrite_or_append(file_out, path_output, new_tab)
+        cdata.overwrite_or_append(file_out, path_output, new_tab, overwrite=overwrite)
           
         print "INFO: ", self.code, "data saved in", file_out, "as", path_output
 
