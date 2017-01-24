@@ -201,7 +201,7 @@ def photometric_redshift(argv=None):
 
     # Loop over all zphot codes present in the config.yaml file
     for zconfig in config['zphot'].keys():
-        zcode = config['zphot'][zconfig]["code"]
+        zcode = config['zphot'][zconfig]['code'] if 'code' in config['zphot'] else 'lephare'
         # If a spectroscopic sample is provided, LEPHARE/BPZ will run using the adaptative method
         # (zero points determination); still to be implemented for BPZ...
         # spectro_file = config['zphot'][zcode]['zspectro_file'] if 'zspectro_file' in config['zphot'][zcode] else None
