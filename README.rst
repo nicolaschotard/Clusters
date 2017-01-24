@@ -323,9 +323,9 @@ will save the extinction correction into path ``extinction`` of ``data.hdf5``
 
     clusters_zphot.py config.yaml data.hdf5 (--extinction extinction.hdf5) (--output zphot.hdf5)
 
- This loops over the user-defined zphot configuration keys given under ``zphot`` in the ``config.yaml`` file. The results of each photoz run (point estimate and pdz distribution) is stored in ``data.hdf5`` (or ``zphot.hdf5`` if a different output is required) in a path whose name corresponds to the user-defined zphot configuration keys.
+  This loops over the user-defined zphot configuration keys given under ``zphot`` in the ``config.yaml`` file. The results of each photoz run (point estimate and pdz distribution) is stored in ``data.hdf5`` (or ``zphot.hdf5`` if a different output is required) in a path whose name corresponds to the user-defined zphot configuration keys.
 
- The ``--extinction`` option corrects the magnitudes according to what was previously computed by ``clusters_extinction``, before running the photoz. 
+  The ``--extinction`` option corrects the magnitudes according to what was previously computed by ``clusters_extinction``, before running the photoz. 
 
 
 - Flag galaxies to be removed for the lensing analysis::
