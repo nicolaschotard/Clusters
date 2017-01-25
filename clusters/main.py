@@ -375,13 +375,17 @@ def mass(argv=None):
 
     # Load the data
     data = cdata.read_hdf5(args.input)
-#    meas = data['deepCoadd_meas']
 
     cluster = config['cluster']
     zcluster = config['redshift']
     cluster_ra = config['ra']
     cluster_dec = config['dec']
-    zconfig = sorted(config['zphot'].keys())[0]
+
+    # Select the zphot configuration to use for mass estimation
+    # Should probably be specified by the user in config.yaml
+    # For the moment, order the zphot configuration names alphabetically
+    # and take the first one.   
+    zconfig = sorted(config['zphot'].keys())[0] 
     print "Cluster mass computed using ", zconfig, " configuration for photoz estimation"
     
     ###let's assume that all quality cuts were made previously
@@ -406,7 +410,7 @@ def mass(argv=None):
     options, cmdargs = masscontroller.filehandler.createOptions(cluster=cluster,
                                                                 zcluster=zcluster,
                                                                 cat=data,
-                                                                zconfig=zconfig, # Run only on the first zphot configuration
+                                                                zconfig=zconfig,
                                                                 cluster_ra=cluster_ra,
                                                                 cluster_dec=cluster_dec,
                                                                 options=options,

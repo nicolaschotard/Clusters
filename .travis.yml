@@ -22,6 +22,9 @@ install:
   # Install standard python packages
   - pip install codecov coveralls
   - pip install -r requirements.txt
+  # Install extinctions
+  - git clone https://github.com/nicolaschotard/extinctions.git
+  - pip install extinctions/
   # Install Clusters
   - python setup.py install
 
