@@ -192,7 +192,7 @@ def photometric_redshift(argv=None):
     if args.mag not in data.keys():
         raise IOError("%s is not a column of the input table" % args.mag)
     
-    # Loop over all zphot codes present in the config.yaml file
+    # Loop over all zphot configurations present in the config.yaml file
     for zconfig in config['zphot'].keys():
         zcode = config['zphot'][zconfig]['code'] if 'code' in config['zphot'][zconfig].keys() \
                                                  else 'lephare'
@@ -301,7 +301,7 @@ def getbackground(argv=None):
             
     if args.rs:
         rs_flag = background.get_rs_background(config, data['deepCoadd_forced_src'])
-        new_tab = hstack([Table([zdata[0]['objectId']], names=['objectId']),
+        new_tab = hstack([Table([data['deepCoadd_forced_src']['objectId']], names=['objectId']),
                           Table([rs_flag], names=['flag_rs'])],
                          join_type='inner')
         cdata.overwrite_or_append(args.output, 'flag_rs', Table([rs_flag]))
@@ -381,7 +381,9 @@ def mass(argv=None):
     zcluster = config['redshift']
     cluster_ra = config['ra']
     cluster_dec = config['dec']
-
+    zconfig = sorted(config['zphot'].keys())[0]
+    print "Cluster mass computed using ", zconfig, " configuration for photoz estimation"
+    
     ###let's assume that all quality cuts were made previously
 
     if args.testing:
@@ -404,7 +406,7 @@ def mass(argv=None):
     options, cmdargs = masscontroller.filehandler.createOptions(cluster=cluster,
                                                                 zcluster=zcluster,
                                                                 cat=data,
-                                                                zconfig=config['zphot'].keys()[0], # Run only on the first zphot configuration
+                                                                zconfig=zconfig, # Run only on the first zphot configuration
                                                                 cluster_ra=cluster_ra,
                                                                 cluster_dec=cluster_dec,
                                                                 options=options,
