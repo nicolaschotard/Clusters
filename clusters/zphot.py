@@ -14,7 +14,7 @@ from scipy.optimize import curve_fit
 from astropy.io import ascii
 from astropy.table import Table, hstack
 from astropy.coordinates import SkyCoord
-import pdb
+
 
 class LEPHARE(object):
 
@@ -97,7 +97,7 @@ class LEPHARE(object):
             zp = zspec.data['zspec'][idx]
             bad = N.where(d2d.mas > 300)  # identify galaxies with bad match, i.e. dist > 300 mas
             zp[bad] = -99
-            print "INFO: Using " + str(len(idx)-N.size(bad)) + " galaxies for spectroz training"
+            print "INFO: Using " + str(len(idx) - N.size(bad)) + " galaxies for spectroz training"
             if 'filters' in self.kwargs:
                 f.write("# id " + " ".join(["mag_%s" % filt for filt in self.kwargs['filters']]) +
                         " " + " ".join(["err_mag_%s" % filt for filt in self.kwargs['filters']]) +
@@ -196,9 +196,9 @@ class LEPHARE(object):
         print "\n".join(["   " + zo for zo in self.lephare_out.split("\n")[-6:]])
 
         self.data_out = ZPHOTO(self.files['output'], self.files['pdz_output'], zcode_name='lephare',
-                                   all_input=self.files['all_input'], **self.kwargs)
+                               all_input=self.files['all_input'], **self.kwargs)
 
-        
+
 class BPZ(object):
 
     """
@@ -294,7 +294,7 @@ class BPZ(object):
         f.write("CFHT_megacam_ip     5, 10  AB        0.01      0.00\n")
         f.write("CFHT_megacam_zp     6,11   AB        0.01      0.00\n")
         f.write("M_0                 5\n")
-        #f.write("Z_S                  13\n")
+        # f.write("Z_S                  13\n")
         f.write("ID                    1\n")
         f.close()
 
@@ -317,7 +317,7 @@ class BPZ(object):
         # build command line options from param file
         if self.config is not None:
             opt_arr = N.genfromtxt(self.config, dtype=None)
-            option = ['--'+opt_arr[i,0]+' '+opt_arr[i,1] for i in N.arange(len(opt_arr))]
+            option = ['--' + opt_arr[i,0] + ' ' + opt_arr[i,1] for i in N.arange(len(opt_arr))]
             options = ' '.join(e for e in option)
         else:
             options=''
@@ -331,8 +331,8 @@ class BPZ(object):
         print "\n".join(["   " + zo for zo in self.bpz_out.split("\n")[:20]])
 
         self.data_out = ZPHOTO(self.files['output'], self.files['pdz_output'],
-                                   zcode_name='bpz', all_input=self.files['all_input'],
-                                   **self.kwargs)
+                               zcode_name='bpz', all_input=self.files['all_input'],
+                               **self.kwargs)
 
 
         
@@ -361,7 +361,7 @@ class ZPHOTO(object):
             self.header = [l for l in f if l.startswith('#')]
             f.close()
             self.variables = N.loadtxt(os.getenv('LEPHAREDIR') +
-                                    "/config/zphot_output.para", dtype='string')
+                                       "/config/zphot_output.para", dtype='string')
             self.data_dict = {v: a for v, a in zip(self.variables, self.data_array)}
             self.nsources = len(self.data_dict['Z_BEST'])
             self.pdz_zbins = N.loadtxt(self.files['pdz_output'] + '.zph', unpack=True)
@@ -385,17 +385,17 @@ class ZPHOTO(object):
             self.nsources = len(self.data_dict['Z_B'])
             self.pdz_zbins = N.arange(zmin, zmax + dz, dz)
             self.pdz_val = N.loadtxt(self.files['pdz_output'], unpack=True,
-                                 usecols=N.arange(1, len(self.pdz_zbins) + 1))
+                                     usecols=N.arange(1, len(self.pdz_zbins) + 1))
 
     def save_zphot(self, file_out, path_output, overwrite=False):
         """
-        Save the output of photoz code (z_best, chi^2, pdz) into astropy table. 
+        Save the output of photoz code (z_best, chi^2, pdz) into astropy table.
         """
 
         # Duplicates the zbins vector for each object.
         # It is redundant information but astropy tables need each field to have the
-        # same size. Or maybe I'm missing somthing.
-        zbins=N.tile(self.pdz_zbins, (len(self.kwargs['id']),1))
+        # same size. Or maybe I'm missing something.
+        zbins = N.tile(self.pdz_zbins, (len(self.kwargs['id']),1))
         
         # Converts LePhare or BPZ likelihood to actual probability density
         for i in N.arange(len(self.pdz_val.T)):
@@ -408,18 +408,18 @@ class ZPHOTO(object):
                           Table([self.kwargs['dec']]), Table(self.data_dict),
                           Table([zbins], names=['zbins']),
                           Table([self.pdz_val.T], names=['pdz'])],
-                        join_type='inner')
+                         join_type='inner')
 
         # Rename BPZ Z_B to Z_BEST to match LePhare
         if 'Z_B' in new_tab.keys():
             new_tab.rename_column('Z_B', 'Z_BEST')
-        
+
         # overwrite keyword of data.write(file,path) does not only overwrites
         # the data in path, but the whole file, i.e. (we lose all other
         # paths in the process) --> overwrite_or_append (see above)
 
         cdata.overwrite_or_append(file_out, path_output, new_tab, overwrite=overwrite)
-          
+
         print "INFO: ", self.code, "data saved in", file_out, "as", path_output
 
     def read_input(self):

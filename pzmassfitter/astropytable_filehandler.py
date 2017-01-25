@@ -80,20 +80,19 @@ class AstropyTableFilehandler(object):
                                              g1Col=options.g1Col,
                                              g2Col=options.g2Col)
 
-
         r_mpc = r_arcmin * (1. / 60.) * (np.pi / 180.) * \
                 nfwutils.global_cosmology.angulardist(options.zcluster)
 
 #        size = manager.lensingcat[options.sizeCol] / options.psfsize
 #        snratio = manager.lensingcat[options.snratioCol]
-        
-         # old version                
+
+##       old version                
 #        manager.open('pdzcat', options.pdzfile, table.Table.read, path=options.prefix + 'pdz_values')
 #        manager.open('pdzrange', options.pdzfile, table.Table.read, path=options.prefix + 'pdz_bins')
 #        manager.replace('pdzrange', lambda: manager.pdzrange['zbins'])
 
-        pdzcat=manager.zcat['pdz']
-        manager.pdzrange=manager.zcat['zbins'][0] # all objects have same zbins, take the first one
+        pdzcat = manager.zcat['pdz']
+        manager.pdzrange = manager.zcat['zbins'][0]  # all objects have same zbins, take the first one
 
         # only keep 'i' filter
         if 'filter' in manager.lensingcat.keys():
@@ -102,17 +101,18 @@ class AstropyTableFilehandler(object):
         # pdz cut
 #       if 'z_flag_pdz_' + options.prefix[:-1] in manager.lensingcat.keys():
         if 'flag_' + options.zconfig in manager.cat.keys():
-            manager.replace('lensingcat', manager.lensingcat[manager.cat["flag_"+options.zconfig]['flag_z_pdz'] == True])
+            manager.replace('lensingcat',
+                            manager.lensingcat[manager.cat["flag_" + options.zconfig]['flag_z_pdz'] == True])
 
         manager.matched_zcat = matchById(manager.zcat, manager.lensingcat, 'id', 'objectId')
-        manager.pz = manager.matched_zcat['pdz']  #area normalized, ie density function
+        manager.pz = manager.matched_zcat['pdz']  # area normalized, ie density function
 
         z_b = manager.matched_zcat['Z_BEST']
 
         cols = [pyfits.Column(name='SeqNr', format='J', array=manager.lensingcat['id']),
                 pyfits.Column(name='r_mpc', format='E', array=r_mpc),
-#                pyfits.Column(name='size', format='E', array=size),
-#                pyfits.Column(name='snratio', format='E', array=snratio),
+#               pyfits.Column(name='size', format='E', array=size),
+#               pyfits.Column(name='snratio', format='E', array=snratio),
                 pyfits.Column(name='z_b', format='E', array=z_b),
                 pyfits.Column(name='ghats', format='E', array=E),
                 pyfits.Column(name='B', format='E', array=B)]

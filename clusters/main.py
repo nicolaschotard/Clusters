@@ -1,9 +1,8 @@
 """Main entry points for scripts."""
 
-import numpy as N
 import os
 import sys
-from astropy.table import Table, Column, hstack
+from astropy.table import Table, hstack
 from extinctions import reddening
 import yaml
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
@@ -14,8 +13,6 @@ from . import zphot as czphot
 from . import shear as cshear
 from . import background
 from pzmassfitter import dmstackdriver
-
-#import pdb
 
 
 def load_data(argv=None):
@@ -91,10 +88,7 @@ def extinction(argv=None):
 
     config = cdata.load_config(args.config)
     if args.output is None:
-#        args.output = os.path.basename(args.input).replace('.hdf5', '_extinction.hdf5')
         args.output = args.input
-#        if not args.overwrite and os.path.exists(args.output):
-#            raise IOError("Output already exists. Remove them or use --overwrite.")
 
     print "INFO: Working on cluster %s (z=%.4f)" % (config['cluster'], config['redshift'])
     print "INFO: Working on filters", config['filter']
@@ -178,7 +172,7 @@ def photometric_redshift(argv=None):
                config, float(args.zrange.split(',')[0]), float(args.zrange.split(',')[1]))
         sys.exit()
 
-    if args.output is None: # if no output name specified, append table to input file
+    if args.output is None:  # if no output name specified, append table to input file
         args.output = args.input
 
     print "INFO: Working on cluster %s (z=%.4f)" % (config['cluster'], config['redshift'])
@@ -197,41 +191,42 @@ def photometric_redshift(argv=None):
     # Make sure the selected magnitude does exist in the data table
     if args.mag not in data.keys():
         raise IOError("%s is not a column of the input table" % args.mag)
-
-
+    
     # Loop over all zphot codes present in the config.yaml file
     for zconfig in config['zphot'].keys():
-        zcode = config['zphot'][zconfig]['code'] if 'code' in config['zphot'][zconfig].keys() else 'lephare'
+        zcode = config['zphot'][zconfig]['code'] if 'code' in config['zphot'][zconfig].keys() \
+                                                 else 'lephare'
+
         # If a spectroscopic sample is provided, LEPHARE/BPZ will run using the adaptative method
         # (zero points determination); still to be implemented for BPZ...
-        # spectro_file = config['zphot'][zcode]['zspectro_file'] if 'zspectro_file' in config['zphot'][zcode] else None
-
+   
         zpara = config['zphot'][zconfig]['zpara'] if 'zpara' in config['zphot'][zconfig] else None
-        spectro_file = config['zphot'][zconfig]['zspectro_file'] if 'zspectro_file' in config['zphot'][zconfig] else None
+        spectro_file = config['zphot'][zconfig]['zspectro_file'] if 'zspectro_file' \
+            in config['zphot'][zconfig] else None
         kwargs = {'basename': config['cluster'],
-                    'filters': [f for f in config['filter'] if f in set(data['filter'].tolist())],
-                    'ra': data['coord_ra_deg'][data['filter'] == config['filter'][0]],
-                    'dec': data['coord_dec_deg'][data['filter'] == config['filter'][0]],
-                    'id': data['objectId'][data['filter'] == config['filter'][0]]}
+                  'filters': [f for f in config['filter'] if f in set(data['filter'].tolist())],
+                  'ra': data['coord_ra_deg'][data['filter'] == config['filter'][0]],
+                  'dec': data['coord_dec_deg'][data['filter'] == config['filter'][0]],
+                  'id': data['objectId'][data['filter'] == config['filter'][0]]}
         path = zconfig
         print "INFO: Running", zcode, "using configuration from", zpara, spectro_file
 
-        if zcode == 'bpz': # Run BPZ
+        if zcode == 'bpz':  # Run BPZ
             zphot = czphot.BPZ([data[args.mag][data['filter'] == f] for f in kwargs['filters']],
                                [data[args.mag.replace("_extcorr", "") + "Sigma"][data['filter'] == f]
                                 for f in kwargs['filters']],
-                                zpara=zpara, spectro_file=spectro_file, **kwargs)
-               
+                               zpara=zpara, spectro_file=spectro_file, **kwargs)
+
         if zcode == 'lephare': # Run LEPHARE
             zphot = czphot.LEPHARE([data[args.mag][data['filter'] == f] for f in kwargs['filters']],
-                                       [data[args.mag.replace("_extcorr", "") + \
-                                            "Sigma"][data['filter'] == f] for f in kwargs['filters']],
-                                        zpara=zpara, spectro_file=spectro_file, **kwargs)
+                                   [data[args.mag.replace("_extcorr", "") + 
+                                         "Sigma"][data['filter'] == f] for f in kwargs['filters']],
+                                   zpara=zpara, spectro_file=spectro_file, **kwargs)
             zphot.check_config()
- 
+
         zphot.run()
         zphot.data_out.save_zphot(args.output, path, overwrite=args.overwrite)
-                         
+
     # Plot
     if args.plot:
         doplot(zphot.data_out, config,
@@ -255,7 +250,7 @@ def getbackground(argv=None):
                         " (*_hdf5 output of clusters_data)")
     parser.add_argument("--zdata",
                         help="Photometric redshift data file (including pdz information) if not "
-                            "in data.hdf5")
+                             "in data.hdf5")
     parser.add_argument("--output",
                         help="Filename for the shear catalogue with bkg flags to also be stored "
                         "in a seperate file. If not specified, flags are added to data.hdf5")
@@ -267,7 +262,7 @@ def getbackground(argv=None):
                         help="Threshod redshift probability to select galaxy (in percent)")
     parser.add_argument("--plot", default=False, action='store_true', help="Make some plots")
     parser.add_argument("--overwrite", default=False, action='store_true',
-                       help="Overwrite the paths in the output file if they exist already")
+                        help="Overwrite the paths in the output file if they exist already")
     parser.add_argument("--rs", default=False, action='store_true',
                         help="Also slect galaxy based on red sequence")
 
@@ -284,7 +279,7 @@ def getbackground(argv=None):
         args.output = args.data
     if args.zdata is None:
         args.zdata = args.data
-        
+
     data = cdata.read_hdf5(args.data)
     zdata = cdata.read_hdf5(args.zdata)
 
@@ -292,23 +287,26 @@ def getbackground(argv=None):
     for k in config['zphot'].keys():
         z_config = config['zphot'][k]
         z_flag1, z_flag2 = background.get_zphot_background(config, zdata[k],
-                                                         zmin=args.zmin,
-                                                         zmax=args.zmax,
-                                                         z_config=z_config,
-                                                         thresh=args.thresh_prob,
-                                                         plot=args.plot)
-        new_tab=hstack([Table([zdata[k]['objectId']], names=['objectId']), Table([z_flag1], names=['flag_z_hard']),
-                           Table([z_flag2], names=['flag_z_pdz'])],
-                           join_type='inner')
-            
-        cdata.overwrite_or_append(args.output, 'flag_'+k, new_tab, overwrite=args.overwrite)
+                                                           zmin=args.zmin,
+                                                           zmax=args.zmax,
+                                                           z_config=z_config,
+                                                           thresh=args.thresh_prob,
+                                                           plot=args.plot)
+        new_tab = hstack([Table([zdata[k]['objectId']], names=['objectId']),
+                          Table([z_flag1], names=['flag_z_hard']),
+                          Table([z_flag2], names=['flag_z_pdz'])],
+                         join_type='inner')
+
+        cdata.overwrite_or_append(args.output, 'flag_' + k, new_tab, overwrite=args.overwrite)
             
     if args.rs:
         rs_flag = background.get_rs_background(config, data['deepCoadd_forced_src'])
-        new_tab=hstack([Table([zdata[k]['objectId']], names=['objectId']), Table([rs_flag], names=['flag_rs'])],
-                        join_type='inner')
+        new_tab = hstack([Table([zdata[0]['objectId']], names=['objectId']),
+                          Table([rs_flag], names=['flag_rs'])],
+                         join_type='inner')
         cdata.overwrite_or_append(args.output, 'flag_rs', Table([rs_flag]))
 
+        
 def shear(argv=None):
     """Compute the shear."""
     description = """Compute the shear."""
@@ -339,10 +337,9 @@ def shear(argv=None):
     # Load the data
     data = cdata.read_hdf5(args.input)
     meas = data['deepCoadd_meas']
-    wcs = cdata.load_wcs(data['wcs'])  # converts astropy Table to the right wcs format 
+    wcs = cdata.load_wcs(data['wcs'])  # converts astropy Table to the right wcs format
     xclust, yclust = cdata.skycoord_to_pixel([config['ra'], config['dec']], wcs)
     cshear.analysis(meas, float(xclust), float(yclust))
-
 
 
 def mass(argv=None):
@@ -372,7 +369,6 @@ def mass(argv=None):
         args.output = args.input.replace('.hdf5', '_mass.hdf5')
         if not args.overwrite and os.path.exists(args.output):
             raise IOError("Output already exists. Remove them or use --overwrite.")
-
 
     print "INFO: Working on cluster %s (z=%.4f)" % (config['cluster'], config['redshift'])
     print "INFO: Working on filters", config['filter']
@@ -418,7 +414,6 @@ def mass(argv=None):
     masscontroller.run()
     masscontroller.dump()
     masscontroller.finalize()
-
 
 
 def pipeline(argv=None):
