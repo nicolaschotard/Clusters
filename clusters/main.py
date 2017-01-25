@@ -339,7 +339,7 @@ def shear(argv=None):
     # Load the data
     data = cdata.read_hdf5(args.input)
     meas = data['deepCoadd_meas']
-    wcs = data['wcs']
+    wcs = cdata.load_wcs(data['wcs'])  # converts astropy Table to the right wcs format 
     xclust, yclust = cdata.skycoord_to_pixel([config['ra'], config['dec']], wcs)
     cshear.analysis(meas, float(xclust), float(yclust))
 

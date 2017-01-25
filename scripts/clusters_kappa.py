@@ -7,7 +7,7 @@
 from clusters import data
 import numpy as np
 
-f = "/home/chotard/Work/scripts/analysis/test_Cluster/MACSJ2243.3-0935_filtered_data.hdf5"
+f = "/Users/combet/RECHERCHE/LSST/RTF/analysis/MACS2243/test1/MACSJ2243.3-0935_filtered_data.hdf5"
 #f = "/Volumes/clustersdata/MACSJ2243.3-0935_background.hdf5"
 fc = data.read_hdf5(f, path='deepCoadd_meas', dic=False)
 

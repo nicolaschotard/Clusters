@@ -432,6 +432,7 @@ def skycoord_to_pixel(coords, wcs, unit='deg'):
     :param wcs: an astropy.wcs.WCS object
     :return: A list of (x, y) coordinates in pixel units
     """
+
     if not isinstance(coords, SkyCoord):
         coords = SkyCoord(coords[0], coords[1], unit=unit)
     return utils.skycoord_to_pixel(coords, wcs)
