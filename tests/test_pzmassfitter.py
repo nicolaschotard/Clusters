@@ -26,7 +26,7 @@ def setupNearPerfectData(m200 = 1e15):
 
     z_best = z_source0*np.ones(ngals)
     pdfgrid = np.vstack(ngals*[z_pdf])
-
+    zbinsgrid = np.vstack(ngals*[zrange])
 
     beta_true = nfwutils.global_cosmology.beta_s(z_true, zcluster)
     print 'beta', beta_true
@@ -70,18 +70,13 @@ def setupNearPerfectData(m200 = 1e15):
 
     deepCoadd_meas = table.Table([seqnr, x_deg, y_deg, e1, e2], names=('id', 'coord_ra_deg', 'coord_dec_deg', 'ext_shapeHSM_HsmShapeRegauss_e1', 'ext_shapeHSM_HsmShapeRegauss_e2'))
 
-    pdz_values = table.Table([seqnr, z_best, pdfgrid], names=('objectId', 'Z_BEST', 'pdz'))
-    pdz_bins = table.Table([zrange,], names=('zbins',))
-
+    pdz_values = table.Table([seqnr, z_best, pdfgrid, zbinsgrid], names=('objectId', 'Z_BEST', 'pdz', 'zbins'))
 
     tmpdir = tempfile.mkdtemp()
 
-    shearcatfile = '{}/shearfile.hdf5'.format(tmpdir)
-    deepCoadd_meas.write(shearcatfile, path='deepCoadd_meas')
-
-    pdzfile = '{}/pdz.hdf5'.format(tmpdir)
-    pdz_values.write(pdzfile, path='pdz_values')
-    pdz_bins.write(pdzfile, path='pdz_bins', append=True)
+    catfile = '{}/shearfile.hdf5'.format(tmpdir)
+    deepCoadd_meas.write(catfile, path='deepCoadd_meas')
+    pdz_values.write(catfile, path='zphot_ref',append=True)
 
     config=dict(cluster = 'nearperfect',
                 ra = 0.,
@@ -94,7 +89,7 @@ def setupNearPerfectData(m200 = 1e15):
     with open(configfile, 'w') as output:
         output.write(yaml.dump(config))
 
-    return tmpdir, shearcatfile, pdzfile, configfile
+    return tmpdir, catfile, configfile
 
 
 
@@ -114,12 +109,11 @@ def test_pzmassfitter():
 
         m200 = 1e15
 
-        tmpdir, shearcatfile, pdzfile, configfile = setupNearPerfectData(m200)
+        tmpdir, catfile, configfile = setupNearPerfectData(m200)
 
-        argv = '--zcode none --testing --output {tmpdir}/mass.out {configfile} {shearcatfile} {pdzfile}'.format(tmpdir=tmpdir,
-                                                                                                                configfile=configfile,
-                                                                                                                shearcatfile=shearcatfile,
-                                                                                                                pdzfile=pdzfile).split()
+        argv = '--testing --output {tmpdir}/mass.out {configfile} {catfile}'.format(tmpdir=tmpdir,
+                                                                                    configfile=configfile,
+                                                                                    catfile=catfile).split()
 
         clusters.main.mass(argv)
 
