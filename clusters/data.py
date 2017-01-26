@@ -384,7 +384,15 @@ def load_config(config):
     :type config: str.
     :returns: the configuration elements in a python dictionnary
     """
-    return yaml.load(open(config))
+    c = yaml.load(open(config))
+
+    # if the user did not provide a zphot key option, makes sure a default name
+    # is setup in the config dictionnary
+    if 'zphot' not in c.keys() : c['zphot'] = {'zphot_ref':{}} 
+    
+    return c
+
+
 
 
 def shorten(doc):
