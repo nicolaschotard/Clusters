@@ -317,7 +317,7 @@ class BPZ(object):
         # build command line options from param file
         if self.config is not None:
             opt_arr = N.genfromtxt(self.config, dtype=None)
-            option = ['--' + opt_arr[i,0] + ' ' + opt_arr[i,1] for i in N.arange(len(opt_arr))]
+            option = ['-' + opt_arr[i,0] + ' ' + opt_arr[i,1] for i in N.arange(len(opt_arr))]
             options = ' '.join(e for e in option)
         else:
             options=''

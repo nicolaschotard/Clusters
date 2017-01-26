@@ -58,7 +58,7 @@ def test_main(config=CONFIG, datafile=DATAFILE):
     main.load_data([config, "--output", datafile, "--overwrite"])
     main.load_data([config, "--show", "--overwrite"])
     filtered_data = datafile.replace('.hdf5', '_filtered_data.hdf5')
-    main.extinction([config, filtered_data, "--overwrite"])
+#    main.extinction([config, filtered_data, "--overwrite"])
 #    main.photometric_redshift([config, filtered_data, "--extinction",
 #                               extinction_data, "--overwrite"])
 #    pdz_data = filtered_data.replace('.hdf5', '_zphot_pdz.hdf5')

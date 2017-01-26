@@ -364,9 +364,18 @@ def mass(argv=None):
                         help="Simplify model for testing purposes")
     args = parser.parse_args(argv)
 
+    
     config = cdata.load_config(args.config)
+
+    # Select the zphot configuration to use for mass estimation
+    # Should probably be specified by the user in config.yaml
+    # For the moment, order the zphot configuration names alphabetically
+    # and take the first one.   
+    zconfig = config['mass']['zconfig'] if 'zconfig' in config['mass'] else sorted(config['zphot'].keys())[0] 
+    print "Cluster mass computed using ", zconfig, " configuration for photoz estimation"
+
     if args.output is None:
-        args.output = args.input.replace('.hdf5', '_mass.hdf5')
+        args.output = args.input.replace('.hdf5', '_mass_'+zconfig+'.hdf5')
         if not args.overwrite and os.path.exists(args.output):
             raise IOError("Output already exists. Remove them or use --overwrite.")
 
@@ -381,12 +390,7 @@ def mass(argv=None):
     cluster_ra = config['ra']
     cluster_dec = config['dec']
 
-    # Select the zphot configuration to use for mass estimation
-    # Should probably be specified by the user in config.yaml
-    # For the moment, order the zphot configuration names alphabetically
-    # and take the first one.   
-    zconfig = sorted(config['zphot'].keys())[0] 
-    print "Cluster mass computed using ", zconfig, " configuration for photoz estimation"
+    
     
     ###let's assume that all quality cuts were made previously
 
