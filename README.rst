@@ -244,9 +244,9 @@ keys as this analysis will progress.
 +----------------------+--------+------------------------------------------------------------------+
 | Optional keys        | Type   | Description [units]                                              |
 +======================+========+==================================================================+
-| ``"keys"``           | dict   | Dictionary containing list of keys for the catalogs (see below) |
+| ``"keys"``           | dict   | Dictionary containing list of keys for the catalogs (see below)  |
 +----------------------+--------+------------------------------------------------------------------+
-| ``"zphot"``          | dict   | Dictionary containing a list dictionnaries whose names identify |
+| ``"zphot"``          | dict   | Dictionary containing a list dictionnaries whose names identify  |
 |                      |        | the photoz run configuration (code, zpara, etc.)                 |
 +----------------------+--------+------------------------------------------------------------------+
 | ``"code"``           | string | Name of the photoz code to run: "lephare" (default) or "bpz"     |
@@ -255,7 +255,7 @@ keys as this analysis will progress.
 +----------------------+--------+------------------------------------------------------------------+
 | ``"zspectro_file"``  | string | File containing spectroz sample for LePhare training             |
 +----------------------+--------+------------------------------------------------------------------+
-| ``"mass"``           | dict   | Dictionary specifying options to run the mass code              |
+| ``"mass"``           | dict   | Dictionary specifying options to run the mass code               |
 +----------------------+--------+------------------------------------------------------------------+
 
 - ``keys`` is a dictionary having the name of the different catalogs
