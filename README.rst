@@ -244,15 +244,18 @@ keys as this analysis will progress.
 +----------------------+--------+------------------------------------------------------------------+
 | Optional keys        | Type   | Description [units]                                              |
 +======================+========+==================================================================+
-| ``"keys"``           | dict   | Dictionnary containing list of keys for the catalogs (see below) |
+| ``"keys"``           | dict   | Dictionary containing list of keys for the catalogs (see below) |
 +----------------------+--------+------------------------------------------------------------------+
-| ``"zphot"``          | list   | List of configurations (code, param file) to run the photoz      |
+| ``"zphot"``          | dict   | Dictionary containing a list dictionnaries whose names identify |
+|                      |        | the photoz run configuration (code, zpara, etc.)                 |
 +----------------------+--------+------------------------------------------------------------------+
 | ``"code"``           | string | Name of the photoz code to run: "lephare" (default) or "bpz"     |
 +----------------------+--------+------------------------------------------------------------------+
 | ``"zpara"``          | string | Paths to the photoz code parameter file (see below)              |
 +----------------------+--------+------------------------------------------------------------------+
 | ``"zspectro_file"``  | string | File containing spectroz sample for LePhare training             |
++----------------------+--------+------------------------------------------------------------------+
+| ``"mass"``           | dict   | Dictionary specifying options to run the mass code              |
 +----------------------+--------+------------------------------------------------------------------+
 
 - ``keys`` is a dictionary having the name of the different catalogs
@@ -266,8 +269,9 @@ keys as this analysis will progress.
   - or a "*" to get all keys available in a catalog, which is the
     default value for all catalogs.
 
-- ``zphot`` is a dictionary whose keys are user-defined names to identify a given zphot configuration. Each configuration is itself a dictionary with optional keys (``code``, ``zpara`` and ``zspectro_file``). If ``zphot`` is not specified the code will run using LePhare and a default parameter file. At the moment ``"code":"lephare"`` and ``"code":"bpz"`` are supported. More photoz code options might be added in the future.
+- ``zphot`` is a dictionary whose keys are user-defined names to identify a given zphot configuration. These names will be used to identify each photoz output in the final astropy table. Each configuration is itself a dictionary with optional keys (``code``, ``zpara`` and ``zspectro_file``). If ``zphot`` is not specified the code will run using LePhare and a default parameter file. At the moment ``"code":"lephare"`` and ``"code":"bpz"`` are supported. More photoz code options might be added in the future.
 
+- ``mass`` is a dictionary intended for user-defined options to run the mass code. At the moment, the only possible key is ``zconfig`` whose argument should be one of the keys of the ``zphot`` dictionary.
 
 General usage
 -------------
