@@ -232,10 +232,7 @@ for MACSJ2243.3-0935.
 +--------------------+--------+-------------------------------------------------------------------+
 | ``"patch"``        | list   | List of patches to study                                          |
 +--------------------+--------+-------------------------------------------------------------------+
-| ``"zphot"``        | list   | List of configurations (photoz code, param file) to run the photoz|
-+--------------------+--------+-------------------------------------------------------------------+
 
-- ``zphot`` is a dictionary whose keys are user-defined names to identify a given zphot configuration (code, zpara, zspectro_file). The keys to ``zphot`` will correspond to path names in the .hdf5 file where the photoz results are stored.
 
 
 The following list of optional keys can also be added to the
@@ -248,6 +245,8 @@ keys as this analysis will progress.
 | Optional keys        | Type   | Description [units]                                              |
 +======================+========+==================================================================+
 | ``"keys"``           | dict   | Dictionnary containing list of keys for the catalogs (see below) |
++----------------------+--------+------------------------------------------------------------------+
+| ``"zphot"``          | list   | List of configurations (code, param file) to run the photoz      |
 +----------------------+--------+------------------------------------------------------------------+
 | ``"code"``           | string | Name of the photoz code to run: "lephare" (default) or "bpz"     |
 +----------------------+--------+------------------------------------------------------------------+
@@ -267,8 +266,7 @@ keys as this analysis will progress.
   - or a "*" to get all keys available in a catalog, which is the
     default value for all catalogs.
 
-- ``code``, ``zpara`` and ``zspectro_file`` are optional keys to be 
-specified with each zphot configuration name defined under ``zphot``.
+- ``zphot`` is a dictionary whose keys are user-defined names to identify a given zphot configuration. Each configuration is itself a dictionary with optional keys (``code``, ``zpara`` and ``zspectro_file``). If ``zphot`` is not specified the code will run using LePhare and a default parameter file. At the moment ``"code":"lephare"`` and ``"code":"bpz"`` are supported. More photoz code options might be added in the future.
 
 
 General usage
