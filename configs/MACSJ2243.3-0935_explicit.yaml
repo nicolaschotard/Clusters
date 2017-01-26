@@ -16,14 +16,15 @@
                                       "modelfit_CModel_flag", "modelfit_CModel*"],
              "forced_src": ["coord*", "id", 'base_ClassificationExtendedness_flag',
                             'base_ClassificationExtendedness_value',
-                            'ext_shapeHSM_HsmShapeRegauss_flag', 'detect_isPrimary']},
+                            'ext_shapeHSM_HsmShapeRegauss_flag', 'detect_isPrimary']
+            },
     "zphot":{"zphot1" : { "code" : "bpz",
                           "zpara":"/path/to/your/bpz/configfile/bpz.para"},
              "zphot2" : { "code": "lephare",
                           "zpara":"/path/to/your/lephare/configfile/lephare.para",
-                          "zspectro_file":"/path/to/the/spectrz/file/MACS2243_spectroz.dat"}
+                          "zspectro_file":"/path/to/the/spectroz/file/MACS2243_spectroz.dat"}
              },
-     "mass":{ "zconfig" : "zphot4"}   
+     "mass":{ "zconfig" : "zphot1"}   
 }
 
  
