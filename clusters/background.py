@@ -6,7 +6,6 @@ from astropy.cosmology import Planck15 as cosmo
 from astropy import units as u
 import numpy as N
 import pylab as P
-
 from . import data as cdata
 
 
@@ -263,19 +262,17 @@ def zphot_cut(zclust, zdata, **kwargs):
     thresh = kwargs.get('thresh', 5.)
     zmin = kwargs.get('zmin', zclust + 0.1)
     zmax = kwargs.get('zmax', 1.25)
-    zcode_name = kwargs.get('zcode_name', 'lph')
-
-    zbest = zdata[zcode_name + '_pdz_values']['Z_BEST']
-    pdz = zdata[zcode_name + '_pdz_values']['pdz']
-    zbins = zdata[zcode_name + '_pdz_bins']
+    zbest = zdata['Z_BEST']
+    pdz = zdata['pdz']
+    zbins = zdata['zbins'][0]  # all objects have same zbins, take 0th.
 
     # WtGIII hard cuts
     filt1 = (zbest > zmin) & (zbest < zmax)
 
     # pdz_based cut
-    cut = (zbins['zbins'] < zclust + 0.1)
+    cut = (zbins < zclust + 0.1)
     # probability for the cluster to be located below zclust + 0.1
-    filt2 = N.array([N.trapz(pdzi[cut], zbins['zbins'][cut])*100. < thresh for pdzi in pdz])
+    filt2 = N.array([N.trapz(pdzi[cut], zbins[cut]) * 100. < thresh for pdzi in pdz])
 
     if plot:
         fig = P.figure()
@@ -314,14 +311,14 @@ def red_sequence_cut(config, data, **kwargs):
     sub_sample = cdata.filter_around(data, config, exclude_outer=N.arctan(rcut_rs / da).value,
                                      unit='rad', plot=plot)
 
-    color_gr = sub_sample['modelfit_CModel_mag'][sub_sample['filter'] == 'g'] - \
-               sub_sample['modelfit_CModel_mag'][sub_sample['filter'] == 'r']
+    color_gr = sub_sample['modelfit_CModel_mag'][sub_sample['filter'] == 'g'] \
+               - sub_sample['modelfit_CModel_mag'][sub_sample['filter'] == 'r']
     mag = sub_sample['modelfit_CModel_mag'][sub_sample['filter'] == 'r']
     params = fit_red_sequence(color_gr, mag, plot=plot)  # slopes and intercepts of the RS band
 
     # apply cut to entire dataset
-    color_gr = data['modelfit_CModel_mag'][data['filter'] == 'g'] - \
-               data['modelfit_CModel_mag'][data['filter'] == 'r']
+    color_gr = data['modelfit_CModel_mag'][data['filter'] == 'g'] \
+               - data['modelfit_CModel_mag'][data['filter'] == 'r']
     mag = data['modelfit_CModel_mag'][data['filter'] == 'r']
     lower_bound = params[0][0] * mag + params[0][1]
     upper_bound = params[1][0] * mag + params[1][1]
@@ -330,27 +327,27 @@ def red_sequence_cut(config, data, **kwargs):
     return filt
 
 
-def get_background(config, data, zdata, zspec=None, zcode_name=None, thresh=None, zmin=None, zmax=None, plot=None):
-    """Apply different cuts to the data in order to get the background galaxies."""
-
-    # Red sequence
-    #print "INFO: Flagging red sequence galaxies"
-    #rs_flag = red_sequence_cut(config, data)
-    #s_flag = N.repeat(rs_flag, len(set(data['filter'])))  # to get the cut applied to all filters
-    #print "INFO: %i galaxies have been flagged as RS" %(sum(~rs_flag) / len(set(data['filter'])))
+def get_zphot_background(config, zdata, zspec=None, z_config=None, thresh=None, zmin=None, zmax=None, plot=None):
+    """Return flag based on zphot criterion for galaxy selection."""
 
     # Spectroscopic against photometric redshifts
     if zspec is not None:
-        print "INFO: Checking photo/spectro redshifts consitancy"
+        print "INFO: Checking photo/spectro redshifts consistency"
 
     # Photometric redshift cut
-    print "INFO: Flagging foreground/uncertain objects using redshift information"
+    print "INFO: Flagging foreground/uncertain objects using redshift information from ", z_config
     z_flag1, z_flag2 = zphot_cut(config['redshift'], zdata, thresh=thresh,
-                                 zmin=zmin, zmax=zmax, plot=plot, zcode_name=zcode_name)
+                                 zmin=zmin, zmax=zmax, plot=plot)
     print "INFO: %i galaxies have been kept after the hard redshift cut" %(sum(z_flag1))
     print "INFO: %i galaxies have been kept after the pdz redshift cut" %(sum(z_flag2))
-    z_flag1 = N.repeat(z_flag1, len(set(data['filter'])))  # to get the cut applied to all filters
-    z_flag2 = N.repeat(z_flag2, len(set(data['filter'])))  # to get the cut applied to all filters
-    rs_flag = N.ones_like(z_flag1, dtype=bool)
 
-    return (rs_flag, z_flag1, z_flag2)
+    return (z_flag1, z_flag2)
+
+def get_rs_background(config, data):
+    """Return flag based on RS criterion for galaxy selection."""
+
+    print "INFO: Flagging red sequence galaxies"
+    rs_flag = red_sequence_cut(config, data)
+    print "INFO: %i galaxies have been flagged as RS" %(sum(~rs_flag))
+
+    return rs_flag

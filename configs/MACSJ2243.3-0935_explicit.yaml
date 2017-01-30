@@ -1,0 +1,30 @@
+{
+    "cluster": "MACSJ2243.3-0935",
+    "ra": 340.83,
+    "dec": -9.59,
+    "redshift": 0.4470,
+    "filter": ["u", "g", "r", "i", "i2", "z"],
+    "butler": "/sps/lsst/data/clusters/MACSJ2243.3-0935/output_v2/coadd_dir",
+    "patch":  ['1,1', '1,3', '1,2', '1,4', '1,5', '2,1', '2,2', '2,3', '2,4', '2,5', '3,2', '3,3', '3,4'],
+    "keys": {"deepCoadd_meas": ["coord*", "id", "base_ClassificationExtendedness_flag",
+                                "base_ClassificationExtendedness_value",
+                                "ext_shapeHSM_HsmShapeRegauss_flag",
+                                "ext_shapeHSM_HsmShapeRegauss_e1",
+                                "ext_shapeHSM_HsmShapeRegauss_e2",
+                                "detect_isPrimary"],
+             "deepCoadd_forced_src": ["coord*", "objectId", "modelfit_CModel_flux",
+                                      "modelfit_CModel_flag", "modelfit_CModel*"],
+             "forced_src": ["coord*", "id", 'base_ClassificationExtendedness_flag',
+                            'base_ClassificationExtendedness_value',
+                            'ext_shapeHSM_HsmShapeRegauss_flag', 'detect_isPrimary']
+            },
+    "zphot":{"zphot1" : { "code" : "bpz",
+                          "zpara":"/path/to/your/bpz/configfile/bpz.para"},
+             "zphot2" : { "code": "lephare",
+                          "zpara":"/path/to/your/lephare/configfile/lephare.para",
+                          "zspectro_file":"/path/to/the/spectroz/file/MACS2243_spectroz.dat"}
+             },
+     "mass":{ "zconfig" : "zphot1"}   
+}
+
+ 

@@ -1,5 +1,6 @@
 """Data builder and parser for the Clusters package."""
 
+import os
 import yaml
 import numpy
 import h5py
@@ -383,8 +384,14 @@ def load_config(config):
     :type config: str.
     :returns: the configuration elements in a python dictionnary
     """
-    return yaml.load(open(config))
+    c = yaml.load(open(config))
 
+    # if the user did not provide a 'zphot' key or 'mass' key option,
+    # makes sure a default name is setup in the config dictionnary
+    if 'zphot' not in c.keys() : c['zphot'] = {'zphot_ref':{}} 
+    if 'mass' not in c.keys() : c['mass'] = {} 
+ 
+    return c
 
 def shorten(doc):
     """Hack to go around an astropy/hdf5 bug. Cut in half words longer than 18 chars."""
@@ -431,6 +438,7 @@ def skycoord_to_pixel(coords, wcs, unit='deg'):
     :param wcs: an astropy.wcs.WCS object
     :return: A list of (x, y) coordinates in pixel units
     """
+
     if not isinstance(coords, SkyCoord):
         coords = SkyCoord(coords[0], coords[1], unit=unit)
     return utils.skycoord_to_pixel(coords, wcs)
@@ -661,3 +669,33 @@ def plot_patches(catalog, clust_coords=None):
     if clust_coords is not None:
         ax.scatter(clust_coords['ra'], clust_coords['dec'], s=100, marker='s', color='k')
     pylab.show()
+
+
+def overwrite_or_append(filename, path, table, overwrite=False):
+    """ 
+    Overwrites or append new path/table to existing file or creates new file
+    
+    The overwrite keyword of data.write(file,path) does not overwrites
+    only the data in path, but the whole file, i.e. (we lose all other
+    paths in the process) --> need to do it by hand
+    """
+        
+    if not os.path.isfile(filename):
+        print "Creating", filename
+        table.write(filename, path=path, compression=True, serialize_meta=True)
+    else:
+        data = read_hdf5(filename)
+        if path in data.keys():
+            if (overwrite):
+                print "Overwriting path =", path, " in", filename 
+                data[path] = table  # update the table with new values
+                os.remove(filename)  # delete file
+                for p in data.keys():  # rewrite all paths/tables to file
+                    data[p].write(filename, path=p, compression=True, serialize_meta=True,
+                                append=True)
+            else:
+                raise IOError("Path already exists in hdf5 file. Use --overwrite to overwrite.")
+        else:
+            print "Adding", path, " to", filename 
+            table.write(filename, path=path, compression=True, serialize_meta=True,
+                    append=True) 

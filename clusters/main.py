@@ -2,7 +2,7 @@
 
 import os
 import sys
-from astropy.table import Table, Column, hstack
+from astropy.table import Table, hstack
 from extinctions import reddening
 import yaml
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
@@ -13,8 +13,6 @@ from . import zphot as czphot
 from . import shear as cshear
 from . import background
 from pzmassfitter import dmstackdriver
-
-#import pdb
 
 
 def load_data(argv=None):
@@ -83,16 +81,14 @@ def extinction(argv=None):
     parser.add_argument("--output",
                         help="Name of the output file (hdf5 file)")
     parser.add_argument("--overwrite", action="store_true", default=False,
-                        help="Overwrite the output files if they exist already")
+                        help="Overwrite the paths in the output file if they exist already")
     parser.add_argument("--plot", action='store_true', default=False,
                         help="Make some plots")
     args = parser.parse_args(argv)
 
     config = cdata.load_config(args.config)
     if args.output is None:
-        args.output = os.path.basename(args.input).replace('.hdf5', '_extinction.hdf5')
-        if not args.overwrite and os.path.exists(args.output):
-            raise IOError("Output already exists. Remove them or use --overwrite.")
+        args.output = args.input
 
     print "INFO: Working on cluster %s (z=%.4f)" % (config['cluster'], config['redshift'])
     print "INFO: Working on filters", config['filter']
@@ -112,8 +108,11 @@ def extinction(argv=None):
     # Create a new table and save it
     new_tab = hstack([data['objectId', 'coord_ra', 'coord_dec', 'filter'],
                       Table(ebmv), Table(albds)], join_type='inner')
-    new_tab.write(args.output, path='extinction', compression=True,
-                  serialize_meta=True, overwrite=args.overwrite)
+#    new_tab.write(args.output, path='extinction', compression=True,
+#                  serialize_meta=True, overwrite=args.overwrite)
+
+    cdata.overwrite_or_append(args.output, 'extinction', new_tab, overwrite=args.overwrite)
+
     print "INFO: Milky Way dust extinction correction applied"
     print "INFO: Data saved in", args.output
 
@@ -152,17 +151,9 @@ def photometric_redshift(argv=None):
     parser.add_argument('input', help='Input data file')
     parser.add_argument("--output",
                         help="Name of the output file (hdf5 file)")
-    parser.add_argument("--pdz_output",
-                        help="Name of the zphot distribution output file (hdf5 file)")
     parser.add_argument("--extinction",
                         help="Output of clusters_extinction (hdf5 file)."
                         "Use to compute the extinction-corrected magnitudes.")
-    parser.add_argument("--overwrite", action="store_true", default=False,
-                        help="Overwrite the output files if they already exist")
-    parser.add_argument("--append", action="store_true", default=False,
-                        help="Append result to the output files if they already exist")
-    parser.add_argument("--zpara",
-                        help="Comma-separated LEPHARE configuration files (zphot.para)")
     parser.add_argument("--plot", action='store_true', default=False,
                         help="Make some plots")
     parser.add_argument("--zrange", default="0,999",
@@ -170,9 +161,9 @@ def photometric_redshift(argv=None):
     parser.add_argument("--mag", type=str, default='modelfit_CModel_mag',
                         help="Magnitude name [default]")
     parser.add_argument("--data",
-                        help="LEPHARE output file, used for the analysis only (plots)")
-    parser.add_argument("--bpz", action="store_true", default=False,
-                        help="Run BPZ instead of LEPHARE (TESTING!)")
+                        help="Photoz output file, used for the analysis only (plots)")
+    parser.add_argument("--overwrite", action="store_true", default=False,
+                        help="Overwrite the paths in the output file if they exist already")
     args = parser.parse_args(argv)
 
     config = cdata.load_config(args.config)
@@ -181,15 +172,8 @@ def photometric_redshift(argv=None):
                config, float(args.zrange.split(',')[0]), float(args.zrange.split(',')[1]))
         sys.exit()
 
-    if args.output is None:
-        args.output = os.path.basename(args.input).replace('.hdf5', '_zphot.hdf5')
-        if not args.overwrite and not args.append and os.path.exists(args.output):
-            raise IOError("Output already exists. Remove it or use --overwrite or use --append.")
-
-    if args.pdz_output is None:
-        args.pdz_output = args.output.replace('.hdf5', '_pdz.hdf5')
-        if not args.overwrite and not args.append and os.path.exists(args.output):
-            raise IOError("Output already exists. Remove it or use --overwrite or use --append.")
+    if args.output is None:  # if no output name specified, append table to input file
+        args.output = args.input
 
     print "INFO: Working on cluster %s (z=%.4f)" % (config['cluster'], config['redshift'])
 
@@ -207,71 +191,41 @@ def photometric_redshift(argv=None):
     # Make sure the selected magnitude does exist in the data table
     if args.mag not in data.keys():
         raise IOError("%s is not a column of the input table" % args.mag)
+    
+    # Loop over all zphot configurations present in the config.yaml file
+    for zconfig in config['zphot'].keys():
+        zcode = config['zphot'][zconfig]['code'] if 'code' in config['zphot'][zconfig].keys() \
+                                                 else 'lephare'
 
-    # If a spectroscopic sample is provided, LEPHARE will run using the adaptative method
-    # (zero points determination)
-    spectro_file = None if 'zspectro_file' not in config else config['zspectro_file']
-
-    # Run BPZ
-    if args.bpz:
-        print "INFO: Running BPZ"
+        # If a spectroscopic sample is provided, LEPHARE/BPZ will run using the adaptative method
+        # (zero points determination); still to be implemented for BPZ...
+   
+        zpara = config['zphot'][zconfig]['zpara'] if 'zpara' in config['zphot'][zconfig] else None
+        spectro_file = config['zphot'][zconfig]['zspectro_file'] if 'zspectro_file' \
+            in config['zphot'][zconfig] else None
         kwargs = {'basename': config['cluster'],
                   'filters': [f for f in config['filter'] if f in set(data['filter'].tolist())],
                   'ra': data['coord_ra_deg'][data['filter'] == config['filter'][0]],
                   'dec': data['coord_dec_deg'][data['filter'] == config['filter'][0]],
                   'id': data['objectId'][data['filter'] == config['filter'][0]]}
-        zphot = czphot.BPZ([data[args.mag][data['filter'] == f] for f in kwargs['filters']],
-                           [data[args.mag.replace("_extcorr", "") + "Sigma"][data['filter'] == f]
-                            for f in kwargs['filters']], **kwargs)
-        zphot.run()
-        path = "bpz"
-        zphot.data_out.save_ztable(args.output, path, is_overwrite=args.overwrite,
-                                   is_append=args.append)
-        path_pdz = "bpz_pdz_values"
-        path_bins = "bpz_pdz_bins"
-        zphot.data_out.save_pdztable(args.pdz_output, path_pdz, path_bins,
-                                     is_overwrite=args.overwrite, is_append=args.append)
+        path = zconfig
+        print "INFO: Running", zcode, "using configuration from", zpara, spectro_file
 
-    # Run LEPHARE
-    else:
-        print "INFO: LEPHARE will run on", len(data) / len(config['filter']), "sources"
+        if zcode == 'bpz':  # Run BPZ
+            zphot = czphot.BPZ([data[args.mag][data['filter'] == f] for f in kwargs['filters']],
+                               [data[args.mag.replace("_extcorr", "") + "Sigma"][data['filter'] == f]
+                                for f in kwargs['filters']],
+                               zpara=zpara, spectro_file=spectro_file, **kwargs)
 
-        if args.zpara is None:
-            args.zpara = os.environ["LEPHAREDIR"] + \
-                        "/config/zphot_megacam.para" if 'zpara' not in config else config['zpara']
-
-        for i, zpara in enumerate(args.zpara.split(',') if isinstance(args.zpara, str) \
-                                  else args.zpara):
-            print "\nINFO: Configuration for LEPHARE from:", zpara
-            kwargs = {'basename': config['cluster'] + \
-                      '_' + zpara.split('/')[-1].replace('.para', ''),
-                      'filters': [f for f in config['filter'] if f in set(data['filter'].tolist())],
-                      'ra': data['coord_ra_deg'][data['filter'] == config['filter'][0]],
-                      'dec': data['coord_dec_deg'][data['filter'] == config['filter'][0]],
-                      'id': data['objectId'][data['filter'] == config['filter'][0]]}
+        if zcode == 'lephare': # Run LEPHARE
             zphot = czphot.LEPHARE([data[args.mag][data['filter'] == f] for f in kwargs['filters']],
-                                   [data[args.mag.replace("_extcorr", "") + \
-                                         "Sigma"][data['filter'] == f]
-                                    for f in kwargs['filters']],
+                                   [data[args.mag.replace("_extcorr", "") + 
+                                         "Sigma"][data['filter'] == f] for f in kwargs['filters']],
                                    zpara=zpara, spectro_file=spectro_file, **kwargs)
             zphot.check_config()
-            zphot.run()
 
-            path = "lph_%s" % zpara.split('/')[-1].replace('.para', '')
-            is_overwrite = args.overwrite if i == 0 else False
-            is_append = True if i != 0 else False
-            zphot.data_out.save_ztable(args.output, path, is_overwrite=is_overwrite,
-                                       is_append=is_append)
-            if i == 0:
-                # For the moment, only save pdz for the first .para configuration
-                # Could change the keys names according to iteration (like for save_ztable, above)
-                # and append but get_background looks for "pdz_values" and "pdz_bins" only, cannot
-                # change path names without further modifying get_background.
-                # Don't want to do that just now.
-                path_pdz = "lph_pdz_values"
-                path_bins = "lph_pdz_bins"
-                zphot.data_out.save_pdztable(args.pdz_output, path_pdz, path_bins,
-                                             is_overwrite=args.overwrite, is_append=args.append)
+        zphot.run()
+        zphot.data_out.save_zphot(args.output, path, overwrite=args.overwrite)
 
     # Plot
     if args.plot:
@@ -292,16 +246,14 @@ def getbackground(argv=None):
     parser = ArgumentParser(prog=prog, usage=usage, description=description,
                             formatter_class=ArgumentDefaultsHelpFormatter)
     parser.add_argument('config', help="Configuration (yaml) file")
-    parser.add_argument('cat_data', help="Catalogue file including magnitude information"
+    parser.add_argument('data', help="Catalogue file data.hdf5"
                         " (*_hdf5 output of clusters_data)")
-    parser.add_argument("z_data",
-                        help="Photometric redshift data, including pdz information "
-                        "(*_pdz.hdf5 output of clusters_zphot)")
-    parser.add_argument("--zcode",
-                        help="Name of the photoz code used, 'lph' or 'bpz'.")
+    parser.add_argument("--zdata",
+                        help="Photometric redshift data file (including pdz information) if not "
+                             "in data.hdf5")
     parser.add_argument("--output",
                         help="Filename for the shear catalogue with bkg flags to also be stored "
-                        "in a seperate file.")
+                        "in a seperate file. If not specified, flags are added to data.hdf5")
     parser.add_argument("--zmin", type=float,
                         help="Minimum redshift for photoz hard cut")
     parser.add_argument("--zmax", type=float,
@@ -310,8 +262,10 @@ def getbackground(argv=None):
                         help="Threshod redshift probability to select galaxy (in percent)")
     parser.add_argument("--plot", default=False, action='store_true', help="Make some plots")
     parser.add_argument("--overwrite", default=False, action='store_true',
-                        help="Will overwrite any pre-existing red sequence and photoz flag "
-                        "in astropy table")
+                        help="Overwrite the paths in the output file if they exist already")
+    parser.add_argument("--rs", default=False, action='store_true',
+                        help="Also slect galaxy based on red sequence")
+
     args = parser.parse_args(argv)
 
     config = yaml.load(open(args.config))
@@ -320,51 +274,39 @@ def getbackground(argv=None):
     if args.zmax is None:
         args.zmax = config['redshift'] + 0.1
     if args.thresh_prob is None:
-        args.thresh_prob = 5.
+        args.thresh_prob = 1.
     if args.output is None:
-        args.output = os.path.basename(args.cat_data).replace('.hdf5', '_background.hdf5')
-    if args.zcode is None:
-        print 'INFO: No photoz code specified with --zcode option: using LePhare (lph) as default'
-        args.zcode = 'lph'
+        args.output = args.data
+    if args.zdata is None:
+        args.zdata = args.data
 
-    data = cdata.read_hdf5(args.cat_data)['deepCoadd_forced_src']
-    keys = cdata.read_hdf5(args.cat_data)['deepCoadd_meas'].keys()
+    data = cdata.read_hdf5(args.data)
+    zdata = cdata.read_hdf5(args.zdata)
 
-    if ('RS_flag' in keys and ('z_flag_hard_' + args.zcode) in keys and
-        ('z_flag_pdz_' + args.zcode) in keys and not args.overwrite):
-        raise IOError("Columns 'RS_flag' and 'z_flag*' already exist in astropy table" + \
-                      " 'deepCoadd_src. Use --overwrite option to overwrite.")
-    else:
-        zdata = cdata.read_hdf5(args.z_data)
-        rs_flag, z_flag1, z_flag2 = background.get_background(config, data, zdata,
-                                                              zmin=args.zmin,
-                                                              zmax=args.zmax,
-                                                              zcode_name=args.zcode,
-                                                              thresh=args.thresh_prob,
-                                                              plot=args.plot)
-        data = cdata.read_hdf5(args.cat_data)['deepCoadd_meas']
-        if ('RS_flag' in keys or ('z_flag_hard_' + args.zcode) in keys or \
-            ('z_flag_pdz_' + args.zcode) in keys):
-            print "INFO: Overwriting flag columns in astropy table 'deepCoadd_meas' stored in ", \
-                args.cat_data
-            data['RS_flag'] = Column(rs_flag)
-            data['z_flag_hard_'+ args.zcode] = Column(z_flag1)
-            data['z_flag_pdz_'+ args.zcode] = Column(z_flag2)
-        else:
-            print "INFO: Creating flag columns in astropy table 'deepCoadd_meas' stored in ", \
-                args.cat_data
-            data.add_columns([Column(rs_flag, name='RS_flag'),
-                              Column(z_flag1, name='z_flag_hard_'+ args.zcode),
-                              Column(z_flag2, name='z_flag_pdz_'+ args.zcode)])
+    # Loop over all zphot configurations found in config.yaml file
+    for k in config['zphot'].keys():
+        z_config = config['zphot'][k]
+        z_flag1, z_flag2 = background.get_zphot_background(config, zdata[k],
+                                                           zmin=args.zmin,
+                                                           zmax=args.zmax,
+                                                           z_config=z_config,
+                                                           thresh=args.thresh_prob,
+                                                           plot=args.plot)
+        new_tab = hstack([Table([zdata[k]['objectId']], names=['objectId']),
+                          Table([z_flag1], names=['flag_z_hard']),
+                          Table([z_flag2], names=['flag_z_pdz'])],
+                         join_type='inner')
 
-        data.write(args.cat_data, path='deepCoadd_meas', compression=True,
-                   serialize_meta=True, append=True, overwrite=True)
+        cdata.overwrite_or_append(args.output, 'flag_' + k, new_tab, overwrite=args.overwrite)
+            
+    if args.rs:
+        rs_flag = background.get_rs_background(config, data['deepCoadd_forced_src'])
+        new_tab = hstack([Table([data['deepCoadd_forced_src']['objectId']], names=['objectId']),
+                          Table([rs_flag], names=['flag_rs'])],
+                         join_type='inner')
+        cdata.overwrite_or_append(args.output, 'flag_rs', Table([rs_flag]))
 
-        print "INFO: Also saving table 'deepCoadd_meas' with added flag columns in ", args.output
-        data.write(args.output, path='deepCoadd_meas', compression=True,
-                   serialize_meta=True, append=True, overwrite=args.overwrite)
-
-
+        
 def shear(argv=None):
     """Compute the shear."""
     description = """Compute the shear."""
@@ -395,10 +337,9 @@ def shear(argv=None):
     # Load the data
     data = cdata.read_hdf5(args.input)
     meas = data['deepCoadd_meas']
-    wcs = data['wcs']
+    wcs = cdata.load_wcs(data['wcs'])  # converts astropy Table to the right wcs format
     xclust, yclust = cdata.skycoord_to_pixel([config['ra'], config['dec']], wcs)
     cshear.analysis(meas, float(xclust), float(yclust))
-
 
 
 def mass(argv=None):
@@ -411,7 +352,6 @@ def mass(argv=None):
                             formatter_class=ArgumentDefaultsHelpFormatter)
     parser.add_argument('config', help='Configuration (yaml) file')
     parser.add_argument('input', help='Input data file: output of clusters_data.py, i.e, hdf5 file')
-    parser.add_argument('pdzfile', help='Input pdz file: output of clusters_photoz')
     parser.add_argument("--output",
                         help="Name of the output file (hdf5 file)")
     parser.add_argument("--overwrite", action="store_true", default=False,
@@ -422,36 +362,36 @@ def mass(argv=None):
                         help="Number of sample to run")
     parser.add_argument("--testing", action="store_true", default=False,
                         help="Simplify model for testing purposes")
-    parser.add_argument("--zcode",
-                        help="Name of the photoz code used, 'lph' or 'bpz'.")
     args = parser.parse_args(argv)
 
+    
     config = cdata.load_config(args.config)
+
+    # Select the zphot configuration to use for mass estimation
+    # Should probably be specified by the user in config.yaml
+    # For the moment, order the zphot configuration names alphabetically
+    # and take the first one.   
+    zconfig = config['mass']['zconfig'] if 'zconfig' in config['mass'] else sorted(config['zphot'].keys())[0] 
+    print "Cluster mass computed using ", zconfig, " configuration for photoz estimation"
+
     if args.output is None:
-        args.output = args.input.replace('.hdf5', '_mass.hdf5')
+        args.output = args.input.replace('.hdf5', '_mass_'+zconfig+'.hdf5')
         if not args.overwrite and os.path.exists(args.output):
             raise IOError("Output already exists. Remove them or use --overwrite.")
-
-    if args.zcode is None:
-        print 'INFO: No photoz code specified with --zcode option: using LePhare (lph) as default'
-        args.zcode = 'lph_'
-    elif args.zcode == 'none':
-        args.zcode = ''
-    elif not args.zcode.endswith('_'):
-        args.zcode += '_'
 
     print "INFO: Working on cluster %s (z=%.4f)" % (config['cluster'], config['redshift'])
     print "INFO: Working on filters", config['filter']
 
     # Load the data
     data = cdata.read_hdf5(args.input)
-    meas = data['deepCoadd_meas']
 
     cluster = config['cluster']
     zcluster = config['redshift']
     cluster_ra = config['ra']
     cluster_dec = config['dec']
 
+    
+    
     ###let's assume that all quality cuts were made previously
 
     if args.testing:
@@ -473,20 +413,17 @@ def mass(argv=None):
 
     options, cmdargs = masscontroller.filehandler.createOptions(cluster=cluster,
                                                                 zcluster=zcluster,
-                                                                lensingcat=meas,
-                                                                pdzfile=args.pdzfile,
+                                                                cat=data,
+                                                                zconfig=zconfig,
                                                                 cluster_ra=cluster_ra,
                                                                 cluster_dec=cluster_dec,
-                                                                prefix=args.zcode,
                                                                 options=options,
                                                                 args=cmdargs)
-
 
     masscontroller.load(options, args)
     masscontroller.run()
     masscontroller.dump()
     masscontroller.finalize()
-
 
 
 def pipeline(argv=None):

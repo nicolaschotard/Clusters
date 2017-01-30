@@ -233,6 +233,8 @@ for MACSJ2243.3-0935.
 | ``"patch"``        | list   | List of patches to study                                          |
 +--------------------+--------+-------------------------------------------------------------------+
 
+
+
 The following list of optional keys can also be added to the
 configuration file. They correspond to specific configurations of the
 different steps of the analysis. While the previous list will most
@@ -242,11 +244,18 @@ keys as this analysis will progress.
 +----------------------+--------+------------------------------------------------------------------+
 | Optional keys        | Type   | Description [units]                                              |
 +======================+========+==================================================================+
-| ``"keys"``           | dict   | Dictionnary containing list of keys for the catalogs (see below) |
+| ``"keys"``           | dict   | Dictionary containing list of keys for the catalogs (see below)  |
 +----------------------+--------+------------------------------------------------------------------+
-| ``"zpara"``          | list   | List of paths to ``zphota`` configuration files (see below)      |
+| ``"zphot"``          | dict   | Dictionary containing a list dictionnaries whose names identify  |
+|                      |        | the photoz run configuration (code, zpara, etc.)                 |
++----------------------+--------+------------------------------------------------------------------+
+| ``"code"``           | string | Name of the photoz code to run: "lephare" (default) or "bpz"     |
++----------------------+--------+------------------------------------------------------------------+
+| ``"zpara"``          | string | Paths to the photoz code parameter file (see below)              |
 +----------------------+--------+------------------------------------------------------------------+
 | ``"zspectro_file"``  | string | File containing spectroz sample for LePhare training             |
++----------------------+--------+------------------------------------------------------------------+
+| ``"mass"``           | dict   | Dictionary specifying options to run the mass code               |
 +----------------------+--------+------------------------------------------------------------------+
 
 - ``keys`` is a dictionary having the name of the different catalogs
@@ -260,6 +269,9 @@ keys as this analysis will progress.
   - or a "*" to get all keys available in a catalog, which is the
     default value for all catalogs.
 
+- ``zphot`` is a dictionary whose keys are user-defined names to identify a given zphot configuration. These names will be used to identify each photoz output in the final astropy table. Each configuration is itself a dictionary with optional keys (``code``, ``zpara`` and ``zspectro_file``). If ``zphot`` is not specified the code will run using LePhare and a default parameter file. At the moment ``"code":"lephare"`` and ``"code":"bpz"`` are supported. More photoz code options might be added in the future.
+
+- ``mass`` is a dictionary intended for user-defined options to run the mass code. At the moment, the only possible key is ``zconfig`` whose argument should be one of the keys of the ``zphot`` dictionary.
 
 General usage
 -------------
@@ -294,41 +306,48 @@ lighter data files.
 
     https://github.com/nicolaschotard/Clusters/tree/master/notebooks
     
+Once the main catalogue has been written in ``data.hdf5`` by ``clusters_data.py``, 
+the remaning steps of the pipeline may all be run using the same command line format::
+
+     clusters_xxx.py config.yaml data.hdf5
+
+By default, the outputs of each step (extinction, photoz, galaxy selection) are stored
+as additional paths in ``data.hdf5``. More details are given below.
+    
 - Correct the data for Milky Way extinction::
 
     clusters_extinction.py config.yaml data.hdf5 (--output extinction.hdf5)
+    
+will save the extinction correction into path ``extinction`` of ``data.hdf5`` 
+(if --output not specified) or ``extinction.hdf5`` (if specified).
 
 - Get the photometric redshift using LEPHARE::
 
     clusters_zphot.py config.yaml data.hdf5 (--extinction extinction.hdf5) (--output zphot.hdf5)
 
-The configuration file(s) used in LEPHARE can be given with the option
-``--zpara``. The code will loop over the different files and run
-LEPHARE for each of them. All results are saved in the same ``hdf5``
-file. This list of configuration files can also be given in the
-CONFIG.yaml file (see above). ``--zpara`` will overwrite what is given
-in the configuration file.
+  This loops over the user-defined zphot configuration keys given under ``zphot`` in the ``config.yaml`` file. The results of each photoz run (point estimate and pdz distribution) is stored in ``data.hdf5`` (or ``zphot.hdf5`` if a different output is required) in a path whose name corresponds to the user-defined zphot configuration keys.
 
-- Identify galaxies to be removed from the whole sample: Red sequence
-  galaxies identified from color-color diagrams, foreground galaxies
-  identified using photometric redshifts::
+  The ``--extinction`` option corrects the magnitudes according to what was previously computed by ``clusters_extinction``, before running the photoz. 
 
-    clusters_getbackground.py config.yaml cat_data.hdf5 z_data.hdf5 (--zmin z_min) 
-                              (--zmax z_max) (--thresh_prob threshold)
 
-  - ``cat_data.hdf5`` is the catalogue from which magnitudes are read to
-    produce the red sequence cut. After the background galaxies are identified, the astropy table 
-    'deepCoadd_meas' is supplemented 3 boolean 'flag' columns (``RS_flag``,
-    ``z_flag_hard``, ``z_flag_pdz``), corresponding to the RS cut and the hard and pdz redshift cuts. 
-    If True the object passed the cut and is to be kept. If ``--output`` is used, the table is also saved 
-    in a separate   ``*_background.hdf5`` file
-  - ``z_data.hdf5`` is the output file of clusters_zphot.py containing the pdz information.
-  - ``z_min``, ``z_max`` are used for a 'hard' redshift cut: all
-    galaxies in [``z_min``, ``z_max``] are flagged.
-  - threshold: if the probability of a galaxy to be located at z <
-    z_cluster + 0.1 is larger than threshold [%], the galaxy is
-    flagged to be removed.
+- Flag galaxies to be removed for the lensing analysis::
 
+    clusters_getbackground.py config.yaml data.hdf5 (--z_data zdata.hdf5) (--zmin z_min) 
+                              (--zmax z_max) (--thresh_prob threshold) (--rs)
+
+  will produce redshift-based flag for the selection of background galaxies. 
+  
+  Each zphot user-defined configuration yields a new ``flag_zphot_config_name`` path in ``data.hdf5`` 
+  containing two columns:
+  
+  - one ``flag_z_hard`` corresponding to a hard redshift cut: all galaxies in [``z_min``, ``z_max``] are flagged. Default is [0,z_cluster+0.1];
+  - one ``flag_z_pdz`` corresponding to a pdz-based cut: if the probability of a galaxy to be located at z < z_cluster + 0.1 is larger than ``thresh_prob`` [%], the galaxy is flagged to be removed. Default is 1%.
+  
+  Galaxies belonging to the cluster red sequence may also be flagged using the ``--rs``
+  option. However, this option is not entirely reliable yet.
+  
+  Flags are set to ``True`` when the galaxy has passed the cut (i.e. is the be kept for analysis).
+ 
 - Compute the shear::
 
     clusters_shear config.yaml input.hdf5 output.hdf5
