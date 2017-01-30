@@ -386,15 +386,12 @@ def load_config(config):
     """
     c = yaml.load(open(config))
 
-    # if the user did not provide a zphot key option, makes sure a default name
-    # is setup in the config dictionnary
+    # if the user did not provide a 'zphot' key or 'mass' key option,
+    # makes sure a default name is setup in the config dictionnary
     if 'zphot' not in c.keys() : c['zphot'] = {'zphot_ref':{}} 
     if 'mass' not in c.keys() : c['mass'] = {} 
  
     return c
-
-
-
 
 def shorten(doc):
     """Hack to go around an astropy/hdf5 bug. Cut in half words longer than 18 chars."""

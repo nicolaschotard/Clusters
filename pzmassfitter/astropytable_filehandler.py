@@ -91,8 +91,7 @@ class AstropyTableFilehandler(object):
 #        manager.open('pdzrange', options.pdzfile, table.Table.read, path=options.prefix + 'pdz_bins')
 #        manager.replace('pdzrange', lambda: manager.pdzrange['zbins'])
 
-        pdzcat = manager.zcat['pdz']
-        manager.pdzrange = manager.zcat['zbins'][0]  # all objects have same zbins, take the first one
+         manager.pdzrange = manager.zcat['zbins'][0]  # all objects have same zbins, take the first one
 
         # only keep 'i' filter
         if 'filter' in manager.lensingcat.keys():
