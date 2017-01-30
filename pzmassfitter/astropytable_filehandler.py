@@ -68,7 +68,6 @@ class AstropyTableFilehandler(object):
 
         manager.lensingcat = options.cat['deepCoadd_meas']
         manager.zcat = options.cat[options.zconfig]
-        manager.cat = options.cat
 
         manager.clustername = options.cluster
         manager.zcluster = options.zcluster
@@ -91,7 +90,7 @@ class AstropyTableFilehandler(object):
 #        manager.open('pdzrange', options.pdzfile, table.Table.read, path=options.prefix + 'pdz_bins')
 #        manager.replace('pdzrange', lambda: manager.pdzrange['zbins'])
 
-         manager.pdzrange = manager.zcat['zbins'][0]  # all objects have same zbins, take the first one
+        manager.pdzrange = manager.zcat['zbins'][0]  # all objects have same zbins, take the first one
 
         # only keep 'i' filter
         if 'filter' in manager.lensingcat.keys():
@@ -99,9 +98,9 @@ class AstropyTableFilehandler(object):
 
         # pdz cut
 #       if 'z_flag_pdz_' + options.prefix[:-1] in manager.lensingcat.keys():
-        if 'flag_' + options.zconfig in manager.cat.keys():
+        if 'flag_' + options.zconfig in options.cat.keys():
             manager.replace('lensingcat',
-                            manager.lensingcat[manager.cat["flag_" + options.zconfig]['flag_z_pdz'] == True])
+                            manager.lensingcat[options.cat["flag_" + options.zconfig]['flag_z_pdz'] == True])
 
         manager.matched_zcat = matchById(manager.zcat, manager.lensingcat, 'id', 'objectId')
         manager.pz = manager.matched_zcat['pdz']  # area normalized, ie density function
