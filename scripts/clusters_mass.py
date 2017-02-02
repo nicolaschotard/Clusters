@@ -2,6 +2,6 @@
 """Mass analysis."""
 
 import sys
-from clusters import main
+from clusters.mains import mass
 
-sys.exit(main.mass())
+sys.exit(mass.mass())

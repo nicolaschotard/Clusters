@@ -2,6 +2,6 @@
 """Get a cluster background galaxies."""
 
 import sys
-from clusters import main
+from clusters.mains import background
 
-sys.exit(main.getbackground())
+sys.exit(background.getbackground())

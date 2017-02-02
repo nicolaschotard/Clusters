@@ -2,6 +2,6 @@
 """Load the cluster data."""
 
 import sys
-from clusters import main
+from clusters.mains import data
 
-sys.exit(main.load_data())
+sys.exit(data.load_data())

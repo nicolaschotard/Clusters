@@ -2,6 +2,6 @@
 """Shear analysis."""
 
 import sys
-from clusters import main
+from clusters.mains import shear
 
-sys.exit(main.shear())
+sys.exit(shear.shear())

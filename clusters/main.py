@@ -1,5 +1,8 @@
 """Main entry points for scripts."""
 
+## DEPRECATED
+## DEVELOPMENTS ARE NOW MADE IN mains/*.py
+
 import os
 import sys
 from astropy.table import Table, hstack

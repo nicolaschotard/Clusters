@@ -2,6 +2,6 @@
 """Pipeline for standard cluster analysis."""
 
 import sys
-from clusters import main
+from clusters.mains import pipeline
 
-sys.exit(main.pipeline())
+sys.exit(pipeline.pipeline())

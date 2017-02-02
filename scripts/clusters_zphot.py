@@ -2,6 +2,6 @@
 """Comput photometric redshift using LEPHARE."""
 
 import sys
-from clusters import main
+from clusters.mains import zphot
 
-sys.exit(main.photometric_redshift())
+sys.exit(zphot.photometric_redshift())
