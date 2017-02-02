@@ -5,7 +5,7 @@ import yaml
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 
 from .. import background
-
+from .. import data as cdata
 
 def getbackground(argv=None):
     """Get a cluster background galaxies."""
