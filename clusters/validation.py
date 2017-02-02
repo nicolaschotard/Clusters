@@ -614,6 +614,7 @@ def check_star_elipticities(d, cat='deepCoadd_meas', oid='id'):
 
     ax2.hist(radius['star'][magi['star'] < 23], bins=80, range=[1.7, 3], color='b')
     ax2.hist(radius['gal'][magi['gal'] < 23], bins=80, range=[1.7, 3], color='r')
+    ax2.set_xlabel('Radius in pixels', fontsize=10)
     ax1.set_xlabel('Radius in pixels', fontsize=10)
 
     P.tight_layout()
