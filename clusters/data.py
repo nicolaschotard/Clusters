@@ -39,7 +39,7 @@ class Catalogs(object):
         self.catalogs = {}
         self.keys = {}
         self.missing = {}
-        self.from_butler = {'getmag': None, 'wcs': None, 'schema': None}
+        self.from_butler = {'getmag': None, 'wcs': None, 'schema': None, 'extension': None}
         self.append = False
 
     def _load_dataids(self, catalog, **kwargs):
@@ -60,7 +60,7 @@ class Catalogs(object):
                 keys.pop('tract')
             dataids = [merge_dicts(dict(zip(sorted(keys.keys()), v)), {'tract': 0})
                        for v in self.butler.queryMetadata("forced_src", format=sorted(keys.keys()))]
-                       
+
         if len(dataids) == 0:
             raise IOError("No dataIds. Check the catalog, the config file, and path to the bulter.")
 
@@ -107,7 +107,18 @@ class Catalogs(object):
                                              dataId={'filter': filt, 'patch': patch, 'tract': 0})]
         filenames = [kwargs['butler'] + '/deepCoadd' + "/%s/%i/%s.fits" %
                      (did['filter'], did['tract'], did['patch']) for did in dids]
-        return numpy.concatenate([fitsio.read(filename, columns=['ccd', 'visit'], ext=7)
+        if self.from_butler['extension'] is None:
+            # Extensions have no names, so we have to guess which extension contains the
+            # 'visit' and 'ccd' info. we do it only once and then store this info. This allows
+            # us to be safe against variations in the number of extensions in fits files.
+            fitsdata = fitsio.FITS(filenames[0])
+            self.from_butler['extension'] = [i for i, ext in enumerate(fitsdata)
+                                             if (all([(key in ext.get_colnames())
+                                                      for key in ['ccd', 'visit']])
+                                                 if ext.get_exttype() == 'BINARY_TBL'
+                                                 else False)][0]
+        return numpy.concatenate([fitsio.read(filename, columns=['ccd', 'visit'],
+                                              ext=self.from_butler['extension'])
                                   for filename in filenames]).tolist()
 
     def _load_catalog_dataid(self, catalog, dataid, table=True, **kwargs):
