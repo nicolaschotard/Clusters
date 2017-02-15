@@ -1,6 +1,7 @@
 """Main entry points for scripts."""
 
 import os
+import sys
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 
 from .. import data as cdata
@@ -20,6 +21,10 @@ def load_data(argv=None):
     parser.add_argument("--catalogs",
                         default='forced_src,deepCoadd_meas,deepCoadd_forced_src',
                         help="List of catalogs to load (coma separated)")
+    parser.add_argument("--filter",
+                        default=None,
+                        help='Apply basic filters to an already loaded hdf5 file' \
+                        ', given as an input to this option.')
     parser.add_argument("--overwrite", action="store_true", default=False,
                         help="Overwrite the output files if they exist already")
     parser.add_argument("--show", action="store_true", default=False,
@@ -44,6 +49,11 @@ def load_data(argv=None):
     print "  - patches", config['patch']
     print "INFO: Butler located under %s" % config['butler']
 
+    # Apply filter and quit?
+    if args.filter is not None:
+        apply_filter(args.filter, config, output_filtered, args.overwrite)
+        sys.exit()
+
     data = cdata.Catalogs(config['butler'])
 
     if args.show:
@@ -52,8 +62,14 @@ def load_data(argv=None):
     config['output_name'] = output
     config['overwrite'] = args.overwrite
     data.load_catalogs(args.catalogs.split(','), matchid=True, **config)
+
+    # Apply filter
+    apply_filter(output, config, output_filtered, args.overwrite)
+
+
+def apply_filter(hdf5file, config, output, overwrite):
     print "\nINFO: Applying filters on the data to keep a clean sample of galaxies"
-    catalogs = cdata.read_hdf5(output)
+    catalogs = cdata.read_hdf5(hdf5file)
     data = cdata.Catalogs(config['butler'])
     data.catalogs = cdata.filter_table(catalogs)
-    data.save_catalogs(output_filtered, overwrite=args.overwrite, delete_catalog=True)
+    data.save_catalogs(output, overwrite=overwrite, delete_catalog=True)
