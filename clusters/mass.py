@@ -1,10 +1,13 @@
 """Mass analysis."""
 
+import cPickle
 import seaborn
+import numpy as np
 import pylab
 import pandas
-import cPickle
 from astropy.table import Column
+import yaml
+from pzmassfitter import nfwutils
 from . import data as data
 from . import shear
 
@@ -64,9 +67,38 @@ def plot_pzmassfitter_output(datafile):
     g = seaborn.PairGrid(df, diag_sharey=False)
     g.map_lower(pylab.scatter)
     g.map_diag(pylab.hist, bins=50)
-    
+
     #x = pandas.DataFrame(d['mdelta'])
     #y = pandas.DataFrame(d['log10concentration'])
     #seaborn.jointplot(x, y, kind="kde", size=7, space=0)
     pylab.show()
-    
+
+
+def from_mass_to_mass(chain, config, radius=None, delta=None, init_delta=200):
+    """
+    Mass convertion from the pipeline output (M200) to an other unit (M500 or M in a given radius).
+
+    :param file/dict chain: Chain file or dictionnary, output of the pzmassfitter code
+    :param file/dict config: Configuration file or dictionnary
+    :param float radius: Radius in whic you want the mass (Mpc)
+    :param int delta: Delta in which you want the mass
+    :param init_delta: Initial delta is 200
+    :output: New mass array
+    """
+    if isinstance(chain, str):
+        chain = cPickle.load(open(chain))
+    if isinstance(config, str):
+        config = yaml.load(open(config))
+    # scale radius in mpc
+    scale_radius = [nfwutils.rscaleConstM(mdelta, cdelta, config['redshift'], init_delta)
+                    for mdelta, cdelta in zip(chain['mdelta'], chain['cdelta'])]
+    # mass in a radius of XXX Mpc
+    if radius is not None:
+        masses = [nfwutils.massInsideR(sr, cdelta, config['redshift'], radius)
+                  for sr, cdelta in zip(scale_radius, chain['cdelta'])]
+    elif delta is not None:
+        masses = [nfwutils.Mdelta(sr, cdelta, config['redshift'], delta)
+                  for sr, cdelta in zip(scale_radius, chain['cdelta'])]
+    else:
+        print "WARNING: you should give a radius (in Mpc) or a delta (200, 500, etc)"
+    return np.array(masses)

@@ -1,7 +1,8 @@
 """Data builder and parser for the Clusters package."""
 
 import os
-import yaml
+import gc
+import warnings
 import numpy
 import h5py
 import fitsio
@@ -11,9 +12,8 @@ from astropy.table import Table, Column, vstack
 from astropy.units import Quantity
 from progressbar import Bar, ProgressBar, Percentage, ETA
 from termcolor import colored
+import yaml
 
-import gc
-import warnings
 warnings.filterwarnings("ignore")
 
 try:
@@ -28,11 +28,14 @@ class Catalogs(object):
 
     """Load data from a LSST stack butler path."""
 
-    def __init__(self, path):
+    def __init__(self, path, load_butler=True):
         """."""
         # Load the bulter
         print "INFO: Loading data from", path
-        self.butler = dafPersist.Butler(path)
+        if load_butler:
+            self.butler = dafPersist.Butler(path)
+        else:
+            print "WARNING: no butler loaded!"
 
         # Initialize data dictionnaries
         self.dataids = {}
@@ -117,6 +120,10 @@ class Catalogs(object):
                                                       for key in ['ccd', 'visit']])
                                                  if ext.get_exttype() == 'BINARY_TBL'
                                                  else False)][0]
+            # other idea from Jim
+            # fitsdata = fitsio.read(filenames[0], 4)
+            # fitsdata[np.array([n.startswith('CoaddInputs')
+            #                    for n in fitsdata['name']])]['cat.archive'][1] + 4
         return numpy.concatenate([fitsio.read(filename, columns=['ccd', 'visit'],
                                               ext=self.from_butler['extension'])
                                   for filename in filenames]).tolist()
@@ -517,12 +524,13 @@ def hdf5_paths(hdf5_file):
 def filter_table(cats):
     """Apply a few quality filters on the data tables."""
     # == Get the initial number of filter
-    nfilt = len(cats['deepCoadd_meas'].group_by('id').groups[0])
+    nfilt = len(set(cats['deepCoadd_meas']['filter']))
 
     # == Filter the deepCoadd catalogs
 
     # Select galaxies (and reject stars)
     filt = cats['deepCoadd_meas']['base_ClassificationExtendedness_flag'] == 0  # keep galaxy
+
     filt &= cats['deepCoadd_meas']['base_ClassificationExtendedness_value'] >= 0.5  # keep galaxy
 
     # Gauss regulerarization flag
