@@ -406,8 +406,8 @@ def load_config(config):
 
     # if the user did not provide a 'zphot' key or 'mass' key option,
     # makes sure a default name is setup in the config dictionnary
-    if 'zphot' not in c.keys() : c['zphot'] = {'zphot_ref':{}} 
-    if 'mass' not in c.keys() : c['mass'] = {} 
+#    if 'zphot' not in c.keys() : c['zphot'] = {'zphot_ref':{}} 
+#    if 'mass' not in c.keys() : c['mass'] = {'zconfig':'zphot_ref'} 
  
     return c
 

@@ -34,7 +34,7 @@ def mass(argv=None):
     # Select the zphot configuration to use for mass estimation
     # If not specified in yaml file, order the zphot configuration names alphabetically
     # and take the first one.
-
+    
     mconfig = config['mass'] if 'mass' in config else {'zconfig':'zphot_ref'}
     tag ='' if 'zflagconfig' not in mconfig else '_'+mconfig['zflagconfig']
     

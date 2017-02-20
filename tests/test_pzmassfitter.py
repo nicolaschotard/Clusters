@@ -5,7 +5,7 @@ import pzmassfitter.nfwmodeltools as nfwmodeltools
 import astropy.table as table
 import tempfile, shutil
 import yaml
-import clusters.main
+from clusters.mains import mass
 import cPickle
 import astropy.io.fits as pyfits
 import pzmassfitter.ldac as ldac
@@ -115,8 +115,8 @@ def test_pzmassfitter():
                                                                                     configfile=configfile,
                                                                                     catfile=catfile).split()
 
-        clusters.main.mass(argv)
-
+        #clusters.main.mass(argv)
+        mass.mass(argv)
 
         scanfile = '{tmpdir}/mass.out.m200.scan.fits'.format(tmpdir=tmpdir)
         scan = ldac.openObjectFile(scanfile)

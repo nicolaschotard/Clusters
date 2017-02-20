@@ -57,6 +57,11 @@ def photometric_redshift(argv=None):
     # Make sure the selected magnitude does exist in the data table
     if args.mag not in data.keys():
         raise IOError("%s is not a column of the input table" % args.mag)
+
+    # If the user did not define a configuration to run the photoz,
+    # add default one to the config dictionary
+    if not 'zphot' in config:
+        config['zphot']={'zphot_ref':{}} 
     
     # Loop over all zphot configurations present in the config.yaml file
     for zconfig in config['zphot'].keys():

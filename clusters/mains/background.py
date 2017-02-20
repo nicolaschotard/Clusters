@@ -39,6 +39,7 @@ def getbackground(argv=None):
     args = parser.parse_args(argv)
 
     config = yaml.load(open(args.config))
+    
     if args.zmin is None:
         args.zmin = config['redshift'] + 0.1
     if args.zmax is None:
@@ -53,6 +54,11 @@ def getbackground(argv=None):
     data = cdata.read_hdf5(args.data)
     zdata = cdata.read_hdf5(args.zdata)
 
+    # If the user did not define a configuration to run the photoz,
+    # add default one to the config dictionary
+    if not 'zphot' in config:
+        config['zphot']={'zphot_ref':{}} 
+    
     # Loop over all zphot configurations found in config.yaml file
     for k in config['zphot'].keys():
         z_config = config['zphot'][k]
