@@ -259,9 +259,9 @@ def zphot_cut(zclust, zdata, **kwargs):
     Returns bool arrays, where False means the object does not pass the cut
     """
     plot = kwargs.get('plot', False)
-    thresh = kwargs.get('thresh', 5.)
-    zmin = kwargs.get('zmin', zclust + 0.1)
-    zmax = kwargs.get('zmax', 1.25)
+    thresh = kwargs.get('thresh')
+    zmin = kwargs.get('zmin')
+    zmax = kwargs.get('zmax')
     zbest = zdata['Z_BEST']
     pdz = zdata['pdz']
     zbins = zdata['zbins'][0]  # all objects have same zbins, take 0th.

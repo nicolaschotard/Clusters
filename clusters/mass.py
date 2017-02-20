@@ -80,7 +80,7 @@ def from_mass_to_mass(chain, config, radius=None, delta=None, init_delta=200):
 
     :param file/dict chain: Chain file or dictionnary, output of the pzmassfitter code
     :param file/dict config: Configuration file or dictionnary
-    :param float radius: Radius in whic you want the mass (Mpc)
+    :param float radius: Radius in which you want the mass (Mpc)
     :param int delta: Delta in which you want the mass
     :param init_delta: Initial delta is 200
     :output: New mass array

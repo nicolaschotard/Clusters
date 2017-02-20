@@ -32,16 +32,19 @@ def mass(argv=None):
     config = cdata.load_config(args.config)
 
     # Select the zphot configuration to use for mass estimation
-    # Should probably be specified by the user in config.yaml
-    # For the moment, order the zphot configuration names alphabetically
+    # If not specified in yaml file, order the zphot configuration names alphabetically
     # and take the first one.
     zconfig = config['mass']['zconfig'] if 'zconfig' in config['mass'] \
               else sorted(config['zphot'].keys())[0]
-    print "Cluster mass computed using ", zconfig, \
-        " configuration for photoz estimation"
+
+    mconfig = config['mass'] if 'mass' in config else {'zconfig':'zphot_ref'}
+    tag ='' if 'zflagconfig' not in mconfig else '_'+mconfig['zflagconfig']
+    
+    print "Cluster mass computed using ", mconfig, \
+        " configuration for photoz estimation and backgroud selection"
 
     if args.output is None:
-        args.output = args.input.replace('.hdf5', '_mass_'+zconfig+'.hdf5')
+        args.output = args.input.replace('.hdf5', '_mass_'+mconfig['zconfig']+tag+'.hdf5')
         if not args.overwrite and os.path.exists(args.output):
             raise IOError("Output already exists. Remove them or use --overwrite.")
 
@@ -80,7 +83,7 @@ def mass(argv=None):
     options, cmdargs = masscontroller.filehandler.createOptions(cluster=cluster,
                                                                 zcluster=zcluster,
                                                                 cat=data,
-                                                                zconfig=zconfig,
+                                                                mconfig=mconfig,
                                                                 cluster_ra=cluster_ra,
                                                                 cluster_dec=cluster_dec,
                                                                 options=options,

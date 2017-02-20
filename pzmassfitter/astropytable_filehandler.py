@@ -32,7 +32,7 @@ class AstropyTableFilehandler(object):
     ######
 
     def createOptions(self, cluster, zcluster,
-                      cat, zconfig,
+                      cat, mconfig,
                       cluster_ra,
                       cluster_dec,
                       raCol='coord_ra_deg',
@@ -51,7 +51,7 @@ class AstropyTableFilehandler(object):
         options.cluster_dec = cluster_dec
 
         options.cat = cat
-        options.zconfig=zconfig
+        options.mconfig=mconfig
 
         options.raCol = raCol
         options.decCol = decCol
@@ -67,7 +67,7 @@ class AstropyTableFilehandler(object):
         options = manager.options
 
         manager.lensingcat = options.cat['deepCoadd_meas']
-        manager.zcat = options.cat[options.zconfig]
+        manager.zcat = options.cat[options.mconfig['zconfig']]
 
         manager.clustername = options.cluster
         manager.zcluster = options.zcluster
@@ -91,16 +91,23 @@ class AstropyTableFilehandler(object):
 #        manager.replace('pdzrange', lambda: manager.pdzrange['zbins'])
 
         manager.pdzrange = manager.zcat['zbins'][0]  # all objects have same zbins, take the first one
-
+        manager.replace('pdzrange', lambda: manager.pdzrange) 
+        
         # only keep 'i' filter
         if 'filter' in manager.lensingcat.keys():
             manager.replace('lensingcat', manager.lensingcat[manager.lensingcat["filter"] == 'i'])
 
-        # pdz cut
+        # redshift cut
 #       if 'z_flag_pdz_' + options.prefix[:-1] in manager.lensingcat.keys():
-        if 'flag_' + options.zconfig in options.cat.keys():
-            manager.replace('lensingcat',
-                            manager.lensingcat[options.cat["flag_" + options.zconfig]['flag_z_pdz'] == True])
+        if 'flag_' + options.mconfig['zconfig'] in options.cat.keys():
+            if 'zflagconfig' in options.mconfig and options.mconfig['zflagconfig'] == 'pdz':
+                print "Using pdz flag", len(manager.lensingcat[options.cat["flag_" + options.mconfig['zconfig']]['flag_z_pdz'] == True])
+                manager.replace('lensingcat',
+                                manager.lensingcat[options.cat["flag_" + options.mconfig['zconfig']]['flag_z_pdz'] == True])
+            elif 'zflagconfig' in options.mconfig and options.mconfig['zflagconfig'] == 'hard':
+                print "Using hard flag",len(manager.lensingcat[options.cat["flag_" + options.mconfig['zconfig']]['flag_z_hard'] == True])
+                manager.replace('lensingcat',
+                                 manager.lensingcat[options.cat["flag_" + options.mconfig['zconfig']]['flag_z_hard'] == True])
 
         manager.matched_zcat = matchById(manager.zcat, manager.lensingcat, 'id', 'objectId')
         manager.pz = manager.matched_zcat['pdz']  # area normalized, ie density function

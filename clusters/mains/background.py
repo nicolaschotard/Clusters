@@ -40,9 +40,9 @@ def getbackground(argv=None):
 
     config = yaml.load(open(args.config))
     if args.zmin is None:
-        args.zmin = 0.
+        args.zmin = config['redshift'] + 0.1
     if args.zmax is None:
-        args.zmax = config['redshift'] + 0.1
+        args.zmax = 4
     if args.thresh_prob is None:
         args.thresh_prob = 1.
     if args.output is None:
