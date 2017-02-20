@@ -83,7 +83,7 @@ def mass(argv=None):
     options, cmdargs = masscontroller.filehandler.createOptions(cluster=cluster,
                                                                 zcluster=zcluster,
                                                                 cat=data,
-                                                                mconfig=mconfig,
+                                                                mconfig=mconfig, 
                                                                 cluster_ra=cluster_ra,
                                                                 cluster_dec=cluster_dec,
                                                                 options=options,
