@@ -205,6 +205,8 @@ class LensingModel(object):
 
         manager.massdelta = options.delta
         parts.massdelta = options.delta
+
+#        Uniform sampling of m        
         parts.scaledmdelta = pymc.Uniform('scaledmdelta', options.masslow/massscale, options.masshigh/massscale)
 
         @pymc.deterministic
@@ -213,7 +215,14 @@ class LensingModel(object):
         parts.mdelta = mdelta
 
 
-    #############################
+#       Uniform sampling of log(m)
+#        parts.logmdelta = pymc.Uniform('logmdelta', np.log(options.masslow), np.log(options.masshigh))
+#        @pymc.deterministic
+#        def mdelta(logmdelta = parts.logmdelta):
+#            return np.exp(logmdelta)
+#        parts.mdelta = mdelta
+#
+        #############################
 
     def makeShapePrior(self, datamanager, parts):
         #### This is just a stand-in. Subclass for specific examples.

@@ -271,6 +271,7 @@ def zphot_cut(zclust, zdata, **kwargs):
 
     # pdz_based cut
     cut = (zbins < zclust + 0.1)
+    
     # probability for the cluster to be located below zclust + 0.1
     filt2 = N.array([N.trapz(pdzi[cut], zbins[cut]) * 100. < thresh for pdzi in pdz])
 
