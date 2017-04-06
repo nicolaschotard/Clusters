@@ -41,10 +41,6 @@ def mass(argv=None):
     print "Cluster mass computed using ", mconfig, \
         " configuration for photoz estimation and backgroud selection"
 
-    if args.output is None:
-        args.output = args.input.replace('.hdf5', '_masslin_nocal_'+mconfig['zconfig']+tag+'.hdf5')
-        if not args.overwrite and os.path.exists(args.output):
-            raise IOError("Output already exists. Remove them or use --overwrite.")
 
     print "INFO: Working on cluster %s (z=%.4f)" % (config['cluster'], config['redshift'])
     print "INFO: Working on filters", config['filter']
@@ -61,12 +57,18 @@ def mass(argv=None):
     wtg_shearcal = False if 'wtg_shearcal' not in mconfig else config['mass']['wtg_shearcal']
     psfsize = None if 'psfsize' not in mconfig else config['mass']['psfsize']
 
+    # Choose lin or log sampling for the mass
     mprior = 'lin' if 'mprior' not in mconfig else config['mass']['mprior']
     if mprior == 'lin':
         logprior = False
     else:
         logprior = True
-        
+
+    if args.output is None:
+        args.output = args.input.replace('.hdf5', '_mass'+mprior+'_cal'+str(wtg_shearcal)+'_'+mconfig['zconfig']+tag+'.hdf5')
+        if not args.overwrite and os.path.exists(args.output):
+            raise IOError("Output already exists. Remove them or use --overwrite.")
+
     ###let's assume that all quality cuts were made previously
 
     if args.testing:

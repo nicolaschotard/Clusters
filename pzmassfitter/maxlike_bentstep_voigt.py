@@ -62,42 +62,43 @@ class BentVoigtShapedistro(mm.LensingModel):
 
         inputcat = data.inputcat
 
-#        psfSize = data.psfsize # rh, in pixels
+        if data.wtg_shearcal: # use WTG STEP2 shear calibration
+            psfSize = data.psfsize # rh, in pixels
 
-        #disabled since we don't have a STEP calibration for the regauss pipeline in DMSTACK
-#        m_slope, m_b, m_cov, c = self.psfDependence(data.options.steppsf, psfSize)
-#
-#        
-#        parts.step_m_prior = pymc.MvNormalCov('step_m_prior', [m_b, m_slope], m_cov)
-#
-#        @pymc.deterministic(trace = False)
-#        def shearcal_m(size = inputcat['size'], mprior = parts.step_m_prior):
-#
-#            m_b = mprior[0]
-#            m_slope = mprior[1]
-#                           
-#
-#            m = np.zeros_like(size)
-#            m[size >= 2.0] = m_b
-#            m[size < 2.0] = m_slope*(size[size < 2.0] - 2.0) +m_b
-#            
-#            return np.ascontiguousarray(m.astype(np.float64))
-#
-#        parts.shearcal_m = shearcal_m
-#
-#        parts.step_c_prior = pymc.Normal('step_c_prior', c, 1./(0.0004**2))
-#
-#        @pymc.deterministic(trace = False)
-#        def shearcal_c(size = inputcat['size'], cprior = parts.step_c_prior):
-#            c = cprior*np.ones_like(size)
-#            
-#            return np.ascontiguousarray(c.astype(np.float64))
-#
-#        parts.shearcal_c = shearcal_c
-#
+            #disabled since we don't have a STEP calibration for the regauss pipeline in DMSTACK
+            m_slope, m_b, m_cov, c = self.psfDependence(data.options.steppsf, psfSize)
 
-        parts.shearcal_m = np.zeros(len(inputcat))
-        parts.shearcal_c = np.zeros(len(inputcat))
+        
+            parts.step_m_prior = pymc.MvNormalCov('step_m_prior', [m_b, m_slope], m_cov)
+
+            @pymc.deterministic(trace = False)
+            def shearcal_m(size = inputcat['size'], mprior = parts.step_m_prior):
+
+                m_b = mprior[0]
+                m_slope = mprior[1]
+                           
+
+                m = np.zeros_like(size)
+                m[size >= 2.0] = m_b
+                m[size < 2.0] = m_slope*(size[size < 2.0] - 2.0) +m_b
+            
+                return np.ascontiguousarray(m.astype(np.float64))
+
+            parts.shearcal_m = shearcal_m
+
+            parts.step_c_prior = pymc.Normal('step_c_prior', c, 1./(0.0004**2))
+
+            @pymc.deterministic(trace = False)
+            def shearcal_c(size = inputcat['size'], cprior = parts.step_c_prior):
+                c = cprior*np.ones_like(size)
+            
+                return np.ascontiguousarray(c.astype(np.float64))
+
+            parts.shearcal_c = shearcal_c
+
+        else: # No shear calibration
+            parts.shearcal_m = np.zeros(len(inputcat))
+            parts.shearcal_c = np.zeros(len(inputcat))
 
 
 
