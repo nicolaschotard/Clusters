@@ -39,4 +39,4 @@ def shear(argv=None):
     meas = data['deepCoadd_meas']
     wcs = cdata.load_wcs(data['wcs'])  # converts astropy Table to the right wcs format
     xclust, yclust = cdata.skycoord_to_pixel([config['ra'], config['dec']], wcs)
-    cshear.analysis(meas, float(xclust), float(yclust))
+    cshear.analysis(meas, float(xclust), float(yclust), config=config, datafile=args.input)

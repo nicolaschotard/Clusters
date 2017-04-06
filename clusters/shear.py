@@ -18,7 +18,7 @@ def compute_shear(e1, e2, distx, disty):
 
 
 def analysis(table, xclust, yclust, e1='ext_shapeHSM_HsmShapeRegauss_e1',
-             e2='ext_shapeHSM_HsmShapeRegauss_e2'):
+             e2='ext_shapeHSM_HsmShapeRegauss_e2', config=None, datafile=None):
     """Computethe shear.
 
     :param string data_file: Name of the hdf5 file to load
@@ -57,7 +57,8 @@ def analysis(table, xclust, yclust, e1='ext_shapeHSM_HsmShapeRegauss_e1',
 
     catf = table[(abs(table[e1]) < 1.2) & (abs(table[e2] < 1.2) & (table['filter'] == 'i'))]
     kappa = ckappa.Kappa(catf['x_Src'], catf['y_Src'], catf[e1], catf[e2], step=200)
-    kappa.plot_maps()
+    if config is not None and datafile is not None:
+        kappa.plot_maps(clust_coords=[config['ra'], config['dec'], wcs=ckappa.load_wcs(datafile))
     #quiver_plot()
 
 
