@@ -5,6 +5,7 @@ import pylab
 import seaborn
 from astropy.table import Table, Column
 from . import data as cdata
+from . import ckappa
 
 
 def compute_shear(e1, e2, distx, disty):
@@ -16,7 +17,8 @@ def compute_shear(e1, e2, distx, disty):
     return gamt, gamc, dist
 
 
-def analysis(table, xclust, yclust):
+def analysis(table, xclust, yclust, e1='ext_shapeHSM_HsmShapeRegauss_e1',
+             e2='ext_shapeHSM_HsmShapeRegauss_e2'):
     """Computethe shear.
 
     :param string data_file: Name of the hdf5 file to load
@@ -27,10 +29,10 @@ def analysis(table, xclust, yclust):
      - forced: the 'deepCoad_forced_src' catalog (an astropy table)
      - wcs: the 'wcs' of these catalogs (an ``astropy.wcs.WCS`` object)
     """
-    e1r = table["ext_shapeHSM_HsmShapeRegauss_e1"][table['filter'] == 'r']
-    e2r = table["ext_shapeHSM_HsmShapeRegauss_e2"][table['filter'] == 'r']
-    e1i = table["ext_shapeHSM_HsmShapeRegauss_e1"][table['filter'] == 'i']
-    e2i = table["ext_shapeHSM_HsmShapeRegauss_e2"][table['filter'] == 'i']
+    e1r = table[e1][table['filter'] == 'r']
+    e2r = table[e2][table['filter'] == 'r']
+    e1i = table[e1][table['filter'] == 'i']
+    e2i = table[e2][table['filter'] == 'i']
     distx = table["x_Src"][table['filter'] == 'r'] - xclust
     disty = table["y_Src"][table['filter'] == 'r'] - yclust
 
@@ -52,7 +54,11 @@ def analysis(table, xclust, yclust):
 
     # Make some plots
     plot_shear(gamt, gamc, dist)
-    quiver_plot()
+
+    catf = table[(abs(table[e1]) < 1.2) & (abs(table[e2] < 1.2) & (table['filter'] == 'i'))]
+    kappa = ckappa.Kappa(catf['x_Src'], catf['y_Src'], catf[e1], catf[e2], step=200)
+    kappa.plot_maps()
+    #quiver_plot()
 
 
 def xy_clust(config, wcs):
@@ -256,11 +262,10 @@ def quiver_plot(meas, ):
     pass
 
 
-def kappa_plot():
+def kappa_plot(x, y, e1, e2):
     e1 = 'ext_shapeHSM_HsmShapeRegauss_e1'
     e2 = 'ext_shapeHSM_HsmShapeRegauss_e2'
     f = "YOURFILE.hdf5"
-    catf = kappa.get_cat(f)
-    from clusters import kappa
-    k = kappa.Kappa(catf['x_Src'], catf['y_Src'], catf[e1], catf[e2], step=100)
+    catf = ckappa.get_cat(f)
+    k = ckappa.Kappa(catf['x_Src'], catf['y_Src'], catf[e1], catf[e2], step=200)
     k.plot_maps()
