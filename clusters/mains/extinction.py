@@ -34,7 +34,7 @@ def extinction(argv=None):
     print "INFO: Working on filters", config['filter']
 
     # Load the data
-    data = cdata.read_hdf5(args.input, path='deepCoadd_forced_src', dic=False)
+    data = cdata.read_hdf5(args.input, path='deepCoadd_meas', dic=False)
 
     # Query for E(b-v) and compute the extinction
     red = reddening.Reddening(data['coord_ra_deg'].tolist(), data['coord_dec_deg'].tolist())
@@ -46,7 +46,7 @@ def extinction(argv=None):
         albds.update({k.replace('ebv_', 'albd_%s_' % f): albd[f] for f in albd})
 
     # Create a new table and save it
-    new_tab = hstack([data['objectId', 'coord_ra', 'coord_dec', 'filter'],
+    new_tab = hstack([data['id', 'coord_ra', 'coord_dec', 'filter'],
                       Table(ebmv), Table(albds)], join_type='inner')
 #    new_tab.write(args.output, path='extinction', compression=True,
 #                  serialize_meta=True, overwrite=args.overwrite)
