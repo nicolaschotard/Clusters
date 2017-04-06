@@ -208,16 +208,16 @@ class LensingModel(object):
         parts.massdelta = options.delta
 
 
-        if manager.logprior:
-        #       Uniform sampling of log(m)
+        if options.logprior:
+        # Uniform sampling of log(m)
             parts.log10mdelta = pymc.Uniform('log10mdelta', np.log10(options.masslow), np.log10(options.masshigh))
             @pymc.deterministic
             def mdelta(log10mdelta = parts.log10mdelta):
-                return np.power(10.,log10mdelta)
+                return 10**log10mdelta
             parts.mdelta = mdelta
 
         else:
-         #        Uniform sampling of m        
+         # Uniform sampling of m        
             parts.scaledmdelta = pymc.Uniform('scaledmdelta', options.masslow/massscale, options.masshigh/massscale)
             @pymc.deterministic
             def mdelta(scaledmdelta = parts.scaledmdelta):

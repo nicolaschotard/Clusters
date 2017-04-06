@@ -84,7 +84,8 @@ class AstropyTableFilehandler(object):
         manager.clustername = options.cluster
         manager.zcluster = options.zcluster
 
-        manager.logprior=options.logprior
+        manager.logprior = options.logprior
+        manager.wtg_shearcal = options.wtg_shearcal
         
         r_arcmin, E, B = calcTangentialShear(cat=manager.lensingcat,
                                              center=(options.cluster_ra, options.cluster_dec),
@@ -130,7 +131,7 @@ class AstropyTableFilehandler(object):
 
         z_b = manager.matched_zcat['Z_BEST']
 
-        if options.wtg_shearcal:
+        if manager.wtg_shearcal:
             cols = [pyfits.Column(name='SeqNr', format='J', array=manager.lensingcat['id']),
                     pyfits.Column(name='r_mpc', format='E', array=r_mpc),
                     pyfits.Column(name='size', format='E', array=size),
