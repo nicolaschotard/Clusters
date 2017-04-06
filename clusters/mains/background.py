@@ -43,7 +43,7 @@ def getbackground(argv=None):
     if args.zmin is None:
         args.zmin = config['redshift'] + 0.1
     if args.zmax is None:
-        args.zmax = 4
+        args.zmax = 1.25
     if args.thresh_prob is None:
         args.thresh_prob = 1.
     if args.output is None:

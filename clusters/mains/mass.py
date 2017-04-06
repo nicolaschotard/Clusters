@@ -42,7 +42,7 @@ def mass(argv=None):
         " configuration for photoz estimation and backgroud selection"
 
     if args.output is None:
-        args.output = args.input.replace('.hdf5', '_mass_'+mconfig['zconfig']+tag+'.hdf5')
+        args.output = args.input.replace('.hdf5', '_masslin_nocal_'+mconfig['zconfig']+tag+'.hdf5')
         if not args.overwrite and os.path.exists(args.output):
             raise IOError("Output already exists. Remove them or use --overwrite.")
 
@@ -57,8 +57,16 @@ def mass(argv=None):
     cluster_ra = config['ra']
     cluster_dec = config['dec']
 
-    
-    
+    # WTG quantities for shear calibration
+    wtg_shearcal = False if 'wtg_shearcal' not in mconfig else config['mass']['wtg_shearcal']
+    psfsize = None if 'psfsize' not in mconfig else config['mass']['psfsize']
+
+    mprior = 'lin' if 'mprior' not in mconfig else config['mass']['mprior']
+    if mprior == 'lin':
+        logprior = False
+    else:
+        logprior = True
+        
     ###let's assume that all quality cuts were made previously
 
     if args.testing:
@@ -84,6 +92,9 @@ def mass(argv=None):
                                                                 mconfig=mconfig, 
                                                                 cluster_ra=cluster_ra,
                                                                 cluster_dec=cluster_dec,
+                                                                wtg_shearcal=wtg_shearcal,
+                                                                psfsize=psfsize,
+                                                                logprior=logprior,
                                                                 options=options,
                                                                 args=cmdargs)
 

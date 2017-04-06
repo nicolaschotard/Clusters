@@ -39,6 +39,11 @@ class AstropyTableFilehandler(object):
                       decCol='coord_dec_deg',
                       g1Col='ext_shapeHSM_HsmShapeRegauss_e1',
                       g2Col='ext_shapeHSM_HsmShapeRegauss_e2',
+                      sizeCol='rh',
+                      snratioCol='snratio_scaled1',
+                      wtg_shearcal=False,
+                      psfsize=None,
+                      logprior=False,
                       options=None, args=None):
 
         
@@ -49,7 +54,14 @@ class AstropyTableFilehandler(object):
         options.zcluster = zcluster
         options.cluster_ra = cluster_ra
         options.cluster_dec = cluster_dec
-
+        options.wtg_shearcal = wtg_shearcal
+        options.logprior = logprior
+        
+        if wtg_shearcal:
+            options.psfsize = psfsize
+            options.sizeCol = sizeCol
+            options.snratioCol = snratioCol
+        
         options.cat = cat
         options.mconfig=mconfig
 
@@ -72,6 +84,8 @@ class AstropyTableFilehandler(object):
         manager.clustername = options.cluster
         manager.zcluster = options.zcluster
 
+        manager.logprior=options.logprior
+        
         r_arcmin, E, B = calcTangentialShear(cat=manager.lensingcat,
                                              center=(options.cluster_ra, options.cluster_dec),
                                              raCol=options.raCol,
@@ -82,8 +96,10 @@ class AstropyTableFilehandler(object):
         r_mpc = r_arcmin * (1. / 60.) * (np.pi / 180.) * \
                 nfwutils.global_cosmology.angulardist(options.zcluster)
 
-#        size = manager.lensingcat[options.sizeCol] / options.psfsize
-#        snratio = manager.lensingcat[options.snratioCol]
+        if options.wtg_shearcal:
+            manager.psfsize = options.psfsize
+            size = manager.lensingcat[options.sizeCol] / options.psfsize
+            snratio = manager.lensingcat[options.snratioCol]
 
 ##       old version                
 #        manager.open('pdzcat', options.pdzfile, table.Table.read, path=options.prefix + 'pdz_values')
@@ -114,14 +130,21 @@ class AstropyTableFilehandler(object):
 
         z_b = manager.matched_zcat['Z_BEST']
 
-        cols = [pyfits.Column(name='SeqNr', format='J', array=manager.lensingcat['id']),
-                pyfits.Column(name='r_mpc', format='E', array=r_mpc),
-#               pyfits.Column(name='size', format='E', array=size),
-#               pyfits.Column(name='snratio', format='E', array=snratio),
-                pyfits.Column(name='z_b', format='E', array=z_b),
-                pyfits.Column(name='ghats', format='E', array=E),
-                pyfits.Column(name='B', format='E', array=B)]
-
+        if options.wtg_shearcal:
+            cols = [pyfits.Column(name='SeqNr', format='J', array=manager.lensingcat['id']),
+                    pyfits.Column(name='r_mpc', format='E', array=r_mpc),
+                    pyfits.Column(name='size', format='E', array=size),
+                    pyfits.Column(name='snratio', format='E', array=snratio),
+                    pyfits.Column(name='z_b', format='E', array=z_b),
+                    pyfits.Column(name='ghats', format='E', array=E),
+                    pyfits.Column(name='B', format='E', array=B)]
+        else:
+            cols = [pyfits.Column(name='SeqNr', format='J', array=manager.lensingcat['id']),
+                    pyfits.Column(name='r_mpc', format='E', array=r_mpc),
+                    pyfits.Column(name='z_b', format='E', array=z_b),
+                    pyfits.Column(name='ghats', format='E', array=E),
+                    pyfits.Column(name='B', format='E', array=B)]
+ 
         manager.store('inputcat',
                       ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols))))
 
