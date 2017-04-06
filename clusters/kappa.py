@@ -213,7 +213,7 @@ class Kappa(object):
         pbar.finish()
 
     def plot_maps(self, clust_coord=None, wcs=None, figsize=(10, 12)):
-        """Plot the redshift sky-map."""
+        """Plot the "kappa" maps."""
         if not hasattr(self, 'maps'):
             raise IOError("WARNING: No maps computed yet.")
         print "Plotting the following maps:"
@@ -266,6 +266,75 @@ class Kappa(object):
             fig.savefig(cmap + ".png")
         pl.show()
 
+    def plot_quiver(self, clust_coord=None, wcs=None, figsize=(10, 12)):
+        """Quiver plot"""
+        if not hasattr(self, 'maps'):
+            raise IOError("WARNING: No maps computed yet.")
+        print "Quiver plot for the following maps:"
+        for cmap in self.maps.keys():
+            if cmap.endswith("45"):
+                continue
+            print " - ", cmap
+            fig = pl.figure(figsize=figsize)
+            ax = fig.add_subplot(111)
+            ax.set_xlabel(xlabel='X-coord (pixel)', fontsize=16)
+            ax.set_ylabel(ylabel='Y-coord (pixel)', fontsize=16)
+            def rebin2(inArray, shape):
+                #rebin of 2D array into shape
+                sh = shape[0],inArray.shape[0]//shape[0],shape[1],inArray.shape[1]//shape[1]
+                return inArray.reshape(sh).mean(-1).mean(1)
+            gamma1 = np.array(self.maps[cmap])  # rebin2(np.array(self.maps[cmap]),[64,64])
+            gamma2 = np.array(self.maps[cmap+'45'])  # rebin2(np.array(self.maps[cmap+'45']),[64,64])
+            gamma_mag = (gamma1**2 + gamma2**2)**0.5
+            gamma_phi = 0.5 * np.arctan2(gamma2, gamma1)
+
+            gammax = gamma_mag * np.cos(gamma_phi)
+            gammay = gamma_mag * np.sin(gamma_phi)
+            ax.quiver(gammax, gammay)
+            ax.set_title(cmap)
+            #extent = (min(self.data['xsrc']) + 0.5, max(self.data['xsrc']) + 0.5,
+            #          min(self.data['ysrc']) + 0.5, max(self.data['ysrc']) + 0.5)
+            #themap = ax.imshow(self.maps[cmap], origin='lower', zorder=0,
+            #                   cmap=pl.cm.afmhot, extent=extent)
+            #cb = fig.colorbar(themap, pad=0.15 if wcs is not None else 0.05)
+            #cb.set_label(cmap, fontsize=20)
+            #cb.ax.tick_params(labelsize=14)
+            #ax.scatter(self.data['xsrc'] - 0.5, self.data['ysrc'] - 0.5,
+            #           s=3, color='b', zorder=1, alpha=0.4)
+            #if clust_coord is not None:
+            #    if clust_coord[0] >= extent[0] and clust_coord[0] <= extent[1] and \
+            #       clust_coord[1] >= extent[2] and clust_coord[1] <= extent[3]:
+            #        ax.plot(clust_coord[0], clust_coord[1], color='g', ms=25, mew=4, marker='+')
+            #    elif wcs is None:
+            #        print "WARNING: You must provide coordinates in degree + the wcs" + \
+            #            " or coordinates in pixel units."
+            #        print "         Use wcs = kappa.load_wcs('data.hdf5') to get the wcs."
+            #    else:
+            #        xsrc, ysrc = cdata.skycoord_to_pixel(clust_coord, wcs)
+            #        ax.plot(xsrc, ysrc, color='g', ms=25, mew=4, marker='+')
+            #ax.set_xlim(xmin=min(self.data['xsrc']), xmax=max(self.data['xsrc']) + 1)
+            #ax.set_ylim(ymin=min(self.data['ysrc']), ymax=max(self.data['ysrc']) + 1)
+            #ax.tick_params(axis='both', labelsize=14)
+            #if wcs is not None:
+            #    ra = cdata.pixel_to_skycoord(ax.get_xticks(),
+            #                                 [np.mean(self.data['ysrc'])] * len(ax.get_xticks()),
+            #                                 wcs).ra.value
+            #    dec = cdata.pixel_to_skycoord([np.mean(self.data['xsrc'])] * len(ax.get_yticks()),
+            #                                  ax.get_yticks(),
+            #                                  wcs).dec.value
+            #    ax2 = ax.twiny()
+            #    ax2.set_xlim(ax.get_xlim())
+            #    ax2.set_xticks(ax.get_xticks())
+            #    ax2.set_xticklabels(["%.2f" % r for r in ra], fontsize=14)
+            #    ax2.set_xlabel("RA (deg)", fontsize=16)
+            #    ax2 = ax.twinx()
+            #    ax2.set_ylim(ax.get_ylim())
+            #    ax2.set_yticks(ax.get_yticks())
+            #    ax2.set_yticklabels(["%.2f" % r for r in dec], fontsize=14)
+            #    ax2.set_ylabel("DEC (deg)", fontsize=16)
+            #fig.savefig(cmap + ".png")
+        pl.show()
+            
     def save_maps(self):
         """Save the maps in a fits files."""
         # Now write the files out as fits files

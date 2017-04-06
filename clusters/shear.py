@@ -52,6 +52,7 @@ def analysis(table, xclust, yclust):
 
     # Make some plots
     plot_shear(gamt, gamc, dist)
+    quiver_plot()
 
 
 def xy_clust(config, wcs):
@@ -250,3 +251,16 @@ def plot_scatter(xs, ys, xlabels, ylabels, **kwargs):
         if 'xarange' in kwargs:
             ax.set_ylim(kwargs['yarange'])
 
+
+def quiver_plot(meas, ):
+    pass
+
+
+def kappa_plot():
+    e1 = 'ext_shapeHSM_HsmShapeRegauss_e1'
+    e2 = 'ext_shapeHSM_HsmShapeRegauss_e2'
+    f = "YOURFILE.hdf5"
+    catf = kappa.get_cat(f)
+    from clusters import kappa
+    k = kappa.Kappa(catf['x_Src'], catf['y_Src'], catf[e1], catf[e2], step=100)
+    k.plot_maps()
