@@ -58,7 +58,7 @@ def analysis(table, xclust, yclust, e1='ext_shapeHSM_HsmShapeRegauss_e1',
     catf = table[(abs(table[e1]) < 1.2) & (abs(table[e2] < 1.2) & (table['filter'] == 'i'))]
     kappa = ckappa.Kappa(catf['x_Src'], catf['y_Src'], catf[e1], catf[e2], step=200)
     if config is not None and datafile is not None:
-        kappa.plot_maps(clust_coords=[config['ra'], config['dec'], wcs=ckappa.load_wcs(datafile))
+        kappa.plot_maps(clust_coords=[config['ra'], config['dec']], wcs=ckappa.load_wcs(datafile))
     #quiver_plot()
 
 
