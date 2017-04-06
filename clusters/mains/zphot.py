@@ -78,7 +78,8 @@ def photometric_redshift(argv=None):
                   'filters': [f for f in config['filter'] if f in set(data['filter'].tolist())],
                   'ra': data['coord_ra_deg'][data['filter'] == config['filter'][0]],
                   'dec': data['coord_dec_deg'][data['filter'] == config['filter'][0]],
-                  'id': data['objectId'][data['filter'] == config['filter'][0]]}
+                  'id': data['id' if 'id' in data else 'objectId'][data['filter'] == \
+                                                                   config['filter'][0]]}
         path = zconfig
         print "INFO: Running", zcode, "using configuration from", zpara, spectro_file
 
