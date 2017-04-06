@@ -39,7 +39,7 @@ def getbackground(argv=None):
     args = parser.parse_args(argv)
 
     config = yaml.load(open(args.config))
-    
+
     if args.zmin is None:
         args.zmin = config['redshift'] + 0.1
     if args.zmax is None:
@@ -57,8 +57,8 @@ def getbackground(argv=None):
     # If the user did not define a configuration to run the photoz,
     # add default one to the config dictionary
     if not 'zphot' in config:
-        config['zphot']={'zphot_ref':{}} 
-    
+        config['zphot']={'zphot_ref':{}}
+
     # Loop over all zphot configurations found in config.yaml file
     for k in config['zphot'].keys():
         z_config = config['zphot'][k]
@@ -67,18 +67,17 @@ def getbackground(argv=None):
                                                            zmax=args.zmax,
                                                            z_config=z_config,
                                                            thresh=args.thresh_prob,
-                                                           plot=args.plot)
-        new_tab = hstack([Table([zdata[k]['objectId']], names=['objectId']),
+                                                           plot=args.plot)                                                
+        new_tab = hstack([Table([zdata[k]['id' if 'id' in data[k].keys() else 'objectId']], names=['id' if 'id' in data[k].keys() else 'objectId']),
                           Table([z_flag1], names=['flag_z_hard']),
                           Table([z_flag2], names=['flag_z_pdz'])],
                          join_type='inner')
 
         cdata.overwrite_or_append(args.output, 'flag_' + k, new_tab, overwrite=args.overwrite)
-            
+
     if args.rs:
         rs_flag = background.get_rs_background(config, data['deepCoadd_forced_src'])
-        new_tab = hstack([Table([data['deepCoadd_forced_src']['objectId']], names=['objectId']),
+        new_tab = hstack([Table([data['deepCoadd_forced_src']['id' if 'id' in data.keys() else 'objectId']], names=['id' if 'id' in data.keys() else 'objectId']),
                           Table([rs_flag], names=['flag_rs'])],
                          join_type='inner')
         cdata.overwrite_or_append(args.output, 'flag_rs', Table([rs_flag]))
-
