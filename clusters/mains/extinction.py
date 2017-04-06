@@ -34,7 +34,7 @@ def extinction(argv=None):
     print "INFO: Working on filters", config['filter']
 
     # Load the data
-    data = cdata.read_hdf5(args.input, path='deepCoadd_forced_src', dic=False)
+    data = cdata.read_hdf5(args.input, path='deepCoadd_meas', dic=False)
 
     # Query for E(b-v) and compute the extinction
     red = reddening.Reddening(data['coord_ra_deg'].tolist(), data['coord_dec_deg'].tolist())
