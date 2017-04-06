@@ -58,7 +58,8 @@ def analysis(table, xclust, yclust, e1='ext_shapeHSM_HsmShapeRegauss_e1',
     catf = table[(abs(table[e1]) < 1.2) & (abs(table[e2] < 1.2) & (table['filter'] == 'i'))]
     kappa = ckappa.Kappa(catf['x_Src'], catf['y_Src'], catf[e1], catf[e2], step=200)
     if config is not None and datafile is not None:
-        kappa.plot_maps(clust_coords=[config['ra'], config['dec']], wcs=ckappa.load_wcs(datafile))
+        kappa.plot_maps(clust_coord=[config['ra'], config['dec']], wcs=ckappa.load_wcs(datafile))
+    pylab.show()
     #quiver_plot()
 
 
@@ -221,8 +222,6 @@ def plot_shear(gamt, gamc, dist, drange=(0, 8500), nbins=8):
                  ['Distance to cluster center (px)', 'Distance to cluster center (px)'],
                  ['Tangential shear', 'Cross shear'], yerrs=[tsheare, csheare],
                  xarange=(-500, 9000), yarange=(-0.06, 0.08))
-
-    pylab.show()
 
 
 def plot_hist(xs, labels, nbins=200, xarange=(-2, 2)):
