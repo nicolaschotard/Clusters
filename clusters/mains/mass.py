@@ -60,7 +60,13 @@ def mass(argv=None):
     # WTG quantities for shear calibration
     wtg_shearcal = False if 'wtg_shearcal' not in mconfig else config['mass']['wtg_shearcal']
     psfsize = None if 'psfsize' not in mconfig else config['mass']['psfsize']
-  
+
+    mprior = 'lin' if 'mprior' not in mconfig else config['mass']['mprior']
+    if mprior == 'lin':
+        logprior = False
+    else:
+        logprior = True
+        
     ###let's assume that all quality cuts were made previously
 
     if args.testing:
@@ -88,6 +94,7 @@ def mass(argv=None):
                                                                 cluster_dec=cluster_dec,
                                                                 wtg_shearcal=wtg_shearcal,
                                                                 psfsize=psfsize,
+                                                                logprior=logprior,
                                                                 options=options,
                                                                 args=cmdargs)
 

@@ -42,7 +42,8 @@ class AstropyTableFilehandler(object):
                       sizeCol='rh',
                       snratioCol='snratio_scaled1',
                       wtg_shearcal=False,
-                      psfsize=None, 
+                      psfsize=None,
+                      logprior=False,
                       options=None, args=None):
 
         
@@ -54,6 +55,7 @@ class AstropyTableFilehandler(object):
         options.cluster_ra = cluster_ra
         options.cluster_dec = cluster_dec
         options.wtg_shearcal = wtg_shearcal
+        options.logprior = logprior
         
         if wtg_shearcal:
             options.psfsize = psfsize
@@ -81,6 +83,8 @@ class AstropyTableFilehandler(object):
 
         manager.clustername = options.cluster
         manager.zcluster = options.zcluster
+
+        manager.logprior=options.logprior
         
         r_arcmin, E, B = calcTangentialShear(cat=manager.lensingcat,
                                              center=(options.cluster_ra, options.cluster_dec),

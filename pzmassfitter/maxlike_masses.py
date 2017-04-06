@@ -97,7 +97,7 @@ class LensingModel(object):
                       zcut=0.1, masslow=1e13, masshigh=1e16,
                       ztypecut=False, radlow=0.75, radhigh=3.0,
                       concentration=None, delta=200.,
-                      options=None, args=None):
+                      options=None, args=None, logprior=False):
 
         if options is None:
             options = varcontainer.VarContainer()
@@ -113,7 +113,8 @@ class LensingModel(object):
         options.radhigh = radhigh
         options.concentration = concentration
         options.delta = delta
-
+        options.logprior = logprior
+        
         return options, None
 
     #######################################################
@@ -206,22 +207,24 @@ class LensingModel(object):
         manager.massdelta = options.delta
         parts.massdelta = options.delta
 
-#        Uniform sampling of m        
-        parts.scaledmdelta = pymc.Uniform('scaledmdelta', options.masslow/massscale, options.masshigh/massscale)
 
-        @pymc.deterministic
-        def mdelta(scaledmdelta = parts.scaledmdelta):
-            return massscale*scaledmdelta
-        parts.mdelta = mdelta
+        if manager.logprior:
+        #       Uniform sampling of log(m)
+            parts.log10mdelta = pymc.Uniform('log10mdelta', np.log10(options.masslow), np.log10(options.masshigh))
+            @pymc.deterministic
+            def mdelta(log10mdelta = parts.log10mdelta):
+                return np.power(10.,log10mdelta)
+            parts.mdelta = mdelta
+
+        else:
+         #        Uniform sampling of m        
+            parts.scaledmdelta = pymc.Uniform('scaledmdelta', options.masslow/massscale, options.masshigh/massscale)
+            @pymc.deterministic
+            def mdelta(scaledmdelta = parts.scaledmdelta):
+                return massscale*scaledmdelta
+            parts.mdelta = mdelta
 
 
-#       Uniform sampling of log(m)
-#        parts.logmdelta = pymc.Uniform('logmdelta', np.log(options.masslow), np.log(options.masshigh))
-#        @pymc.deterministic
-#        def mdelta(logmdelta = parts.logmdelta):
-#            return np.exp(logmdelta)
-#        parts.mdelta = mdelta
-#
         #############################
 
     def makeShapePrior(self, datamanager, parts):
