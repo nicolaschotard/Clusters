@@ -5,7 +5,7 @@ import pylab
 import seaborn
 from astropy.table import Table, Column
 from . import data as cdata
-from . import ckappa
+from . import kappa as ckappa
 
 
 def compute_shear(e1, e2, distx, disty):
