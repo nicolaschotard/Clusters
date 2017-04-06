@@ -46,7 +46,7 @@ def extinction(argv=None):
         albds.update({k.replace('ebv_', 'albd_%s_' % f): albd[f] for f in albd})
 
     # Create a new table and save it
-    new_tab = hstack([data['objectId', 'coord_ra', 'coord_dec', 'filter'],
+    new_tab = hstack([data['id', 'coord_ra', 'coord_dec', 'filter'],
                       Table(ebmv), Table(albds)], join_type='inner')
 #    new_tab.write(args.output, path='extinction', compression=True,
 #                  serialize_meta=True, overwrite=args.overwrite)
