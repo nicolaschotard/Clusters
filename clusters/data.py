@@ -532,6 +532,7 @@ def filter_table(cats):
     filt = cats['deepCoadd_meas']['base_ClassificationExtendedness_flag'] == 0  # keep galaxy
 
     filt &= cats['deepCoadd_meas']['base_ClassificationExtendedness_value'] >= 0.5  # keep galaxy
+    print len(cats['deepCoadd_meas'][filt])
 
     # Gauss regulerarization flag
     filt &= cats['deepCoadd_meas']['ext_shapeHSM_HsmShapeRegauss_flag'] == 0
@@ -551,7 +552,7 @@ def filter_table(cats):
 
     # == Only keeps sources with the 'nfilt' filters
     dmg = cats['deepCoadd_meas'][filt].group_by('id')
-    dfg = cats['deepCoadd_forced_src'][filt].group_by('objectId')
+    dfg = cats['deepCoadd_forced_src'][filt].group_by('id' if 'id' in cats['deepCoadd_forced_src'].keys() else 'objectId')
 
     # Indices difference is a quick way to get the lenght of each group
     filt = (dmg.groups.indices[1:] - dmg.groups.indices[:-1]) == nfilt
