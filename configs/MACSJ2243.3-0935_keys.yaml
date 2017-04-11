@@ -4,15 +4,13 @@
     "dec": -9.59,
     "redshift": 0.4470,
     "filter": ["u", "g", "r", "i", "i2", "z"],
-    "butler": "/sps/lsst/data/clusters/MACSJ2243.3-0935/output_v1/coadd_dir",
+    "butler": "/sps/lsst/dev/lsstprod/clusters//MACSJ2243.3-0935/output/coadd_dir",
     "patch": ['1,1', '1,3', '1,2', '1,4', '1,5', '2,1', '2,2', '2,3', '2,4', '2,5', '3,2', '3,3', '3,4'],
     "keys": {'deepCoadd_meas': ["coord*", "id", 'base_ClassificationExtendedness_flag',
-                                'base_ClassificationExtendedness_value',
-                                'ext_shapeHSM_HsmShapeRegauss_flag', 'detect_isPrimary'],
+                                'base_ClassificationExtendedness_value', 'modelfit_CModel_flux', 'modelfit_CModel_fluxSigma', 'modelfit_CModel_flag',
+                                'ext_shapeHSM_HsmShapeRegauss_flag', 'ext_shapeHSM_HsmShapeRegauss_e1', 'ext_shapeHSM_HsmShapeRegauss_e2',
+                                'ext_shapeHSM_HsmShapeRegauss_sigma', 'ext_shapeHSM_HsmShapeRegauss_resolution', 'x_Src', 'y_Src', 'detect_isPrimary'],
              'deepCoadd_forced_src': ["coord*", "objectId", 'modelfit_CModel_flux',
-                                      'modelfit_CModel_flag', "modelfit_CModel*"],
-             'forced_src': ["coord*", "id", 'base_ClassificationExtendedness_flag',
-                            'base_ClassificationExtendedness_value',
-                            'ext_shapeHSM_HsmShapeRegauss_flag', 'detect_isPrimary']
+                                      'modelfit_CModel_flag', "modelfit_CModel*"]
             }
 }
