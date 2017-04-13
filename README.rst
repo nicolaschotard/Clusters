@@ -332,7 +332,7 @@ will save the extinction correction into path ``extinction`` of ``data.hdf5``
 
 - Flag galaxies to be removed for the lensing analysis::
 
-    clusters_getbackground.py config.yaml data.hdf5 (--z_data zdata.hdf5) (--zmin z_min) 
+    clusters_getbackground.py config.yaml data.hdf5 (--zdata zdata.hdf5) (--zmin z_min) 
                               (--zmax z_max) (--thresh_prob threshold) (--rs)
 
   will produce redshift-based flag for the selection of background galaxies. 
