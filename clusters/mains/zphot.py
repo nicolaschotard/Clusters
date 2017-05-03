@@ -110,7 +110,7 @@ def photometric_redshift(argv=None):
     # we are dealing with simulated data --> make fake p(z) from real z.
     # assumes the z information is in a 2 column (id, z) txt file, where id corresponds to DM stack ObjectId
         path = 'zphot_ref'
-        data_z_sim = N.loadtxt(config['sim']['zfile'], unpack=True, comments="#")
+        data_z_sim = N.loadtxt(config['sim']['zfile'],  dtype={'names':('id', 'z'), 'formats':('i8', 'f8')}, unpack=True, comments="#")
         min_pdz = 0
         max_pdz = 4
         pdz_step = 0.01
@@ -125,7 +125,7 @@ def photometric_redshift(argv=None):
             pdz = pdz_tmp if i==0 else N.vstack((pdz, pdz_tmp))
         pdb.set_trace()    
         pdz_values = Table([id_sim, z_sim, pdz, zbinsgrid], names=('objectId', 'Z_BEST', 'pdz', 'zbins'))
-        cdata.overwrite_or_append(args.output, path, pdz_values, overwrite=overwrite)
+        cdata.overwrite_or_append(args.output, path, pdz_values, overwrite=True)
         
     # Plot
     if args.plot:
