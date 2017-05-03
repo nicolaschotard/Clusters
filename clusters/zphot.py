@@ -334,7 +334,6 @@ class BPZ(object):
                                zcode_name='bpz', all_input=self.files['all_input'],
                                **self.kwargs)
 
-
         
 class ZPHOTO(object):
 

@@ -138,7 +138,7 @@ class LensingModel(object):
             np.abs(manager.inputcat['ghats']) < 5)
 
 # Definition of pdz is changing, need to change this.
-#        pdz = manager.pdz
+#        pdz = manager.pz # used to be manager.pdz (name change in astropytable_filehandler)
 #        pdzrange = manager.pdzrange
 #        delta95Z = np.zeros(len(pdz))
 #
@@ -151,7 +151,7 @@ class LensingModel(object):
 #        deltaZcut = np.logical_and(options.deltaz95low <= delta95Z,
 #                                   delta95Z < options.deltaz95high)
 #
-
+####
         if options.zcut is None:
 
             zcut = np.ones(len(manager.inputcat)) == 1
