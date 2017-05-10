@@ -71,7 +71,7 @@ def photometric_redshift(argv=None):
             if fz not in data['filter']:
                 print " - WARNING: %s not in the filter list"
             else:
-                print " - correting %s magnitude with zp = %.5f +/- %.5f" % ()
+                print " - correting %s magnitude with zp = %.5f +/- %.5f" % (float(zp), float(dzp))
                 data[args.mag][data['filter'] == f] += float(zpoint)
                 merr = data[args.mag.replace("_extcorr", "") + "Sigma"][data['filter'] == f]
                 new_err = N.sqrt(merr ** 2 + float(dzp) ** 2)
