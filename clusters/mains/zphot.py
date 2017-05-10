@@ -32,6 +32,9 @@ def photometric_redshift(argv=None):
                         help="Photoz output file, used for the analysis only (plots)")
     parser.add_argument("--overwrite", action="store_true", default=False,
                         help="Overwrite the paths in the output file if they exist already")
+    parser.add_argument("--zeropoints", type=str,
+                        help="Input file with zero points for some or all filters"
+                        ". A three columns file: # filt zp zp_err")
     args = parser.parse_args(argv)
 
     config = cdata.load_config(args.config)
@@ -60,73 +63,94 @@ def photometric_redshift(argv=None):
     if args.mag not in data.keys():
         raise IOError("%s is not a column of the input table" % args.mag)
 
+    # Apply zeropoints?
+    if args.zeropoint is not None:
+        print "INFO: Applying zeropoints for the follwoing filter:"
+        fzpoint, zpoint, dzpoint = N.loadtxt(open(args.zeropoint), unpack=True, dtype='string')
+        for fz, zp, dzp in zip(fzpoint, zpoint, dzpoint):
+            if fz not in data['filter']:
+                print " - WARNING: %s not in the filter list"
+            else:
+                print " - correting %s magnitude with zp = %.5f +/- %.5f" % ()
+                data[args.mag][data['filter'] == f] += zpoint
+                merr = data[args.mag + "Sigma"][data['filter'] == f]
+                data[args.mag + "Sigma"][data['filter'] == f] = N.sqrt(merr ** 2 + dzp)
+
     # If the user did not define a configuration to run the photoz,
     # add default one to the config dictionary
     if not 'zphot' in config:
-        config['zphot']={'zphot_ref':{}} 
+        config['zphot'] = {'zphot_ref':{}}
 
     if not 'sim' in config:
-        config['sim']={'flag':False}
+        config['sim'] = {'flag':False}
 
     if not config['sim']['flag']: # we're not dealing with simulation data
-        
+
         # Loop over all zphot configurations present in the config.yaml file
         for zconfig in config['zphot'].keys():
             zcode = config['zphot'][zconfig]['code'] if 'code' in config['zphot'][zconfig].keys() \
                                                      else 'lephare'
 
-        # If a spectroscopic sample is provided, LEPHARE/BPZ will run using the adaptative method
-        # (zero points determination); still to be implemented for BPZ...
-   
-            zpara = config['zphot'][zconfig]['zpara'] if 'zpara' in config['zphot'][zconfig] else None
+            # If a spectroscopic sample is provided, LEPHARE/BPZ will run using the adaptative
+            # method (zero points determination); still to be implemented for BPZ...
+
+            zpara = config['zphot'][zconfig]['zpara'] \
+                    if 'zpara' in config['zphot'][zconfig] else None
             spectro_file = config['zphot'][zconfig]['zspectro_file'] if 'zspectro_file' \
-              in config['zphot'][zconfig] else None
+                           in config['zphot'][zconfig] else None
             kwargs = {'basename': config['cluster'],
-                    'filters': [f for f in config['filter'] if f in set(data['filter'].tolist())],
-                    'ra': data['coord_ra_deg'][data['filter'] == config['filter'][0]],
-                    'dec': data['coord_dec_deg'][data['filter'] == config['filter'][0]],
-                    'id': data['id' if 'id' in data.keys() else 'objectId'][data['filter'] == \
-                                                                        config['filter'][0]]}
+                      'filters': [f for f in config['filter'] if f in set(data['filter'].tolist())],
+                      'ra': data['coord_ra_deg'][data['filter'] == config['filter'][0]],
+                      'dec': data['coord_dec_deg'][data['filter'] == config['filter'][0]],
+                      'id': data['id' if 'id' in data.keys() else 'objectId'][data['filter'] == \
+                                                                              config['filter'][0]]}
             path = zconfig
             print "INFO: Running", zcode, "using configuration from", zpara, spectro_file
 
             if zcode == 'bpz':  # Run BPZ
                 zphot = czphot.BPZ([data[args.mag][data['filter'] == f] for f in kwargs['filters']],
-                                [data[args.mag.replace("_extcorr", "") + "Sigma"][data['filter'] == f]
-                                        for f in kwargs['filters']],
-                                zpara=zpara, spectro_file=spectro_file, **kwargs)
+                                   [data[args.mag.replace("_extcorr", "") + \
+                                         "Sigma"][data['filter'] == f]
+                                    for f in kwargs['filters']],
+                                   zpara=zpara, spectro_file=spectro_file, **kwargs)
 
             if zcode == 'lephare': # Run LEPHARE
-                zphot = czphot.LEPHARE([data[args.mag][data['filter'] == f] for f in kwargs['filters']],
-                                    [data[args.mag.replace("_extcorr", "") + 
-                                            "Sigma"][data['filter'] == f] for f in kwargs['filters']],
-                                    zpara=zpara, spectro_file=spectro_file, **kwargs)
+                zphot = czphot.LEPHARE([data[args.mag][data['filter'] == f]
+                                        for f in kwargs['filters']],
+                                       [data[args.mag.replace("_extcorr", "") +
+                                             "Sigma"][data['filter'] == f]
+                                        for f in kwargs['filters']],
+                                       zpara=zpara, spectro_file=spectro_file, **kwargs)
                 zphot.check_config()
 
         zphot.run()
         zphot.data_out.save_zphot(args.output, path, overwrite=args.overwrite)
 
     else:
-    # we are dealing with simulated data --> make fake p(z) from real z.
-    # assumes the z information is in a 2 column (id, z) txt file, where id corresponds to DM stack ObjectId
+        # we are dealing with simulated data --> make fake p(z) from real z.
+        # assumes the z information is in a 2 column (id, z) txt file,
+        # where id corresponds to DM stack ObjectId
         path = 'zphot_ref'
-        data_z_sim = N.loadtxt(config['sim']['zfile'],  dtype={'names':('id', 'z'), 'formats':('i8', 'f8')}, unpack=True, comments="#")
+        data_z_sim = N.loadtxt(config['sim']['zfile'],
+                               dtype={'names':('id', 'z'), 'formats':('i8', 'f8')},
+                               unpack=True, comments="#")
         min_pdz = 0
         max_pdz = 4
         pdz_step = 0.01
-        zrange = N.arange(min_pdz,max_pdz, pdz_step)
+        zrange = N.arange(min_pdz, max_pdz, pdz_step)
         id_sim = data_z_sim[0]
         z_sim = data_z_sim[1]
         zbinsgrid = N.vstack(len(id_sim)*[zrange])
-        pdz =[N.zeros(len(zrange))]
+        pdz = [N.zeros(len(zrange))]
         for i, z in enumerate(z_sim):
             pdz_tmp = N.zeros(len(zrange))
             pdz_tmp[N.digitize(z, zrange)] = 1/pdz_step # normalised so that int_zmin^zmax pdz = 1
-            pdz = pdz_tmp if i==0 else N.vstack((pdz, pdz_tmp))
-        pdb.set_trace()    
-        pdz_values = Table([id_sim, z_sim, pdz, zbinsgrid], names=('objectId', 'Z_BEST', 'pdz', 'zbins'))
+            pdz = pdz_tmp if i == 0 else N.vstack((pdz, pdz_tmp))
+        #pdb.set_trace()
+        pdz_values = Table([id_sim, z_sim, pdz, zbinsgrid],
+                           names=('objectId', 'Z_BEST', 'pdz', 'zbins'))
         cdata.overwrite_or_append(args.output, path, pdz_values, overwrite=True)
-        
+
     # Plot
     if args.plot:
         doplot(zphot.data_out, config,
