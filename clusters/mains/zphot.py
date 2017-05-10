@@ -69,13 +69,13 @@ def photometric_redshift(argv=None):
         fzpoint, zpoint, dzpoint = N.loadtxt(open(args.zeropoints), unpack=True, dtype='string')
         for fz, zp, dzp in zip(fzpoint, zpoint, dzpoint):
             if fz not in data['filter']:
-                print " - WARNING: %s not in the filter list"
+                print " - WARNING: %s not in the filter list" % fz
             else:
-                print " - correting %s magnitude with zp = %.5f +/- %.5f" % (float(zp), float(dzp))
-                data[args.mag][data['filter'] == f] += float(zpoint)
-                merr = data[args.mag.replace("_extcorr", "") + "Sigma"][data['filter'] == f]
+                print " - correting %s mags with zp = %.5f +/- %.5f" % (fz, float(zp), float(dzp))
+                data[args.mag][data['filter'] == fz] += float(zp)
+                merr = data[args.mag.replace("_extcorr", "") + "Sigma"][data['filter'] == fz]
                 new_err = N.sqrt(merr ** 2 + float(dzp) ** 2)
-                data[args.mag.replace("_extcorr", "") + "Sigma"][data['filter'] == f] = new_err
+                data[args.mag.replace("_extcorr", "") + "Sigma"][data['filter'] == fz] = new_err
 
     # If the user did not define a configuration to run the photoz,
     # add default one to the config dictionary
