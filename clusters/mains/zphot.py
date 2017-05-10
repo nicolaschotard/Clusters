@@ -64,9 +64,9 @@ def photometric_redshift(argv=None):
         raise IOError("%s is not a column of the input table" % args.mag)
 
     # Apply zeropoints?
-    if args.zeropoint is not None:
+    if args.zeropoints is not None:
         print "INFO: Applying zeropoints for the follwoing filter:"
-        fzpoint, zpoint, dzpoint = N.loadtxt(open(args.zeropoint), unpack=True, dtype='string')
+        fzpoint, zpoint, dzpoint = N.loadtxt(open(args.zeropoints), unpack=True, dtype='string')
         for fz, zp, dzp in zip(fzpoint, zpoint, dzpoint):
             if fz not in data['filter']:
                 print " - WARNING: %s not in the filter list"
