@@ -72,9 +72,10 @@ def photometric_redshift(argv=None):
                 print " - WARNING: %s not in the filter list"
             else:
                 print " - correting %s magnitude with zp = %.5f +/- %.5f" % ()
-                data[args.mag][data['filter'] == f] += zpoint
-                merr = data[args.mag + "Sigma"][data['filter'] == f]
-                data[args.mag + "Sigma"][data['filter'] == f] = N.sqrt(merr ** 2 + dzp)
+                data[args.mag][data['filter'] == f] += float(zpoint)
+                merr = data[args.mag.replace("_extcorr", "") + "Sigma"][data['filter'] == f]
+                new_err = N.sqrt(merr ** 2 + float(dzp) ** 2)
+                data[args.mag.replace("_extcorr", "") + "Sigma"][data['filter'] == f] = new_err
 
     # If the user did not define a configuration to run the photoz,
     # add default one to the config dictionary
