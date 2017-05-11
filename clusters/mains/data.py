@@ -25,6 +25,8 @@ def load_data(argv=None):
                         default=None,
                         help='Apply basic filters to an already loaded hdf5 file' \
                         ', given as an input to this option.')
+    parser.add_argument("--nofilter", action="store_true", default=False,
+                        help="Do not apply filters on the data. Useful for simulated data.")
     parser.add_argument("--overwrite", action="store_true", default=False,
                         help="Overwrite the output files if they exist already")
     parser.add_argument("--show", action="store_true", default=False,
@@ -64,7 +66,8 @@ def load_data(argv=None):
     data.load_catalogs(args.catalogs.split(','), matchid=True, **config)
 
     # Apply filter
-    apply_filter(output, config, output_filtered, args.overwrite)
+    if not args.nofilter:
+        apply_filter(output, config, output_filtered, args.overwrite)
 
 
 def apply_filter(hdf5file, config, output, overwrite):

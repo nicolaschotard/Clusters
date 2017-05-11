@@ -15,7 +15,6 @@ from astropy.io import ascii
 from astropy.table import Table, hstack
 from astropy.coordinates import SkyCoord
 
-
 class LEPHARE(object):
 
     """Wrapper to the LEPHARE photometric redshift code.
@@ -281,23 +280,23 @@ class BPZ(object):
             f.close()
             print "INFO: All data saved in", self.files['all_input']
 
-    def build_columns_file(self):
+    def build_columns_file(self, prefix='CFHT_megacam_', sufix='p',
+                           filters=['u', 'g', 'r', 'i', 'z'], ref='i', Z_S=False):
         """Build and write the 'columns' file.
 
         Hardcoded for test purpose.
         """
         f = open(self.files['columns'], 'w')
         f.write("# Filter  columns  AB/Vega  zp_error  zp_offset\n")
-        f.write("CFHT_megacam_up     2, 7   AB        0.01      0.00\n")
-        f.write("CFHT_megacam_gp     3, 8   AB        0.01      0.00\n")
-        f.write("CFHT_megacam_rp     4, 9   AB        0.01      0.00\n")
-        f.write("CFHT_megacam_ip     5, 10  AB        0.01      0.00\n")
-        f.write("CFHT_megacam_zp     6,11   AB        0.01      0.00\n")
-        f.write("M_0                 5\n")
-        # f.write("Z_S                  13\n")
+        for i, filt in enumerate(filters):
+            f.write("%s%s%s     %i, %i   AB        0.01      0.00\n" % (prefix, filt, sufix, i + 2, i + len(filters) + 2))
+        f.write("M_0                 %i\n" % [j+2 for j, filt in enumerate(filters) if filt == ref][0])
+        if Z_S:
+            f.write("Z_S                  %i\n" % (len(filters)*2+2))
         f.write("ID                    1\n")
         f.close()
 
+        
     def run(self):
         """
         Run BPZ.
