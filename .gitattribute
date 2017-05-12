@@ -1,1 +1,1 @@
-*.ipynb linguist-language=Python
+notebooks/*.ipynb linguist-documentation
