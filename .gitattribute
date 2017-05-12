@@ -1,1 +1,1 @@
-*.ipynb linguist-documentation=Python
+notebooks/*.ipynb linguist-documentation
