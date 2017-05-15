@@ -571,19 +571,23 @@ def filter_table(cats):
     return output
 
 
-def correct_for_extinction(ti, te, mag='modelfit_CModel_mag', ext='sfd', ifilt="i_new"):
+def correct_for_extinction(data, te=None, mag='modelfit_CModel_mag', ext='sfd', ifilt="i_new"):
     """
     Compute extinction-corrected magnitude.
 
-    :param table ti: input data table to fill with extinction-corrected magnitudes
-    :param table te: input extinction table
+    :param table data: input data table to fill with extinction-corrected magnitudes, which also
+                       contains the extinction values
     :param str mag: magnitude key from the catalog
     :param str ext: type of extinction map
     :param str ifilt: the 'i' filter you want to use (i_old or i_new)
     :return: a new column in the input table 'mag'+_extcorr.
     """
+    if te is not None:
+        print "WARNING: The second argument is deprecated. Everything must now be contained " + \
+            "in the main table"
+
     # get the list of filter
-    filters = list(set(te['filter']))
+    filters = list(set(data['filter']))
 
     # replace the 'i' filter by the one asked from the user
     for i, filt in enumerate(filters):
@@ -593,16 +597,21 @@ def correct_for_extinction(ti, te, mag='modelfit_CModel_mag', ext='sfd', ifilt="
     # name of the new key
     magext = mag + '_extcorr'
 
+    # available dust maps
+    dustmaps = set([k.split('_')[-1] for k in data.keys() if k.startswith('albd_')])
+    if ext not in dustmaps:
+        raise "ERROR: The selected dustmap must be in", dustmaps
+
     # Compute the corrected magnitude for each filter
-    mcorr = numpy.zeros(len(ti[mag]))
+    mcorr = numpy.zeros(len(data[mag]))
     for f in filters:
-        filt = ti['filter'] == (f if 'i' not in f else 'i')
-        mcorr[filt] = ti[mag][filt] - te['albd_%s_%s' % (f, ext)][filt]
+        filt = data['filter'] == (f if 'i' not in f else 'i')
+        mcorr[filt] = data[mag][filt] - data['albd_%s_%s' % (f, ext)][filt]
 
     # Add the new corrected-magnitudes column to the input data table
-    ti.add_columns([Column(name=magext, data=mcorr, unit='mag',
-                           description='Extinction corrected magnitude (i=%s, ext=%s)' %
-                           (ifilt, ext))])
+    data.add_columns([Column(name=magext, data=mcorr, unit='mag',
+                             description='Extinction corrected magnitude (i=%s, ext=%s)' %
+                             (ifilt, ext))])
 
 
 def filter_around(data, config, **kwargs):
