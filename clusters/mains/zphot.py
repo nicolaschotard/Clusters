@@ -52,12 +52,13 @@ def photometric_redshift(argv=None):
 
     # Load the data
     print "INFO: Loading the data from", args.input
-    data = cdata.read_hdf5(args.input)['deepCoadd_forced_src']
+    tables = cdata.read_hdf5(args.input)
+    data = tables['deepCoadd_forced_src']
 
     # Compute extinction-corrected magitudes
-    if args.extinction and 'extinction' in data.keys():
+    if args.extinction and 'extinction' in tables.keys():
         print "INFO: Computing extinction-corrected magnitude for", args.mag
-        cdata.correct_for_extinction(data, mag=args.mag, ext=args.dustmap)
+        cdata.correct_for_extinction(data, tables['extinction'], mag=args.mag, ext=args.dustmap)
         args.mag += "_extcorr"
 
     # Make sure the selected magnitude does exist in the data table
