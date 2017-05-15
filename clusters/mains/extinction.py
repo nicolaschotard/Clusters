@@ -41,7 +41,7 @@ def extinction(argv=None):
     data = cdata.read_hdf5(args.input, path='deepCoadd_meas', dic=False)
 
     # Query for E(b-v) and compute the extinction
-    print "INFO: Getting the follwoing dust maps"
+    print "INFO: Loading the coordinates"
     red = reddening.Reddening(data['coord_ra_deg'].tolist(), data['coord_dec_deg'].tolist())
     if args.dustmap is not None:
         dustmap = args.dustmap.split(',')
@@ -50,8 +50,8 @@ def extinction(argv=None):
     else:
         dustmap = ['sfd']
     ebmv = {}
+    print "INFO: Getting the dust maps"
     for dustm in dustmap:
-        print " - %s" % dustm
         ebmv['ebv_%s' % dustm] = red.query_local_map(dustmap=dustm)
 
     print "INFO: Computing the extinction using the loaded dust maps for all filters"
