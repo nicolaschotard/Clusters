@@ -1,8 +1,8 @@
 """Main entry points for scripts."""
 
+from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 from astropy.table import Table, hstack
 from extinctions import reddening
-from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 
 from .. import data as cdata
 from .. import extinction as cextinction
@@ -18,12 +18,15 @@ def extinction(argv=None):
                             formatter_class=ArgumentDefaultsHelpFormatter)
     parser.add_argument('config', help='Configuration (yaml) file')
     parser.add_argument('input', help='Input data file: output of clusters_data.py, i.e, hdf5 file')
-    parser.add_argument("--output",
-                        help="Name of the output file (hdf5 file)")
+    parser.add_argument("--output", help="Name of the output file (hdf5 file)")
     parser.add_argument("--overwrite", action="store_true", default=False,
                         help="Overwrite the paths in the output file if they exist already")
     parser.add_argument("--plot", action='store_true', default=False,
                         help="Make some plots")
+    parser.add_argument("--dustmap", help="Dustmap to use. The seleted dust map has to be in the"
+                        " following list: sfd, planck, schlafly, green. Comma separated for"
+                        " multplie maps. Overwrites the 'dustmap' key of the config file if any"
+                        "Default map will be SFD")
     args = parser.parse_args(argv)
 
     config = cdata.load_config(args.config)
@@ -38,7 +41,13 @@ def extinction(argv=None):
 
     # Query for E(b-v) and compute the extinction
     red = reddening.Reddening(data['coord_ra_deg'].tolist(), data['coord_dec_deg'].tolist())
-    ebmv = {'ebv_sfd': red.from_argonaut()}
+    if args.dustmap is not None:
+        dustmap = args.dustmap.split(',')
+    elif "dustmap" in config:
+        dustmap = list(config['dustmap'])
+    else:
+        dustmap = list('sfd')
+    ebmv = {'ebv_%s' % dustm: red.query_local_map(dustmap=dustm) for dustm in dustmap}
 
     albds = {}
     for k in ebmv:
