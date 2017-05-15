@@ -595,9 +595,9 @@ def correct_for_extinction(data, extinction, mag='modelfit_CModel_mag', ext='sfd
     magext = mag + '_extcorr'
 
     # available dust maps
-    dustmaps = set([k.split('_')[-1] for k in data.keys() if k.startswith('albd_')])
+    dustmaps = set([k.split('_')[-1] for k in extinction.keys() if k.startswith('albd_')])
     if ext not in dustmaps:
-        raise "ERROR: The selected dustmap must be in", dustmaps
+        raise IOError("ERROR: The selected dustmap (%s) must be in" % ext, dustmaps)
 
     # Compute the corrected magnitude for each filter
     mcorr = numpy.zeros(len(data[mag]))

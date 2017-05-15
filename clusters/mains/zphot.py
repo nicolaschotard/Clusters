@@ -57,7 +57,8 @@ def photometric_redshift(argv=None):
 
     # Compute extinction-corrected magitudes
     if args.extinction and 'extinction' in tables.keys():
-        print "INFO: Computing extinction-corrected magnitude for", args.mag
+        print "INFO: Computing extinction-corrected magnitude for", args.mag, \
+            "using the '%s' dust map" % args.dustmap
         cdata.correct_for_extinction(data, tables['extinction'], mag=args.mag, ext=args.dustmap)
         args.mag += "_extcorr"
 
