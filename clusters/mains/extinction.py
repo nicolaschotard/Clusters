@@ -50,7 +50,7 @@ def extinction(argv=None):
     else:
         dustmap = ['sfd']
     ebmv = {}
-    print "INFO: Getting the dust maps"
+    print "INFO: Getting the dust maps and the corresponding color excesses"
     for dustm in dustmap:
         ebmv['ebv_%s' % dustm] = red.query_local_map(dustmap=dustm)
 
