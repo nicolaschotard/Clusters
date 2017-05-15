@@ -37,28 +37,33 @@ def extinction(argv=None):
     print "INFO: Working on filters", config['filter']
 
     # Load the data
+    print "INFO: Loading data from ", args.input
     data = cdata.read_hdf5(args.input, path='deepCoadd_meas', dic=False)
 
     # Query for E(b-v) and compute the extinction
+    print "INFO: Getting the follwoing dust maps"
     red = reddening.Reddening(data['coord_ra_deg'].tolist(), data['coord_dec_deg'].tolist())
     if args.dustmap is not None:
         dustmap = args.dustmap.split(',')
     elif "dustmap" in config:
-        dustmap = list(config['dustmap'])
+        dustmap = config['dustmap'] if isinstance(config['dustmap'], list) else [config['dustmap']]
     else:
-        dustmap = list('sfd')
-    ebmv = {'ebv_%s' % dustm: red.query_local_map(dustmap=dustm) for dustm in dustmap}
+        dustmap = ['sfd']
+    ebmv = {}
+    for dustm in dustmap:
+        print " - %s" % dustm
+        ebmv['ebv_%s' % dustm] = red.query_local_map(dustmap=dustm)
 
+    print "INFO: Computing the extinction using the loaded dust maps for all filters"
     albds = {}
     for k in ebmv:
         albd = cextinction.from_ebv_sfd_to_megacam_albd(ebmv[k])
         albds.update({k.replace('ebv_', 'albd_%s_' % f): albd[f] for f in albd})
 
     # Create a new table and save it
+    print "INFO: Stacking the data into a single table"
     new_tab = hstack([data['id', 'coord_ra', 'coord_dec', 'filter'],
                       Table(ebmv), Table(albds)], join_type='inner')
-#    new_tab.write(args.output, path='extinction', compression=True,
-#                  serialize_meta=True, overwrite=args.overwrite)
 
     cdata.overwrite_or_append(args.output, 'extinction', new_tab, overwrite=args.overwrite)
 
