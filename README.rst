@@ -373,7 +373,7 @@ download the following test data set::
 The ``testdata`` directory contains a subset of the reprocessing data
 available for MACSJ2243.3-0935. It can be used as a test set of the
 code, but is not complete enough to run the full analysis. Here is the
-full structure and content of the directory, which has the exact same
+full structure and content of this directory, which has the exact same
 structure as a regulare DM stack output directory::
 
   testdata/
