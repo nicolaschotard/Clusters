@@ -4,7 +4,7 @@
 # and install the LSST stack into it.
 
 MINICONDA_VERSION=${MINICONDA_VERSION:-"latest"}
-CHANNEL=${CHANNEL:-"http://conda.lsst.codes/stack/0.13.0"} 
+CHANNEL=${CHANNEL:-"http://conda.lsst.codes/stack/0.12.0"} 
 CACHE_DIR="$HOME/miniconda.tarball"
 CACHE_DIR_TMP="$CACHE_DIR.tmp"
 CACHE_TARBALL_NAME="miniconda.tar.gz"
