@@ -19,9 +19,11 @@ def photometric_redshift(argv=None):
     parser.add_argument('input', help='Input data file')
     parser.add_argument("--output",
                         help="Name of the output file (hdf5 file)")
-    parser.add_argument("--extinction",
-                        help="Output of clusters_extinction (hdf5 file)."
-                        "Use to compute the extinction-corrected magnitudes.")
+    parser.add_argument("--extinction", default=False, action='store_true',
+                        help="Compute the extinction-corrected magnitude usings "
+                        "clusters_extinction outputs.")
+    parser.add_argument("--dustmap", default='sfd',
+                        help="Dustmap name used to compute the extinction-corrected magnitudes")
     parser.add_argument("--plot", action='store_true', default=False,
                         help="Make some plots")
     parser.add_argument("--zrange", default="0,999",
@@ -53,19 +55,20 @@ def photometric_redshift(argv=None):
 
         # Load the data
         print "INFO: Loading the data from", args.input
-        data = cdata.read_hdf5(args.input)['deepCoadd_forced_src']
+        tables = cdata.read_hdf5(args.input)
+        data = tables['deepCoadd_forced_src']
 
         # Compute extinction-corrected magitudes
-        if args.extinction is not None:
-            print "INFO: Computing extinction-corrected magnitude for", args.mag
-            edata = cdata.read_hdf5(args.extinction)['extinction']
-            cdata.correct_for_extinction(data, edata, mag=args.mag)
-            args.mag += "_extcorr"
+        if args.extinction and 'extinction' in tables.keys():
+            print "INFO: Computing extinction-corrected magnitude for", args.mag, \
+              "using the '%s' dust map" % args.dustmap
+            cdata.correct_for_extinction(data, tables['extinction'], mag=args.mag, ext=args.dustmap)
+        args.mag += "_extcorr"
 
         # Make sure the selected magnitude does exist in the data table
         if args.mag not in data.keys():
             raise IOError("%s is not a column of the input table" % args.mag)
-
+        
         # Apply zeropoints?
         if args.zeropoints is not None:
             print "INFO: Applying zeropoints for the follwoing filter:"

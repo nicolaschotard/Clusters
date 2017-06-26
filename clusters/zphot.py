@@ -563,8 +563,8 @@ class ZSPEC(object):
         # Check whether duplicate galaxies exist in the spectroz sample
         # and remove them. Ideally would average out the various occurances.
         # (To be done later)
-        ra = ['{:.9}'.format(x) for x in self.data['ra']]
-        dec = ['{:.9}'.format(x) for x in self.data['dec']]
+        ra = ['{:.20}'.format(x) for x in self.data['ra']]
+        dec = ['{:.20}'.format(x) for x in self.data['dec']]
         radec = N.core.defchararray.add(ra, dec)
         unique_radec, good = N.unique(radec, return_index=True)
         if len(unique_radec) < len(radec):

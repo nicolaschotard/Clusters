@@ -323,11 +323,11 @@ will save the extinction correction into path ``extinction`` of ``data.hdf5``
 
 - Get the photometric redshift using LEPHARE::
 
-    clusters_zphot.py config.yaml data.hdf5 (--extinction extinction.hdf5) (--output zphot.hdf5)
+    clusters_zphot.py config.yaml data.hdf5 (--extinction --dustmap sfd) (--output zphot.hdf5)
 
   This loops over the user-defined zphot configuration keys given under ``zphot`` in the ``config.yaml`` file. The results of each photoz run (point estimate and pdz distribution) is stored in ``data.hdf5`` (or ``zphot.hdf5`` if a different output is required) in a path whose name corresponds to the user-defined zphot configuration keys.
 
-  The ``--extinction`` option corrects the magnitudes according to what was previously computed by ``clusters_extinction``, before running the photoz. 
+  The ``--extinction`` option corrects the magnitudes according to what was previously computed by ``clusters_extinction``, before running the photoz. You can select the dust map using the ``--dustmap`` option, which must have also been added in the previous step.
 
 
 - Flag galaxies to be removed for the lensing analysis::
@@ -373,7 +373,7 @@ download the following test data set::
 The ``testdata`` directory contains a subset of the reprocessing data
 available for MACSJ2243.3-0935. It can be used as a test set of the
 code, but is not complete enough to run the full analysis. Here is the
-full structure and content of the directory, which has the exact same
+full structure and content of this directory, which has the exact same
 structure as a regulare DM stack output directory::
 
   testdata/
