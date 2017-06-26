@@ -93,7 +93,7 @@ class LensingModel(object):
     #######################################################
 
 
-    def createOptions(self, deltaz95low=-1, deltaz95high=2.5, zbhigh=1.25,
+    def createOptions(self, deltaz95low=-1, deltaz95high=2.5, zbhigh=5,
                       zcut=0.1, masslow=1e13, masshigh=1e16,
                       ztypecut=False, radlow=0.75, radhigh=3.0,
                       concentration=None, delta=200.,

@@ -48,43 +48,43 @@ def photometric_redshift(argv=None):
 
     print "INFO: Working on cluster %s (z=%.4f)" % (config['cluster'], config['redshift'])
 
-    # Load the data
-    print "INFO: Loading the data from", args.input
-    data = cdata.read_hdf5(args.input)['deepCoadd_forced_src']
+    if not 'sim' in config:
+        config['sim'] = {'flag':False}
 
-    # Compute extinction-corrected magitudes
-    if args.extinction is not None:
-        print "INFO: Computing extinction-corrected magnitude for", args.mag
-        edata = cdata.read_hdf5(args.extinction)['extinction']
-        cdata.correct_for_extinction(data, edata, mag=args.mag)
-        args.mag += "_extcorr"
+        # Load the data
+        print "INFO: Loading the data from", args.input
+        data = cdata.read_hdf5(args.input)['deepCoadd_forced_src']
 
-    # Make sure the selected magnitude does exist in the data table
-    if args.mag not in data.keys():
-        raise IOError("%s is not a column of the input table" % args.mag)
+        # Compute extinction-corrected magitudes
+        if args.extinction is not None:
+            print "INFO: Computing extinction-corrected magnitude for", args.mag
+            edata = cdata.read_hdf5(args.extinction)['extinction']
+            cdata.correct_for_extinction(data, edata, mag=args.mag)
+            args.mag += "_extcorr"
 
-    # Apply zeropoints?
-    if args.zeropoints is not None:
-        print "INFO: Applying zeropoints for the follwoing filter:"
-        fzpoint, zpoint, dzpoint = N.loadtxt(open(args.zeropoints), unpack=True, dtype='string')
-        for fz, zp, dzp in zip(fzpoint, zpoint, dzpoint):
-            if fz not in data['filter']:
-                print " - WARNING: %s not in the filter list" % fz
-            else:
-                print " - correcting %s mags with zp = %.5f +/- %.5f" % (fz, float(zp), float(dzp))
-                data[args.mag][data['filter'] == fz] += float(zp)
-                merr = data[args.mag.replace("_extcorr", "") + "Sigma"][data['filter'] == fz]
-                new_err = N.sqrt(merr ** 2 + float(dzp) ** 2)
-                data[args.mag.replace("_extcorr", "") + "Sigma"][data['filter'] == fz] = new_err
+        # Make sure the selected magnitude does exist in the data table
+        if args.mag not in data.keys():
+            raise IOError("%s is not a column of the input table" % args.mag)
+
+        # Apply zeropoints?
+        if args.zeropoints is not None:
+            print "INFO: Applying zeropoints for the follwoing filter:"
+            fzpoint, zpoint, dzpoint = N.loadtxt(open(args.zeropoints), unpack=True, dtype='string')
+            for fz, zp, dzp in zip(fzpoint, zpoint, dzpoint):
+                if fz not in data['filter']:
+                    print " - WARNING: %s not in the filter list" % fz
+                else:
+                    print " - correcting %s mags with zp = %.5f +/- %.5f" % (fz, float(zp), float(dzp))
+                    data[args.mag][data['filter'] == fz] += float(zp)
+                    merr = data[args.mag.replace("_extcorr", "") + "Sigma"][data['filter'] == fz]
+                    new_err = N.sqrt(merr ** 2 + float(dzp) ** 2)
+                    data[args.mag.replace("_extcorr", "") + "Sigma"][data['filter'] == fz] = new_err
 
     # If the user did not define a configuration to run the photoz,
     # add default one to the config dictionary
     if not 'zphot' in config:
         config['zphot'] = {'zphot_ref':{}}
-
-    if not 'sim' in config:
-        config['sim'] = {'flag':False}
-
+    
     if not config['sim']['flag']: # we're not dealing with simulation data
 
         # Loop over all zphot configurations present in the config.yaml file
