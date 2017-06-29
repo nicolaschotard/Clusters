@@ -113,19 +113,8 @@ light version of the DM stack, but complete enough to use the
     conda config --add channels http://conda.lsst.codes/stack/0.12.0
     conda create -q -n lsst python=2.7
     source activate lsst
-    conda install -q gcc lsst-daf-persistence lsst-log lsst-afw lsst-skypix lsst-meas-algorithms lsst-pipe-tasks
+    conda install -q gcc lsst-daf-persistence lsst-log lsst-afw lsst-skypix lsst-meas-algorithms lsst-pipe-tasks lsst-obs-cfht
 
-- Install a compatible version of the ``obs_cfht`` package, which is
-  not yet avalaible in the conda repository::
-
-    setup daf_persistence
-    git clone https://github.com/lsst/obs_cfht.git
-    cd obs_cfht
-    git checkout b7ab2c4
-    setup -k -r .
-    scons opt=3
-    eups declare -r . -t yourname
-  
 - To use this install of the DM stack, do not forget these following
   setups::
   

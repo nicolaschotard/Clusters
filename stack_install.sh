@@ -4,12 +4,12 @@
 # and install the LSST stack into it.
 
 MINICONDA_VERSION=${MINICONDA_VERSION:-"latest"}
-CHANNEL=${CHANNEL:-"http://conda.lsst.codes/stack/0.12.0"} 
+CHANNEL=${CHANNEL:-"http://conda.lsst.codes/stack/0.13.0"} 
 CACHE_DIR="$HOME/miniconda.tarball"
 CACHE_DIR_TMP="$CACHE_DIR.tmp"
 CACHE_TARBALL_NAME="miniconda.tar.gz"
 CACHE_TARBALL_PATH="$CACHE_DIR/$CACHE_TARBALL_NAME"
-PACKAGES="gcc lsst-daf-persistence lsst-log lsst-afw lsst-skypix lsst-meas-algorithms lsst-pipe-tasks"
+PACKAGES="gcc lsst-daf-persistence lsst-log lsst-afw lsst-skypix lsst-meas-algorithms lsst-pipe-tasks lsst-obs-cfht"
 
 # Store a record of what's in the cached tarball
 # This record allows us to automatically regenerate the tarball if the installed packages change.
@@ -57,12 +57,12 @@ else
 fi
 
 # Install obs_cfht
-source eups-setups.sh
-setup daf_persistence
-git clone https://github.com/lsst/obs_cfht.git
-cd obs_cfht
-git checkout b7ab2c4
-setup -k -r .
-scons opt=3
-eups declare -r . -t travis
-cd ../
+#source eups-setups.sh
+#setup daf_persistence
+#git clone https://github.com/lsst/obs_cfht.git
+#cd obs_cfht
+#git checkout b7ab2c4
+#setup -k -r .
+#scons opt=3
+#eups declare -r . -t travis
+#cd ../
