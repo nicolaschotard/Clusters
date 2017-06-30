@@ -122,7 +122,8 @@ light version of the DM stack, but complete enough to use the
     source activate lsst
     source eups-setups.sh
     setup daf_persistence
-    setup obs_cfht -t yourname
+    setup afw
+    setup obs_cfht
 
 If these steps went well, you should be able to use
 ``clusters_data.py`` on one of the outputs of the DM stack (see below

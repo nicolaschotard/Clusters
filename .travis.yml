@@ -32,7 +32,8 @@ script:
   - source activate lsst
   - source eups-setups.sh
   - setup daf_persistence
-  - setup obs_cfht -t travis
+  - setup afw
+  - setup obs_cfht
   # Get the test data
   - wget https://lapp-owncloud.in2p3.fr/index.php/s/xG2AoS2jggbmP0k/download
   - tar zxf download 
