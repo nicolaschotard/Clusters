@@ -76,7 +76,7 @@ def extinction(argv=None):
         filt = new_tab['filter'] == config['filter'][0]
         cextinction.plots(new_tab['coord_ra'][filt],
                           new_tab['coord_dec'][filt],
-                          new_tab['ebv_sfd'], albds['albd_g_sfd'][filt],
+                          new_tab['ebv_sfd'][filt], albds['albd_g_sfd'][filt],
                           title='Dust extinction map, %s, %i sources, g_sfd' %
                           (config['cluster'], len(new_tab['coord_ra'][filt])),
                           figname=config['cluster'])

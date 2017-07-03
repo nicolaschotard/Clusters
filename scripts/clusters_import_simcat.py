@@ -13,7 +13,7 @@ catfiles=[]
 for i in np.arange(8):
     srcfile = '/Users/combet/RECHERCHE/LSST/RTF/analysis/SIM/DM_cat/src0'+str(i)+'.fits'
     srcfiles.append(srcfile)
-    catfile = '/Users/combet/RECHERCHE/LSST/RTF/analysis/SIM/cat0'+str(i)+'_sim.hdf5'  # to be used with "clusters_mass.py config.yaml cat_wtg.hdf5"
+    catfile = '/Users/combet/RECHERCHE/LSST/RTF/analysis/SIM/cat0'+str(i)+'_sim_new.hdf5'  # to be used with "clusters_mass.py config.yaml cat_wtg.hdf5"
     catfiles.append(catfile)
 
 
@@ -25,12 +25,14 @@ for i,fileshear in enumerate(srcfiles):
     dec_pix = cat_sim[1].data['base_GaussianCentroid_y']
     ra = ra_pix*0.2/3600. # assumes a 0.2 arcmin pixel size
     dec = dec_pix*0.2/3600.
+#    ra = cat_sim[1].data['coord_ra']
+#    dec = cat_sim[1].data['coord_dec']
     e1 = cat_sim[1].data['ext_shapeHSM_HsmShapeRegauss_e1']
     e2 = cat_sim[1].data['ext_shapeHSM_HsmShapeRegauss_e2']
-    id = cat_sim[1].data['id']
+    obj_id = cat_sim[1].data['id']
 
 # Write pipeline-compatible hdf5 file
-    deepCoadd_meas = table.Table([id, ra, dec, e1, e2], names=('id', 'coord_ra_deg', 'coord_dec_deg', 'ext_shapeHSM_HsmShapeRegauss_e1', 'ext_shapeHSM_HsmShapeRegauss_e2'))
+    deepCoadd_meas = table.Table([obj_id, ra, dec, e1, e2], names=('id', 'coord_ra_deg', 'coord_dec_deg', 'ext_shapeHSM_HsmShapeRegauss_e1', 'ext_shapeHSM_HsmShapeRegauss_e2'))
     deepCoadd_meas.write(catfiles[i], path='deepCoadd_meas', overwrite=True)
 
     zsim = np.zeros(len(ra))+1.5

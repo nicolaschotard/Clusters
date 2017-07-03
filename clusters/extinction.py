@@ -3,7 +3,6 @@
 import pylab as P
 import numpy as N
 
-
 def from_ebv_sfd_to_sdss_albd(ebv):
     """Return A(lbd) for the 5 SDSS filters: u, g, r, i, z."""
     coeff = {'u': 5.155, 'g': 3.793, 'r': 2.751, 'i': 2.086, 'z': 1.479}
@@ -31,7 +30,7 @@ def plots(ra, dec, ebv, albd, title=None, figname=""):
     """Plot the extinction sky-map."""
     fig = P.figure()
     ax = fig.add_subplot(111, xlabel='RA (deg)', ylabel='DEC (deg)')
-    scat = ax.scatter(ra, dec, c=ebv, cmap=(P.cm.jet))
+    scat = ax.scatter(ra, dec, c=ebv, cmap=(P.cm.jet),edgecolor='none')
     cbar = fig.colorbar(scat)
     cbar.set_label('E(B-V)')
     if title is not None:
