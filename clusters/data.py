@@ -16,12 +16,12 @@ import yaml
 
 warnings.filterwarnings("ignore")
 
-#try:
-from lsst.afw import image as afwimage
-from lsst.afw import table as afwtable
-import lsst.daf.persistence as dafPersist
-#except ImportError:
-#    print colored("WARNING: LSST stack is probably not installed", "yellow")
+try:
+    from lsst.afw import image as afwimage
+    from lsst.afw import table as afwtable
+    import lsst.daf.persistence as dafPersist
+except ImportError:
+    print colored("WARNING: LSST stack is probably not installed", "yellow")
 
 
 class Catalogs(object):
@@ -62,7 +62,7 @@ class Catalogs(object):
             if 'tract' in keys:
                 keys.pop('tract')
             dataids = [merge_dicts(dict(zip(sorted(keys.keys()), v)), {'tract': 0})
-                       for v in self.butler.queryMetadata("forced_src", format=sorted(keys.keys()))]
+                       for v in self.butler.queryMetadata(catalog, format=sorted(keys.keys()))]
 
         if len(dataids) == 0:
             raise IOError("No dataIds. Check the catalog, the config file, and path to the bulter.")
@@ -311,17 +311,20 @@ class Catalogs(object):
 
         Examples of catalogs that you can load:
 
+         - 'deepCoadd_ref',
          - 'deepCoadd_meas',
          - 'deepCoadd_forced_src',
          - 'deepCoadd_calexp',
          - 'forced_src'
+         - 'src'
         """
         if 'show' in kwargs:
             self.show_keys(catalogs)
             return
         keys = {} if 'keys' not in kwargs else kwargs['keys']
-        self._load_calexp(**kwargs)
         catalogs = [catalogs] if isinstance(catalogs, str) else catalogs
+        if any(["deepCoadd" in cat for cat in catalogs]):
+            self._load_calexp(**kwargs)
         for catalog in sorted(catalogs):
             if catalog in self.catalogs and 'update' not in kwargs:
                 print colored("\nWARNING: %s is already loaded. Use 'update' to reload it." %
