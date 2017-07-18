@@ -1,4 +1,4 @@
-slanguage: python
+language: python
 
 cache:
   - pip: True
