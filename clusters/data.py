@@ -16,12 +16,12 @@ import yaml
 
 warnings.filterwarnings("ignore")
 
-try:
-    from lsst.afw import image as afwimage
-    from lsst.afw import table as afwtable
-    import lsst.daf.persistence as dafPersist
-except ImportError:
-    print colored("WARNING: LSST stack is probably not installed", "yellow")
+#try:
+from lsst.afw import image as afwimage
+from lsst.afw import table as afwtable
+import lsst.daf.persistence as dafPersist
+#except ImportError:
+#    print colored("WARNING: LSST stack is probably not installed", "yellow")
 
 
 class Catalogs(object):
@@ -59,12 +59,13 @@ class Catalogs(object):
                            for filt in kwargs.get('filter', ['u', 'g', 'r', 'i', 'i2', 'z'])]
         else:  # The other catalogs
             keys = self.butler.getKeys(catalog)
-            metadata = self.butler.queryMetadata(catalog, format=sorted(keys.keys()))
             if 'tract' in keys:
                 keys.pop('tract')
+                metadata = self.butler.queryMetadata(catalog, format=sorted(keys.keys()))
                 dataids = [merge_dicts(dict(zip(sorted(keys.keys()), list(v))), {'tract': 0})
                            for v in metadata]
             else:
+                metadata = self.butler.queryMetadata(catalog, format=sorted(keys.keys()))
                 dataids = [dict(zip(sorted(keys.keys()), [v] if not isinstance(v, list) else v))
                            for v in metadata]
 
@@ -254,14 +255,14 @@ class Catalogs(object):
                 for kflux, ksigma in zip(kfluxes, ksigmas):
                     if kflux.replace('_flux', '_mag') in self.catalogs[catalog].keys():
                         continue
-                        mag, dmag = self.from_butler['getmag'](np.array(self.catalogs[catalog][kflux],
-                                                                        dtype='float'),
-                                                               np.array(self.catalogs[catalog][ksigma],
-                                                                        dtype='float'))
-                        columns.append(Column(name=kflux.replace('_flux', '_mag'),
-                                              data=mag, description='Magnitude', unit='mag'))
-                        columns.append(Column(name=ksigma.replace('_fluxSigma', '_magSigma'),
-                                              data=dmag, description='Magnitude error', unit='mag'))
+                    mag, dmag = self.from_butler['getmag'](np.array(self.catalogs[catalog][kflux],
+                                                                    dtype='float'),
+                                                           np.array(self.catalogs[catalog][ksigma],
+                                                                    dtype='float'))
+                    columns.append(Column(name=kflux.replace('_flux', '_mag'),
+                                          data=mag, description='Magnitude', unit='mag'))
+                    columns.append(Column(name=ksigma.replace('_fluxSigma', '_magSigma'),
+                                          data=dmag, description='Magnitude error', unit='mag'))
 
             if 'x_Src' in self.catalogs[catalog].keys():
                 return
@@ -423,7 +424,7 @@ def load_config(config):
     # makes sure a default name is setup in the config dictionnary
 #    if 'zphot' not in c.keys() : c['zphot'] = {'zphot_ref':{}} 
 #    if 'mass' not in c.keys() : c['mass'] = {'zconfig':'zphot_ref'} 
- 
+
     return c
 
 def shorten(doc):
@@ -713,30 +714,30 @@ def plot_patches(catalog, clust_coords=None):
 
 
 def overwrite_or_append(filename, path, table, overwrite=False):
-    """ 
+    """
     Overwrites or append new path/table to existing file or creates new file
-    
+
     The overwrite keyword of data.write(file,path) does not overwrites
     only the data in path, but the whole file, i.e. (we lose all other
     paths in the process) --> need to do it by hand
     """
-        
+
     if not os.path.isfile(filename):
         print "Creating", filename
         table.write(filename, path=path, compression=True, serialize_meta=True)
     else:
         data = read_hdf5(filename)
         if path in data.keys():
-            if (overwrite):
-                print "Overwriting path =", path, " in", filename 
+            if overwrite:
+                print "Overwriting path =", path, " in", filename
                 data[path] = table  # update the table with new values
                 os.remove(filename)  # delete file
                 for p in data.keys():  # rewrite all paths/tables to file
                     data[p].write(filename, path=p, compression=True, serialize_meta=True,
-                                append=True)
+                                  append=True)
             else:
                 raise IOError("Path already exists in hdf5 file. Use --overwrite to overwrite.")
         else:
-            print "Adding", path, " to", filename 
+            print "Adding", path, " to", filename
             table.write(filename, path=path, compression=True, serialize_meta=True,
-                    append=True) 
+                        append=True) 
