@@ -9,11 +9,12 @@ import sys
 import subprocess
 import numpy as N
 import pylab as P
-import data as cdata
 from scipy.optimize import curve_fit
 from astropy.io import ascii
 from astropy.table import Table, hstack
 from astropy.coordinates import SkyCoord
+from . import data as cdata
+
 
 class LEPHARE(object):
 
@@ -281,22 +282,26 @@ class BPZ(object):
             print "INFO: All data saved in", self.files['all_input']
 
     def build_columns_file(self, prefix='CFHT_megacam_', sufix='p',
-                           filters=['u', 'g', 'r', 'i', 'z'], ref='i', Z_S=False):
+                           filters=None, ref='i', Z_S=False):
         """Build and write the 'columns' file.
 
         Hardcoded for test purpose.
         """
+        if filters is None: # set the default values as the CFHT ones
+            filters = ['u', 'g', 'r', 'i', 'z']
         f = open(self.files['columns'], 'w')
         f.write("# Filter  columns  AB/Vega  zp_error  zp_offset\n")
         for i, filt in enumerate(filters):
-            f.write("%s%s%s     %i, %i   AB        0.01      0.00\n" % (prefix, filt, sufix, i + 2, i + len(filters) + 2))
-        f.write("M_0                 %i\n" % [j+2 for j, filt in enumerate(filters) if filt == ref][0])
+            f.write("%s%s%s     %i, %i   AB        0.01      0.00\n" % \
+                    (prefix, filt, sufix, i + 2, i + len(filters) + 2))
+            f.write("M_0                 %i\n" \
+                    % [j+2 for j, filt in enumerate(filters) if filt == ref][0])
         if Z_S:
             f.write("Z_S                  %i\n" % (len(filters)*2+2))
         f.write("ID                    1\n")
         f.close()
 
-        
+
     def run(self):
         """
         Run BPZ.
@@ -316,10 +321,10 @@ class BPZ(object):
         # build command line options from param file
         if self.config is not None:
             opt_arr = N.genfromtxt(self.config, dtype=None)
-            option = ['-' + opt_arr[i,0] + ' ' + opt_arr[i,1] for i in N.arange(len(opt_arr))]
+            option = ['-' + opt_arr[i, 0] + ' ' + opt_arr[i, 1] for i in N.arange(len(opt_arr))]
             options = ' '.join(e for e in option)
         else:
-            options=''
+            options = ''
 
         # build command line
         cmd = "python $BPZPATH/bpz.py %s " % self.files['input'] + options
@@ -333,7 +338,7 @@ class BPZ(object):
                                zcode_name='bpz', all_input=self.files['all_input'],
                                **self.kwargs)
 
-        
+
 class ZPHOTO(object):
 
     """Read photoz code (LePhare, BPZ) output file and creates/saves astropy tables"""
@@ -393,8 +398,8 @@ class ZPHOTO(object):
         # Duplicates the zbins vector for each object.
         # It is redundant information but astropy tables need each field to have the
         # same size. Or maybe I'm missing something.
-        zbins = N.tile(self.pdz_zbins, (len(self.kwargs['id']),1))
-        
+        zbins = N.tile(self.pdz_zbins, (len(self.kwargs['id']), 1))
+
         # Converts LePhare or BPZ likelihood to actual probability density
         for i in N.arange(len(self.pdz_val.T)):
             norm = N.trapz(self.pdz_val[:, i], self.pdz_zbins)
@@ -708,5 +713,3 @@ def gauss(x, *p):
     """Model function to be used to fit a gaussian distribution."""
     A, mu, sigma = p
     return A * N.exp(- (x - mu) ** 2 / (2. * sigma ** 2))
-
-

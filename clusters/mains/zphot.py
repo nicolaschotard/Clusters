@@ -24,14 +24,8 @@ def photometric_redshift(argv=None):
                         "clusters_extinction outputs.")
     parser.add_argument("--dustmap", default='sfd',
                         help="Dustmap name used to compute the extinction-corrected magnitudes")
-    parser.add_argument("--plot", action='store_true', default=False,
-                        help="Make some plots")
-    parser.add_argument("--zrange", default="0,999",
-                        help="Redshift range used to plot the map (min,max)")
     parser.add_argument("--mag", type=str, default='modelfit_CModel_mag',
                         help="Magnitude name [default]")
-    parser.add_argument("--data",
-                        help="Photoz output file, used for the analysis only (plots)")
     parser.add_argument("--overwrite", action="store_true", default=False,
                         help="Overwrite the paths in the output file if they exist already")
     parser.add_argument("--zeropoints", type=str,
@@ -40,11 +34,6 @@ def photometric_redshift(argv=None):
     args = parser.parse_args(argv)
 
     config = cdata.load_config(args.config)
-    if args.data is not None:
-        doplot(czphot.LEPHARO(args.data, args.data.replace('_zphot', '')),
-               config, float(args.zrange.split(',')[0]), float(args.zrange.split(',')[1]))
-        sys.exit()
-
     if args.output is None:  # if no output name specified, append table to input file
         args.output = args.input
 
@@ -150,16 +139,7 @@ def photometric_redshift(argv=None):
             pdz_tmp = N.zeros(len(zrange))
             pdz_tmp[N.digitize(z, zrange)] = 1/pdz_step # normalised so that int_zmin^zmax pdz = 1
             pdz = pdz_tmp if i == 0 else N.vstack((pdz, pdz_tmp))
-        #pdb.set_trace()
+
         pdz_values = Table([id_sim, z_sim, pdz, zbinsgrid],
                            names=('objectId', 'Z_BEST', 'pdz', 'zbins'))
         cdata.overwrite_or_append(args.output, path, pdz_values, overwrite=True)
-
-    # Plot
-    if args.plot:
-        doplot(zphot.data_out, config,
-               float(args.zrange.split(',')[0]),
-               float(args.zrange.split(',')[1]))
-
-    if args.plot:
-        czphot.P.show()
