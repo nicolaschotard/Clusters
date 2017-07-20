@@ -414,7 +414,7 @@ class ScanModelToFile(object):
 #
 #        
 #        outputFile = manager.options.outputFile
-#        dumpMasses(manager.masses,'%s.mass15mpc' % outputFile)
+#        pma.dumpMasses(manager.masses,'%s.mass15mpc' % outputFile)
 #
 
     ##########
@@ -473,59 +473,9 @@ class SampleModelToFile(object):
             cPickle.dump(manager.chain, output)
 
 
-        dumpMasses(np.array(manager.chain['mdelta'][manager.options.burn:]),
-                   '%s.m%d' % (outputFile, manager.massdelta))
+        pma.dumpMasses(np.array(manager.chain['mdelta'][manager.options.burn:]),
+                       '%s.m%d' % (outputFile, manager.massdelta))
 
     def finalize(self, manager):
         pass
 
-
-def dumpMasses(masses, outputFile):
-
-    with open('%s.mass.pkl' % outputFile, 'wb') as output:
-        cPickle.dump(masses, output)
-
-    mean = np.mean(masses)
-    stddev = np.std(masses)
-    quantiles = pymc.utils.quantiles(masses, qlist=[2.5, 15.8, 25, 50, 75, 84.1, 97.5])
-    hpd68 = pymc.utils.hpd(masses, 0.32)
-    hpd95 = pymc.utils.hpd(masses, 0.05)
-    ml, (m, p) = ci.maxDensityConfidenceRegion(masses)
-    lml, (lm, lp) = ci.maxDensityConfidenceRegion(np.log10(masses))
-
-    with open('%s.mass.summary.txt' % outputFile, 'w') as output:
-        output.write('mean\t%e\n' % mean)
-        output.write('stddev\t%e\n' % stddev)
-        output.write('Q2.5\t%e\n' % quantiles[2.5])
-        output.write('Q25\t%e\n' % quantiles[25])
-        output.write('Q50\t%e\n' % quantiles[50])
-        output.write('Q75\t%e\n' % quantiles[75])
-        output.write('Q97.5\t%e\n' % quantiles[97.5])
-        output.write('HPD68\t%e\t%e\n' % (hpd68[0], hpd68[1]))
-        output.write('HPD95\t%e\t%e\n' % (hpd95[0], hpd95[1]))
-        output.write('MaxLike\t%e\t%e\t%e\n' % (ml, m, p))
-        output.write('Log10 Maxlike\t%e\t%e\t%e\n' % (lml, lm, lp))
-        output.close()
-
-    with open('%s.mass.summary.pkl' % outputFile, 'wb') as output:
-        stats = {'mean' : mean,
-                 'stddev' : stddev,
-                 'quantiles' : quantiles,
-                 'hpd68' : hpd68,
-                 'hpd95' : hpd95,
-                 'maxlike' : (ml, (m, p)),
-                 'log10maxlike' : (lml, (lm, lp))}
-        cPickle.dump(stats, output)
-        output.close()
-
-    print 'mean\t%e' % mean
-    print 'stddev\t%e' % stddev
-    print 'Q2.5\t%e' % quantiles[2.5]
-    print 'Q25\t%e' % quantiles[25]
-    print 'Q50\t%e' % quantiles[50]
-    print 'Q75\t%e' % quantiles[75]
-    print 'Q97.5\t%e' % quantiles[97.5]
-    print 'HPD68\t%e\t%e' % (hpd68[0], hpd68[1])
-    print 'HPD95\t%e\t%e' % (hpd95[0], hpd95[1])
-    print 'MaxLike\t%e\t%e\t%e\n' % (ml, m, p)
-    print 'Log10 Maxlike\t%e\t%e\t%e\n' % (lml, lm, lp)

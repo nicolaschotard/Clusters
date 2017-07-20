@@ -7,7 +7,7 @@ import numpy as np
 import pymc
 from . import maxlike_masses as mm
 from . import nfwmodeltools as nfwtools
-from . import nfwutils
+from .nfwutils import global_cosmology as gc
 
 
 class BentVoigtShapedistro(mm.LensingModel):
@@ -111,10 +111,10 @@ class BentVoigtShapedistro(mm.LensingModel):
         parts.ghats = np.ascontiguousarray(inputcat['ghats'].astype(np.float64))
         parts.pz = np.ascontiguousarray(pz.astype(np.float64))
         parts.zs = np.ascontiguousarray(np.array(datamanager.pdzrange).astype(np.float64))
-        parts.betas = np.ascontiguousarray(nfwutils.global_cosmology.beta_s(parts.zs, parts.zcluster).astype(np.float64))
+        parts.betas = np.ascontiguousarray(gc.beta_s(parts.zs, parts.zcluster).astype(np.float64))
         parts.nzbins = len(parts.betas)
-        parts.rho_c = nfwutils.global_cosmology.rho_crit(parts.zcluster)
-        parts.rho_c_over_sigma_c = 1.5 * nfwutils.global_cosmology.angulardist(parts.zcluster) * nfwutils.global_cosmology.beta([1e6], parts.zcluster)[0] * nfwutils.global_cosmology.hubble2(parts.zcluster) / nfwutils.global_cosmology.v_c**2
+        parts.rho_c = gc.rho_crit(parts.zcluster)
+        parts.rho_c_over_sigma_c = 1.5 * gc.angulardist(parts.zcluster) * gc.beta([1e6], parts.zcluster)[0] * gc.hubble2(parts.zcluster) / gc.v_c**2
         parts.data = None
         for i in range(10):
             try:
