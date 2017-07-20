@@ -57,3 +57,20 @@ def loadchains(chainfilenames, trim=False):
         chain[col] = np.row_stack([x[:, i] for x in rawdata])
 
     return chain
+
+
+def matchById(firstcat, othercat, otherid='SeqNr', selfid='SeqNr'):
+    """Returns a subset of the first catalog, that matches the order of the second catalog."""
+    order = {}
+    for i, fid in enumerate(firstcat[selfid]):
+        order[fid] = i
+
+    keeporder = []
+    for oid in othercat[otherid]:
+        if oid in order:
+            keeporder.append(order[oid])
+
+    keep = np.array(keeporder)
+    matched = firstcat[keep]
+    print "INFO: %i matched galaxies kept" % len(matched)
+    return matched

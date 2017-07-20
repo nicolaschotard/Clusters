@@ -1,18 +1,14 @@
-###############################
-# Utilities to calculate NFW Halo Properties
-###############################
+"""Utilities to calculate NFW Halo Properties."""
 
 import copy
 import numpy as np
 import scipy.optimize
 from scipy.integrate import quad
 
-#############################
 
-std_G = 4.3e-9 # Newton's const   in Mpc (km/s)^2 M_sol^{-1
-v_c = 299792.458 #km/s
+std_G = 4.3e-9  # Newton's const   in Mpc (km/s)^2 M_sol^{-1
+v_c = 299792.458  # km/s
 
-#############################
 
 class ComovingDistMemoization(object):
 
@@ -26,7 +22,6 @@ class ComovingDistMemoization(object):
 
     def __call__(self, z):
 
-
         if z in self.memotable:
             return self.memotable[z]
 
@@ -35,14 +30,11 @@ class ComovingDistMemoization(object):
             return 1./np.sqrt(self.cosmology.hubble2(z))
 
         y, err = quad(integrand, 0, z)
-
-        dist = self.cosmology.v_c * y  #to get proper units, ie to put in the hubble length
-
+        dist = self.cosmology.v_c * y  # to get proper units, ie to put in the hubble length
         self.memotable[z] = dist
 
         return dist
 
-##############################
 
 class Cosmology(object):
 
@@ -64,13 +56,13 @@ class Cosmology(object):
                          h=self.h, w=self.w, omega_r=self.omega_r, G=self.G)
 
     def get_H0(self):
-        return 100 * self.h  #km/s/MPC
+        return 100 * self.h  # km/s/MPC
 
     H0 = property(get_H0)
 
     def hubble2(self, z):
 
-        inv_a = 1.+z
+        inv_a = 1. + z
         return (self.omega_r * inv_a**4 + self.omega_m * inv_a**3 +
                 self.omega_l * (inv_a**(3 * (1+self.w))) +
                 (1 - self.omega_m - self.omega_l - self.omega_r) * inv_a**2) * self.H0**2
@@ -83,7 +75,6 @@ class Cosmology(object):
         return self.v_c / self.H0
 
     hubble_length = property(get_hubble_length)
-
 
     def _integral_1pzOverEz3(self, z_min, z_max=np.inf):
 
@@ -108,9 +99,9 @@ class Cosmology(object):
     def angulardist(self, z, z2=None):
 
         if z2 is None:
-            return self.comovingdist(z) / (1+z)
+            return self.comovingdist(z) / (1 + z)
 
-        return (self.comovingdist(z2) - self.comovingdist(z)) / (1+z2)
+        return (self.comovingdist(z2) - self.comovingdist(z)) / (1 + z2)
 
     def beta(self, z, zcluster):
 
@@ -127,14 +118,10 @@ class Cosmology(object):
     def beta_s(self, z, zcluster):
 
         betainf = self.beta([1e6], zcluster)
-
         beta_s = self.beta(z, zcluster) / betainf
 
         return beta_s
 
-
-
-###################################
 
 class CosmologyFixedException(Exception):
     pass
@@ -167,62 +154,44 @@ class CosmologySingleton(object):
     def __getattr__(self, name):
         return getattr(self._cosmology, name)
 
-###################################
 
 std_cosmology = CosmologySingleton(isMutable=False)
-    
 global_cosmology = CosmologySingleton()
 
-
-##################################
 
 def deltaC(c, delta=200.):
 
     c = float(c)
+    return (delta / 3.) * c**3 / (np.log(1 + c) - (c / (1 + c)))
 
-    return (delta/3.) * c**3/(np.log(1+c) - (c/(1+c)))
-
-
-###################################
 
 def density(r, rs, c, z, cosmology=global_cosmology):
 
-    x = r/rs
-
+    x = r / rs
     delta_c = deltaC(c)
-
     rho_c = cosmology.rho_crit(z)
 
     return delta_c * rho_c/(x * ((1+x)**2))
 
 
-##################################
-
 def delta_vir(z, cosmology=global_cosmology):
 
-
     #Bryan & Norman 1998
-
     omega_z = cosmology.omega_m * cosmology.rho_crit(0.) * ((1+z)**3)/cosmology.rho_crit(z)
-
     x = omega_z - 1
-
-    d_v = 18 * np.pi**2 - 82 * x - 39 * x**2 
+    d_v = 18 * np.pi**2 - 82 * x - 39 * x**2
 
     return d_v
 
 
-###################################
-
 def massInsideR(rs, c, z, R, cosmology=global_cosmology):
 
-    x = R/rs
+    x = R / rs
     delta_c = deltaC(c)
     rho_c = cosmology.rho_crit(z)
 
-    return (np.log(1+x) - (x/(1+x))) * 4 * np.pi * delta_c * rho_c * rs**3
+    return (np.log(1 + x) - (x / (1 + x))) * 4 * np.pi * delta_c * rho_c * rs**3
 
-##############
 
 def RsMassInsideR(mass, c, z, R, cosmology=global_cosmology):
 
@@ -230,14 +199,11 @@ def RsMassInsideR(mass, c, z, R, cosmology=global_cosmology):
     rho_c = cosmology.rho_crit(z)
 
     def f(x):
-
-        xp = R/x
-
-        return (np.log(1+xp) - (xp/(1+xp))) * 4 * np.pi * delta_c * rho_c * x**3 - mass
+        xp = R / x
+        return (np.log(1 + xp) - (xp / (1 + xp))) * 4 * np.pi * delta_c * rho_c * x**3 - mass
 
     try:
         rs = scipy.optimize.brenth(f, 0.01, 10.)
-
     except ValueError, e:
         print '!!!!!!!!!!!'
         print mass, c, f(0.01), f(10.)
@@ -245,7 +211,6 @@ def RsMassInsideR(mass, c, z, R, cosmology=global_cosmology):
 
     return rs
 
-###################################
 
 def massInsideR_amp(rs, amp, z, R, cosmology=global_cosmology):
 
@@ -276,8 +241,6 @@ def rdelta2rs(rdelta, c, delta):
     return rdelta / x0
 
 
-###################################
-
 def rdelta(rs, c, delta):
 
     delta_c = deltaC(c)
@@ -290,47 +253,29 @@ def rdelta(rs, c, delta):
 
     return x0 * rs
 
-####################################
 
 def Mdelta(rs, c, z, delta, cosmology=global_cosmology):
 
     r_delta = rdelta(rs, c, delta)
-
     rho_c = cosmology.rho_crit(z)
 
     return delta * rho_c * (4 * np.pi/3) * r_delta**3
 
 
-######################################
-
 def rdeltaConstM(mdelta,z, delta, cosmology=global_cosmology):
 
     rho_c = cosmology.rho_crit(z)
+    r_delta = (3 * mdelta/(4 * delta * np.pi * rho_c))**(1./3.)
 
-    rdelta = (3 * mdelta/(4 * delta * np.pi * rho_c))**(1./3.)
-
-    return rdelta
-
-#######################################
+    return r_delta
 
 
 def rscaleConstM(mdelta, c200, z, delta, cosmology=global_cosmology):
 
     rho_c = cosmology.rho_crit(z)
-
-    rdelta = (3 * mdelta/(4 * delta * np.pi * rho_c))**(1./3.)
+    r_delta = (3 * mdelta/(4 * delta * np.pi * rho_c))**(1./3.)
 
     if delta == 200.:
-        return rdelta / c200
+        return r_delta / c200
 
-    return rdelta2rs(rdelta, c200, delta)
-
-
-
-###############################
-
-
-
-
-
-
+    return rdelta2rs(r_delta, c200, delta)

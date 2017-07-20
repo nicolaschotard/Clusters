@@ -11,6 +11,7 @@ from __future__ import with_statement
 import unittest
 import numpy
 import astropy.io.fits as pyfits
+from . import util
 
 #######################
 
@@ -105,19 +106,7 @@ class LDACCat(object):
         return newcat
 
     def matchById(self, othercat, otherid='SeqNr', selfid='SeqNr'):
-        """Return a subset of this catalog, that matches the order of the provided catalog."""
-        order = {}
-        for i, x in enumerate(self[selfid]):
-            order[x] = i
-
-        keepOrder = []
-        for x in othercat[otherid]:
-            if x in order:
-                keepOrder.append(order[x])
-
-        keep = numpy.array(keepOrder)
-        matched = self.filter(keep)
-        return matched
+        return util.matchById(self, othercat, otherid=otherid, selfid=selfid)
 
 
 def openObjects(hdulist, table='OBJECTS'):
