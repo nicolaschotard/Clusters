@@ -12,7 +12,7 @@ import time
 import datetime
 import inspect
 import getpass
-from . import varcontainer
+from . import util
 
 #######################
 
@@ -261,7 +261,7 @@ class CommentHistoryItem(HistoryItem):
 
 #######################
 
-class DataManager(varcontainer.VarContainer):
+class DataManager(util.VarContainer):
 
     def __init__(self):
 

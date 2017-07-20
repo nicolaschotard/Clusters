@@ -1,7 +1,4 @@
-#!/usr/bin/env python
-#######################
-# Run a ML pdz fit for an nfw model
-########################
+"""Run a ML pdz fit for an nfw model."""
 
 from __future__ import with_statement
 import cPickle
@@ -10,12 +7,11 @@ import numpy as np
 import astropy.io.fits as pyfits
 from . import ldac
 from . import nfwutils
-from . import varcontainer
+from . import util
 from . import nfwmodeltools as tools
 from . import confidenceinterval as ci
 from . import pymc_mymcmc_adapter as pma
 
-##########################
 
 usage = '''
    maxlike_masses.py  filehandler_module shapedistro_module <options>
@@ -41,17 +37,14 @@ class ModelInitException(Exception):
     pass
 
 
-##########################
-
 massscale = 1e14
+
 
 class LensingModel(object):
 
     def __init__(self):
 
         self.cuts = [self.modelCut]
-
-    #######################################################
 
     def addCLOps(self, parser):
 
@@ -100,7 +93,7 @@ class LensingModel(object):
                       options=None, args=None, logprior=False):
 
         if options is None:
-            options = varcontainer.VarContainer()
+            options = util.VarContainer()
 
         options.deltaz95low = deltaz95low
         options.deltaz95high = deltaz95high
@@ -172,7 +165,8 @@ class LensingModel(object):
             ztypecut[type2] = np.logical_and(type2, zb < 1.3)
 
             type3 = np.logical_and(zt >= 3, zt < 4)
-            ztypecut[type3] = np.logical_and(type3, np.logical_or(zb <= 1, np.logical_and( 1.15 < zb, zb < 1.3)))
+            ztypecut[type3] = np.logical_and(type3, np.logical_or(zb <= 1,
+                                                                  np.logical_and( 1.15 < zb, zb < 1.3)))
             
             type4 = np.logical_and(zt >= 4, zt < 5)
             ztypecut[type4] = np.logical_and(type4, np.logical_or(zb < 0.95, np.logical_and(1.15 < zb, zb < 1.3)))
@@ -264,9 +258,6 @@ class LensingModel(object):
                                    nfwutils.global_cosmology.hubble2(parts.zcluster) / \
                                    nfwutils.global_cosmology.v_c**2
 
-
-
-
         parts.data = None
         for i in range(20):
 
@@ -316,7 +307,7 @@ class LensingModel(object):
     def makeModelParts(self, datamanager, parts=None):
 
         if parts is None:
-            parts = varcontainer.VarContainer()
+            parts = util.VarContainer()
 
         parts.zcluster = datamanager.zcluster
 
@@ -357,7 +348,7 @@ class ScanModelToFile(object):
                       options=None, args=None):
 
         if options is None:
-            options = varcontainer.VarContainer()
+            options = util.VarContainer()
 
         options.outputFile = outputFile
         return options, args
@@ -444,8 +435,8 @@ class SampleModelToFile(object):
         outputFile = manager.options.outputFile
         burn = manager.options.burn
 
-        mcmc_manager = varcontainer.VarContainer()
-        mcmc_options = varcontainer.VarContainer()
+        mcmc_manager = util.VarContainer()
+        mcmc_options = util.VarContainer()
         mcmc_manager.options = mcmc_options
 
         mcmc_options.singlecore = True
@@ -460,32 +451,21 @@ class SampleModelToFile(object):
 
         manager.chain = mcmc_manager.chain
 
-    ############
-
     def addCLOps(self, parser):
 
         raise NotImplementedError
 
-    ###########
-
-    def createOptions(self,
-                      outputFile,
-                      nsamples=2000,
-                      burn=500,
-                      options=None, args=None):
+    def createOptions(self, outputFile, nsamples=2000, burn=500, options=None, args=None):
 
         if options is None:
-            options = varcontainer.VarContainer()
+            options = util.VarContainer()
 
         options.outputFile = outputFile
         options.nsamples = nsamples
         options.burn = burn
         return options, args
 
-    ##############
-
     def dump(self, manager):
-
 
         outputFile = manager.options.outputFile
 
@@ -496,14 +476,8 @@ class SampleModelToFile(object):
         dumpMasses(np.array(manager.chain['mdelta'][manager.options.burn:]),
                    '%s.m%d' % (outputFile, manager.massdelta))
 
-
-    ##############
-
     def finalize(self, manager):
         pass
-
-
-    ######################
 
 
 def dumpMasses(masses, outputFile):
@@ -555,6 +529,3 @@ def dumpMasses(masses, outputFile):
     print 'HPD95\t%e\t%e' % (hpd95[0], hpd95[1])
     print 'MaxLike\t%e\t%e\t%e\n' % (ml, m, p)
     print 'Log10 Maxlike\t%e\t%e\t%e\n' % (lml, lm, lp)
-
-
-

@@ -15,7 +15,7 @@ try:
 except ImportError:
     pass
 from . import mymc
-from . import load_chains
+from . import util
 
 
 ###############################
@@ -224,7 +224,7 @@ class MyMCRunner(object):
             if os.path.exists(chainfile):
 
                 writeHeader = False
-                chain = load_chains.loadChains([chainfile])
+                chain = util.loadchains([chainfile])
                 for param in space:
                     param.set(chain[param.name][0, -1])
 

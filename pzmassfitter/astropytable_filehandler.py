@@ -6,7 +6,7 @@
 import numpy as np
 import astropy.table as table
 import astropy.io.fits as pyfits
-from . import varcontainer
+from . import util
 from . import nfwutils
 from . import sphereGeometry
 from . import ldac
@@ -48,7 +48,7 @@ class AstropyTableFilehandler(object):
 
         
         if options is None:
-            options = varcontainer.VarContainer()
+            options = util.VarContainer()
 
         options.cluster = cluster
         options.zcluster = zcluster

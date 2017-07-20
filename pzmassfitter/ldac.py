@@ -26,8 +26,8 @@ class LDACCat(object):
     def __init__(self, hdu):
         self.hdu = hdu
         self.sourcefile = None
-        self.hdu.data is not None   # make sure data is read into memory
-        if not 'EXTNAME' in hdu.header:
+        assert self.hdu.data is not None   # make sure data is read into memory
+        if 'EXTNAME' not in hdu.header:
             self.hdu.header['EXTNAME'] = 'OBJECTS'
 
     def __len__(self):
@@ -35,11 +35,10 @@ class LDACCat(object):
 
     def __getitem__(self, key):
 
-        if type(key) == type(5) or \
-           type(key) == type(slice(5)):
+        if isinstance(key, int) or isinstance(key, slice):
             return self.hdu.data[key]
 
-        if type(key) == type("a"):
+        if isinstance(key, str):
             try:
                 return self.hdu.data.field(key)
             except AttributeError:
@@ -91,9 +90,9 @@ class LDACCat(object):
             if key not in othercat.keys():
                 raise MismatchedKeysException((self.keys(), othercat.keys()))
 
-        cols = [pyfits.Column(name=key, format=format,
-                              array=numpy.hstack([self[key], othercat[key]])) \
-                for key, format in zip(self.hdu.columns.names, self.hdu.columns.formats)]
+        cols = [pyfits.Column(name=key, format=frmt,
+                              array=numpy.hstack([self[key], othercat[key]]))
+                for key, frmt in zip(self.hdu.columns.names, self.hdu.columns.formats)]
 
         newcat = LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols)))
 
@@ -106,8 +105,7 @@ class LDACCat(object):
         return newcat
 
     def matchById(self, othercat, otherid='SeqNr', selfid='SeqNr'):
-        '''Returns a subset of this catalog, that matches the order of the provided catalog'''
-
+        """Return a subset of this catalog, that matches the order of the provided catalog."""
         order = {}
         for i, x in enumerate(self[selfid]):
             order[x] = i
@@ -140,7 +138,7 @@ def openObjectFile(filename, table='OBJECTS'):
     if hdulist is None:
         return None
     cat = openObjects(hdulist, table)
-    #hdulist.close()
+    # hdulist.close()
     if cat is None:
         return None
     cat.sourcefile = filename
@@ -153,17 +151,17 @@ def matchCommonSubsets(cat1, cat2, cat1id='SeqNr', cat2id='SeqNr'):
     for i, x in enumerate(cat1[cat1id]):
         cat1order[x] = i
 
-    cat1KeepOrder = []
-    cat2Keep = []
+    cat1keeporder = []
+    cat2keep = []
     for x in cat2[cat2id]:
         if x in cat1order:
-            cat1KeepOrder.append(cat1order[x])
-            cat2Keep.append(True)
+            cat1keeporder.append(cat1order[x])
+            cat2keep.append(True)
         else:
-            cat2Keep.append(False)
+            cat2keep.append(False)
 
-    cat1keep = numpy.array(cat1KeepOrder)
-    cat2keep = numpy.array(cat2Keep)
+    cat1keep = numpy.array(cat1keeporder)
+    cat2keep = numpy.array(cat2keep)
     cat1matched = cat1.filter(cat1keep)
     cat2matched = cat2.filter(cat2keep)
     return cat1matched, cat2matched
@@ -174,7 +172,7 @@ def matchCommonSubsets(cat1, cat2, cat1id='SeqNr', cat2id='SeqNr'):
 ################################################
 
 
-class TestComponents(unittest.TestCase):        
+class TestComponents(unittest.TestCase):
 
     def testExtractColumn(self):
 
@@ -182,10 +180,10 @@ class TestComponents(unittest.TestCase):
         cols = [pyfits.Column(name=k, format='E', array=numpy.ones(30)) for k in keys]
         cat = LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols)))
 
-        extractedCol = cat.extractColumn('BLANK1')
-        self.assertTrue((extractedCol.array == cols[2].array).all())
-        self.assertEqual(extractedCol.name, cols[2].name)
-        self.assertEqual(extractedCol.format, cols[2].format)
+        extracted_col = cat.extractColumn('BLANK1')
+        self.assertTrue((extracted_col.array == cols[2].array).all())
+        self.assertEqual(extracted_col.name, cols[2].name)
+        self.assertEqual(extracted_col.format, cols[2].format)
 
     #####
 
@@ -229,11 +227,9 @@ class TestComponents(unittest.TestCase):
         for key in cat3.keys():
             self.assertTrue((testcolumn == cat3[key]).all())
 
-
         self.assertEquals(cat3.hdu.header['EXTNAME'], 'STUFF')
         self.assertEquals(cat3.hdu.header['A'], 25)
         self.assertEquals(cat3.hdu.header['B'], 'sss')
-
 
     ########
 
@@ -275,13 +271,12 @@ class TestComponents(unittest.TestCase):
 
 
 #######################################
-        
+
 def test():
-
+    """Some tests."""
     testcases = [TestComponents]
-
-    suite = unittest.TestSuite(map(unittest.TestLoader().loadTestsFromTestCase,
-                                   testcases))
+    suite = unittest.TestSuite([unittest.TestLoader().loadTestsFromTestCase(tc)
+                                for tc in testcases])
     unittest.TextTestRunner(verbosity=2).run(suite)
 
 

@@ -60,7 +60,6 @@ class GeneralFilehandler(object):
     def readData(manager):
 
         options = manager.options
-        args = manager.args
 
         manager.zcluster = options.zcluster
         manager.r500 = options.r500
