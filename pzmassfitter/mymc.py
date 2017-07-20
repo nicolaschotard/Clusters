@@ -21,11 +21,13 @@ try:
 except ImportError:
     have_scipy = False
 
+
 parallel_filename_base = 'mymc'
 parallel_filename_ext = '.chk'
 
 
 def help():
+    """Print help message and exist."""
     print """
 The module should be very flexible, but is designed with these things foremost in mind:
   1. use with expensive likelihood calculations which probably have a host of hard-to-modify
@@ -163,11 +165,13 @@ class Parameter(object):
 
 
 class DerivedParameter(Parameter):
+
     """
     Prototype of a Parameter whose value may not be sampled because it is a deterministic function
     of other parameters. The user is responsible for setting its value. This should be done directly
     rather than by using set(), for safety reasons.
     """
+
     def __init__(self, value=0.0, name=''):
         Parameter.__init__(self, value, None, name)
 
@@ -193,7 +197,9 @@ class postgetter(object):
             print chisq, x
         return chisq
 
+
 class ParameterSpace(list):
+
     """
     Class to define sets of parameters (parameter spaces); inherits list.
 
@@ -201,6 +207,7 @@ class ParameterSpace(list):
     that evaluates the *complete* posterior likelihood, including priors and parameters not in
     this ParameterSpace.
     """
+
     def __init__(self, parameterList=None, log_posterior=None):
         if parameterList is None:
             parameterList = []
@@ -240,9 +247,10 @@ class ParameterSpace(list):
 class Updater(object):
     """
     Abstract base class for updaters. Do not instantiate directly.
+
     Constructor arguments:
      1* ParameterSpace to update.
-     2* Step (proposal method) to use. This can be safely changed later using the set_step( ) method.
+     2* Step (proposal method) to use. This can be safely changed later using the set_step() method.
      3  Number of steps between proposal adaptations (zero to not adapt).
         For parallel chains, the Gelman-Rubin convergence criterion is calculated at the same interval.
      4  Number of steps before the first proposal adaptation.
@@ -282,7 +290,7 @@ class Updater(object):
             return
         # todo: prevent direct assignment bypassing this
         self.step = step
-        self.step.updater = self        
+        self.step.updater = self
 
 class CartesianUpdater(Updater):
     """

@@ -1,6 +1,5 @@
-#########################
-# Utilities to deal with BPZ pdz file ops
-#########################
+"""Utilities to deal with BPZ pdz file ops."""
+
 
 import sys
 import re
@@ -20,20 +19,18 @@ class PDZManager(object):
         self._buildPDZRange()
         self._buildIndex()
 
-    #################
-
-
     def __getitem__(self, key):
-        #key is the object ID
-        #returns pdz array
-        #index maps ID to element number
+        """
+        Get an item value.
 
+        key is the object ID
+        returns pdz array
+        index maps ID to element number
+        """
         if self.index is None or key not in self.index:
             raise IndexError
 
         return self.pdzcat[self.index[key]][1]
-
-    ####################
 
     def _buildIndex(self):
 
@@ -41,60 +38,47 @@ class PDZManager(object):
         for i, iid in enumerate(self.pdzcat['SeqNr']):
             self.index[iid] = i
 
-    #####################
-
     def _buildPDZRange(self):
 
         self.pdzrange = np.arange(self.pdzcat.hdu.header['MINPDZ'],
                                   self.pdzcat.hdu.header['MAXPDZ'],
                                   self.pdzcat.hdu.header['PDZSTEP'])
 
-    ######################
+    def save(self, outf):
 
-    def save(self, outfile):
-
-        self.pdzcat.saveas(outfile, clobber=True)
-
-
-    ######################
-
+        self.pdzcat.saveas(outf, clobber=True)
 
     def associatePDZ(self, z_ids):
 
         arrangedPDZ = []
-        for id in z_ids:
-            arrangedPDZ.append(self[id])
+        for cid in z_ids:
+            arrangedPDZ.append(self[cid])
 
         finalPDZs = np.column_stack(arrangedPDZ).transpose()
 
         return self.pdzrange, finalPDZs
 
-
-    ######################
-
-
     @classmethod
     def parsePDZ(cls, pdzfile):
-        '''parses text output from BPZ'''
+        """parses text output from BPZ."""
 
+        inputf = open(pdzfile)
 
-        input = open(pdzfile)
-
-        headerline = input.readline()
+        headerline = inputf.readline()
         match = re.search(r'z=arange\((.+)\)', headerline)
-        assert(match is not None)
+        assert match is not None
         minPDZ, maxPDZ, pdzstep = map(float, match.group(1).split(','))
 
         ids = []
         pdzs = []
-        for line in input.readlines():
+        for line in inputf.readlines():
             if re.match('^#', line):
                 continue
             tokens = line.split()
-            id = int(tokens[0])
+            cid = int(tokens[0])
             pdz = map(float, tokens[1:])
 
-            ids.append(id)
+            ids.append(cid)
             pdzs.append(pdz)
 
         npdzs = len(np.arange(minPDZ, maxPDZ, pdzstep))
@@ -110,21 +94,13 @@ class PDZManager(object):
 
         return cls(pdzs)
 
-
-    ##########################
-
     @classmethod
     def open(cls, pdzfile, table='OBJECTS'):
-        '''opens a pdzfile saved by PDZManager'''
+        """opens a pdzfile saved by PDZManager."""
 
         pdz = ldac.openObjectFile(pdzfile, table)
 
         return cls(pdz)
-
-    ##########################
-
-
-############################################
 
 
 def parseRawPDZ(infile, outfile):
@@ -132,7 +108,6 @@ def parseRawPDZ(infile, outfile):
     pdzmanager = PDZManager.parsePDZ(infile)
     pdzmanager.save(outfile)
 
-#############################################
 
 def createPDZcat(seqnr, pdzrange, pdz):
 
@@ -140,7 +115,7 @@ def createPDZcat(seqnr, pdzrange, pdz):
     minPDZ = np.min(pdzrange)
     pdzstep = pdzrange[1] - pdzrange[0]
     maxPDZ = np.max(pdzrange) + pdzstep
-    assert((np.arange(minPDZ, maxPDZ, pdzstep) == pdzrange).all())
+    assert (np.arange(minPDZ, maxPDZ, pdzstep) == pdzrange).all()
 
     cols = [pyfits.Column(name='SeqNr', format='J', array=seqnr),
             pyfits.Column(name='pdz', format='%dE' % npdzs, array=pdz)]
@@ -153,7 +128,6 @@ def createPDZcat(seqnr, pdzrange, pdz):
 
     return pdzs
 
-##############################################
 
 if __name__ == '__main__':
 

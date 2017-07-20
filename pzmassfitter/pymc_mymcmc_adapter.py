@@ -1,7 +1,5 @@
-###############################
-# Convert a pymc model to something runnable by
-#    mymc.
-###############################
+"""Convert a pymc model to something runnable by mymc."""
+
 
 import csv
 import sys
@@ -16,9 +14,7 @@ except ImportError:
     pass
 from . import mymc
 from . import util
-
-
-###############################
+from . import maxlike_masses as mm
 
 
 class CompositeParameter(mymc.Parameter):
@@ -40,9 +36,6 @@ class CompositeParameter(mymc.Parameter):
         self.masterobj.value = curval
 
     value = property(get_value, set)
-
-
-##############################
 
 
 class WrapperParameter(mymc.Parameter):
@@ -203,9 +196,7 @@ class MyMCRunner(object):
 
 
         space, trace = wrapModel(manager.model)
-
         step = mymc.Slice()
-
         updater = mymc.MultiDimRotationUpdater(space, step, options.adapt_every,
                                                options.adapt_after, parallel=parallel)
 
@@ -243,12 +234,8 @@ class MyMCRunner(object):
         with open(bitsfile, 'wb') as output:
             cPickle.dump(updater.saveBits(), output)
 
-
-    ############
-
     def addCLOps(self, parser):
-
-        
+        """Add options."""
         parser.add_option('-s', '--nsamples', dest='nsamples',
                           help='Number of MCMC samples to draw or scan model',
                           default=None, type='int')
@@ -263,21 +250,15 @@ class MyMCRunner(object):
                           action='store_true',
                           help='Turn off MPI for test runs on single machines')
 
-    #############
-
     def dump(self, manager):
-
+        """Dump masses."""
         mm.dumpMasses(np.array(manager.chain['mass_15mpc'][manager.options.burn:]),
                       '%s.mass15mpc.%d' % (manager.options.outputFile, manager.mpi_rank))
 
-    #############
-
     def finalize(self, manager):
-
+        """Close all."""
         manager.chainfile.close()
 
-
-######################################
 
 class MyMCMemRunner(object):
 
@@ -305,19 +286,13 @@ class MyMCMemRunner(object):
                                                    options.adapt_after, parallel=parallel)
 
         manager.engine = mymc.Engine([updater], trace)
-
         manager.chain = mymc.dictBackend()
-
         backends = [manager.chain]
 
         manager.engine(options.nsamples, None, backends)
 
-    ############
-
     def addCLOps(self, parser):
         pass
-
-    #############
 
     def dump(self, manager):
 
@@ -345,8 +320,6 @@ class MyMCMemRunner(object):
                 for field in fields:
                     towrite[field] = chain[field][i]
                 writer.writerow(towrite)
-
-    #############
 
     def finalize(self, manager):
         pass
