@@ -3,7 +3,7 @@ sudo: required
 language: python
 
 env:
-  - DOCKERIMAGE='lsstsqre/centos:7-stack-lsst_distrib-v13_0'
+  - DOCKERIMAGE='centos:centos7'    #'lsstsqre/centos:7-stack-lsst_distrib-v13_0'
 
 services:
   - docker
@@ -23,14 +23,14 @@ before_install:
   - docker run -ti $DOCKERIMAGE
   
 install:
-#  # Updates
-#  - sudo apt-get update
-#  # Install a basic DM stack + obs_cfht
-#  - ./stack_install.sh
-#  # Prepare for other installs
-#  - export PATH="$HOME/miniconda/bin:$PATH"
-#  - source activate lsst
-#  - source eups-setups.sh
+  # Updates
+  - sudo apt-get update
+  # Install a basic DM stack + obs_cfht
+  - ./stack_install.sh
+  # Prepare for other installs
+  - export PATH="$HOME/miniconda/bin:$PATH"
+  - source activate lsst
+  - source eups-setups.sh
   # Setup thre stack
   - setup lsst_distrib
   # Install standard python packages
