@@ -3,7 +3,7 @@ sudo: required
 language: python
 
 env:
-  - DOCKERIMAGE='centos:centos7'    #'lsstsqre/centos:7-stack-lsst_distrib-v13_0'
+  - DOCKERIMAGE='centos'    #'lsstsqre/centos:7-stack-lsst_distrib-v13_0'
 
 services:
   - docker
@@ -20,6 +20,7 @@ python:
 
 before_install:
   # Get the stack from a docker image
+  - docker pull $DOCKERIMAGE
   - docker run -ti $DOCKERIMAGE
   
 install:
