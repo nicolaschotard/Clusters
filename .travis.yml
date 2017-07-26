@@ -3,91 +3,24 @@ sudo: required
 language: python
 
 env:
-  - CONTAINER: docker.io/nchotard/clusters-test:centos7-stackv13
+  - REPOSITORY: docker.io/nchotard/clusters-test:centos7-stackv13
+  - CONTAINER: lsststack
   
 services:
   - docker
   
-#cache:
-#  - pip: True
-#  - directories:
-#    - $HOME/miniconda.tarball
-
-
 python:
-#  # We don't actually use the Travis Python, but this keeps it organized.
   - "2.7"
 
-#before_install:
-#  # Get the stack from a docker image
-##  - docker pull $DOCKERIMAGE
-#  - docker run -itd -e "WORKDIR=/home/travis" -v "$PWD:/shared" $CONTAINER
+before_install:
+  - docker run -itd --name $CONTAINER -e "WORKDIR=/home/travis" -v "$PWD:/shared" $REPOSITORY
   
 install:
-  - docker run -itd --name lsststack -e "WORKDIR=/home/travis" -v "$PWD:/shared" $CONTAINER
-#  # Updates
-#  - sudo apt-get update
-#  # Install a basic DM stack + obs_cfht
-#  - ./stack_install.sh
-#  # Prepare for other installs
-#  - export PATH="$HOME/miniconda/bin:$PATH"
-#  - source activate lsst
-#  - source eups-setups.sh
-#  # Setup thre stack
-#  - setup lsst_distrib
-#  # Install standard python packages
-#  - pip install codecov coveralls
-#  - pip install -r requirements.txt
-#  # Install Clusters
-#  - python setup.py install
+  - pip install codecov
 
-# command to run tests
 script:
-  - docker exec lsststack /bin/bash -c "/home/travis/torun.sh"
-#  # Setup
-#  - unset PYTHONPATH
-#  - export PATH="$HOME/miniconda/bin:$PATH"
-#  - source activate lsst
-#  - source eups-setups.sh
-#  - setup pipe_tasks
-#  - setup obs_cfht
-#  # Get the test data
-#  - wget https://lapp-owncloud.in2p3.fr/index.php/s/xG2AoS2jggbmP0k/download
-#  - tar zxf download 
-#  - rm -rf download
-#  # Get LEPHARE
-#  - wget https://lapp-owncloud.in2p3.fr/index.php/s/MDaXObLSD9IVQ1B/download
-#  - tar zxf download
-#  - rm -rf download
-#  - mv lephare $HOME/
-#  # LEPHARE env. var.
-#  - export LEPHAREWORK="$HOME/lephare/lephare_work"
-#  - export LEPHAREDIR="$HOME/lephare/lephare_dev"
-#  - export PATH="$PATH:$HOME/lephare/lephare_dev/source"
-#  # Get BPZ
-#  - wget http://www.stsci.edu/~dcoe/BPZ/bpz-1.99.3.tar.gz
-#  - tar -xvf bpz-1.99.3.tar.gz
-#  - mv bpz-1.99.3 $HOME/
-#  - export BPZPATH="$HOME/bpz-1.99.3"
-#  - export PYTHONPATH=$PYTHONPATH:$BPZPATH
-#  - export NUMERIX=numpy
-#  - cd $BPZPATH/FILTER/
-#  - cp $LEPHAREDIR/filt/cfht/megacam/*.pb .
-#  - for f in *.pb; do mv "$f" "CFHT_megacam_${f%.pb}.res"; done
-#  - cd -
-#  - wget https://lapp-owncloud.in2p3.fr/index.php/s/FP1vSMB7emLxwwg/download -O megacam_bpz_test.columns
-#  - wget https://lapp-owncloud.in2p3.fr/index.php/s/HZbzCFLoy8Lcmwx/download -O megacam_bpz_test.in
-#  - python $BPZPATH/bpz.py megacam_bpz_test.in -INTERP 2
-#  # Get the SFD map that is by default locally used to get the extinction 
-#  - get_maps.py --select sfd
-#  # Run the tests
-#  - coverage run --source="clusters,pzmassfitter" setup.py test
-#
-#before_cache:
-#  - rm -f $HOME/.cache/pip/log/debug.log
-#  - rm -rf $HOME/.cache/pip/http
+  - docker exec $CONTAINER /bin/bash -c "/home/travis/torun.sh"
 
 after_success:
   - codecov
-  - coveralls
 

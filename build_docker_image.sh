@@ -46,7 +46,6 @@ git clone https://github.com/nicolaschotard/Clusters.git
 cd Clusters
 
 # Install Clusters and dependencies
-pip install codecov coveralls
 pip install -r requirements.txt
 python setup.py install
 
