@@ -23,5 +23,5 @@ script:
   - docker exec $CONTAINER /bin/bash -c "/home/travis/torun.sh"
 
 after_success:
-  - codecov
+  - codecov --root /home/travis/build/nicolaschotard/Clusters/ --verbose
 
