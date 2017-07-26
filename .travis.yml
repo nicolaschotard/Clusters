@@ -23,5 +23,7 @@ script:
   - docker exec $CONTAINER /bin/bash -c "/home/travis/torun.sh"
 
 after_success:
-  - codecov --root /home/travis/build/nicolaschotard/Clusters/ --verbose
+  - more .coverage
+  - sed -i -- 's/\/home\/travis\/Clusters/\/home\/travis\/build\/nicolaschotard\/Clusters/g' .coverage
+  - codecov --verbose
 
