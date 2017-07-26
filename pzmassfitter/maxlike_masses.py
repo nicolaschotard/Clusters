@@ -9,7 +9,6 @@ from . import ldac
 from . import nfwutils
 from . import util
 from . import nfwmodeltools as tools
-from . import confidenceinterval as ci
 from . import pymc_mymcmc_adapter as pma
 
 

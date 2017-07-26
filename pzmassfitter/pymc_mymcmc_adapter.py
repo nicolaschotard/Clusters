@@ -14,6 +14,7 @@ except ImportError:
     pass
 from . import mymc
 from . import util
+from . import confidenceinterval as ci
 
 
 class CompositeParameter(mymc.Parameter):
