@@ -16,12 +16,12 @@ import yaml
 
 warnings.filterwarnings("ignore")
 
-#try:
-from lsst.afw import image as afwimage
-from lsst.afw import table as afwtable
-import lsst.daf.persistence as dafPersist
-#except ImportError:
-#    print colored("WARNING: LSST stack is probably not installed", "yellow")
+try:
+    from lsst.afw import image as afwimage
+    from lsst.afw import table as afwtable
+    import lsst.daf.persistence as dafPersist
+except ImportError:
+    print colored("WARNING: LSST stack is probably not installed", "yellow")
 
 
 class Catalogs(object):

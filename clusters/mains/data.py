@@ -48,7 +48,7 @@ def load_data(argv=None):
     print "\nINFO: Working on:"
     print "  - cluster %s (z=%.4f)" % (config['cluster'], config['redshift'])
     print "  - filters", config['filter']
-    print "  - patches", config['patch']
+#    print "  - patches", config['patch']
     print "INFO: Butler located under %s" % config['butler']
 
     # Apply filter and quit?

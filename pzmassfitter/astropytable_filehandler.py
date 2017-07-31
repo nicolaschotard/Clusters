@@ -87,13 +87,14 @@ class AstropyTableFilehandler(object):
         manager.logprior = options.logprior
         manager.wtg_shearcal = options.wtg_shearcal
         
-        r_arcmin, E, B = calcTangentialShear(cat=manager.lensingcat,
+        r_arcmin, E, B, phi = calcTangentialShear(cat=manager.lensingcat,
                                              center=(options.cluster_ra, options.cluster_dec),
                                              raCol=options.raCol,
                                              decCol=options.decCol,
                                              g1Col=options.g1Col,
                                              g2Col=options.g2Col)
 
+        
         r_mpc = r_arcmin * (1. / 60.) * (np.pi / 180.) * \
                 nfwutils.global_cosmology.angulardist(options.zcluster)
 
@@ -138,7 +139,8 @@ class AstropyTableFilehandler(object):
                     pyfits.Column(name='snratio', format='E', array=snratio),
                     pyfits.Column(name='z_b', format='E', array=z_b),
                     pyfits.Column(name='ghats', format='E', array=E),
-                    pyfits.Column(name='B', format='E', array=B)]
+                    pyfits.Column(name='B', format='E', array=B),
+                    pyfits.Column(name='phi', format='E', array=phi)]
         else:
             cols = [pyfits.Column(name='SeqNr', format='J', array=manager.lensingcat['id']),
                     pyfits.Column(name='r_mpc', format='E', array=r_mpc),
@@ -161,9 +163,9 @@ def calcTangentialShear(cat, center, raCol, decCol, g1Col, g2Col):
     dec = cat[decCol]
     e1 = cat[g1Col]
     e2 = cat[g2Col]
-
-    posangle = (np.pi / 2.) - sphereGeometry.positionAngle(ra, dec, cluster_ra, cluster_dec) #radians
-
+    
+#    posangle = ((np.pi / 2.) - sphereGeometry.positionAngle(ra, dec, cluster_ra, cluster_dec)) #radians
+    posangle = -((np.pi / 2.) - sphereGeometry.positionAngle(ra, dec, cluster_ra, cluster_dec)) #radians... need minus sign to get WTG result !
     r_arcmin = sphereGeometry.greatCircleDistance(ra, dec, cluster_ra, cluster_dec) * 60
 
     cos2phi = np.cos(2 * posangle)
@@ -172,7 +174,7 @@ def calcTangentialShear(cat, center, raCol, decCol, g1Col, g2Col):
     E = -(e1 * cos2phi + e2 * sin2phi)
     B = e1 * sin2phi - e2 * cos2phi
 
-    return r_arcmin, E, B
+    return r_arcmin, E, B, posangle
 
 
 ##########

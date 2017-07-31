@@ -8,6 +8,7 @@ import cPickle
 import pymc
 import numpy as np
 import astropy.io.fits as pyfits
+import shelve
 from . import ldac
 from . import nfwutils
 from . import varcontainer
@@ -93,9 +94,9 @@ class LensingModel(object):
     #######################################################
 
 
-    def createOptions(self, deltaz95low=-1, deltaz95high=2.5, zbhigh=1.25,  # zbhigh=1.25 default
+    def createOptions(self, deltaz95low=-1, deltaz95high=2.5, zbhigh=5,  # zbhigh=1.25 default
                       zcut=0.1, masslow=1e13, masshigh=1e16,
-                      ztypecut=False, radlow=0.75, radhigh=3.0,
+                      ztypecut=False, radlow=0.75, radhigh=3.0, #radlow=0.75 default
                       concentration=None, delta=200.,
                       options=None, args=None, logprior=False):
 
@@ -150,7 +151,7 @@ class LensingModel(object):
 #
 #        deltaZcut = np.logical_and(options.deltaz95low <= delta95Z,
 #                                   delta95Z < options.deltaz95high)
-#
+##
 ####
         if options.zcut is None:
 
@@ -443,6 +444,18 @@ class SampleModelToFile(object):
         nsamples = manager.options.nsamples
         outputFile = manager.options.outputFile
         burn = manager.options.burn
+
+#        sanitycheck = shelve.open('sanitycheck.shelve')
+#        sanitycheck['r_mpc'] = model.r_mpc
+#        sanitycheck['ghats'] = model.ghats
+#        sanitycheck['pz'] = model.pz
+#        sanitycheck['betas'] = model.betas
+#        sanitycheck['rho_c'] = model.rho_c
+#        sanitycheck['SeqNr'] = manager.inputcat['SeqNr']
+#        sanitycheck['phi'] = manager.inputcat['phi']
+#        sanitycheck['rho_c_over_sigma_c'] = model.rho_c_over_sigma_c
+#        sanitycheck.close()
+#        
 
         mcmc_manager = varcontainer.VarContainer()
         mcmc_options = varcontainer.VarContainer()
