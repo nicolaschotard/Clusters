@@ -1,7 +1,5 @@
-###############################
-# Convert a pymc model to something runnable by
-#    mymc.
-###############################
+"""Convert a pymc model to something runnable by mymc."""
+
 
 import csv
 import sys
@@ -15,10 +13,8 @@ try:
 except ImportError:
     pass
 from . import mymc
-from . import load_chains
-
-
-###############################
+from . import util
+from . import confidenceinterval as ci
 
 
 class CompositeParameter(mymc.Parameter):
@@ -40,9 +36,6 @@ class CompositeParameter(mymc.Parameter):
         self.masterobj.value = curval
 
     value = property(get_value, set)
-
-
-##############################
 
 
 class WrapperParameter(mymc.Parameter):
@@ -203,9 +196,7 @@ class MyMCRunner(object):
 
 
         space, trace = wrapModel(manager.model)
-
         step = mymc.Slice()
-
         updater = mymc.MultiDimRotationUpdater(space, step, options.adapt_every,
                                                options.adapt_after, parallel=parallel)
 
@@ -224,7 +215,7 @@ class MyMCRunner(object):
             if os.path.exists(chainfile):
 
                 writeHeader = False
-                chain = load_chains.loadChains([chainfile])
+                chain = util.loadchains([chainfile])
                 for param in space:
                     param.set(chain[param.name][0, -1])
 
@@ -243,12 +234,8 @@ class MyMCRunner(object):
         with open(bitsfile, 'wb') as output:
             cPickle.dump(updater.saveBits(), output)
 
-
-    ############
-
     def addCLOps(self, parser):
-
-        
+        """Add options."""
         parser.add_option('-s', '--nsamples', dest='nsamples',
                           help='Number of MCMC samples to draw or scan model',
                           default=None, type='int')
@@ -263,21 +250,15 @@ class MyMCRunner(object):
                           action='store_true',
                           help='Turn off MPI for test runs on single machines')
 
-    #############
-
     def dump(self, manager):
-
-        mm.dumpMasses(np.array(manager.chain['mass_15mpc'][manager.options.burn:]),
-                      '%s.mass15mpc.%d' % (manager.options.outputFile, manager.mpi_rank))
-
-    #############
+        """Dump masses."""
+        dumpMasses(np.array(manager.chain['mass_15mpc'][manager.options.burn:]),
+                   '%s.mass15mpc.%d' % (manager.options.outputFile, manager.mpi_rank))
 
     def finalize(self, manager):
-
+        """Close all."""
         manager.chainfile.close()
 
-
-######################################
 
 class MyMCMemRunner(object):
 
@@ -305,19 +286,13 @@ class MyMCMemRunner(object):
                                                    options.adapt_after, parallel=parallel)
 
         manager.engine = mymc.Engine([updater], trace)
-
         manager.chain = mymc.dictBackend()
-
         backends = [manager.chain]
 
         manager.engine(options.nsamples, None, backends)
 
-    ############
-
     def addCLOps(self, parser):
         pass
-
-    #############
 
     def dump(self, manager):
 
@@ -346,7 +321,56 @@ class MyMCMemRunner(object):
                     towrite[field] = chain[field][i]
                 writer.writerow(towrite)
 
-    #############
-
     def finalize(self, manager):
         pass
+
+
+def dumpMasses(masses, outputFile):
+
+    with open('%s.mass.pkl' % outputFile, 'wb') as output:
+        cPickle.dump(masses, output)
+
+    mean = np.mean(masses)
+    stddev = np.std(masses)
+    quantiles = pymc.utils.quantiles(masses, qlist=[2.5, 15.8, 25, 50, 75, 84.1, 97.5])
+    hpd68 = pymc.utils.hpd(masses, 0.32)
+    hpd95 = pymc.utils.hpd(masses, 0.05)
+    ml, (m, p) = ci.maxDensityConfidenceRegion(masses)
+    lml, (lm, lp) = ci.maxDensityConfidenceRegion(np.log10(masses))
+
+    with open('%s.mass.summary.txt' % outputFile, 'w') as output:
+        output.write('mean\t%e\n' % mean)
+        output.write('stddev\t%e\n' % stddev)
+        output.write('Q2.5\t%e\n' % quantiles[2.5])
+        output.write('Q25\t%e\n' % quantiles[25])
+        output.write('Q50\t%e\n' % quantiles[50])
+        output.write('Q75\t%e\n' % quantiles[75])
+        output.write('Q97.5\t%e\n' % quantiles[97.5])
+        output.write('HPD68\t%e\t%e\n' % (hpd68[0], hpd68[1]))
+        output.write('HPD95\t%e\t%e\n' % (hpd95[0], hpd95[1]))
+        output.write('MaxLike\t%e\t%e\t%e\n' % (ml, m, p))
+        output.write('Log10 Maxlike\t%e\t%e\t%e\n' % (lml, lm, lp))
+        output.close()
+
+    with open('%s.mass.summary.pkl' % outputFile, 'wb') as output:
+        stats = {'mean' : mean,
+                 'stddev' : stddev,
+                 'quantiles' : quantiles,
+                 'hpd68' : hpd68,
+                 'hpd95' : hpd95,
+                 'maxlike' : (ml, (m, p)),
+                 'log10maxlike' : (lml, (lm, lp))}
+        cPickle.dump(stats, output)
+        output.close()
+
+    print 'mean\t%e' % mean
+    print 'stddev\t%e' % stddev
+    print 'Q2.5\t%e' % quantiles[2.5]
+    print 'Q25\t%e' % quantiles[25]
+    print 'Q50\t%e' % quantiles[50]
+    print 'Q75\t%e' % quantiles[75]
+    print 'Q97.5\t%e' % quantiles[97.5]
+    print 'HPD68\t%e\t%e' % (hpd68[0], hpd68[1])
+    print 'HPD95\t%e\t%e' % (hpd95[0], hpd95[1])
+    print 'MaxLike\t%e\t%e\t%e\n' % (ml, m, p)
+    print 'Log10 Maxlike\t%e\t%e\t%e\n' % (lml, lm, lp)

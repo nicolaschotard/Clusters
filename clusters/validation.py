@@ -200,15 +200,32 @@ def stellarLocus(d, mag_type="modelfit_CModel_mag_extcorr",
     ########################################################################################
     # Covert magnitudes to SDSS magnitudes for a direct comparison with Convey et al. 2007.
     # Color corrections CFHT --> SDSS
-    def g_sdss_gr(g_mega, r_mega): return g_mega + 0.195 * (g_mega - r_mega)
-    def r_sdss_gr(r_mega, g_mega): return r_mega + 0.011 * (g_mega - r_mega)
-    def i_sdss_ri(i_mega, r_mega): return i_mega + 0.079 * (r_mega - i_mega)
-    def i2_sdss_ri(i2_mega, r_mega): return i2_mega + 0.001 * (r_mega - i2_mega)
-    def u_sdss_ug(u_mega, g_mega): return u_mega + 0.181 * (u_mega - g_mega)
-    def g_sdss_gi(g_mega, i_mega): return g_mega + 0.103 * (g_mega - i_mega)
-    def i_sdss_gi(i_mega, g_mega): return i_mega + 0.044 * (g_mega - i_mega)
-    def i2_sdss_gi(i2_mega, g_mega): return i2_mega - 0.003 * (g_mega - i2_mega)
-    def z_sdss_iz(i_mega, z_mega): return z_mega - 0.099 * (i_mega - z_mega)
+    def g_sdss_gr(g_mega, r_mega):
+        return g_mega + 0.195 * (g_mega - r_mega)
+
+    def r_sdss_gr(r_mega, g_mega):
+        return r_mega + 0.011 * (g_mega - r_mega)
+
+    def i_sdss_ri(i_mega, r_mega):
+        return i_mega + 0.079 * (r_mega - i_mega)
+
+    def i2_sdss_ri(i2_mega, r_mega):
+        return i2_mega + 0.001 * (r_mega - i2_mega)
+
+    def u_sdss_ug(u_mega, g_mega):
+        return u_mega + 0.181 * (u_mega - g_mega)
+
+    def g_sdss_gi(g_mega, i_mega):
+        return g_mega + 0.103 * (g_mega - i_mega)
+
+    def i_sdss_gi(i_mega, g_mega):
+        return i_mega + 0.044 * (g_mega - i_mega)
+
+    def i2_sdss_gi(i2_mega, g_mega):
+        return i2_mega - 0.003 * (g_mega - i2_mega)
+
+    def z_sdss_iz(i_mega, z_mega):
+        return z_mega - 0.099 * (i_mega - z_mega)
 
     # covert to SDSS colors
     gsdss = g_sdss_gr(mgs, mrs)
@@ -240,7 +257,7 @@ def stellarLocus(d, mag_type="modelfit_CModel_mag_extcorr",
                          -0.0735412, 0.0049808, 0.1261, 0.0071])
 
     def poly_5(p, x):
-        return p[0]+p[1]*x+p[2]*x**2+p[3]*x**3+p[4]*x**4+p[5]*x**5
+        return p[0] + p[1] * x + p[2] * x**2 + p[3] * x**3 + p[4] * x**4 + p[5] * x**5
 
     # plot these fits to see whats what.
     P.clf()
@@ -264,7 +281,7 @@ def stellarLocus(d, mag_type="modelfit_CModel_mag_extcorr",
     # is first fitted wrt to that color and filtered for smoothing. See the first subplot for
     # the documented steps.
     idx_star = (mrs < 23.) & (mgs < 23.)
-    nrow, ncol= 4, 2
+    nrow, ncol = 4, 2
     size, legendfontsize, labelsize, ticklabelsize = 10, 20, 25, 22
     fig, ax = P.subplots(nrows=nrow, ncols=ncol)
     P.subplots_adjust(hspace=0.4)
@@ -273,10 +290,11 @@ def stellarLocus(d, mag_type="modelfit_CModel_mag_extcorr",
     ax[r, c].scatter(gsdss[idx_star] - rsdss[idx_star], usdss[idx_star] - gsdss[idx_star], s=size,
                      color='b', label="Dervied SDSS mags for %d stars" % (len(mgs[idx_star])))
     model_gminusr = N.linspace(-0.3, 1.7, 80)      # range of g-r we want to plot here
-    toFit_gminusi = N.linspace(0.05, 4.4, 1000)     # analytical expression is valid over 0.05<(g-i)<4.4 only
-    toFit_gminusr = poly_5(gminusr[:6], toFit_gminusi)
+    # analytical expression is valid over 0.05<(g-i)<4.4 only
+    tofit_gminusi = N.linspace(0.05, 4.4, 1000)  
+    tofit_gminusr = poly_5(gminusr[:6], tofit_gminusi)
     # Fit g-i as a function of g-r
-    fit_gminusi_gminusr= interp1d(toFit_gminusr, toFit_gminusi, kind= 'nearest', bounds_error=False)
+    fit_gminusi_gminusr= interp1d(tofit_gminusr, tofit_gminusi, kind= 'nearest', bounds_error=False)
     # Use the fit and the range of (g-r) to get (u-g) as a function of (g-r).
     # Filter is used for smooth curve; not always necessary but gets rid of kinky fits in some cases
     ax[r, c].plot(model_gminusr, savgol_filter(poly_5(uminusg[:6],
@@ -294,25 +312,25 @@ def stellarLocus(d, mag_type="modelfit_CModel_mag_extcorr",
     ax[r, c].scatter(rsdss[idx_star] - isdss[idx_star], gsdss[idx_star] - rsdss[idx_star], s=size,
                      color='b', label="Dervied SDSS mags for %d stars" % (len(mgs[idx_star])))
     model_rminusi = N.linspace(-0.3, 2.7, 80)
-    toFit_rminusi = poly_5(rminusi[:6], toFit_gminusi)
-    fit_gminusi_rminusi= interp1d(toFit_rminusi,toFit_gminusi, kind= 'nearest', bounds_error=False)   
+    tofit_rminusi = poly_5(rminusi[:6], tofit_gminusi)
+    fit_gminusi_rminusi = interp1d(tofit_rminusi,tofit_gminusi, kind= 'nearest', bounds_error=False)   
     ax[r, c].plot(model_rminusi, savgol_filter(poly_5(gminusr[:6],
-                                                      fit_gminusi_rminusi(model_rminusi)), 71),
+                                                      fit_gminusi_rminusi(model_rminusi)), 7, 1),
                   color='r', label='Covey 2007 model', lw=2)
     ax[r, c].set_xlim([-0.5, 3.0])
     ax[r, c].set_ylim([-0.5, 2.0])
     ax[r, c].tick_params(labelsize=labelsize)
     ax[r, c].set_ylabel("g - r", fontsize=ticklabelsize)
     ax[r, c].set_xlabel("r - i", fontsize=ticklabelsize)
-    ax[r, c].legend(loc="lower right", fontsize=legendfontsize,labelspacing=0.05)
+    ax[r, c].legend(loc="lower right", fontsize=legendfontsize, labelspacing=0.05)
 
     # r-i vs i-z
     r, c = 1, 0
     ax[r, c].scatter(isdss[idx_star] - zsdss[idx_star], rsdss[idx_star] - isdss[idx_star], s=size,
                      color='b', label="Dervied SDSS mags for %d stars" % (len(mgs[idx_star])))
     model_iminusz = N.linspace(-0.3, 1.7, 80)
-    toFit_iminusz = poly_5(iminusz[:6], toFit_gminusi)
-    fit_gminusi_iminusz = interp1d(toFit_iminusz,toFit_gminusi, kind='nearest', bounds_error=False)
+    tofit_iminusz = poly_5(iminusz[:6], tofit_gminusi)
+    fit_gminusi_iminusz = interp1d(tofit_iminusz, tofit_gminusi, kind='nearest', bounds_error=False)
     ax[r, c].plot(model_iminusz, savgol_filter(poly_5(rminusi[:6],
                                                       fit_gminusi_iminusz(model_iminusz)), 7, 1),
                   color='r', label='Covey 2007 model', lw=2)
@@ -334,7 +352,7 @@ def stellarLocus(d, mag_type="modelfit_CModel_mag_extcorr",
     ax[r, c].set_xlim([0., 4.0])
     ax[r, c].set_ylim([-0.5, 3.])
     ax[r, c].tick_params(labelsize=labelsize)
-    ax[r, c].legend(loc="upper left", fontsize= legendfontsize,labelspacing=0.05)
+    ax[r, c].legend(loc="upper left", fontsize=legendfontsize,labelspacing=0.05)
 
     # u-g vs g-i
     r, c = 2, 0
@@ -348,7 +366,7 @@ def stellarLocus(d, mag_type="modelfit_CModel_mag_extcorr",
     ax[r, c].set_xlim([0., 4.0])
     ax[r, c].set_ylim([0., 5.])
     ax[r, c].tick_params(labelsize=labelsize)
-    ax[r, c].legend(loc="upper left", fontsize= legendfontsize, labelspacing=0.05,)
+    ax[r, c].legend(loc="upper left", fontsize=legendfontsize, labelspacing=0.05,)
 
     # r-i vs g-i
     r, c = 2, 1
@@ -361,7 +379,7 @@ def stellarLocus(d, mag_type="modelfit_CModel_mag_extcorr",
     ax[r, c].tick_params(labelsize=labelsize)
     ax[r, c].set_xlabel("g - i", fontsize=ticklabelsize)
     ax[r, c].set_ylabel("r - i", fontsize=ticklabelsize)
-    ax[r, c].legend(loc="upper left", fontsize= legendfontsize, labelspacing=0.05,)
+    ax[r, c].legend(loc="upper left", fontsize=legendfontsize, labelspacing=0.05,)
 
     # i-z vs g-i
     r, c = 3, 0
@@ -576,11 +594,11 @@ def check_star_elipticities(d, cat='deepCoadd_meas', oid='id'):
     # Define selection filter
     filt = define_selection_filter(d, cat)
 
-    #& (d[cat]['filter'] == 'i')
+    # & (d[cat]['filter'] == 'i')
 
     # Separate the stars from the galaxies
     star, gal = separate_star_gal(d, cat, oid, nfilters, filt=filt)
-    #filti = d[cat]['filter'] == 'i'
+    # filti = d[cat]['filter'] == 'i'
     star = star[star['filter'] == 'i']
     gal = gal[gal['filter'] == 'i']
 

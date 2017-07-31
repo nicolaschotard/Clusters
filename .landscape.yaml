@@ -11,5 +11,7 @@ pylint:
   disable:
     invalid-name
     anomalous-backslash-in-string
-ignore-patterns:
-  - *.ipynb
+ignore-paths:
+  - notebooks
+  - docs
+  - configs

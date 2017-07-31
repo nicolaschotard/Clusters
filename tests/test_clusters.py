@@ -27,7 +27,7 @@ def test_catalogs_class(config=CONFIG, datafile=DATAFILE):
     cats = data.cdata.Catalogs(config['butler'])
     cats.load_catalogs(catalogs, matchid=True, **config)
     cats.load_catalogs(None, show=True)
-    cats.save_catalogs(datafile.split('.')[0])
+    cats.save_catalogs(datafile.split('.')[0], overwrite=True)
 
 
 def test_data_functions(datafile=DATAFILE):

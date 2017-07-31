@@ -3,7 +3,7 @@
 import os
 import gc
 import warnings
-import numpy
+import numpy as np
 import h5py
 import fitsio
 from astropy.wcs import WCS, utils
@@ -61,8 +61,13 @@ class Catalogs(object):
             keys = self.butler.getKeys(catalog)
             if 'tract' in keys:
                 keys.pop('tract')
-            dataids = [merge_dicts(dict(zip(sorted(keys.keys()), v)), {'tract': 0})
-                       for v in self.butler.queryMetadata("forced_src", format=sorted(keys.keys()))]
+                metadata = self.butler.queryMetadata(catalog, format=sorted(keys.keys()))
+                dataids = [merge_dicts(dict(zip(sorted(keys.keys()), list(v))), {'tract': 0})
+                           for v in metadata]
+            else:
+                metadata = self.butler.queryMetadata(catalog, format=sorted(keys.keys()))
+                dataids = [dict(zip(sorted(keys.keys()), [v] if not isinstance(v, list) else v))
+                           for v in metadata]
 
         if len(dataids) == 0:
             raise IOError("No dataIds. Check the catalog, the config file, and path to the bulter.")
@@ -124,14 +129,17 @@ class Catalogs(object):
             # fitsdata = fitsio.read(filenames[0], 4)
             # fitsdata[np.array([n.startswith('CoaddInputs')
             #                    for n in fitsdata['name']])]['cat.archive'][1] + 4
-        return numpy.concatenate([fitsio.read(filename, columns=['ccd', 'visit'],
-                                              ext=self.from_butler['extension'])
-                                  for filename in filenames]).tolist()
+        return np.concatenate([fitsio.read(filename, columns=['ccd', 'visit'],
+                                           ext=self.from_butler['extension'])
+                               for filename in filenames]).tolist()
 
     def _load_catalog_dataid(self, catalog, dataid, table=True, **kwargs):
         """Load a catalog from a 'dataId' set of parameter."""
-        cat = self.butler.get(catalog, dataId=dataid,
-                              flags=afwtable.SOURCE_IO_NO_FOOTPRINTS)
+        try:
+            cat = self.butler.get(catalog, dataId=dataid,
+                                  flags=afwtable.SOURCE_IO_NO_FOOTPRINTS)
+        except: # OperationalError: no such column: flags
+            cat = self.butler.get(catalog, dataId=dataid)
         if self.from_butler['schema'] is None and hasattr(cat, 'getSchema'):
             self.from_butler['schema'] = cat.getSchema()
         return cat.getColumnView().extract(*self.keys[catalog],
@@ -214,8 +222,8 @@ class Catalogs(object):
                 print "  - %i sources in the forced-src catalog before selection" % \
                     len(self.catalogs['forced_src'])
                 coaddid = 'id' if 'id' in self.catalogs[deepcoadd[0]].keys() else 'objectId'
-                filt = numpy.where(numpy.in1d(self.catalogs['forced_src']['objectId'],
-                                              self.catalogs[deepcoadd[0]][coaddid]))[0]
+                filt = np.where(np.in1d(self.catalogs['forced_src']['objectId'],
+                                        self.catalogs[deepcoadd[0]][coaddid]))[0]
                 self.catalogs['forced_src'] = self.catalogs['forced_src'][filt]
                 print "  - %i sources in the forced-src catalog after selection" % \
                     len(self.catalogs['forced_src'])
@@ -240,32 +248,36 @@ class Catalogs(object):
             print "  - for", catalog
             columns = []
             # Add magnitudes
-            kfluxes = [k for k in self.catalogs[catalog].columns if k.endswith('_flux')]
-            ksigmas = [k + 'Sigma' for k in kfluxes]
-            print "    -> getting magnitudes"
-            for kflux, ksigma in zip(kfluxes, ksigmas):
-                if kflux.replace('_flux', '_mag') in self.catalogs[catalog].keys():
-                    continue
-                mag, dmag = self.from_butler['getmag'](numpy.array(self.catalogs[catalog][kflux],
-                                                                   dtype='float'),
-                                                       numpy.array(self.catalogs[catalog][ksigma],
-                                                                   dtype='float'))
-                columns.append(Column(name=kflux.replace('_flux', '_mag'), data=mag,
-                                      description='Magnitude', unit='mag'))
-                columns.append(Column(name=ksigma.replace('_fluxSigma', '_magSigma'), data=dmag,
-                                      description='Magnitude error', unit='mag'))
+            if self.from_butler['getmag'] is not None:
+                kfluxes = [k for k in self.catalogs[catalog].columns if k.endswith('_flux')]
+                ksigmas = [k + 'Sigma' for k in kfluxes]
+                print "    -> getting magnitudes"
+                for kflux, ksigma in zip(kfluxes, ksigmas):
+                    if kflux.replace('_flux', '_mag') in self.catalogs[catalog].keys():
+                        continue
+                    mag, dmag = self.from_butler['getmag'](np.array(self.catalogs[catalog][kflux],
+                                                                    dtype='float'),
+                                                           np.array(self.catalogs[catalog][ksigma],
+                                                                    dtype='float'))
+                    columns.append(Column(name=kflux.replace('_flux', '_mag'),
+                                          data=mag, description='Magnitude', unit='mag'))
+                    columns.append(Column(name=ksigma.replace('_fluxSigma', '_magSigma'),
+                                          data=dmag, description='Magnitude error', unit='mag'))
 
             if 'x_Src' in self.catalogs[catalog].keys():
                 return
-            # Get the x / y position in pixel
-            print "    -> getting pixel coordinates"
             ra = Quantity(self.catalogs[catalog]["coord_ra"].tolist(), 'rad')
             dec = Quantity(self.catalogs[catalog]["coord_dec"].tolist(), 'rad')
-            xsrc, ysrc = SkyCoord(ra, dec).to_pixel(self.from_butler['wcs'])
-            columns.append(Column(name='x_Src', data=xsrc,
-                                  description='x coordinate', unit='pixel'))
-            columns.append(Column(name='y_Src', data=ysrc,
-                                  description='y coordinate', unit='pixel'))
+            # Get the x / y position in pixel
+            if self.from_butler['wcs'] is not None:
+                print "    -> getting pixel coordinates"
+                xsrc, ysrc = SkyCoord(ra, dec).to_pixel(self.from_butler['wcs'])
+                columns.append(Column(name='x_Src', data=xsrc,
+                                      description='x coordinate', unit='pixel'))
+                columns.append(Column(name='y_Src', data=ysrc,
+                                      description='y coordinate', unit='pixel'))
+            else:
+                print colored("\nWARNING: no WCS found for this dataset", "yellow")
 
             # Get coordinates in degree
             print "    -> getting degree coordinates"
@@ -280,10 +292,9 @@ class Catalogs(object):
             # Clean memory before going further
             gc.collect()
 
-    def _load_calexp(self, **kwargs):
+    def _load_calexp(self, calcat='deepCoadd_calexp', **kwargs):
         """Load the deepCoadd_calexp info in order to get the WCS and the magnitudes."""
-        print colored("\nINFO: Loading the deepCoadd_calexp info", 'green')
-        calcat = 'deepCoadd_calexp'
+        print colored("\nINFO: Loading the %s info" % calcat, 'green')
         self._load_dataids(calcat, **kwargs)
         print "INFO: Getting the %s catalog for one dataId" % calcat
         calexp = self._load_catalog_dataid(calcat, self.dataids[calcat][0], table=False)
@@ -311,17 +322,22 @@ class Catalogs(object):
 
         Examples of catalogs that you can load:
 
+         - 'deepCoadd_ref',
          - 'deepCoadd_meas',
          - 'deepCoadd_forced_src',
          - 'deepCoadd_calexp',
          - 'forced_src'
+         - 'src'
         """
         if 'show' in kwargs:
             self.show_keys(catalogs)
             return
         keys = {} if 'keys' not in kwargs else kwargs['keys']
-        self._load_calexp(**kwargs)
         catalogs = [catalogs] if isinstance(catalogs, str) else catalogs
+        if any(["deepCoadd" in cat for cat in catalogs]):
+            self._load_calexp(**kwargs)
+        else:
+            self._load_calexp(calcat='calexp', **kwargs)
         for catalog in sorted(catalogs):
             if catalog in self.catalogs and 'update' not in kwargs:
                 print colored("\nWARNING: %s is already loaded. Use 'update' to reload it." %
@@ -335,7 +351,7 @@ class Catalogs(object):
             self.keys[catalog] = keys.get(catalog, "*")
             self._load_catalog(catalog, **kwargs)
         self._match_deepcoadd_catalogs()
-        if 'output_name' in kwargs:
+        if 'output_name' in kwargs and self.from_butler['wcs'] is not None:
             self.save_catalogs(kwargs['output_name'], 'wcs', kwargs.get('overwrite', False))
         print colored("\nINFO: Done loading the data.", "green")
 
@@ -355,8 +371,8 @@ class Catalogs(object):
             table = get_astropy_table(self.butler.get(cat, dataId=self.dataids[cat][0],
                                                       flags=afwtable.SOURCE_IO_NO_FOOTPRINTS),
                                       keys="*", get_info=True)
-            ktable = Table(numpy.transpose([[k, table[k].description, table[k].unit]
-                                            for k in sorted(table.keys())]).tolist(),
+            ktable = Table(np.transpose([[k, table[k].description, table[k].unit]
+                                         for k in sorted(table.keys())]).tolist(),
                            names=["Keys", "Description", "Units"])
             print "  -> %i keys available for %s" % (len(ktable), cat)
             print "  -> All saved in %s_keys.txt" % cat
@@ -408,7 +424,7 @@ def load_config(config):
     # makes sure a default name is setup in the config dictionnary
 #    if 'zphot' not in c.keys() : c['zphot'] = {'zphot_ref':{}} 
 #    if 'mass' not in c.keys() : c['mass'] = {'zconfig':'zphot_ref'} 
- 
+
     return c
 
 def shorten(doc):
@@ -487,7 +503,7 @@ def merge_dicts(*dict_args):
 
 def concatenate_dicts(*dicts):
     """Concatenate dictionnaries containing numpy arrays."""
-    return {k: numpy.concatenate([d.pop(k) for d in dicts]) for k in dicts[0].keys()}
+    return {k: np.concatenate([d.pop(k) for d in dicts]) for k in dicts[0].keys()}
 
 
 def read_hdf5(hdf5_file, path=None, dic=True):
@@ -564,8 +580,8 @@ def filter_table(cats):
     if "forced_src" not in cats.keys():
         return output
 
-    filt = numpy.where(numpy.in1d(cats['forced_src']['objectId'],
-                                  output['deepCoadd_meas']['id']))[0]
+    filt = np.where(np.in1d(cats['forced_src']['objectId'],
+                            output['deepCoadd_meas']['id']))[0]
     output['forced_src'] = cats['forced_src'][filt]
 
     return output
@@ -600,7 +616,7 @@ def correct_for_extinction(data, extinction, mag='modelfit_CModel_mag', ext='sfd
         raise IOError("ERROR: The selected dustmap (%s) must be in" % ext, dustmaps)
 
     # Compute the corrected magnitude for each filter
-    mcorr = numpy.zeros(len(data[mag]))
+    mcorr = np.zeros(len(data[mag]))
     for f in filters:
         filt = data['filter'] == (f if 'i' not in f else 'i')
         mcorr[filt] = data[mag][filt] - extinction['albd_%s_%s' % (f, ext)][filt]
@@ -633,8 +649,8 @@ def filter_around(data, config, **kwargs):
         ra = Quantity(datag.groups[0]['coord_ra'].tolist(), 'rad')
         dec = Quantity(datag.groups[0]['coord_dec'].tolist(), 'rad')
     else:
-        ra = Quantity(numpy.round(data['coord_ra'].tolist(), 3), 'rad')
-        dec = Quantity(numpy.round(data['coord_dec'].tolist(), 3), 'rad')
+        ra = Quantity(np.round(data['coord_ra'].tolist(), 3), 'rad')
+        dec = Quantity(np.round(data['coord_dec'].tolist(), 3), 'rad')
     sep = SkyCoord(Quantity([config['ra']], 'deg'),
                    Quantity([config['dec']], 'deg')).separation(SkyCoord(ra, dec))
     if hasattr(sep, kwargs.get('unit', 'degree')):
@@ -645,12 +661,12 @@ def filter_around(data, config, **kwargs):
                               "\n" + ", ".join(sorted([a for a in dir(sep)
                                                        if not a.startswith('_')]))))
     filt = (sep >= kwargs.get('exclude_inner', 0)) & \
-           (sep < kwargs.get('exclude_outer', numpy.inf))
+           (sep < kwargs.get('exclude_outer', np.inf))
     data_around = vstack([group[filt] for group in datag.groups]) if same_length else data[filt]
     if plot:
         title = "%s, %.2f < d < %.2f %s cut" % \
                 (config['cluster'], kwargs.get('exclude_inner', 0),
-                 kwargs.get('exclude_outer', numpy.inf), kwargs.get('unit', 'degree'))
+                 kwargs.get('exclude_outer', np.inf), kwargs.get('unit', 'degree'))
         plot_coordinates(data, data_around,
                          cluster_coord=(config['ra'], config['dec']), title=title)
     if 'pbar' in kwargs:
@@ -698,30 +714,30 @@ def plot_patches(catalog, clust_coords=None):
 
 
 def overwrite_or_append(filename, path, table, overwrite=False):
-    """ 
+    """
     Overwrites or append new path/table to existing file or creates new file
-    
+
     The overwrite keyword of data.write(file,path) does not overwrites
     only the data in path, but the whole file, i.e. (we lose all other
     paths in the process) --> need to do it by hand
     """
-        
+
     if not os.path.isfile(filename):
         print "Creating", filename
         table.write(filename, path=path, compression=True, serialize_meta=True)
     else:
         data = read_hdf5(filename)
         if path in data.keys():
-            if (overwrite):
-                print "Overwriting path =", path, " in", filename 
+            if overwrite:
+                print "Overwriting path =", path, " in", filename
                 data[path] = table  # update the table with new values
                 os.remove(filename)  # delete file
                 for p in data.keys():  # rewrite all paths/tables to file
                     data[p].write(filename, path=p, compression=True, serialize_meta=True,
-                                append=True)
+                                  append=True)
             else:
                 raise IOError("Path already exists in hdf5 file. Use --overwrite to overwrite.")
         else:
-            print "Adding", path, " to", filename 
+            print "Adding", path, " to", filename
             table.write(filename, path=path, compression=True, serialize_meta=True,
-                    append=True) 
+                        append=True) 

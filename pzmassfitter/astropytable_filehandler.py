@@ -1,35 +1,28 @@
-###################################
-# File handler for an astropy table file format
-# Assumes that all relevant cuts have been applied to the file already
-####################################
+""" 
+File handler for an astropy table file format. 
+Assumes that all relevant cuts have been applied to the file already.
+"""
+
 
 import numpy as np
-import astropy.table as table
+# import astropy.table as table
 import astropy.io.fits as pyfits
-from . import varcontainer
+from . import util
 from . import nfwutils
 from . import sphereGeometry
 from . import ldac
 
-####################################
-
 
 class AstropyTableFilehandler(object):
-
-    ######
 
     def __init__(self):
 
         self.cuts = []
 
-    ######
-
     def addCLOps(self, parser):
         #not designed to be run from the command line
 
         raise NotImplementedError
-
-    ######
 
     def createOptions(self, cluster, zcluster,
                       cat, mconfig,
@@ -46,9 +39,8 @@ class AstropyTableFilehandler(object):
                       logprior=False,
                       options=None, args=None):
 
-        
         if options is None:
-            options = varcontainer.VarContainer()
+            options = util.VarContainer()
 
         options.cluster = cluster
         options.zcluster = zcluster
@@ -56,14 +48,14 @@ class AstropyTableFilehandler(object):
         options.cluster_dec = cluster_dec
         options.wtg_shearcal = wtg_shearcal
         options.logprior = logprior
-        
+
         if wtg_shearcal:
             options.psfsize = psfsize
             options.sizeCol = sizeCol
             options.snratioCol = snratioCol
-        
+
         options.cat = cat
-        options.mconfig=mconfig
+        options.mconfig = mconfig
 
         options.raCol = raCol
         options.decCol = decCol
@@ -71,8 +63,6 @@ class AstropyTableFilehandler(object):
         options.g2Col = g2Col
 
         return options, args
-
-    ######
 
     def readData(self, manager):
 
@@ -86,13 +76,13 @@ class AstropyTableFilehandler(object):
 
         manager.logprior = options.logprior
         manager.wtg_shearcal = options.wtg_shearcal
-        
-        r_arcmin, E, B, phi = calcTangentialShear(cat=manager.lensingcat,
-                                             center=(options.cluster_ra, options.cluster_dec),
-                                             raCol=options.raCol,
-                                             decCol=options.decCol,
-                                             g1Col=options.g1Col,
-                                             g2Col=options.g2Col)
+
+        r_arcmin, E, B = compute_shear(cat=manager.lensingcat,
+                                       center=(options.cluster_ra, options.cluster_dec),
+                                       raCol=options.raCol,
+                                       decCol=options.decCol,
+                                       g1Col=options.g1Col,
+                                       g2Col=options.g2Col)
 
         
         r_mpc = r_arcmin * (1. / 60.) * (np.pi / 180.) * \
@@ -127,7 +117,7 @@ class AstropyTableFilehandler(object):
                 manager.replace('lensingcat',
                                  manager.lensingcat[options.cat["flag_" + options.mconfig['zconfig']]['flag_z_hard'] == True])
 
-        manager.matched_zcat = matchById(manager.zcat, manager.lensingcat, 'id', 'objectId')
+        manager.matched_zcat = util.matchById(manager.zcat, manager.lensingcat, 'id', 'objectId')
         manager.pz = manager.matched_zcat['pdz']  # area normalized, ie density function
 
         z_b = manager.matched_zcat['Z_BEST']
@@ -151,21 +141,18 @@ class AstropyTableFilehandler(object):
         manager.store('inputcat',
                       ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols))))
 
-        
-        
-#############
 
-
-def calcTangentialShear(cat, center, raCol, decCol, g1Col, g2Col):
-
+def compute_shear(cat, center, raCol, decCol, g1Col, g2Col):
+    """Compute the radial and tangential shear."""
     cluster_ra, cluster_dec = center
     ra = cat[raCol]
     dec = cat[decCol]
     e1 = cat[g1Col]
     e2 = cat[g2Col]
     
-#    posangle = ((np.pi / 2.) - sphereGeometry.positionAngle(ra, dec, cluster_ra, cluster_dec)) #radians
+    posangle = (np.pi / 2.) - sphereGeometry.positionAngle(ra, dec, cluster_ra, cluster_dec)
     posangle = -((np.pi / 2.) - sphereGeometry.positionAngle(ra, dec, cluster_ra, cluster_dec)) #radians... need minus sign to get WTG result !
+
     r_arcmin = sphereGeometry.greatCircleDistance(ra, dec, cluster_ra, cluster_dec) * 60
 
     cos2phi = np.cos(2 * posangle)
@@ -174,24 +161,4 @@ def calcTangentialShear(cat, center, raCol, decCol, g1Col, g2Col):
     E = -(e1 * cos2phi + e2 * sin2phi)
     B = e1 * sin2phi - e2 * cos2phi
 
-    return r_arcmin, E, B, posangle
-
-
-##########
-
-
-def matchById(firstcat, othercat, otherid='SeqNr', selfid='SeqNr'):
-    """Returns a subset of this catalog, that matches the order of the provided catalog."""
-    order = {}
-    for i, x in enumerate(firstcat[selfid]):
-        order[x] = i
-
-    keeporder = []
-    for x in othercat[otherid]:
-        if x in order:
-            keeporder.append(order[x])
-
-    keep = np.array(keeporder)
-    matched = firstcat[keep]
-    print "INFO: %i matched galaxies kept" % len(matched)
-    return matched
+    return r_arcmin, E, B

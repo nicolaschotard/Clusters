@@ -463,3 +463,31 @@ contains the following files::
 This `short tutorial
 <http://clusters.readthedocs.io/en/latest/data.html#work-with-the-table>`_
 explains how to use these ``hdf5`` files to start an analysis.
+
+Tests
+-----
+
+All the tests are being run in a docker container containing a light
+install of the stack along with all the needed data and softs.
+
+In order to build the container, you will need docker to be installed. If so, you can run::
+
+  ./build_docker_image.sh
+
+The containers are for now stored on the following depot::
+
+  https://hub.docker.com/r/nchotard/clusters-test/tags/
+
+To push a new container, do::
+
+  docker ps  # to get the container ID that you want to save and push
+  docker login "docker.io" -u nchotard  # need the password
+  docker commit THEID docker.io/nchotard/clusters-test:NAME  # e.g, NAME = 'centos7-stackv13'
+  docker push docker.io/nchotard/clusters-test:NAME
+
+To use it, simply do::
+
+  docker run -itd --name clusterstest docker.io/nchotard/clusters-test:NAME
+  docker attach clusterstest
+
+Use CTRL-P CTRL-Q to quit without stopping it, or CTRL-C to quit and stop.

@@ -1,7 +1,4 @@
-#!/usr/bin/env python
-#######################
-# Run a ML pdz fit for an nfw model
-########################
+"""Run a ML pdz fit for an nfw model."""
 
 from __future__ import with_statement
 import cPickle
@@ -11,12 +8,10 @@ import astropy.io.fits as pyfits
 import shelve
 from . import ldac
 from . import nfwutils
-from . import varcontainer
+from . import util
 from . import nfwmodeltools as tools
-from . import confidenceinterval as ci
 from . import pymc_mymcmc_adapter as pma
 
-##########################
 
 usage = '''
    maxlike_masses.py  filehandler_module shapedistro_module <options>
@@ -42,17 +37,14 @@ class ModelInitException(Exception):
     pass
 
 
-##########################
-
 massscale = 1e14
+
 
 class LensingModel(object):
 
     def __init__(self):
 
         self.cuts = [self.modelCut]
-
-    #######################################################
 
     def addCLOps(self, parser):
 
@@ -101,7 +93,7 @@ class LensingModel(object):
                       options=None, args=None, logprior=False):
 
         if options is None:
-            options = varcontainer.VarContainer()
+            options = util.VarContainer()
 
         options.deltaz95low = deltaz95low
         options.deltaz95high = deltaz95high
@@ -173,7 +165,8 @@ class LensingModel(object):
             ztypecut[type2] = np.logical_and(type2, zb < 1.3)
 
             type3 = np.logical_and(zt >= 3, zt < 4)
-            ztypecut[type3] = np.logical_and(type3, np.logical_or(zb <= 1, np.logical_and( 1.15 < zb, zb < 1.3)))
+            ztypecut[type3] = np.logical_and(type3, np.logical_or(zb <= 1,
+                                                                  np.logical_and( 1.15 < zb, zb < 1.3)))
             
             type4 = np.logical_and(zt >= 4, zt < 5)
             ztypecut[type4] = np.logical_and(type4, np.logical_or(zb < 0.95, np.logical_and(1.15 < zb, zb < 1.3)))
@@ -265,9 +258,6 @@ class LensingModel(object):
                                    nfwutils.global_cosmology.hubble2(parts.zcluster) / \
                                    nfwutils.global_cosmology.v_c**2
 
-
-
-
         parts.data = None
         for i in range(20):
 
@@ -317,7 +307,7 @@ class LensingModel(object):
     def makeModelParts(self, datamanager, parts=None):
 
         if parts is None:
-            parts = varcontainer.VarContainer()
+            parts = util.VarContainer()
 
         parts.zcluster = datamanager.zcluster
 
@@ -358,7 +348,7 @@ class ScanModelToFile(object):
                       options=None, args=None):
 
         if options is None:
-            options = varcontainer.VarContainer()
+            options = util.VarContainer()
 
         options.outputFile = outputFile
         return options, args
@@ -424,7 +414,7 @@ class ScanModelToFile(object):
 #
 #        
 #        outputFile = manager.options.outputFile
-#        dumpMasses(manager.masses,'%s.mass15mpc' % outputFile)
+#        pma.dumpMasses(manager.masses,'%s.mass15mpc' % outputFile)
 #
 
     ##########
@@ -445,20 +435,9 @@ class SampleModelToFile(object):
         outputFile = manager.options.outputFile
         burn = manager.options.burn
 
-#        sanitycheck = shelve.open('sanitycheck.shelve')
-#        sanitycheck['r_mpc'] = model.r_mpc
-#        sanitycheck['ghats'] = model.ghats
-#        sanitycheck['pz'] = model.pz
-#        sanitycheck['betas'] = model.betas
-#        sanitycheck['rho_c'] = model.rho_c
-#        sanitycheck['SeqNr'] = manager.inputcat['SeqNr']
-#        sanitycheck['phi'] = manager.inputcat['phi']
-#        sanitycheck['rho_c_over_sigma_c'] = model.rho_c_over_sigma_c
-#        sanitycheck.close()
-#        
+        mcmc_manager = util.VarContainer()
+        mcmc_options = util.VarContainer()
 
-        mcmc_manager = varcontainer.VarContainer()
-        mcmc_options = varcontainer.VarContainer()
         mcmc_manager.options = mcmc_options
 
         mcmc_options.singlecore = True
@@ -473,32 +452,21 @@ class SampleModelToFile(object):
 
         manager.chain = mcmc_manager.chain
 
-    ############
-
     def addCLOps(self, parser):
 
         raise NotImplementedError
 
-    ###########
-
-    def createOptions(self,
-                      outputFile,
-                      nsamples=2000,
-                      burn=500,
-                      options=None, args=None):
+    def createOptions(self, outputFile, nsamples=2000, burn=500, options=None, args=None):
 
         if options is None:
-            options = varcontainer.VarContainer()
+            options = util.VarContainer()
 
         options.outputFile = outputFile
         options.nsamples = nsamples
         options.burn = burn
         return options, args
 
-    ##############
-
     def dump(self, manager):
-
 
         outputFile = manager.options.outputFile
 
@@ -506,68 +474,9 @@ class SampleModelToFile(object):
             cPickle.dump(manager.chain, output)
 
 
-        dumpMasses(np.array(manager.chain['mdelta'][manager.options.burn:]),
-                   '%s.m%d' % (outputFile, manager.massdelta))
-
-
-    ##############
+        pma.dumpMasses(np.array(manager.chain['mdelta'][manager.options.burn:]),
+                       '%s.m%d' % (outputFile, manager.massdelta))
 
     def finalize(self, manager):
         pass
-
-
-    ######################
-
-
-def dumpMasses(masses, outputFile):
-
-    with open('%s.mass.pkl' % outputFile, 'wb') as output:
-        cPickle.dump(masses, output)
-
-    mean = np.mean(masses)
-    stddev = np.std(masses)
-    quantiles = pymc.utils.quantiles(masses, qlist=[2.5, 15.8, 25, 50, 75, 84.1, 97.5])
-    hpd68 = pymc.utils.hpd(masses, 0.32)
-    hpd95 = pymc.utils.hpd(masses, 0.05)
-    ml, (m, p) = ci.maxDensityConfidenceRegion(masses)
-    lml, (lm, lp) = ci.maxDensityConfidenceRegion(np.log10(masses))
-
-    with open('%s.mass.summary.txt' % outputFile, 'w') as output:
-        output.write('mean\t%e\n' % mean)
-        output.write('stddev\t%e\n' % stddev)
-        output.write('Q2.5\t%e\n' % quantiles[2.5])
-        output.write('Q25\t%e\n' % quantiles[25])
-        output.write('Q50\t%e\n' % quantiles[50])
-        output.write('Q75\t%e\n' % quantiles[75])
-        output.write('Q97.5\t%e\n' % quantiles[97.5])
-        output.write('HPD68\t%e\t%e\n' % (hpd68[0], hpd68[1]))
-        output.write('HPD95\t%e\t%e\n' % (hpd95[0], hpd95[1]))
-        output.write('MaxLike\t%e\t%e\t%e\n' % (ml, m, p))
-        output.write('Log10 Maxlike\t%e\t%e\t%e\n' % (lml, lm, lp))
-        output.close()
-
-    with open('%s.mass.summary.pkl' % outputFile, 'wb') as output:
-        stats = {'mean' : mean,
-                 'stddev' : stddev,
-                 'quantiles' : quantiles,
-                 'hpd68' : hpd68,
-                 'hpd95' : hpd95,
-                 'maxlike' : (ml, (m, p)),
-                 'log10maxlike' : (lml, (lm, lp))}
-        cPickle.dump(stats, output)
-        output.close()
-
-    print 'mean\t%e' % mean
-    print 'stddev\t%e' % stddev
-    print 'Q2.5\t%e' % quantiles[2.5]
-    print 'Q25\t%e' % quantiles[25]
-    print 'Q50\t%e' % quantiles[50]
-    print 'Q75\t%e' % quantiles[75]
-    print 'Q97.5\t%e' % quantiles[97.5]
-    print 'HPD68\t%e\t%e' % (hpd68[0], hpd68[1])
-    print 'HPD95\t%e\t%e' % (hpd95[0], hpd95[1])
-    print 'MaxLike\t%e\t%e\t%e\n' % (ml, m, p)
-    print 'Log10 Maxlike\t%e\t%e\t%e\n' % (lml, lm, lp)
-
-
 
