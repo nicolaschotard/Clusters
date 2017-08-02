@@ -150,8 +150,10 @@ def compute_shear(cat, center, raCol, decCol, g1Col, g2Col):
     e1 = cat[g1Col]
     e2 = cat[g2Col]
     
-    posangle = (np.pi / 2.) - sphereGeometry.positionAngle(ra, dec, cluster_ra, cluster_dec)
-    posangle = -((np.pi / 2.) - sphereGeometry.positionAngle(ra, dec, cluster_ra, cluster_dec)) #radians... need minus sign to get WTG result !
+#    posangle = (np.pi / 2.) - sphereGeometry.positionAngle(ra, dec, cluster_ra, cluster_dec)
+
+# Given this implementation, we need a minus sign to get the right position angle from ra, dec.
+    posangle = -((np.pi / 2.) - sphereGeometry.positionAngle(ra, dec, cluster_ra, cluster_dec))
 
     r_arcmin = sphereGeometry.greatCircleDistance(ra, dec, cluster_ra, cluster_dec) * 60
 
