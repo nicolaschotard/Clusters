@@ -68,7 +68,7 @@ def setupNearPerfectData(m200 = 1e15):
     e1 = -g_t*cos2phi
     e2 = -g_t*sin2phi
 
-    deepCoadd_meas = table.Table([seqnr, x_deg, y_deg, e1, e2], names=('id', 'coord_ra_deg', 'coord_dec_deg', 'ext_shapeHSM_HsmShapeRegauss_e1', 'ext_shapeHSM_HsmShapeRegauss_e2'))
+    deepCoadd_meas = table.Table([seqnr, -x_deg, y_deg, e1, e2], names=('id', 'coord_ra_deg', 'coord_dec_deg', 'ext_shapeHSM_HsmShapeRegauss_e1', 'ext_shapeHSM_HsmShapeRegauss_e2'))
 
     pdz_values = table.Table([seqnr, z_best, pdfgrid, zbinsgrid], names=('objectId', 'Z_BEST', 'pdz', 'zbins'))
 
