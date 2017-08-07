@@ -2,10 +2,7 @@
 __pycache__/
 *.py[cod~]
 *$py.class
-*.yaml~
-*.yml~
-*.rst~
-*.html~
+*.*~
 
 # C extensions
 *.so
