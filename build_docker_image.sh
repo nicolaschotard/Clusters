@@ -124,7 +124,9 @@ export NUMERIX=numpy
 
 # Tests
 coverage run --source="clusters,pzmassfitter" setup.py test
-cp .coverage /shared" > torun.sh
+exitstatus=$?
+cp .coverage /shared
+exit $exitstatus" > torun.sh
 
 chmod 755 torun.sh
 '''
