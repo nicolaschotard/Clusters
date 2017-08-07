@@ -1,10 +1,15 @@
 # Copyright (C) 2011, 2012 Adam Mantz
 """A module for Markov Chain Monte Carlo. See help() and example()."""
 
+
+from __future__ import print_function
 import csv
 import glob
 import sys
-import cPickle as pickle
+try:
+    import cPickle as pickle  # python 2
+except:
+    import pickle  # python 3
 import numpy as np
 try:
     from mpi4py import MPI
@@ -28,7 +33,7 @@ parallel_filename_ext = '.chk'
 
 def help():
     """Print help message and exist."""
-    print """
+    print("""
 The module should be very flexible, but is designed with these things foremost in mind:
   1. use with expensive likelihood calculations which probably have a host of hard-to-modify
     code associated with them.
@@ -137,7 +142,7 @@ Crude non-MCMC functionality:
 2. Updater.set_covariance_from_hessian uses finite differencing to estimate an appropriate
  cartesian width in each direction. This will fail if the state is not in a local minimum,
  or just because.
-"""
+""")
 
 
 class Parameter(object):
@@ -194,7 +199,7 @@ class postgetter(object):
             chisq = 1e300
         if self.verbose and chisq < self.last:
             self.last = chisq
-            print chisq, x
+            print(chisq, x)
         return chisq
 
 
@@ -222,7 +227,7 @@ class ParameterSpace(list):
 
     def optimize(self, struct, xtol=0.01, ftol=0.01, maxiter=10):
         if not have_scipy:
-            print "ParameterSpace.optimize requires the scipy package -- aborting."
+            print("ParameterSpace.optimize requires the scipy package -- aborting.")
             return None
         g = postgetter()
         g.verbose = True
@@ -234,13 +239,13 @@ class ParameterSpace(list):
                                            xtol=xtol, ftol=ftol, maxiter=maxiter)
             ret = -0.5 * m[1] # log-likelihood for best point
         except:
-            print "ParameterSpace.optimize: warning -- some kind of error in scipy.optimize.fmin_powell."
+            print("ParameterSpace.optimize: warning -- some kind of error in scipy.optimize.fmin_powell.")
             for i, p in enumerate(self):
                 p.set(origin[i])
             ret = None
         for i, p in enumerate(self):
             p.set(m[0][i])
-        #print m[2]
+        #print(m[2])
         return ret
 
 
@@ -372,7 +377,8 @@ class CartesianUpdater(Updater):
                 grandVarMean += d / (j + 1.0)
                 j += 1
             except IOError:
-                print "Warning: IO error while reading " + filename + " to update covariance (process " + self.pid + ", updater " + self.uind + ")."
+                print("Warning: IO error while reading " + filename +
+                      " to update covariance (process " + self.pid + ", updater " + self.uind + ").")
         if j > 1:
             B = self.count / (j - 1.0) * grandMeanVar
             W = grandVarMean / j
@@ -484,7 +490,7 @@ class CartesianUpdater(Updater):
             p.set(origin[i])
         return ok
         # if not have_numdifftools:
-        #     print "Error: numdifftools package is required to calculate Hessian matrix"
+        #     print("Error: numdifftools package is required to calculate Hessian matrix")
         #     return False
         # origin = [p() for p in self.space]
         # g = postgetter()
@@ -495,7 +501,7 @@ class CartesianUpdater(Updater):
         #     m = Hfun(origin)
         #     good = True
         # except:
-        #     print "CartesianUpdater.set_covariance_from_hessian: warning -- aborting due to Hessian evaluation failure"
+        #     print("CartesianUpdater.set_covariance_from_hessian: warning -- aborting due to Hessian evaluation failure")
         #     good = False
         # for i, p in enumerate(self.space):
         #     p.set(origin[i])
@@ -627,8 +633,9 @@ class MultiDimUpdater(Updater):
                 grandVarMean += d / (j + 1.0)
                 j += 1
             except:
-                print "Warning: IO error while reading " + filename + \
-                    " to update covariance (process " + self.pid + ", updater " + self.uind + ")."
+                print("Warning: IO error while reading " + filename +
+                      " to update covariance (process " + self.pid +
+                      ", updater " + self.uind + ").")
         if j > 1:
             B = self.count / (j - 1.0) * grandMeanVar
             W = grandVarMean / j
@@ -712,12 +719,13 @@ class MultiDimUpdater(Updater):
 
             if not (np.array(self.widths) != 0.).all():
             
-                print "ERROR: (np.array(self.widths) != 0.).all() != 0. Aborting"
+                print("ERROR: (np.array(self.widths) != 0.).all() != 0. Aborting")
 
                 return False
             return False
         except np.linalg.LinAlgError:
-            print "MultiDimUpdater.set_covariance: warning -- aborting due to covariance diagonalization failure"
+            print("MultiDimUpdater.set_covariance: warning -- " +
+                  "aborting due to covariance diagonalization failure")
             return False
 
     def set_covariance_from_hessian(self, struct, h=0.1):
@@ -745,7 +753,7 @@ class MultiDimUpdater(Updater):
             p.set(self.origin[i])
         return ok
         # if not have_numdifftools:
-        #     print "Error: numdifftools package is required to calculate Hessian matrix"
+        #     print("Error: numdifftools package is required to calculate Hessian matrix")
         #     return False
         # self.origin = [p() for p in self.space]
         # g = postgetter()
@@ -757,7 +765,7 @@ class MultiDimUpdater(Updater):
         #     m = Hfun(self.origin)
         #     good = True
         # except:
-        #     print "MultiDimUpdater.set_covariance_from_hessian: warning -- aborting due to Hessian evaluation failure"
+        #     print("MultiDimUpdater.set_covariance_from_hessian: warning -- aborting due to Hessian evaluation failure")
         #     good = False
         # for i, p in enumerate(self.space):
         #     p.set(self.origin[i])
@@ -767,7 +775,7 @@ class MultiDimUpdater(Updater):
         #     cov = np.linalg.inv(m)
         #     return self.set_covariances(cov)
         # except np.linalg.LinAlgError:
-        #     print "MultiDimUpdater.set_covariance_from_hessian: warning -- aborting due to Hessian inversion failure"
+        #     print("MultiDimUpdater.set_covariance_from_hessian: warning -- aborting due to Hessian inversion failure")
         #     return False
 
 
@@ -830,13 +838,13 @@ class MDRotationUpdater(Updater):
             self.current_direction /= self.width
 
         except np.FloatingPointError as fpe:
-            print 'DEBUG'
-            print self.widths
-            print self.widths[self.q0], self.widths[self.q1]
-            print self.sinr, self.cosr
+            print('DEBUG')
+            print(self.widths)
+            print(self.widths[self.q0], self.widths[self.q1])
+            print(self.sinr, self.cosr)
             self.basis
             self.basis[:,self.q0], self.basis[:,self.q1]
-            print self.current_direction
+            print(self.current_direction)
             raise fpe
 
         self.j = (self.j + 1) % 2
@@ -968,46 +976,46 @@ class Slice(Step):
         L = -self.width_fac * np.random.random_sample()                # left edge of the slice
         R = L + self.width_fac                                         # right edge
         if self.obnoxious:
-            print 'Slice: starting params:', [(p.name, p()) for p in self.updater.space]
-            print 'Slice: current level', self.updater.engine.current_logP, '; seeking', z
-            print 'L & R: ', L, ' ', R
-            print 'Slice: stepping out left'
+            print('Slice: starting params:', [(p.name, p()) for p in self.updater.space])
+            print('Slice: current level', self.updater.engine.current_logP, '; seeking', z)
+            print('L & R: ', L, ' ', R)
+            print('Slice: stepping out left')
         for i in range(self.maxiter):
             self.updater.move(L)
             lnew = self.updater.space.log_posterior(struct)
             if self.obnoxious:
-                print 'Slice: params:', [(p.name, p()) for p in self.updater.space]
-                print 'Slice:', L, lnew
+                print('Slice: params:', [(p.name, p()) for p in self.updater.space])
+                print('Slice:', L, lnew)
             if lnew <= z:
                 break
             L -= self.width_fac;
         else:
             if not self.quiet:
-                print "Slice(): warning -- exhausted stepping out (left) loop"
+                print("Slice(): warning -- exhausted stepping out (left) loop")
         if self.obnoxious:
-            print 'Slice: params:', [p() for p in self.updater.space]
-            print 'Slice: stepping out right'
+            print('Slice: params:', [p() for p in self.updater.space])
+            print('Slice: stepping out right')
         for i in range(self.maxiter):
             self.updater.move(R)
             lnew = self.updater.space.log_posterior(struct)
             if self.obnoxious:
-                print 'Slice: params:', [(p.name, p()) for p in self.updater.space]
-                print 'Slice:', R, lnew
+                print('Slice: params:', [(p.name, p()) for p in self.updater.space])
+                print('Slice:', R, lnew)
             if lnew <= z:
                 break
             R += self.width_fac;
         else:
             if not self.quiet:
-                print "Slice(): warning -- exhausted stepping out (right) loop"
+                print("Slice(): warning -- exhausted stepping out (right) loop")
         if self.obnoxious:
-            print 'Slice: stepping in'
+            print('Slice: stepping in')
         for i in range(self.maxiter):
             x1 = L + (R - L) *  np.random.random_sample()
             self.updater.move(x1)
             self.updater.engine.current_logP = self.updater.space.log_posterior(struct)
             if self.obnoxious:
-                print 'Slice: params:', [(p.name, p()) for p in self.updater.space]
-                print 'Slice:', x1, self.updater.engine.current_logP
+                print('Slice: params:', [(p.name, p()) for p in self.updater.space])
+                print('Slice:', x1, self.updater.engine.current_logP)
             if self.updater.engine.current_logP < z:
                 if x1 < 0:
                     L = x1
@@ -1017,9 +1025,9 @@ class Slice(Step):
                 break
         else:
             if not self.quiet:
-                print "Slice(): warning -- exhausted stepping in loop"
+                print("Slice(): warning -- exhausted stepping in loop")
         if self.obnoxious:
-            print 'Slice: completed'
+            print('Slice: completed')
 
 
 class Metropolis(Step):
@@ -1146,7 +1154,7 @@ class textBackend(Backend):
                         d[key].append(values[i])
                 except ValueError:
                     if not quiet:
-                        print "textBackend.readToDict: ignoring line " + line
+                        print("textBackend.readToDict: ignoring line " + line)
         f.close()
         return d
 
@@ -1183,7 +1191,7 @@ class headerTextBackend(Backend):
                 try:
                     db[key].append(float(row[key]))
                 except TypeError:
-                    print i, row
+                    print(i, row)
         for key in db.keys():
             db[key] = np.array(db[key])
         return db
@@ -1252,7 +1260,7 @@ class Engine(list):
         try:
             for i in range(number):
                 if i % 200 == 0:
-                    print 'At Iteration %d' % i
+                    print('At Iteration %d' % i)
                 for updater in self:
                     for j in range(updater.rate):
                         updater(struct)
@@ -1263,7 +1271,7 @@ class Engine(list):
                     for backend in backends:
                         backend(self.space)
         except KeyboardInterrupt:
-            print "Interrupted by keyboard with count = " + str(self.count)
+            print("Interrupted by keyboard with count = " + str(self.count))
 
     def register_updater(self, updater, index):
         updater.engine = self
@@ -1273,7 +1281,7 @@ class Engine(list):
 
 def example(number=None):
     if number == 1:
-        print """
+        print("""
 # Here is a simple example. As shown it will run in non-parallel mode; comments indicate what 
 # to do for parallelization.
 
@@ -1349,14 +1357,14 @@ chainfile.close()
 
 ## If this was a parallel run, print the convergence criterion for each parameter.
 # print updater.R
-"""
+""")
 
     else:
-        print """
+        print("""
 Usage: example(N), where N is one of:
  1. A very simple example where the posterior is bivariate Gaussian, to illustrate setting 
     up and running the engine.
-"""
+""")
 
 
 class ChiSquareLikelihood(object):

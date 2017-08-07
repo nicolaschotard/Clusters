@@ -1,5 +1,7 @@
 """Main entry points for scripts."""
 
+
+from __future__ import print_function
 import os
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 
@@ -31,8 +33,8 @@ def shear(argv=None):
         if not args.overwrite and os.path.exists(args.output):
             raise IOError("Output already exists. Remove them or use --overwrite.")
 
-    print "INFO: Working on cluster %s (z=%.4f)" % (config['cluster'], config['redshift'])
-    print "INFO: Working on filters", config['filter']
+    print("INFO: Working on cluster %s (z=%.4f)" % (config['cluster'], config['redshift']))
+    print("INFO: Working on filters", config['filter'])
 
     # Load the data
     data = cdata.read_hdf5(args.input)

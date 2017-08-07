@@ -1,7 +1,10 @@
 """Run a ML pdz fit for an nfw model."""
 
 from __future__ import with_statement
-import cPickle
+try:
+    import cPickle as pickle  # python 2
+except:
+    import pickle  # python 3
 import pymc
 import numpy as np
 import astropy.io.fits as pyfits
@@ -471,7 +474,7 @@ class SampleModelToFile(object):
         outputFile = manager.options.outputFile
 
         with open('%s.chain.pkl' % outputFile, 'wb') as output:
-            cPickle.dump(manager.chain, output)
+            pickle.dump(manager.chain, output)
 
 
         pma.dumpMasses(np.array(manager.chain['mdelta'][manager.options.burn:]),

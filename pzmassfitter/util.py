@@ -1,6 +1,7 @@
 """Some useful classes or functions used in pzmassfitter."""
 
 
+from __future__ import print_function
 import re
 import numpy as np
 
@@ -28,9 +29,9 @@ def readtxtfile(filename):
                 if len(tokens) != 0:
                     rows.append([float(l) for l in line.split()])
         return np.row_stack(rows)
-    except ValueError, error:
-        print 'Cannot convert to floats, returning list'
-        print error
+    except ValueError as error:
+        print('Cannot convert to floats, returning list')
+        print(error)
         rows = []
         infile = open(filename)
         for line in infile:
@@ -72,5 +73,5 @@ def matchById(firstcat, othercat, otherid='SeqNr', selfid='SeqNr'):
 
     keep = np.array(keeporder)
     matched = firstcat[keep]
-    print "INFO: %i matched galaxies kept" % len(matched)
+    print("INFO: %i matched galaxies kept" % len(matched))
     return matched

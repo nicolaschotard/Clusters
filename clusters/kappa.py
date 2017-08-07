@@ -1,5 +1,7 @@
 """Kappa analysis."""
 
+
+from __future__ import print_function
 import sys
 import numpy as np
 import pylab as pl
@@ -7,7 +9,7 @@ import seaborn
 try:
     import numba
 except ImportError:
-    print "WARNING: optional module numba cannot be imported."
+    print("WARNING: optional module numba cannot be imported.")
 import astropy.io.fits as pyfits
 from . import data as cdata
 
@@ -55,11 +57,11 @@ class Kappa(object):
             self._idata = {'xsrc': xsrc, 'ysrc': ysrc,
                            'sch1': sch1, 'sch2': sch2,
                            'flag': np.array(kwargs.get('filt'))}
-            print "Filtering data"
-            print " - Before cut: %i sources" % len(xsrc)
+            print("Filtering data")
+            print(" - Before cut: %i sources" % len(xsrc))
             xsrc, ysrc, sch1, sch2 = [arr[np.array(kwargs.get('filt'))]
                                       for arr in [xsrc, ysrc, sch1, sch2]]
-            print " - After cut: %i sources" % len(xsrc)
+            print(" - After cut: %i sources" % len(xsrc))
             self.filtered = True
         else:
             self._idata = None
@@ -171,7 +173,7 @@ class Kappa(object):
         dy = self.data['ysrc'].reshape(1, len(self.data['ysrc'])) - self._get_axis_3dgrid(axis='y')
 
         if self.use_numba:
-            print "Using numba to slightly speed up the process!"
+            print("Using numba to slightly speed up the process!")
             self.maps = {}
         # also loop over the x axis to pack them into arrays of 'xsampling' items
         xarange = [i for i in range(len(dx)) if not i % xsampling] + [len(dx)]
@@ -216,9 +218,9 @@ class Kappa(object):
         """Plot the "kappa" maps."""
         if not hasattr(self, 'maps'):
             raise IOError("WARNING: No maps computed yet.")
-        print "Plotting the following maps:"
+        print("Plotting the following maps:")
         for cmap in self.maps.keys():
-            print " - ", cmap
+            print(" - ", cmap)
             fig = pl.figure(figsize=figsize)
             ax = fig.add_subplot(111)
             ax.set_xlabel(xlabel='X-coord (pixel)', fontsize=16)
@@ -237,9 +239,9 @@ class Kappa(object):
                    clust_coord[1] >= extent[2] and clust_coord[1] <= extent[3]:
                     ax.plot(clust_coord[0], clust_coord[1], color='g', ms=25, mew=4, marker='+')
                 elif wcs is None:
-                    print "WARNING: You must provide coordinates in degree + the wcs" + \
-                        " or coordinates in pixel units."
-                    print "         Use wcs = kappa.load_wcs('data.hdf5') to get the wcs."
+                    print("WARNING: You must provide coordinates in degree + the wcs" +
+                          " or coordinates in pixel units.")
+                    print("         Use wcs = kappa.load_wcs('data.hdf5') to get the wcs.")
                 else:
                     xsrc, ysrc = cdata.skycoord_to_pixel(clust_coord, wcs)
                     ax.plot(xsrc, ysrc, color='g', ms=25, mew=4, marker='+')
@@ -270,11 +272,11 @@ class Kappa(object):
         """Quiver plot"""
         if not hasattr(self, 'maps'):
             raise IOError("WARNING: No maps computed yet.")
-        print "Quiver plot for the following maps:"
+        print("Quiver plot for the following maps:")
         for cmap in self.maps.keys():
             if cmap.endswith("45"):
                 continue
-            print " - ", cmap
+            print(" - ", cmap)
             fig = pl.figure(figsize=figsize)
             ax = fig.add_subplot(111)
             ax.set_xlabel(xlabel='X-coord (pixel)', fontsize=16)
@@ -306,9 +308,9 @@ class Kappa(object):
             #       clust_coord[1] >= extent[2] and clust_coord[1] <= extent[3]:
             #        ax.plot(clust_coord[0], clust_coord[1], color='g', ms=25, mew=4, marker='+')
             #    elif wcs is None:
-            #        print "WARNING: You must provide coordinates in degree + the wcs" + \
-            #            " or coordinates in pixel units."
-            #        print "         Use wcs = kappa.load_wcs('data.hdf5') to get the wcs."
+            #        print("WARNING: You must provide coordinates in degree + the wcs" +
+            #              " or coordinates in pixel units.")
+            #        print("         Use wcs = kappa.load_wcs('data.hdf5') to get the wcs.")
             #    else:
             #        xsrc, ysrc = cdata.skycoord_to_pixel(clust_coord, wcs)
             #        ax.plot(xsrc, ysrc, color='g', ms=25, mew=4, marker='+')

@@ -1,6 +1,11 @@
 """Mass analysis."""
 
-import cPickle
+
+from __future__ import print_function
+try:
+    import cPickle as pickle
+except:
+    import pickle
 import seaborn
 import numpy as np
 import pylab
@@ -62,7 +67,7 @@ def quality_cuts(table):
 
 def plot_pzmassfitter_output(datafile):
     """Te datafile is the ***.chain.pkl file."""
-    d = cPickle.load(open(datafile))
+    d = pickle.load(open(datafile))
     df = pandas.DataFrame(d)
     g = seaborn.PairGrid(df, diag_sharey=False)
     g.map_lower(pylab.scatter)
@@ -86,7 +91,7 @@ def from_mass_to_mass(chain, config, radius=None, delta=None, init_delta=200):
     :output: New mass array
     """
     if isinstance(chain, str):
-        chain = cPickle.load(open(chain))
+        chain = pickle.load(open(chain))
     if isinstance(config, str):
         config = yaml.load(open(config))
     # scale radius in mpc
@@ -100,5 +105,5 @@ def from_mass_to_mass(chain, config, radius=None, delta=None, init_delta=200):
         masses = [nfwutils.Mdelta(sr, cdelta, config['redshift'], delta)
                   for sr, cdelta in zip(scale_radius, chain['cdelta'])]
     else:
-        print "WARNING: you should give a radius (in Mpc) or a delta (200, 500, etc)"
+        print("WARNING: you should give a radius (in Mpc) or a delta (200, 500, etc)")
     return np.array(masses)

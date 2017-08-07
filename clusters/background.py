@@ -1,5 +1,7 @@
 """Tools to fit the red sequence and extract background galaxies around a cluster."""
 
+
+from __future__ import print_function
 import math
 from scipy import optimize, special
 from astropy.cosmology import Planck15 as cosmo
@@ -108,9 +110,9 @@ def fit_red_sequence(color, mag, **kwargs):
     ss_err = (infodict['fvec']**2).sum()
 
     if verb:
-        print "mean %f - sigma %f" % (p2[1], p2[2])
-        print "Reduced chi2 = ", ss_err / (nbins + 6 - 1)
-        print p2
+        print("mean %f - sigma %f" % (p2[1], p2[2]))
+        print("Reduced chi2 = ", ss_err / (nbins + 6 - 1))
+        print(p2)
     # Superimpose fitted curve over color projection
     ax0.plot(bins, func(p2, bins), color='g')
     ax0.tick_params(labelsize=20)
@@ -182,13 +184,13 @@ def fit_red_sequence(color, mag, **kwargs):
     ss_tot = ((N.asarray(sigma) - N.asarray(sigma).mean())**2).sum()
     rsquared = 1 - (ss_err / ss_tot)
     if verb:
-        print "R^2 = ", rsquared
+        print("R^2 = ", rsquared)
     if rsquared < 0.9:
         if verb:
-            print "Bad fit - take absolute minimun instead of fitted value"
+            print("Bad fit - take absolute minimun instead of fitted value")
         fitslope = bestslope
     if verb:
-        print "Fitted minimum: %f" % fitslope
+        print("Fitted minimum: %f" % fitslope)
 
     # Plot RS projection corresponding to the optimal slope
     alpha = math.atan(slope)
@@ -213,8 +215,8 @@ def fit_red_sequence(color, mag, **kwargs):
     ss_tot = ((n - n.mean()) ** 2).sum()
     rsquared = 1 - (ss_err / ss_tot)
     if verb:
-        print "mean %f - sigma %f" % (p1[1], p1[2])
-        print "Reduced chi2 = %f - R^2 = %f" % (ss_err / (nbins + 6 - 1), rsquared)
+        print("mean %f - sigma %f" % (p1[1], p1[2]))
+        print("Reduced chi2 = %f - R^2 = %f" % (ss_err / (nbins + 6 - 1), rsquared))
     ax2.plot(bins, hfunc(p1, bins), color='r')
     ax2.tick_params(labelsize=20)
 
@@ -226,7 +228,8 @@ def fit_red_sequence(color, mag, **kwargs):
     b2 = (p1[1] + 1.5 * p1[2] - fitslope * magref) / math.cos(alpha) + diffref
 
     if verb:
-        print"Ordinate at origin of the RS band - middle : %f, lower : %f, upper : %f" %(b0, b1, b2)
+        print("Ordinate at origin of the RS band - middle : %f, lower : %f, upper : %f" %
+              (b0, b1, b2))
 
     # plot fitted RS band over color plot
     fig, (ax3) = P.subplots(ncols=1)
@@ -333,22 +336,22 @@ def get_zphot_background(config, zdata, zspec=None, z_config=None, thresh=None, 
 
     # Spectroscopic against photometric redshifts
     if zspec is not None:
-        print "INFO: Checking photo/spectro redshifts consistency"
+        print("INFO: Checking photo/spectro redshifts consistency")
 
     # Photometric redshift cut
-    print "INFO: Flagging foreground/uncertain objects using redshift information from ", z_config
+    print("INFO: Flagging foreground/uncertain objects using redshift information from ", z_config)
     z_flag1, z_flag2 = zphot_cut(config['redshift'], zdata, thresh=thresh,
                                  zmin=zmin, zmax=zmax, plot=plot)
-    print "INFO: %i galaxies have been kept after the hard redshift cut" %(sum(z_flag1))
-    print "INFO: %i galaxies have been kept after the pdz redshift cut" %(sum(z_flag2))
+    print("INFO: %i galaxies have been kept after the hard redshift cut" %(sum(z_flag1)))
+    print("INFO: %i galaxies have been kept after the pdz redshift cut" %(sum(z_flag2)))
 
     return (z_flag1, z_flag2)
 
 def get_rs_background(config, data):
     """Return flag based on RS criterion for galaxy selection."""
 
-    print "INFO: Flagging red sequence galaxies"
+    print("INFO: Flagging red sequence galaxies")
     rs_flag = red_sequence_cut(config, data)
-    print "INFO: %i galaxies have been flagged as RS" %(sum(~rs_flag))
+    print("INFO: %i galaxies have been flagged as RS" %(sum(~rs_flag)))
 
     return rs_flag

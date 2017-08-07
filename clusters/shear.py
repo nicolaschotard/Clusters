@@ -1,5 +1,7 @@
 """Shear analysis."""
 
+
+from __future__ import print_function
 import numpy
 import pylab
 import seaborn
@@ -82,7 +84,7 @@ def compare_shear(catalogs, xclust, yclust, qcut=None, param='Tshear'):
     # Compute shear and distance for all srouces in both catalogs
     # And add that info into the tables
     tables, filters = [], []
-    print "INFO: %i catalogs to load" % len(catalogs)
+    print("INFO: %i catalogs to load" % len(catalogs))
     for i, cat in enumerate(catalogs):
         filtr = cat['filter'] == 'r'
         filti = (cat['filter'] == 'i') | (cat['filter'] == 'i2')
@@ -142,7 +144,7 @@ def compare_shear(catalogs, xclust, yclust, qcut=None, param='Tshear'):
                              Column(name='objectId', data=objectids, description='Object ID'),
                              Column(name='e1i', data=e1i, description='Ellipticities 1 i'),
                              Column(name='e2i', data=e2i, description='Ellipticities 2 i')]))
-    print "INFO: Done loading shear data"
+    print("INFO: Done loading shear data")
 
     ids = tables[0]['objectId'][numpy.argsort(tables[0]['objectId'])].tolist()
     shear_coadd = numpy.array(tables[0][param][numpy.argsort(tables[0]['objectId'])].tolist())
@@ -183,13 +185,13 @@ def compare_shear(catalogs, xclust, yclust, qcut=None, param='Tshear'):
                  numpy.max(shear_coadd) - i * std], color='b', ls=ls)
     ax.set_title("%i sources, CHI2=%.3f, STD=%.3f" % (len(tables[0]['Distance']), chi2, std))
     ax.legend(loc='best', frameon=False, numpoints=1)
-    print "CHI2:", chi2
-    print "STD:", std
+    print("CHI2:", chi2)
+    print("STD:", std)
     cc = 0
     filti = (catalogs[cc]['filter'] == 'i') | (catalogs[cc]['filter'] == 'i2')
     for p in ['ext_shapeHSM_HsmShapeRegauss_resolution',  # 'modelfit_CModel_mag',
               'ext_shapeHSM_HsmShapeRegauss_sigma']:
-        print p
+        print(p)
         pylab.figure()
         allvalues = catalogs[cc][p][filti][filters[cc]]
         filteredvalues = allvalues[abs(means[filt] - shear_coadd[filt]) > 2 * std]

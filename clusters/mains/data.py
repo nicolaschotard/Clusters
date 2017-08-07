@@ -1,5 +1,7 @@
 """Main entry points for scripts."""
 
+
+from __future__ import print_function
 import os
 import sys
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
@@ -45,14 +47,14 @@ def load_data(argv=None):
     if not args.overwrite and (os.path.exists(output) or os.path.exists(output_filtered)):
         raise IOError("Output(s) already exist(s). Remove them or use overwrite=True.")
 
-    print "\nINFO from config file:"
+    print("\nINFO from config file:")
     if 'cluster' in config:
-        print "  - cluster %s (z=%.4f)" % (config['cluster'], config['redshift'])
+        print("  - cluster %s (z=%.4f)" % (config['cluster'], config['redshift']))
     if 'filter' in config:
-        print "  - filters", config['filter']
+        print("  - filters", config['filter'])
     if 'patch' in config:
-        print "  - patches", config['patch']
-    print "INFO: Butler located under %s" % config['butler']
+        print("  - patches", config['patch'])
+    print("INFO: Butler located under %s" % config['butler'])
 
     # Apply filter and quit?
     if args.filter is not None:
@@ -74,7 +76,7 @@ def load_data(argv=None):
 
 
 def apply_filter(hdf5file, config, output, overwrite):
-    print "\nINFO: Applying filters on the data to keep a clean sample of galaxies"
+    print("\nINFO: Applying filters on the data to keep a clean sample of galaxies")
     catalogs = cdata.read_hdf5(hdf5file)
     data = cdata.Catalogs(config['butler'], load_butler=False)
     data.catalogs = cdata.filter_table(catalogs)

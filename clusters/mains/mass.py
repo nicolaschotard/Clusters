@@ -1,5 +1,7 @@
 """Main entry points for scripts."""
 
+
+from __future__ import print_function
 import os
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 
@@ -38,12 +40,12 @@ def mass(argv=None):
     mconfig = config['mass'] if 'mass' in config else {'zconfig':'zphot_ref'}
     tag ='' if 'zflagconfig' not in mconfig else '_'+mconfig['zflagconfig']
     
-    print "Cluster mass computed using ", mconfig, \
-        " configuration for photoz estimation and backgroud selection"
+    print("Cluster mass computed using ", mconfig,
+          " configuration for photoz estimation and backgroud selection")
 
 
-    print "INFO: Working on cluster %s (z=%.4f)" % (config['cluster'], config['redshift'])
-    print "INFO: Working on filters", config['filter']
+    print("INFO: Working on cluster %s (z=%.4f)" % (config['cluster'], config['redshift']))
+    print("INFO: Working on filters", config['filter'])
 
     # Load the data
     data = cdata.read_hdf5(args.input)
@@ -72,7 +74,7 @@ def mass(argv=None):
     ###let's assume that all quality cuts were made previously
 
     if args.testing:
-        print 'TESTING!!!!'
+        print('TESTING!!!!')
         masscontroller = dmstackdriver.makeTestingController()
         options, cmdargs = masscontroller.modelbuilder.createOptions(concentration=4.)
         options, cmdargs = masscontroller.runmethod.createOptions(outputFile=args.output,

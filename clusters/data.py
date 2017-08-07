@@ -1,5 +1,7 @@
 """Data builder and parser for the Clusters package."""
 
+
+from __future__ import print_function
 import os
 import gc
 import warnings
@@ -21,7 +23,7 @@ try:
     from lsst.afw import table as afwtable
     import lsst.daf.persistence as dafPersist
 except ImportError:
-    print colored("WARNING: LSST stack is probably not installed", "yellow")
+    print(colored("WARNING: LSST stack is probably not installed", "yellow"))
 
 
 class Catalogs(object):
@@ -31,11 +33,11 @@ class Catalogs(object):
     def __init__(self, path, load_butler=True):
         """."""
         # Load the bulter
-        print "INFO: Loading data from", path
+        print("INFO: Loading data from", path)
         if load_butler:
             self.butler = dafPersist.Butler(path)
         else:
-            print "WARNING: no butler loaded!"
+            print("WARNING: no butler loaded!")
 
         # Initialize data dictionnaries
         self.dataids = {}
@@ -47,7 +49,7 @@ class Catalogs(object):
 
     def _load_dataids(self, catalog, **kwargs):
         """Get the 'forced_src' catalogs."""
-        print "INFO: Getting list of available data for", catalog
+        print("INFO: Getting list of available data for", catalog)
         if 'deepCoadd' in catalog:  # The deepCoadd* catalogs
             deepcoadd = [cat for cat in self.dataids if 'deepCoadd' in cat]
             if len(deepcoadd):
@@ -76,34 +78,34 @@ class Catalogs(object):
         for kwarg in kwargs:
             if kwarg not in dataids[0]:
                 continue
-            print "INFO: Selecting data ids according to the '%s' selection" % kwarg
-            print "  - input: %i data ids" % len(dataids)
+            print("INFO: Selecting data ids according to the '%s' selection" % kwarg)
+            print("  - input: %i data ids" % len(dataids))
             if not isinstance(kwargs[kwarg], list):
                 kwargs[kwarg] = [kwargs[kwarg]]
             dataids = [dataid for dataid in dataids if dataid[kwarg] in kwargs[kwarg]]
-            print "  - selected: %i data ids" % len(dataids)
+            print("  - selected: %i data ids" % len(dataids))
 
         # Select the ccd/visit according to the input list of patch if given
         if 'deepCoadd' not in catalog and 'patch' in kwargs and 'filter' in kwargs:
-            print "INFO: Selecting visit/ccd according to the input list of patches"
-            print "  - input: %i data ids" % len(dataids)
+            print("INFO: Selecting visit/ccd according to the input list of patches")
+            print("  - input: %i data ids" % len(dataids))
             ccds_visits = self._get_ccd_visits(**kwargs)
             dataids = [dataid for dataid in dataids if
                        (dataid['ccd'], dataid['visit']) in ccds_visits]
-            print "  - selected: %i data ids" % len(dataids)
+            print("  - selected: %i data ids" % len(dataids))
 
         # Only keep dataids with data
-        print "INFO: Keep data IDs with data on disk"
-        print "  - input: %i data ids" % len(dataids)
+        print("INFO: Keep data IDs with data on disk")
+        print("  - input: %i data ids" % len(dataids))
         self.dataids[catalog] = [dataid for dataid in dataids if
                                  self.butler.datasetExists(catalog, dataId=dataid)]
         self.missing[catalog] = [dataid for dataid in dataids if not
                                  self.butler.datasetExists(catalog, dataId=dataid)]
-        print "  - selected: %i data ids" % len(self.dataids[catalog])
+        print("  - selected: %i data ids" % len(self.dataids[catalog]))
         if len(self.missing[catalog]):
-            print "  - missing: %i data ids (list available in 'self.missing[catalog]':" % \
-                len(self.missing[catalog])
-        print "INFO: %i data ids finally kept" % len(self.dataids[catalog])
+            print("  - missing: %i data ids (list available in 'self.missing[catalog]':" % \
+                  len(self.missing[catalog]))
+        print("INFO: %i data ids finally kept" % len(self.dataids[catalog]))
         if len(self.dataids[catalog]) == 0:
             raise IOError("No data found for this catalog. Remove this catalog from the list.")
 
@@ -159,7 +161,7 @@ class Catalogs(object):
         catalog = afwtable.SourceCatalog(self.from_butler['schema'])
         catalog.reserve(size)
         pbar = progressbar(len(self.dataids[dataset]))
-        print "INFO: Looping over the dataids"
+        print("INFO: Looping over the dataids")
         for i, dataid in enumerate(self.dataids[dataset]):
             cat = self.butler.get(dataset, dataid,
                                   flags=afwtable.SOURCE_IO_NO_FOOTPRINTS)
@@ -168,7 +170,7 @@ class Catalogs(object):
                 catadic[newkey].extend([dataid[idk]] * len(cat))
             pbar.update(i + 1)
         pbar.finish()
-        print "INFO: Merging the dictionnaries"
+        print("INFO: Merging the dictionnaries")
         catadic.update(catalog.getColumnView().extract(*self.keys[dataset],
                                                        copy=True, ordered=True))
         # Clean memory before going further
@@ -178,18 +180,18 @@ class Catalogs(object):
     def _load_catalog(self, catalog, **kwargs):
         """Load a given catalog."""
         self._load_dataids(catalog, **kwargs)
-        print "INFO: Getting the data from the butler for %i fits files" % \
-            len(self.dataids[catalog])
+        print("INFO: Getting the data from the butler for %i fits files" % \
+              len(self.dataids[catalog]))
         self.catalogs[catalog] = Table(self._get_catalog(catalog, **kwargs))
-        print "INFO: Getting descriptions and units"
+        print("INFO: Getting descriptions and units")
         for k in self.catalogs[catalog].keys():
             if k in self.from_butler['schema']:
                 asfield = self.from_butler['schema'][k].asField()
                 self.catalogs[catalog][k].description = shorten(asfield.getDoc())
                 self.catalogs[catalog][k].unit = asfield.getUnits()
         self.from_butler['schema'] = None
-        print "INFO: %s catalog loaded (%i sources)" % \
-            (catalog, len(self.catalogs[catalog]))
+        print("INFO: %s catalog loaded (%i sources)" % \
+              (catalog, len(self.catalogs[catalog])))
         self._add_new_columns(catalog)
         if 'matchid' in kwargs and catalog == 'forced_src':
             self._match_ids()
@@ -202,8 +204,8 @@ class Catalogs(object):
         if 'deepCoadd_meas' in self.catalogs and 'deepCoadd_forced_src' in self.catalogs:
             if len(self.catalogs['deepCoadd_meas']) == len(self.catalogs['deepCoadd_forced_src']):
                 return
-            print colored("\nINFO: matching 'deepCoadd_meas' and 'deepCoadd_forced_src' catalogs",
-                          'green')
+            print(colored("\nINFO: matching 'deepCoadd_meas' and 'deepCoadd_forced_src' catalogs",
+                          'green'))
             for dataid in self.missing['deepCoadd_meas']:
                 filt = (self.catalogs['deepCoadd_forced_src']['filter'] == dataid['filter']) & \
                        (self.catalogs['deepCoadd_forced_src']['patch'] == dataid['patch'])
@@ -218,40 +220,40 @@ class Catalogs(object):
         deepcoadd = [cat for cat in self.catalogs if 'deepCoadd' in cat]
         if len(deepcoadd):
             if 'forced_src' in self.catalogs:
-                print colored("\nINFO: Matching 'forced_src' and 'deepCoadd' catalogs", "green")
-                print "  - %i sources in the forced-src catalog before selection" % \
-                    len(self.catalogs['forced_src'])
+                print(colored("\nINFO: Matching 'forced_src' and 'deepCoadd' catalogs", "green"))
+                print("  - %i sources in the forced-src catalog before selection" % \
+                      len(self.catalogs['forced_src']))
                 coaddid = 'id' if 'id' in self.catalogs[deepcoadd[0]].keys() else 'objectId'
                 filt = np.where(np.in1d(self.catalogs['forced_src']['objectId'],
                                         self.catalogs[deepcoadd[0]][coaddid]))[0]
                 self.catalogs['forced_src'] = self.catalogs['forced_src'][filt]
-                print "  - %i sources in the forced-src catalog after selection" % \
-                    len(self.catalogs['forced_src'])
+                print("  - %i sources in the forced-src catalog after selection" % \
+                      len(self.catalogs['forced_src']))
             else:
-                print colored("\nWARNING: forced_src catalogs not loaded. No match possible.",
-                              "yellow")
+                print(colored("\nWARNING: forced_src catalogs not loaded. No match possible.",
+                              "yellow"))
         else:
-            print colored("\nWARNING: No deepCoadd* catalog loaded. No match possible.",
-                          "yellow")
+            print(colored("\nWARNING: No deepCoadd* catalog loaded. No match possible.",
+                          "yellow"))
 
     def _add_new_columns(self, catalog=None):
         """Compute magns for all fluxes of a given table. Add the corresponding new columns.
 
         Compute the x/y position in pixel for all sources. Add new columns to the table.
         """
-        print colored("\nINFO: Adding magnitude and coordinates columns", "green")
+        print(colored("\nINFO: Adding magnitude and coordinates columns", "green"))
         catalogs = [catalog] if catalog is not None else self.catalogs
         for catalog in catalogs:
             # skip wcs key
             if catalog == 'wcs':
                 continue
-            print "  - for", catalog
+            print("  - for", catalog)
             columns = []
             # Add magnitudes
             if self.from_butler['getmag'] is not None:
                 kfluxes = [k for k in self.catalogs[catalog].columns if k.endswith('_flux')]
                 ksigmas = [k + 'Sigma' for k in kfluxes]
-                print "    -> getting magnitudes"
+                print("    -> getting magnitudes")
                 for kflux, ksigma in zip(kfluxes, ksigmas):
                     if kflux.replace('_flux', '_mag') in self.catalogs[catalog].keys():
                         continue
@@ -270,39 +272,39 @@ class Catalogs(object):
             dec = Quantity(self.catalogs[catalog]["coord_dec"].tolist(), 'rad')
             # Get the x / y position in pixel
             if self.from_butler['wcs'] is not None:
-                print "    -> getting pixel coordinates"
+                print("    -> getting pixel coordinates")
                 xsrc, ysrc = SkyCoord(ra, dec).to_pixel(self.from_butler['wcs'])
                 columns.append(Column(name='x_Src', data=xsrc,
                                       description='x coordinate', unit='pixel'))
                 columns.append(Column(name='y_Src', data=ysrc,
                                       description='y coordinate', unit='pixel'))
             else:
-                print colored("\nWARNING: no WCS found for this dataset", "yellow")
+                print(colored("\nWARNING: no WCS found for this dataset", "yellow"))
 
             # Get coordinates in degree
-            print "    -> getting degree coordinates"
+            print("    -> getting degree coordinates")
             columns.append(Column(name='coord_ra_deg', data=Angle(ra).degree,
                                   description='RA coordinate', unit='degree'))
             columns.append(Column(name='coord_dec_deg', data=Angle(dec).degree,
                                   description='DEC coordinate', unit='degree'))
 
             # Adding all new columns
-            print "    -> adding all the new columns"
+            print("    -> adding all the new columns")
             self.catalogs[catalog].add_columns(columns)
             # Clean memory before going further
             gc.collect()
 
     def _load_calexp(self, calcat='deepCoadd_calexp', **kwargs):
         """Load the deepCoadd_calexp info in order to get the WCS and the magnitudes."""
-        print colored("\nINFO: Loading the %s info" % calcat, 'green')
+        print(colored("\nINFO: Loading the %s info" % calcat, 'green'))
         self._load_dataids(calcat, **kwargs)
-        print "INFO: Getting the %s catalog for one dataId" % calcat
+        print("INFO: Getting the %s catalog for one dataId" % calcat)
         calexp = self._load_catalog_dataid(calcat, self.dataids[calcat][0], table=False)
-        print "INFO: Getting the magnitude function"
+        print("INFO: Getting the magnitude function")
         calib = calexp.getCalib()
         calib.setThrowOnNegativeFlux(False)
         self.from_butler['getmag'] = calib.getMagnitude
-        print "INFO: Getting the wcs function"
+        print("INFO: Getting the wcs function")
         wcs = calexp.getWcs().getFitsMetadata().toDict()
         self.from_butler['wcs'] = WCS(wcs)
         self.catalogs['wcs'] = Table({k: [wcs[k]] for k in wcs})
@@ -340,20 +342,20 @@ class Catalogs(object):
             self._load_calexp(calcat='calexp', **kwargs)
         for catalog in sorted(catalogs):
             if catalog in self.catalogs and 'update' not in kwargs:
-                print colored("\nWARNING: %s is already loaded. Use 'update' to reload it." %
-                              catalog, "yellow")
+                print(colored("\nWARNING: %s is already loaded. Use 'update' to reload it." %
+                              catalog, "yellow"))
                 continue
             if 'calexp' in catalog:
-                print colored("\nWARNING: Skipping %s. Not a regular catalog (no schema).\n" %
-                              catalog, "yellow")
+                print(colored("\nWARNING: Skipping %s. Not a regular catalog (no schema).\n" %
+                              catalog, "yellow"))
                 continue
-            print colored("\nINFO: Loading the %s catalog" % catalog, 'green')
+            print(colored("\nINFO: Loading the %s catalog" % catalog, 'green'))
             self.keys[catalog] = keys.get(catalog, "*")
             self._load_catalog(catalog, **kwargs)
         self._match_deepcoadd_catalogs()
         if 'output_name' in kwargs and self.from_butler['wcs'] is not None:
             self.save_catalogs(kwargs['output_name'], 'wcs', kwargs.get('overwrite', False))
-        print colored("\nINFO: Done loading the data.", "green")
+        print(colored("\nINFO: Done loading the data.", "green"))
 
     def show_keys(self, catalogs=None):
         """Show all the available keys."""
@@ -361,21 +363,21 @@ class Catalogs(object):
             catalogs = [k for k in self.catalogs.keys() if k != 'wcs']
         catalogs = [catalogs] if isinstance(catalogs, str) else catalogs
         if len(catalogs) == 0:
-            print colored("\nWARNING: No catalog loaded nor given.", "yellow")
+            print(colored("\nWARNING: No catalog loaded nor given.", "yellow"))
             return
         for cat in catalogs:
             if cat not in self.dataids:
-                print colored("\nINFO: Get the available data IDs", "green")
+                print(colored("\nINFO: Get the available data IDs", "green"))
                 self._load_dataids(cat)
-            print colored("\nINFO: Available list of keys for the %s catalog" % cat, "green")
+            print(colored("\nINFO: Available list of keys for the %s catalog" % cat, "green"))
             table = get_astropy_table(self.butler.get(cat, dataId=self.dataids[cat][0],
                                                       flags=afwtable.SOURCE_IO_NO_FOOTPRINTS),
                                       keys="*", get_info=True)
             ktable = Table(np.transpose([[k, table[k].description, table[k].unit]
                                          for k in sorted(table.keys())]).tolist(),
                            names=["Keys", "Description", "Units"])
-            print "  -> %i keys available for %s" % (len(ktable), cat)
-            print "  -> All saved in %s_keys.txt" % cat
+            print("  -> %i keys available for %s" % (len(ktable), cat))
+            print("  -> All saved in %s_keys.txt" % cat)
             ktable.write("%s_keys.txt" % cat, format='ascii')
 
     def save_catalogs(self, output_name, catalog=None, overwrite=False, delete_catalog=False):
@@ -384,10 +386,10 @@ class Catalogs(object):
         gc.collect()
         if not output_name.endswith('.hdf5'):
             output_name += '.hdf5'
-        print colored("\nINFO: Saving the catalogs in %s" % output_name, "green")
+        print(colored("\nINFO: Saving the catalogs in %s" % output_name, "green"))
         catalogs = [catalog] if catalog is not None else self.catalogs
         for cat in catalogs:
-            print "  - saving", cat
+            print("  - saving", cat)
             if not self.append:
                 self.catalogs[cat].write(output_name, path=cat, compression=True,
                                          serialize_meta=True, overwrite=overwrite)
@@ -400,7 +402,7 @@ class Catalogs(object):
                 self.catalogs.pop(cat)
                 self.catalogs[cat] = Table([oid]).copy()
             self.append = True
-        print "INFO: Saving done."
+        print("INFO: Saving done.")
         # Clean memory before loading a new catalog
         gc.collect()
 
@@ -548,7 +550,7 @@ def filter_table(cats):
     filt = cats['deepCoadd_meas']['base_ClassificationExtendedness_flag'] == 0  # keep galaxy
 
     filt &= cats['deepCoadd_meas']['base_ClassificationExtendedness_value'] >= 0.5  # keep galaxy
-    print len(cats['deepCoadd_meas'][filt])
+    print(len(cats['deepCoadd_meas'][filt]))
 
     # Gauss regulerarization flag
     filt &= cats['deepCoadd_meas']['ext_shapeHSM_HsmShapeRegauss_flag'] == 0
@@ -723,13 +725,13 @@ def overwrite_or_append(filename, path, table, overwrite=False):
     """
 
     if not os.path.isfile(filename):
-        print "Creating", filename
+        print("Creating", filename)
         table.write(filename, path=path, compression=True, serialize_meta=True)
     else:
         data = read_hdf5(filename)
         if path in data.keys():
             if overwrite:
-                print "Overwriting path =", path, " in", filename
+                print("Overwriting path =", path, " in", filename)
                 data[path] = table  # update the table with new values
                 os.remove(filename)  # delete file
                 for p in data.keys():  # rewrite all paths/tables to file
@@ -738,6 +740,6 @@ def overwrite_or_append(filename, path, table, overwrite=False):
             else:
                 raise IOError("Path already exists in hdf5 file. Use --overwrite to overwrite.")
         else:
-            print "Adding", path, " to", filename
+            print("Adding", path, " to", filename)
             table.write(filename, path=path, compression=True, serialize_meta=True,
                         append=True) 

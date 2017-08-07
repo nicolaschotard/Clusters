@@ -1,5 +1,7 @@
 """Main entry points for scripts."""
 
+
+from __future__ import print_function
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 from astropy.table import Table, hstack
 from extinctions import reddening
@@ -33,15 +35,15 @@ def extinction(argv=None):
     if args.output is None:
         args.output = args.input
 
-    print "INFO: Working on cluster %s (z=%.4f)" % (config['cluster'], config['redshift'])
-    print "INFO: Working on filters", config['filter']
+    print("INFO: Working on cluster %s (z=%.4f)" % (config['cluster'], config['redshift']))
+    print("INFO: Working on filters", config['filter'])
 
     # Load the data
-    print "INFO: Loading data from ", args.input
+    print("INFO: Loading data from ", args.input)
     data = cdata.read_hdf5(args.input, path='deepCoadd_meas', dic=False)
 
     # Query for E(b-v) and compute the extinction
-    print "INFO: Loading the coordinates"
+    print("INFO: Loading the coordinates")
     red = reddening.Reddening(data['coord_ra_deg'].tolist(), data['coord_dec_deg'].tolist())
     if args.dustmap is not None:
         dustmap = args.dustmap.split(',')
@@ -50,29 +52,29 @@ def extinction(argv=None):
     else:
         dustmap = ['sfd']
     ebmv = {}
-    print "INFO: Getting the dust maps and the corresponding color excesses"
+    print("INFO: Getting the dust maps and the corresponding color excesses")
     for dustm in dustmap:
         ebmv['ebv_%s' % dustm] = red.query_local_map(dustmap=dustm)
 
-    print "INFO: Computing the extinction using the loaded dust maps for all filters"
+    print("INFO: Computing the extinction using the loaded dust maps for all filters")
     albds = {}
     for k in ebmv:
         albd = cextinction.from_ebv_sfd_to_megacam_albd(ebmv[k])
         albds.update({k.replace('ebv_', 'albd_%s_' % f): albd[f] for f in albd})
 
     # Create a new table and save it
-    print "INFO: Stacking the data into a single table"
+    print("INFO: Stacking the data into a single table")
     new_tab = hstack([data['id', 'coord_ra', 'coord_dec', 'filter'],
                       Table(ebmv), Table(albds)], join_type='inner')
 
     cdata.overwrite_or_append(args.output, 'extinction', new_tab, overwrite=args.overwrite)
 
-    print "INFO: Milky Way dust extinction correction applied"
-    print "INFO: Data saved in", args.output
+    print("INFO: Milky Way dust extinction correction applied")
+    print("INFO: Data saved in", args.output)
 
     # Make some plots if asked
     if args.plot:
-        print "INFO: Making some plots"
+        print("INFO: Making some plots")
         filt = new_tab['filter'] == config['filter'][0]
         cextinction.plots(new_tab['coord_ra'][filt],
                           new_tab['coord_dec'][filt],

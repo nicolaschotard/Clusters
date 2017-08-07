@@ -1,5 +1,7 @@
 """Data validation utilisites and plots."""
 
+
+from __future__ import print_function
 import numpy as N
 import pylab as P
 import seaborn
@@ -193,7 +195,7 @@ def stellarLocus(d, mag_type="modelfit_CModel_mag_extcorr",
     fig.set_size_inches(20, 17)
     filename = 'stellarLocusPlot_' + mag_type + '_' + ifilt + '_' + cat + '.png'
     P.savefig(filename, format='png', bbox_inches='tight')
-    print 'Saved plot: ', filename
+    print('Saved plot: ', filename)
     P.show()
 
     ########################################################################################
@@ -233,11 +235,11 @@ def stellarLocus(d, mag_type="modelfit_CModel_mag_extcorr",
     usdss = u_sdss_ug(mus, mgs)
     zsdss = z_sdss_iz(mis, mzs)
     if ifilt == "i_new":
-        print "Will use new i2 (MP9702) filter"
+        print("Will use new i2 (MP9702) filter")
         isdss = i2_sdss_ri(mis, mrs)
         # isdss2 = i2_sdss_gi(mis, mgs)
     else:
-        print "Will use old i (MP9701) filter"
+        print("Will use old i (MP9701) filter")
         isdss = i_sdss_ri(mis, mrs)
         # isdss2 = i_sdss_gi(mis, mgs)
 
@@ -410,7 +412,7 @@ def stellarLocus(d, mag_type="modelfit_CModel_mag_extcorr",
     filename = 'derivedSDSSstellarLocusPlot_' + mag_type + \
                '_' + ifilt + '_' + cat + '.png'
     P.savefig(filename, format='png', bbox_inches='tight')
-    print 'Saved plot: ', filename
+    print('Saved plot: ', filename)
     P.show()
 
     ################################################################################################
@@ -570,7 +572,7 @@ def stellarLocus(d, mag_type="modelfit_CModel_mag_extcorr",
     filename = 'residualsDerivedSDSSvsAnalyticalFit_' + mag_type + '_' + \
                ifilt + '_' + cat + '.png'
     P.savefig(filename, format='png', bbox_inches='tight')
-    print 'Saved plot: ', filename
+    print('Saved plot: ', filename)
     P.show()
 
 

@@ -4,6 +4,7 @@ Assumes that all relevant cuts have been applied to the file already.
 """
 
 
+from __future__ import print_function
 import numpy as np
 # import astropy.table as table
 import astropy.io.fits as pyfits
@@ -109,11 +110,12 @@ class AstropyTableFilehandler(object):
 #       if 'z_flag_pdz_' + options.prefix[:-1] in manager.lensingcat.keys():
         if 'flag_' + options.mconfig['zconfig'] in options.cat.keys():
             if 'zflagconfig' in options.mconfig and options.mconfig['zflagconfig'] == 'pdz':
-                print "Using pdz flag", len(manager.lensingcat[options.cat["flag_" + options.mconfig['zconfig']]['flag_z_pdz'] == True])
+                print("Using pdz flag",
+                      len(manager.lensingcat[options.cat["flag_" + options.mconfig['zconfig']]['flag_z_pdz'] == True]))
                 manager.replace('lensingcat',
                                 manager.lensingcat[options.cat["flag_" + options.mconfig['zconfig']]['flag_z_pdz'] == True])
             elif 'zflagconfig' in options.mconfig and options.mconfig['zflagconfig'] == 'hard':
-                print "Using hard flag",len(manager.lensingcat[options.cat["flag_" + options.mconfig['zconfig']]['flag_z_hard'] == True])
+                print("Using hard flag",len(manager.lensingcat[options.cat["flag_" + options.mconfig['zconfig']]['flag_z_hard'] == True]))
                 manager.replace('lensingcat',
                                  manager.lensingcat[options.cat["flag_" + options.mconfig['zconfig']]['flag_z_hard'] == True])
 

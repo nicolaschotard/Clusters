@@ -4,6 +4,7 @@
 - BPZ: http://www.stsci.edu/~dcoe/BPZ
 """
 
+from __future__ import print_function
 import os
 import sys
 import subprocess
@@ -85,7 +86,7 @@ class LEPHARE(object):
                     f.write("%i %s\n" % (i, " ".join(["%.3f" % m for m in mags])))
 
                 f.close()
-                print "INFO: Input data saved in", self.files['input']
+                print("INFO: Input data saved in", self.files['input'])
         else:
             # Spectroscopic redshift file provided in config.yaml
             # --> Need to write LePhare input file in the LONG format,
@@ -97,7 +98,7 @@ class LEPHARE(object):
             zp = zspec.data['zspec'][idx]
             bad = N.where(d2d.mas > 300)  # identify galaxies with bad match, i.e. dist > 300 mas
             zp[bad] = -99
-            print "INFO: Using " + str(len(idx) - N.size(bad)) + " galaxies for spectroz training"
+            print("INFO: Using " + str(len(idx) - N.size(bad)) + " galaxies for spectroz training")
             if 'filters' in self.kwargs:
                 f.write("# id " + " ".join(["mag_%s" % filt for filt in self.kwargs['filters']]) +
                         " " + " ".join(["err_mag_%s" % filt for filt in self.kwargs['filters']]) +
@@ -119,7 +120,7 @@ class LEPHARE(object):
                                               self.kwargs['ra'][i], self.kwargs['dec'][i],
                                               " ".join(["%.3f" % m for m in mags])))
             f.close()
-            print "INFO: All data saved in", self.files['all_input']
+            print("INFO: All data saved in", self.files['all_input'])
 
     def check_config(self, config=None):
         """
@@ -141,13 +142,13 @@ class LEPHARE(object):
         for lib in libs:
             lib_tmp = path_to_lib + lib + ".bin"
             if not os.path.exists(lib_tmp):
-                print "\nERROR: Requested library %s does not exist " % lib_tmp
-                print "INFO: Available SED libraries are:\n ",
+                print("\nERROR: Requested library %s does not exist " % lib_tmp)
+                print("INFO: Available SED libraries are:\n ")
                 for f in os.listdir(path_to_lib):
                     if f.endswith(".bin"):
-                        print f
-                        print "--> Correct the ZPHOTLIB variable in %s" % self.config + \
-                            "or generate the missing LePhare SED libraries"
+                        print(f)
+                        print("--> Correct the ZPHOTLIB variable in %s" % self.config +
+                              "or generate the missing LePhare SED libraries")
                 sys.exit()
 
         for counter, lib in enumerate(libs):
@@ -159,15 +160,15 @@ class LEPHARE(object):
                         if counter == 0:
                             filt_ref = filt_tmp
                         if filt_tmp != filt_ref:
-                            print "\nERROR: Requested SED libraries %s" % libs + \
-                                " have been built using different filters. Either change the " + \
-                                "requested libraries or re-generate them accordingly."
+                            print("\nERROR: Requested SED libraries %s" % libs +
+                                  " have been built using different filters. Either change the " +
+                                  "requested libraries or re-generate them accordingly.")
                             sys.exit()
 
         path_to_filt = os.environ["LEPHAREWORK"] + "/filt/"
         if not os.path.exists(path_to_filt + filt_ref):
-            print "\nERROR: The FILTER_FILE %s used by the SED libraries %s does not exists." % \
-                ((path_to_filt + filt_ref), libs)
+            print("\nERROR: The FILTER_FILE %s used by the SED libraries %s does not exists." %
+                  (path_to_filt + filt_ref, libs))
             sys.exit()
 
     def run(self, config=None):
@@ -189,11 +190,11 @@ class LEPHARE(object):
         cmd += " -CAT_IN " + self.files['input']
         cmd += " -CAT_OUT " + self.files['output']
         cmd += " -PDZ_OUT " + self.files['pdz_output']
-        print "INFO: Will run '%s'" % cmd
+        print("INFO: Will run '%s'" % cmd)
 
         self.lephare_out = subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True)
-        print "INFO: LEPHARE output summary (full output in self.lephare_out)"
-        print "\n".join(["   " + zo for zo in self.lephare_out.split("\n")[-6:]])
+        print("INFO: LEPHARE output summary (full output in self.lephare_out)")
+        print("\n".join(["   " + zo for zo in self.lephare_out.split("\n")[-6:]]))
 
         self.data_out = ZPHOTO(self.files['output'], self.files['pdz_output'], zcode_name='lephare',
                                all_input=self.files['all_input'], **self.kwargs)
@@ -266,7 +267,7 @@ class BPZ(object):
                 f.write("%i %s\n" % (i, " ".join(["%.3f" % m for m in mags])))
 
             f.close()
-            print "INFO: Input data saved in", self.files['input']
+            print("INFO: Input data saved in", self.files['input'])
         if 'ra' in self.kwargs:
             f = open(self.files['all_input'], 'w')
             if 'filters' in self.kwargs is not None:
@@ -279,7 +280,7 @@ class BPZ(object):
                                               self.kwargs['ra'][i], self.kwargs['dec'][i],
                                               " ".join(["%.3f" % m for m in mags])))
             f.close()
-            print "INFO: All data saved in", self.files['all_input']
+            print("INFO: All data saved in", self.files['all_input'])
 
     def build_columns_file(self, prefix='CFHT_megacam_', sufix='p',
                            filters=None, ref='i', Z_S=False):
@@ -328,11 +329,11 @@ class BPZ(object):
 
         # build command line
         cmd = "python $BPZPATH/bpz.py %s " % self.files['input'] + options
-        print "INFO: Will run '%s'" % cmd
+        print("INFO: Will run '%s'" % cmd)
 
         self.bpz_out = subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True)
-        print "INFO: BPZ output summary (full output in self.bpz_out)"
-        print "\n".join(["   " + zo for zo in self.bpz_out.split("\n")[:20]])
+        print("INFO: BPZ output summary (full output in self.bpz_out)")
+        print("\n".join(["   " + zo for zo in self.bpz_out.split("\n")[:20]]))
 
         self.data_out = ZPHOTO(self.files['output'], self.files['pdz_output'],
                                zcode_name='bpz', all_input=self.files['all_input'],
@@ -423,7 +424,7 @@ class ZPHOTO(object):
 
         cdata.overwrite_or_append(file_out, path_output, new_tab, overwrite=overwrite)
 
-        print "INFO: ", self.code, "data saved in", file_out, "as", path_output
+        print("INFO: ", self.code, "data saved in", file_out, "as", path_output)
 
     def read_input(self):
         """Read the input."""
@@ -515,7 +516,7 @@ class ZPHOTO(object):
     def plot_map(self, title=None, zmin=0, zmax=999):
         """Plot the redshift sky-map."""
         if not hasattr(self, 'input_data'):
-            print "WARNING: No input data given. Cannot plot the redshift map."
+            print("WARNING: No input data given. Cannot plot the redshift map.")
             return
 
         ra, dec, redshift = self.input_data['RA'], self.input_data['DEC'], self.data_dict['Z_BEST']
@@ -573,8 +574,8 @@ class ZSPEC(object):
         radec = N.core.defchararray.add(ra, dec)
         unique_radec, good = N.unique(radec, return_index=True)
         if len(unique_radec) < len(radec):
-            print "INFO: There are " + str(len(radec) - len(unique_radec)) + \
-                " duplicate galaxies in spectroz sample. They are removed."
+            print("INFO: There are " + str(len(radec) - len(unique_radec)) +
+                  " duplicate galaxies in spectroz sample. They are removed.")
         bad = N.delete(N.arange(len(self.data)), good)
         self.data.remove_rows(bad)
 
@@ -698,11 +699,11 @@ class ZSPEC(object):
             ax.errorbar(cuts, z, yerr=ze, label='Individual fits', color='k',
                         capsize=20, elinewidth=3)
             ax.legend(loc='best')
-            print "INFO: Stability over the followed range of selection cuts:"
-            print "       ", cuts
-            print "INFO: Input redshift: %.4f" % zclust
-            print "INFO: Average redshift: %.4f =/- %.4f" % \
-                (N.mean(z), N.sqrt(N.std(z)**2 + N.mean(ze)**2))
+            print("INFO: Stability over the followed range of selection cuts:")
+            print("       ", cuts)
+            print("INFO: Input redshift: %.4f" % zclust)
+            print("INFO: Average redshift: %.4f =/- %.4f" %
+                  (N.mean(z), N.sqrt(N.std(z)**2 + N.mean(ze)**2)))
             P.show()
             return N.mean(z), N.sqrt(N.std(z)**2 + N.mean(ze)**2)
         P.show()

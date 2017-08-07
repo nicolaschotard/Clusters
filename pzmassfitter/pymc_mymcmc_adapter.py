@@ -1,10 +1,14 @@
 """Convert a pymc model to something runnable by mymc."""
 
 
+from __future__ import print_function
 import csv
 import sys
 import os
-import cPickle
+try:
+    import cPickle as pickle  # python 2
+except:
+    import pickle
 import operator
 import pymc
 import numpy as np
@@ -25,7 +29,7 @@ class CompositeParameter(mymc.Parameter):
 
         self.width = width*np.abs(self())
 
-        print self.name, self.width
+        print(self.name, self.width)
 
     def get_value(self):
         return self.masterobj.value[self.index]
@@ -45,7 +49,7 @@ class WrapperParameter(mymc.Parameter):
 
         self.width = width*np.abs(self())
 
-        print self.name, self.width
+        print(self.name, self.width)
 
     def get_value(self):
         return self.masterobj.value
@@ -144,13 +148,13 @@ def wrapModel(model):
     potentials = sorted(potentials, key=operator.attrgetter('__name__'))
     observed = sorted(observed, key=operator.attrgetter('__name__'))
 
-    print [x.__name__ for x in stochastics]
-    print [x.__name__ for x in potentials]
-    print [x.__name__ for x in observed]
+    print([x.__name__ for x in stochastics])
+    print([x.__name__ for x in potentials])
+    print([x.__name__ for x in observed])
 
     all_logp = stochastics + potentials + observed
 
-    print [x.__name__ for x in all_logp]
+    print([x.__name__ for x in all_logp])
 
     def posterior(thing):
         try:
@@ -188,8 +192,8 @@ class MyMCRunner(object):
         if not options.singlecore:
             parallel = MPI.COMM_WORLD
             manager.mpi_rank = MPI.COMM_WORLD.Get_rank()
-            print 'Rank: ', manager.mpi_rank
-            print 'World Size: ', MPI.COMM_WORLD.Get_size()
+            print('Rank: ', manager.mpi_rank)
+            print('World Size: ', MPI.COMM_WORLD.Get_size())
         else:
             parallel = None
             manager.mpi_rank = 0
@@ -209,7 +213,7 @@ class MyMCRunner(object):
             #  load previous proposal distribution
             if os.path.exists(bitsfile):
                 with open(bitsfile, 'rb') as input:
-                    updater.restoreBits(cPickle.load(input))
+                    updater.restoreBits(pickle.load(input))
 
             ## initialize chain to last sampled value
             if os.path.exists(chainfile):
@@ -232,7 +236,7 @@ class MyMCRunner(object):
         manager.engine(options.nsamples, None, backends)
 
         with open(bitsfile, 'wb') as output:
-            cPickle.dump(updater.saveBits(), output)
+            pickle.dump(updater.saveBits(), output)
 
     def addCLOps(self, parser):
         """Add options."""
@@ -328,7 +332,7 @@ class MyMCMemRunner(object):
 def dumpMasses(masses, outputFile):
 
     with open('%s.mass.pkl' % outputFile, 'wb') as output:
-        cPickle.dump(masses, output)
+        pickle.dump(masses, output)
 
     mean = np.mean(masses)
     stddev = np.std(masses)
@@ -360,17 +364,17 @@ def dumpMasses(masses, outputFile):
                  'hpd95' : hpd95,
                  'maxlike' : (ml, (m, p)),
                  'log10maxlike' : (lml, (lm, lp))}
-        cPickle.dump(stats, output)
+        pickle.dump(stats, output)
         output.close()
 
-    print 'mean\t%e' % mean
-    print 'stddev\t%e' % stddev
-    print 'Q2.5\t%e' % quantiles[2.5]
-    print 'Q25\t%e' % quantiles[25]
-    print 'Q50\t%e' % quantiles[50]
-    print 'Q75\t%e' % quantiles[75]
-    print 'Q97.5\t%e' % quantiles[97.5]
-    print 'HPD68\t%e\t%e' % (hpd68[0], hpd68[1])
-    print 'HPD95\t%e\t%e' % (hpd95[0], hpd95[1])
-    print 'MaxLike\t%e\t%e\t%e\n' % (ml, m, p)
-    print 'Log10 Maxlike\t%e\t%e\t%e\n' % (lml, lm, lp)
+    print('mean\t%e' % mean)
+    print('stddev\t%e' % stddev)
+    print('Q2.5\t%e' % quantiles[2.5])
+    print('Q25\t%e' % quantiles[25])
+    print('Q50\t%e' % quantiles[50])
+    print('Q75\t%e' % quantiles[75])
+    print('Q97.5\t%e' % quantiles[97.5])
+    print('HPD68\t%e\t%e' % (hpd68[0], hpd68[1]))
+    print('HPD95\t%e\t%e' % (hpd95[0], hpd95[1]))
+    print('MaxLike\t%e\t%e\t%e\n' % (ml, m, p))
+    print('Log10 Maxlike\t%e\t%e\t%e\n' % (lml, lm, lp))

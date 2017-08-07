@@ -1,5 +1,7 @@
 """Main entry points for scripts."""
 
+
+from __future__ import print_function
 import numpy as N
 from astropy.table import Table
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
@@ -36,20 +38,20 @@ def photometric_redshift(argv=None):
     if args.output is None:  # if no output name specified, append table to input file
         args.output = args.input
 
-    print "INFO: Working on cluster %s (z=%.4f)" % (config['cluster'], config['redshift'])
+    print("INFO: Working on cluster %s (z=%.4f)" % (config['cluster'], config['redshift']))
 
     if 'sim' not in config:
         config['sim'] = {'flag': False}
 
         # Load the data
-        print "INFO: Loading the data from", args.input
+        print("INFO: Loading the data from", args.input)
         tables = cdata.read_hdf5(args.input)
         data = tables['deepCoadd_forced_src']
 
         # Compute extinction-corrected magitudes
         if args.extinction and 'extinction' in tables.keys():
-            print "INFO: Computing extinction-corrected magnitude for", args.mag, \
-                "using the '%s' dust map" % args.dustmap
+            print("INFO: Computing extinction-corrected magnitude for", args.mag,
+                  "using the '%s' dust map" % args.dustmap)
             cdata.correct_for_extinction(data, tables['extinction'], mag=args.mag, ext=args.dustmap)
             args.mag += "_extcorr"
 
@@ -59,14 +61,14 @@ def photometric_redshift(argv=None):
 
         # Apply zeropoints?
         if args.zeropoints is not None:
-            print "INFO: Applying zeropoints for the follwoing filter:"
+            print("INFO: Applying zeropoints for the follwoing filter:")
             fzpoint, zpoint, dzpoint = N.loadtxt(open(args.zeropoints), unpack=True, dtype='string')
             for fz, zp, dzp in zip(fzpoint, zpoint, dzpoint):
                 if fz not in data['filter']:
-                    print " - WARNING: %s not in the filter list" % fz
+                    print(" - WARNING: %s not in the filter list" % fz)
                 else:
-                    print " - correcting %s mags with zp = %.5f +/- %.5f" % \
-                        (fz, float(zp), float(dzp))
+                    print(" - correcting %s mags with zp = %.5f +/- %.5f" %
+                          (fz, float(zp), float(dzp)))
                     data[args.mag][data['filter'] == fz] += float(zp)
                     merr = data[args.mag.replace("_extcorr", "") + "Sigma"][data['filter'] == fz]
                     new_err = N.sqrt(merr ** 2 + float(dzp) ** 2)
@@ -98,7 +100,7 @@ def photometric_redshift(argv=None):
                       'id': data['id' if 'id' in data.keys() else 'objectId'][data['filter'] ==
                                                                               config['filter'][0]]}
             path = zconfig
-            print "INFO: Running", zcode, "using configuration from", zpara, spectro_file
+            print("INFO: Running", zcode, "using configuration from", zpara, spectro_file)
 
             if zcode == 'bpz':  # Run BPZ
                 zphot = czphot.BPZ([data[args.mag][data['filter'] == f] for f in kwargs['filters']],

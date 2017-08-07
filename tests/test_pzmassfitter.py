@@ -1,14 +1,16 @@
+
+
+from __future__ import print_function
 import numpy as np
-import pzmassfitter as pmf
 import pzmassfitter.nfwutils as nfwutils
 import pzmassfitter.nfwmodeltools as nfwmodeltools
 import astropy.table as table
-import tempfile, shutil
+import tempfile
+import shutil
 import yaml
 from clusters.mains import mass
-import cPickle
-import astropy.io.fits as pyfits
 import pzmassfitter.ldac as ldac
+
 
 def setupNearPerfectData(m200 = 1e15):
 
@@ -29,7 +31,7 @@ def setupNearPerfectData(m200 = 1e15):
     zbinsgrid = np.vstack(ngals*[zrange])
 
     beta_true = nfwutils.global_cosmology.beta_s(z_true, zcluster)
-    print 'beta', beta_true
+    print('beta', beta_true)
     
     x_mpc = np.random.uniform(-4, 4, size=ngals)
     y_mpc = np.random.uniform(-4, 4, size=ngals)
@@ -55,7 +57,7 @@ def setupNearPerfectData(m200 = 1e15):
     g_t_true = beta_true*gamma_inf/(1-beta_true*kappa_inf)
     g_x_true = np.zeros_like(g_t_true)
 
-    print 'shear', g_t_true
+    print('shear', g_t_true)
 
     shapenoise = 0.005
     g_t = g_t_true + shapenoise*np.random.standard_normal(ngals)
@@ -121,13 +123,13 @@ def test_pzmassfitter():
         scanfile = '{tmpdir}/mass.out.m200.scan.fits'.format(tmpdir=tmpdir)
         scan = ldac.openObjectFile(scanfile)
         maxlike_mass = scan['Mass'][scan['prob'] == np.max(scan['prob'])]
-        print m200, maxlike_mass, maxlike_mass/m200
+        print(m200, maxlike_mass, maxlike_mass/m200)
         
 
         assert np.abs(maxlike_mass - m200)/m200 < 0.02
 
     except AssertionError:
-        print tmpdir
+        print(tmpdir)
         raise
 
     

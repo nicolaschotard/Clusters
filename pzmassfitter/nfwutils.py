@@ -1,5 +1,7 @@
 """Utilities to calculate NFW Halo Properties."""
 
+
+from __future__ import print_function
 import copy
 import numpy as np
 import scipy.optimize
@@ -204,9 +206,9 @@ def RsMassInsideR(mass, c, z, R, cosmology=global_cosmology):
 
     try:
         rs = scipy.optimize.brenth(f, 0.01, 10.)
-    except ValueError, e:
-        print '!!!!!!!!!!!'
-        print mass, c, f(0.01), f(10.)
+    except ValueError as e:
+        print('!!!!!!!!!!!')
+        print(mass, c, f(0.01), f(10.))
         raise e
 
     return rs

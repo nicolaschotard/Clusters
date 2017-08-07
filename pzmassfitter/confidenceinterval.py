@@ -1,6 +1,7 @@
 """Calculate mode based confidence interval."""
 
 
+from __future__ import print_function
 import numpy as np
 import scipy.integrate as integrate
 import scipy.interpolate as interpolate
@@ -48,7 +49,7 @@ def maxDensityConfidenceRegion(dist, interval=.68, bins=None, range=None):
 
     if bins is None:
         bins = optimalHistogram(dist)
-        print 'Using %d bins' % bins
+        print('Using %d bins' % bins)
 
     counts, edges = np.histogram(dist, bins=bins, range=range)
     center = (edges[0:-1] + edges[1:])/2.
@@ -93,7 +94,7 @@ def maxDensityConfidenceRegion(dist, interval=.68, bins=None, range=None):
             start += 1
             end += 1
     except IndexError:
-        print 'Too few elements for interval calculation'
+        print('Too few elements for interval calculation')
         raise IndexError
 
     err = np.array([maxl - min_int[0], min_int[1] - maxl])

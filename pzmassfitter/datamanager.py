@@ -335,7 +335,7 @@ class DataManager(util.VarContainer):
                                                          methodkeywords=keywords,
                                                          replace=replace))
 
-        except Exception, e:
+        except Exception as e:
             tostore = src
             self.history.append(StoreHistoryItem(name, replace=replace))
 

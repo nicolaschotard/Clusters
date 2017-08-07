@@ -1,5 +1,7 @@
 """Main entry points for scripts."""
 
+
+from __future__ import print_function
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 
 from . import data as cdata
@@ -23,4 +25,4 @@ def pipeline(argv=None):
 
     cdata.load_data()
     cextinction.extinction(argv=None)
-    print "TBD", args.config
+    print("TBD", args.config)
