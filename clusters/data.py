@@ -152,7 +152,11 @@ class Catalogs(object):
         filenames = (self.butler.get(dataset + "_filename",
                                      dataId, immediate=True)[0]
                      for dataId in self.dataids[dataset])
-        headers = (afwimage.readMetadata(fn, 2) for fn in filenames)
+        try:  # In recent stack version, metadata are in HDU 1
+            headers = (afwimage.readMetadata(fn, 1) for fn in filenames)
+        except: # Older stack version
+            headers = (afwimage.readMetadata(fn, 2) for fn in filenames)
+
         size = sum(md.get("NAXIS2") for md in headers)
         cat = self.butler.get(dataset, self.dataids[dataset][0],
                               flags=afwtable.SOURCE_IO_NO_FOOTPRINTS, immediate=True)
@@ -166,15 +170,15 @@ class Catalogs(object):
             cat = self.butler.get(dataset, dataid,
                                   flags=afwtable.SOURCE_IO_NO_FOOTPRINTS)
             catalog.extend(cat, deep=True)
-            for newkey, idk in zip(catadic, sorted(self.dataids[dataset][0].keys())):
-                catadic[newkey].extend([dataid[idk]] * len(cat))
+            for newkey in catadic:
+                catadic[newkey].extend([dataid[newkey]] * len(cat))
             pbar.update(i + 1)
         pbar.finish()
         print("INFO: Merging the dictionnaries")
         catadic.update(catalog.getColumnView().extract(*self.keys[dataset],
                                                        copy=True, ordered=True))
         # Clean memory before going further
-        gc.collect()
+        # gc.collect()
         return catadic
 
     def _load_catalog(self, catalog, **kwargs):
@@ -292,7 +296,7 @@ class Catalogs(object):
             print("    -> adding all the new columns")
             self.catalogs[catalog].add_columns(columns)
             # Clean memory before going further
-            gc.collect()
+            # gc.collect()
 
     def _load_calexp(self, calcat='deepCoadd_calexp', **kwargs):
         """Load the deepCoadd_calexp info in order to get the WCS and the magnitudes."""
@@ -383,13 +387,16 @@ class Catalogs(object):
     def save_catalogs(self, output_name, catalog=None, overwrite=False, delete_catalog=False):
         """Save the catalogs into an hdf5 file."""
         # Clean memory before saving
-        gc.collect()
+        #gc.collect()
         if not output_name.endswith('.hdf5'):
             output_name += '.hdf5'
         print(colored("\nINFO: Saving the catalogs in %s" % output_name, "green"))
         catalogs = [catalog] if catalog is not None else self.catalogs
         for cat in catalogs:
             print("  - saving", cat)
+            for k in self.catalogs[cat].keys():
+                if isinstance(self.catalogs[cat][k][0], str):
+                    self.catalogs[cat].replace_column(k, Column(self.catalogs[cat][k].astype('bytes')))
             if not self.append:
                 self.catalogs[cat].write(output_name, path=cat, compression=True,
                                          serialize_meta=True, overwrite=overwrite)
@@ -404,14 +411,13 @@ class Catalogs(object):
             self.append = True
         print("INFO: Saving done.")
         # Clean memory before loading a new catalog
-        gc.collect()
+        # gc.collect()
 
 
 def progressbar(maxnumber, prefix='loading'):
     """Create and return a standard progress bar."""
     return ProgressBar(widgets=['  - %s ' % prefix, Percentage(), Bar(marker='>'), ETA()],
                        term_width=60, maxval=maxnumber).start()
-
 
 def load_config(config):
     """Load the configuration file, and return the corresponding dictionnary.
@@ -424,14 +430,14 @@ def load_config(config):
 
     # if the user did not provide a 'zphot' key or 'mass' key option,
     # makes sure a default name is setup in the config dictionnary
-#    if 'zphot' not in c.keys() : c['zphot'] = {'zphot_ref':{}} 
-#    if 'mass' not in c.keys() : c['mass'] = {'zconfig':'zphot_ref'} 
+#    if 'zphot' not in c.keys() : c['zphot'] = {'zphot_ref':{}}
+#    if 'mass' not in c.keys() : c['mass'] = {'zconfig':'zphot_ref'}
 
     return c
 
 def shorten(doc):
     """Hack to go around an astropy/hdf5 bug. Cut in half words longer than 18 chars."""
-    return " ".join([w if len(w) < 18 else (w[:len(w) / 2] + ' - ' + w[len(w) / 2:])
+    return " ".join([w if len(w) < 18 else (w[:int(len(w) / 2)] + ' - ' + w[int(len(w) / 2):])
                      for w in doc.split()])
 
 
@@ -534,7 +540,7 @@ def hdf5_paths(hdf5_file):
     :return: The available list of paths in the input hdf5 file
     """
     hdf5_content = h5py.File(hdf5_file, 'r')
-    paths = hdf5_content.keys()
+    paths = list(hdf5_content.keys())
     hdf5_content.close()
     return paths
 
@@ -742,4 +748,4 @@ def overwrite_or_append(filename, path, table, overwrite=False):
         else:
             print("Adding", path, " to", filename)
             table.write(filename, path=path, compression=True, serialize_meta=True,
-                        append=True) 
+                        append=True)
