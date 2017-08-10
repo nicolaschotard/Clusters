@@ -4,7 +4,7 @@ language: python
 
 env:
   global:
-    - REPOSITORY="docker.io/nchotard/clusters-test:centos7-stackv13"
+    - REPOSITORY="docker.io/nchotard/clusters:centos7-stackv13"
     - CONTAINER="lsststack"
   
 services:
