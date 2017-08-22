@@ -7,6 +7,7 @@ from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 from .. import background
 from .. import data as cdata
 
+
 def getbackground(argv=None):
     """Get a cluster background galaxies."""
     description = """Get a cluster background galaxies."""
@@ -30,7 +31,8 @@ def getbackground(argv=None):
                         help="Maximum redshift for photoz hard cut")
     parser.add_argument("--thresh_prob", type=float,
                         help="Threshod redshift probability to select galaxy (in percent)")
-    parser.add_argument("--plot", default=False, action='store_true', help="Make some plots")
+    parser.add_argument("--plot", default=False,
+                        action='store_true', help="Make some plots")
     parser.add_argument("--overwrite", default=False, action='store_true',
                         help="Overwrite the paths in the output file if they exist already")
     parser.add_argument("--rs", default=False, action='store_true',
@@ -57,7 +59,7 @@ def getbackground(argv=None):
     # If the user did not define a configuration to run the photoz,
     # add default one to the config dictionary
     if not 'zphot' in config:
-        config['zphot']={'zphot_ref':{}}
+        config['zphot'] = {'zphot_ref': {}}
 
     # Loop over all zphot configurations found in config.yaml file
     for k in config['zphot'].keys():
@@ -67,16 +69,18 @@ def getbackground(argv=None):
                                                            zmax=args.zmax,
                                                            z_config=z_config,
                                                            thresh=args.thresh_prob,
-                                                           plot=args.plot)                                                
+                                                           plot=args.plot)
         new_tab = hstack([Table([zdata[k]['id' if 'id' in data[k].keys() else 'objectId']], names=['id' if 'id' in data[k].keys() else 'objectId']),
                           Table([z_flag1], names=['flag_z_hard']),
                           Table([z_flag2], names=['flag_z_pdz'])],
                          join_type='inner')
 
-        cdata.overwrite_or_append(args.output, 'flag_' + k, new_tab, overwrite=args.overwrite)
+        cdata.overwrite_or_append(
+            args.output, 'flag_' + k, new_tab, overwrite=args.overwrite)
 
     if args.rs:
-        rs_flag = background.get_rs_background(config, data['deepCoadd_forced_src'])
+        rs_flag = background.get_rs_background(
+            config, data['deepCoadd_forced_src'])
         new_tab = hstack([Table([data['deepCoadd_forced_src']['id' if 'id' in data.keys() else 'objectId']], names=['id' if 'id' in data.keys() else 'objectId']),
                           Table([rs_flag], names=['flag_rs'])],
                          join_type='inner')

@@ -49,7 +49,8 @@ class Kappa(object):
                 apply_decorator(func, numba.vectorize)
 
         # Make sure all list are actually numpy arrays
-        xsrc, ysrc, sch1, sch2 = [np.array(x.tolist()) for x in [xsrc, ysrc, sch1, sch2]]
+        xsrc, ysrc, sch1, sch2 = [np.array(x.tolist()) for x in [
+            xsrc, ysrc, sch1, sch2]]
 
         # Do we have to filter?
         if kwargs.get('filt', None) is not None:
@@ -107,10 +108,11 @@ class Kappa(object):
         r2 = np.arange(int(self.parameters['rmax'] + 0.5))**2
         icut = 1 - np.exp(-r2 / (2.0 * self.parameters['rinner']**2))
         ocut = np.exp(-r2 / (2.0 * self.parameters['router']**2))
-        icut2 = aperture_mass_maturi_filter(np.sqrt(r2 / self.parameters['rinner']**2))
+        icut2 = aperture_mass_maturi_filter(
+            np.sqrt(r2 / self.parameters['rinner']**2))
         # Is the following formula the right one? 6.0 / pi * ... or (6 / pi) * ...?
         wtapmass = 6.0 / np.pi * (1.0 - r2 / self.parameters['aprad']**2) * \
-                   (r2 / self.parameters['aprad']**2)
+            (r2 / self.parameters['aprad']**2)
 
         # Store them
         self.weights = {"invlens": icut * ocut / r2,
@@ -127,9 +129,11 @@ class Kappa(object):
         # Other settings
         for weight in self.weights:
             if weight.startswith('maturi'):
-                self.weights[weight][np.argwhere(r2 > self.parameters['theta0']**2)] = 0
+                self.weights[weight][np.argwhere(
+                    r2 > self.parameters['theta0']**2)] = 0
             if weight.startswith('apmass'):
-                self.weights[weight][np.argwhere(r2 > self.parameters['aprad']**2)] = 0
+                self.weights[weight][np.argwhere(
+                    r2 > self.parameters['aprad']**2)] = 0
             else:
                 self.weights[weight][0] = 0
 
@@ -169,15 +173,18 @@ class Kappa(object):
         """
         # Compute all distance. We get a cube of distances. For each point of the grid, we have an
         # array of distances to all the sources of the catalog. This is a 3d array.
-        dx = self.data['xsrc'].reshape(1, len(self.data['xsrc'])) - self._get_axis_3dgrid(axis='x')
-        dy = self.data['ysrc'].reshape(1, len(self.data['ysrc'])) - self._get_axis_3dgrid(axis='y')
+        dx = self.data['xsrc'].reshape(
+            1, len(self.data['xsrc'])) - self._get_axis_3dgrid(axis='x')
+        dy = self.data['ysrc'].reshape(
+            1, len(self.data['ysrc'])) - self._get_axis_3dgrid(axis='y')
 
         if self.use_numba:
             print("Using numba to slightly speed up the process!")
             self.maps = {}
         # also loop over the x axis to pack them into arrays of 'xsampling' items
         xarange = [i for i in range(len(dx)) if not i % xsampling] + [len(dx)]
-        dxs = [dx[xarange[jj]:xarange[jj + 1]] for jj in range(len(xarange[:-1]))]
+        dxs = [dx[xarange[jj]:xarange[jj + 1]]
+               for jj in range(len(xarange[:-1]))]
         # Now loop over the y axis (explode memory otherwise)
         pbar = cdata.progressbar(len(dy) * (len(xarange) - 1))
         for ii, dyy in enumerate(dy):
@@ -196,22 +203,27 @@ class Kappa(object):
                     cos2phi = (dxxs - dyys) / square_radius
                     sin2phi = 2.0 * dxx * dyy / square_radius
                     # Compute rotated ellipticities
-                    etan.extend(- (self.data['sch1'] * cos2phi + self.data['sch2'] * sin2phi))
-                    ecross.extend(- (self.data['sch2'] * cos2phi - self.data['sch1'] * sin2phi))
+                    etan.extend(- (self.data['sch1'] *
+                                   cos2phi + self.data['sch2'] * sin2phi))
+                    ecross.extend(- (self.data['sch2'] *
+                                     cos2phi - self.data['sch1'] * sin2phi))
                     # Transform cube of distances into a cube of integers
                     # (will serve as indexes for weight)
-                    int_radius.extend(np.array(np.sqrt(square_radius), dtype=int))
+                    int_radius.extend(
+                        np.array(np.sqrt(square_radius), dtype=int))
                 pbar.update(ii + jj + (len(xarange) - 2) * ii + 1)
 
             # Apply this indexes filter to get the right weigth array for each pixel of the grid
             # The output is also a 3D array (nxpoints, nypoints, len(x))
-            weights = {cmap: self.weights[cmap][int_radius] for cmap in self.weights}
+            weights = {cmap: self.weights[cmap][int_radius]
+                       for cmap in self.weights}
             for cmap in self.weights:
                 if cmap not in self.maps:
                     self.maps[cmap] = []
                 sumw = np.sum(weights[cmap], axis=1)
                 cell = ecross if '45' in cmap else etan
-                self.maps[cmap].append(np.sum(weights[cmap] * cell, axis=1) / sumw)
+                self.maps[cmap].append(
+                    np.sum(weights[cmap] * cell, axis=1) / sumw)
         pbar.finish()
 
     def plot_maps(self, clust_coord=None, wcs=None, figsize=(10, 12)):
@@ -237,20 +249,25 @@ class Kappa(object):
             if clust_coord is not None:
                 if clust_coord[0] >= extent[0] and clust_coord[0] <= extent[1] and \
                    clust_coord[1] >= extent[2] and clust_coord[1] <= extent[3]:
-                    ax.plot(clust_coord[0], clust_coord[1], color='g', ms=25, mew=4, marker='+')
+                    ax.plot(clust_coord[0], clust_coord[1],
+                            color='g', ms=25, mew=4, marker='+')
                 elif wcs is None:
                     print("WARNING: You must provide coordinates in degree + the wcs" +
                           " or coordinates in pixel units.")
-                    print("         Use wcs = kappa.load_wcs('data.hdf5') to get the wcs.")
+                    print(
+                        "         Use wcs = kappa.load_wcs('data.hdf5') to get the wcs.")
                 else:
                     xsrc, ysrc = cdata.skycoord_to_pixel(clust_coord, wcs)
                     ax.plot(xsrc, ysrc, color='g', ms=25, mew=4, marker='+')
-            ax.set_xlim(xmin=min(self.data['xsrc']), xmax=max(self.data['xsrc']) + 1)
-            ax.set_ylim(ymin=min(self.data['ysrc']), ymax=max(self.data['ysrc']) + 1)
+            ax.set_xlim(xmin=min(self.data['xsrc']),
+                        xmax=max(self.data['xsrc']) + 1)
+            ax.set_ylim(ymin=min(self.data['ysrc']),
+                        ymax=max(self.data['ysrc']) + 1)
             ax.tick_params(axis='both', labelsize=14)
             if wcs is not None:
                 ra = cdata.pixel_to_skycoord(ax.get_xticks(),
-                                             [np.mean(self.data['ysrc'])] * len(ax.get_xticks()),
+                                             [np.mean(self.data['ysrc'])] *
+                                             len(ax.get_xticks()),
                                              wcs).ra.value
                 dec = cdata.pixel_to_skycoord([np.mean(self.data['xsrc'])] * len(ax.get_yticks()),
                                               ax.get_yticks(),
@@ -281,12 +298,15 @@ class Kappa(object):
             ax = fig.add_subplot(111)
             ax.set_xlabel(xlabel='X-coord (pixel)', fontsize=16)
             ax.set_ylabel(ylabel='Y-coord (pixel)', fontsize=16)
+
             def rebin2(inArray, shape):
-                #rebin of 2D array into shape
-                sh = shape[0],inArray.shape[0]//shape[0],shape[1],inArray.shape[1]//shape[1]
+                # rebin of 2D array into shape
+                sh = shape[0], inArray.shape[0] // shape[0], shape[1], inArray.shape[1] // shape[1]
                 return inArray.reshape(sh).mean(-1).mean(1)
-            gamma1 = np.array(self.maps[cmap])  # rebin2(np.array(self.maps[cmap]),[64,64])
-            gamma2 = np.array(self.maps[cmap+'45'])  # rebin2(np.array(self.maps[cmap+'45']),[64,64])
+            # rebin2(np.array(self.maps[cmap]),[64,64])
+            gamma1 = np.array(self.maps[cmap])
+            # rebin2(np.array(self.maps[cmap+'45']),[64,64])
+            gamma2 = np.array(self.maps[cmap + '45'])
             gamma_mag = (gamma1**2 + gamma2**2)**0.5
             gamma_phi = 0.5 * np.arctan2(gamma2, gamma1)
 
@@ -294,16 +314,16 @@ class Kappa(object):
             gammay = gamma_mag * np.sin(gamma_phi)
             ax.quiver(gammax, gammay)
             ax.set_title(cmap)
-            #extent = (min(self.data['xsrc']) + 0.5, max(self.data['xsrc']) + 0.5,
+            # extent = (min(self.data['xsrc']) + 0.5, max(self.data['xsrc']) + 0.5,
             #          min(self.data['ysrc']) + 0.5, max(self.data['ysrc']) + 0.5)
-            #themap = ax.imshow(self.maps[cmap], origin='lower', zorder=0,
+            # themap = ax.imshow(self.maps[cmap], origin='lower', zorder=0,
             #                   cmap=pl.cm.afmhot, extent=extent)
             #cb = fig.colorbar(themap, pad=0.15 if wcs is not None else 0.05)
             #cb.set_label(cmap, fontsize=20)
-            #cb.ax.tick_params(labelsize=14)
-            #ax.scatter(self.data['xsrc'] - 0.5, self.data['ysrc'] - 0.5,
+            # cb.ax.tick_params(labelsize=14)
+            # ax.scatter(self.data['xsrc'] - 0.5, self.data['ysrc'] - 0.5,
             #           s=3, color='b', zorder=1, alpha=0.4)
-            #if clust_coord is not None:
+            # if clust_coord is not None:
             #    if clust_coord[0] >= extent[0] and clust_coord[0] <= extent[1] and \
             #       clust_coord[1] >= extent[2] and clust_coord[1] <= extent[3]:
             #        ax.plot(clust_coord[0], clust_coord[1], color='g', ms=25, mew=4, marker='+')
@@ -317,7 +337,7 @@ class Kappa(object):
             #ax.set_xlim(xmin=min(self.data['xsrc']), xmax=max(self.data['xsrc']) + 1)
             #ax.set_ylim(ymin=min(self.data['ysrc']), ymax=max(self.data['ysrc']) + 1)
             #ax.tick_params(axis='both', labelsize=14)
-            #if wcs is not None:
+            # if wcs is not None:
             #    ra = cdata.pixel_to_skycoord(ax.get_xticks(),
             #                                 [np.mean(self.data['ysrc'])] * len(ax.get_xticks()),
             #                                 wcs).ra.value
@@ -336,7 +356,7 @@ class Kappa(object):
             #    ax2.set_ylabel("DEC (deg)", fontsize=16)
             #fig.savefig(cmap + ".png")
         pl.show()
-            
+
     def save_maps(self):
         """Save the maps in a fits files."""
         # Now write the files out as fits files
@@ -392,7 +412,7 @@ def squared_array(x):
 @numba_vectorize
 def sqrt_array(x):
     """Squared root of an array."""
-    return x**(1./2)
+    return x**(1. / 2)
 
 
 @numba_vectorize
@@ -458,5 +478,4 @@ def aperture_mass_maturi_filter(tanhx, **kwargs):
     tanhxc = kwargs.get('tanhxc', 0.1)
     return np.tanh(tanhx / tanhxc) / ((tanhx / tanhxc) *
                                       (1 + np.exp(tanha - tanhb * tanhx) +
-                                       np.exp(tanhc * tanhx-tanhd)))
-
+                                       np.exp(tanhc * tanhx - tanhd)))

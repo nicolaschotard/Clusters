@@ -18,7 +18,8 @@ def mass(argv=None):
     parser = ArgumentParser(prog=prog, usage=usage, description=description,
                             formatter_class=ArgumentDefaultsHelpFormatter)
     parser.add_argument('config', help='Configuration (yaml) file')
-    parser.add_argument('input', help='Input data file: output of clusters_data.py, i.e, hdf5 file')
+    parser.add_argument(
+        'input', help='Input data file: output of clusters_data.py, i.e, hdf5 file')
     parser.add_argument("--output",
                         help="Name of the output file (hdf5 file)")
     parser.add_argument("--overwrite", action="store_true", default=False,
@@ -36,15 +37,15 @@ def mass(argv=None):
     # Select the zphot configuration to use for mass estimation
     # If not specified in yaml file, order the zphot configuration names alphabetically
     # and take the first one.
-    
-    mconfig = config['mass'] if 'mass' in config else {'zconfig':'zphot_ref'}
-    tag ='' if 'zflagconfig' not in mconfig else '_'+mconfig['zflagconfig']
-    
+
+    mconfig = config['mass'] if 'mass' in config else {'zconfig': 'zphot_ref'}
+    tag = '' if 'zflagconfig' not in mconfig else '_' + mconfig['zflagconfig']
+
     print("Cluster mass computed using ", mconfig,
           " configuration for photoz estimation and backgroud selection")
 
-
-    print("INFO: Working on cluster %s (z=%.4f)" % (config['cluster'], config['redshift']))
+    print("INFO: Working on cluster %s (z=%.4f)" %
+          (config['cluster'], config['redshift']))
     print("INFO: Working on filters", config['filter'])
 
     # Load the data
@@ -67,16 +68,19 @@ def mass(argv=None):
         logprior = True
 
     if args.output is None:
-        args.output = args.input.replace('.hdf5', '_mass'+mprior+'_cal'+str(wtg_shearcal)+'_'+mconfig['zconfig']+tag+'.hdf5')
+        args.output = args.input.replace('.hdf5', '_mass' + mprior + '_cal' + str(
+            wtg_shearcal) + '_' + mconfig['zconfig'] + tag + '.hdf5')
         if not args.overwrite and os.path.exists(args.output):
-            raise IOError("Output already exists. Remove them or use --overwrite.")
+            raise IOError(
+                "Output already exists. Remove them or use --overwrite.")
 
-    ###let's assume that all quality cuts were made previously
+    # let's assume that all quality cuts were made previously
 
     if args.testing:
         print('TESTING!!!!')
         masscontroller = dmstackdriver.makeTestingController()
-        options, cmdargs = masscontroller.modelbuilder.createOptions(concentration=4.)
+        options, cmdargs = masscontroller.modelbuilder.createOptions(
+            concentration=4.)
         options, cmdargs = masscontroller.runmethod.createOptions(outputFile=args.output,
                                                                   options=options,
                                                                   args=cmdargs)
@@ -93,7 +97,7 @@ def mass(argv=None):
     options, cmdargs = masscontroller.filehandler.createOptions(cluster=cluster,
                                                                 zcluster=zcluster,
                                                                 cat=data,
-                                                                mconfig=mconfig, 
+                                                                mconfig=mconfig,
                                                                 cluster_ra=cluster_ra,
                                                                 cluster_dec=cluster_dec,
                                                                 wtg_shearcal=wtg_shearcal,

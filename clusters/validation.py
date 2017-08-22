@@ -15,7 +15,8 @@ def load_cluster(cluster="MACSJ2243.3-0935", ifilt="i_new"):
     # load astropy tables from hdf5 file
     d = data.read_hdf5(cluster + "_all.hdf5")
     # read extinction law parameters
-    d2 = data.read_hdf5(cluster + "_all_extinction.hdf5", path="extinction", dic=False)
+    d2 = data.read_hdf5(cluster + "_all_extinction.hdf5",
+                        path="extinction", dic=False)
 
     # correct maggnitude for extinction
     data.correct_for_extinction(d['deepCoadd_forced_src'], d2, ifilt=ifilt)
@@ -184,7 +185,8 @@ def stellarLocus(d, mag_type="modelfit_CModel_mag_extcorr",
 
     # i vs g-i
     r, c = 3, 1
-    ax[r, c].scatter(mgs[idx_star] - mis[idx_star], mis[idx_star], s=size, color='b')
+    ax[r, c].scatter(mgs[idx_star] - mis[idx_star],
+                     mis[idx_star], s=size, color='b')
     ax[r, c].set_xlim([-2., 5.0])
     ax[r, c].set_ylim([10., 25.])
     ax[r, c].invert_yaxis()
@@ -291,12 +293,14 @@ def stellarLocus(d, mag_type="modelfit_CModel_mag_extcorr",
     r, c = 0, 0
     ax[r, c].scatter(gsdss[idx_star] - rsdss[idx_star], usdss[idx_star] - gsdss[idx_star], s=size,
                      color='b', label="Dervied SDSS mags for %d stars" % (len(mgs[idx_star])))
-    model_gminusr = N.linspace(-0.3, 1.7, 80)      # range of g-r we want to plot here
+    # range of g-r we want to plot here
+    model_gminusr = N.linspace(-0.3, 1.7, 80)
     # analytical expression is valid over 0.05<(g-i)<4.4 only
-    tofit_gminusi = N.linspace(0.05, 4.4, 1000)  
+    tofit_gminusi = N.linspace(0.05, 4.4, 1000)
     tofit_gminusr = poly_5(gminusr[:6], tofit_gminusi)
     # Fit g-i as a function of g-r
-    fit_gminusi_gminusr= interp1d(tofit_gminusr, tofit_gminusi, kind= 'nearest', bounds_error=False)
+    fit_gminusi_gminusr = interp1d(
+        tofit_gminusr, tofit_gminusi, kind='nearest', bounds_error=False)
     # Use the fit and the range of (g-r) to get (u-g) as a function of (g-r).
     # Filter is used for smooth curve; not always necessary but gets rid of kinky fits in some cases
     ax[r, c].plot(model_gminusr, savgol_filter(poly_5(uminusg[:6],
@@ -307,7 +311,8 @@ def stellarLocus(d, mag_type="modelfit_CModel_mag_extcorr",
     ax[r, c].set_xlim([-0.5, 2.0])
     ax[r, c].set_ylim([0., 5.])
     ax[r, c].tick_params(labelsize=labelsize)
-    ax[r, c].legend(loc="upper left", fontsize=legendfontsize, labelspacing=0.05)
+    ax[r, c].legend(loc="upper left", fontsize=legendfontsize,
+                    labelspacing=0.05)
 
     # g-r vs r-i
     r, c = 0, 1
@@ -315,7 +320,8 @@ def stellarLocus(d, mag_type="modelfit_CModel_mag_extcorr",
                      color='b', label="Dervied SDSS mags for %d stars" % (len(mgs[idx_star])))
     model_rminusi = N.linspace(-0.3, 2.7, 80)
     tofit_rminusi = poly_5(rminusi[:6], tofit_gminusi)
-    fit_gminusi_rminusi = interp1d(tofit_rminusi,tofit_gminusi, kind= 'nearest', bounds_error=False)   
+    fit_gminusi_rminusi = interp1d(
+        tofit_rminusi, tofit_gminusi, kind='nearest', bounds_error=False)
     ax[r, c].plot(model_rminusi, savgol_filter(poly_5(gminusr[:6],
                                                       fit_gminusi_rminusi(model_rminusi)), 7, 1),
                   color='r', label='Covey 2007 model', lw=2)
@@ -324,7 +330,8 @@ def stellarLocus(d, mag_type="modelfit_CModel_mag_extcorr",
     ax[r, c].tick_params(labelsize=labelsize)
     ax[r, c].set_ylabel("g - r", fontsize=ticklabelsize)
     ax[r, c].set_xlabel("r - i", fontsize=ticklabelsize)
-    ax[r, c].legend(loc="lower right", fontsize=legendfontsize, labelspacing=0.05)
+    ax[r, c].legend(loc="lower right",
+                    fontsize=legendfontsize, labelspacing=0.05)
 
     # r-i vs i-z
     r, c = 1, 0
@@ -332,7 +339,8 @@ def stellarLocus(d, mag_type="modelfit_CModel_mag_extcorr",
                      color='b', label="Dervied SDSS mags for %d stars" % (len(mgs[idx_star])))
     model_iminusz = N.linspace(-0.3, 1.7, 80)
     tofit_iminusz = poly_5(iminusz[:6], tofit_gminusi)
-    fit_gminusi_iminusz = interp1d(tofit_iminusz, tofit_gminusi, kind='nearest', bounds_error=False)
+    fit_gminusi_iminusz = interp1d(
+        tofit_iminusz, tofit_gminusi, kind='nearest', bounds_error=False)
     ax[r, c].plot(model_iminusz, savgol_filter(poly_5(rminusi[:6],
                                                       fit_gminusi_iminusz(model_iminusz)), 7, 1),
                   color='r', label='Covey 2007 model', lw=2)
@@ -341,60 +349,69 @@ def stellarLocus(d, mag_type="modelfit_CModel_mag_extcorr",
     ax[r, c].tick_params(labelsize=labelsize)
     ax[r, c].set_xlabel("i - z", fontsize=ticklabelsize)
     ax[r, c].set_ylabel("r - i", fontsize=ticklabelsize)
-    ax[r, c].legend(loc="upper left", fontsize=legendfontsize, labelspacing=0.05)
+    ax[r, c].legend(loc="upper left", fontsize=legendfontsize,
+                    labelspacing=0.05)
 
     # g-r vs g-i
     r, c = 1, 1
     ax[r, c].scatter(gsdss[idx_star] - isdss[idx_star], gsdss[idx_star] - rsdss[idx_star], s=size,
                      color='b', label="Dervied SDSS mags for %d stars" % (len(mgs[idx_star])))
     model = N.linspace(0.05, 3.8, 80)  # range has to be between 0.05, 4.4
-    ax[r, c].plot(model, poly_5(gminusr[:6], model), color='r', label='Covey 2007 model', lw=2)
+    ax[r, c].plot(model, poly_5(gminusr[:6], model),
+                  color='r', label='Covey 2007 model', lw=2)
     ax[r, c].set_xlabel("g - i", fontsize=ticklabelsize)
     ax[r, c].set_ylabel("g - r", fontsize=ticklabelsize)
     ax[r, c].set_xlim([0., 4.0])
     ax[r, c].set_ylim([-0.5, 3.])
     ax[r, c].tick_params(labelsize=labelsize)
-    ax[r, c].legend(loc="upper left", fontsize=legendfontsize,labelspacing=0.05)
+    ax[r, c].legend(loc="upper left", fontsize=legendfontsize,
+                    labelspacing=0.05)
 
     # u-g vs g-i
     r, c = 2, 0
     ax[r, c].scatter(gsdss[idx_star] - isdss[idx_star], usdss[idx_star] - gsdss[idx_star], s=size,
                      color='b', label="Dervied SDSS mags for %d stars" % (len(mgs[idx_star])))
     model = N.linspace(0.05, 3.8, 80)  # range has to be between 0.05, 4.4
-    ax[r, c].plot(model, poly_5(uminusg[:6], model), color='r', label='Covey 2007 model', lw=2)
+    ax[r, c].plot(model, poly_5(uminusg[:6], model),
+                  color='r', label='Covey 2007 model', lw=2)
 
     ax[r, c].set_xlabel("g - i", fontsize=ticklabelsize)
     ax[r, c].set_ylabel("u - g", fontsize=ticklabelsize)
     ax[r, c].set_xlim([0., 4.0])
     ax[r, c].set_ylim([0., 5.])
     ax[r, c].tick_params(labelsize=labelsize)
-    ax[r, c].legend(loc="upper left", fontsize=legendfontsize, labelspacing=0.05,)
+    ax[r, c].legend(loc="upper left", fontsize=legendfontsize,
+                    labelspacing=0.05,)
 
     # r-i vs g-i
     r, c = 2, 1
     ax[r, c].scatter(gsdss[idx_star] - isdss[idx_star], rsdss[idx_star] - isdss[idx_star], s=size,
                      color='b', label="Dervied SDSS mags for %d stars" % (len(mgs[idx_star])))
     model = N.linspace(0.1, 3.8, 80)    # range has to be between 0.05, 4.4
-    ax[r, c].plot(model, poly_5(rminusi[:6], model), color='r', label='Covey 2007 model', lw=2)
+    ax[r, c].plot(model, poly_5(rminusi[:6], model),
+                  color='r', label='Covey 2007 model', lw=2)
     ax[r, c].set_xlim([-0.5, 4.0])
     ax[r, c].set_ylim([-0.5, 2.5])
     ax[r, c].tick_params(labelsize=labelsize)
     ax[r, c].set_xlabel("g - i", fontsize=ticklabelsize)
     ax[r, c].set_ylabel("r - i", fontsize=ticklabelsize)
-    ax[r, c].legend(loc="upper left", fontsize=legendfontsize, labelspacing=0.05,)
+    ax[r, c].legend(loc="upper left", fontsize=legendfontsize,
+                    labelspacing=0.05,)
 
     # i-z vs g-i
     r, c = 3, 0
     ax[r, c].scatter(gsdss[idx_star] - isdss[idx_star], isdss[idx_star] - zsdss[idx_star], s=size,
                      color='b', label="Dervied SDSS mags for %d stars" % (len(mgs[idx_star])))
     model = N.linspace(0.1, 3.8, 80)    # range has to be between 0.05, 4.4
-    ax[r, c].plot(model, poly_5(iminusz[:6], model), color='r', label='Covey 2007 model', lw=2)
+    ax[r, c].plot(model, poly_5(iminusz[:6], model),
+                  color='r', label='Covey 2007 model', lw=2)
     ax[r, c].set_xlim([-0.5, 4.0])
     ax[r, c].set_ylim([-0.5, 2.5])
     ax[r, c].tick_params(labelsize=labelsize)
     ax[r, c].set_xlabel("g - i", fontsize=ticklabelsize)
     ax[r, c].set_ylabel("i - z", fontsize=ticklabelsize)
-    ax[r, c].legend(loc="upper left", fontsize= legendfontsize, labelspacing= 0.05,)
+    ax[r, c].legend(loc="upper left", fontsize=legendfontsize,
+                    labelspacing=0.05,)
 
     # i vs g-i
     r, c = 3, 1
@@ -406,7 +423,8 @@ def stellarLocus(d, mag_type="modelfit_CModel_mag_extcorr",
     ax[r, c].tick_params(labelsize=labelsize)
     ax[r, c].set_xlabel("g - i", fontsize=ticklabelsize)
     ax[r, c].set_ylabel("i", fontsize=ticklabelsize)
-    ax[r, c].legend(loc="upper left", fontsize=legendfontsize, labelspacing=0.05)
+    ax[r, c].legend(loc="upper left", fontsize=legendfontsize,
+                    labelspacing=0.05)
 
     fig.set_size_inches(20, 17)
     filename = 'derivedSDSSstellarLocusPlot_' + mag_type + \
@@ -632,8 +650,10 @@ def check_star_elipticities(d, cat='deepCoadd_meas', oid='id'):
     ax1.tick_params(labelsize=10)
     ax1.legend(loc="lower left", fontsize=10)
 
-    ax2.hist(radius['star'][magi['star'] < 23], bins=80, range=[1.7, 3], color='b')
-    ax2.hist(radius['gal'][magi['gal'] < 23], bins=80, range=[1.7, 3], color='r')
+    ax2.hist(radius['star'][magi['star'] < 23],
+             bins=80, range=[1.7, 3], color='b')
+    ax2.hist(radius['gal'][magi['gal'] < 23],
+             bins=80, range=[1.7, 3], color='r')
     ax2.set_xlabel('Radius in pixels', fontsize=10)
     ax1.set_xlabel('Radius in pixels', fontsize=10)
 

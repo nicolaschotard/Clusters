@@ -46,7 +46,7 @@ class LEPHARE(object):
         self.data = {'mag': magnitudes, 'err': errors}
         self.kwargs = kwargs
         self.config = os.environ["LEPHAREDIR"] + \
-                      "/config/zphot_megacam.para" if zpara is None else zpara
+            "/config/zphot_megacam.para" if zpara is None else zpara
 
         self.spectro_file = spectro_file
         # Name of created files?
@@ -83,7 +83,8 @@ class LEPHARE(object):
                         " " + " ".join(["err_mag_%s" % filt for filt in self.kwargs['filters']]) +
                         "\n")
                 for i, mags in enumerate(N.concatenate([self.data['mag'], self.data['err']]).T):
-                    f.write("%i %s\n" % (i, " ".join(["%.3f" % m for m in mags])))
+                    f.write("%i %s\n" %
+                            (i, " ".join(["%.3f" % m for m in mags])))
 
                 f.close()
                 print("INFO: Input data saved in", self.files['input'])
@@ -91,19 +92,25 @@ class LEPHARE(object):
             # Spectroscopic redshift file provided in config.yaml
             # --> Need to write LePhare input file in the LONG format,
             # i.e with 'context' and 'spectroz' of matching galaxies
-            zspec = ZSPEC(self.spectro_file, names=['object', 'ra', 'dec', 'zspec'])
-            zspec.skycoords = SkyCoord(zspec.data['ra'], zspec.data['dec'], unit='deg')
-            skycoords_cat = SkyCoord(self.kwargs['ra'], self.kwargs['dec'], unit='deg')
+            zspec = ZSPEC(self.spectro_file, names=[
+                          'object', 'ra', 'dec', 'zspec'])
+            zspec.skycoords = SkyCoord(
+                zspec.data['ra'], zspec.data['dec'], unit='deg')
+            skycoords_cat = SkyCoord(
+                self.kwargs['ra'], self.kwargs['dec'], unit='deg')
             idx, d2d, d3d = skycoords_cat.match_to_catalog_sky(zspec.skycoords)
             zp = zspec.data['zspec'][idx]
-            bad = N.where(d2d.mas > 300)  # identify galaxies with bad match, i.e. dist > 300 mas
+            # identify galaxies with bad match, i.e. dist > 300 mas
+            bad = N.where(d2d.mas > 300)
             zp[bad] = -99
-            print("INFO: Using " + str(len(idx) - N.size(bad)) + " galaxies for spectroz training")
+            print("INFO: Using " + str(len(idx) - N.size(bad)) +
+                  " galaxies for spectroz training")
             if 'filters' in self.kwargs:
                 f.write("# id " + " ".join(["mag_%s" % filt for filt in self.kwargs['filters']]) +
                         " " + " ".join(["err_mag_%s" % filt for filt in self.kwargs['filters']]) +
                         " context" + " zspec" + "\n")
-                context = 31  # tells LePhare to run using the u, g, r, i and z bands.
+                # tells LePhare to run using the u, g, r, i and z bands.
+                context = 31
                 for i, mags in enumerate(N.concatenate([self.data['mag'], self.data['err']]).T):
                     f.write("%i %s %s\n" % (i, " ".join(["%.3f" % m for m in mags]),
                                             " ".join(("%i" % context, "%.3f" % zp[i]))))
@@ -192,9 +199,11 @@ class LEPHARE(object):
         cmd += " -PDZ_OUT " + self.files['pdz_output']
         print("INFO: Will run '%s'" % cmd)
 
-        self.lephare_out = subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True)
+        self.lephare_out = subprocess.check_output(
+            cmd, stderr=subprocess.STDOUT, shell=True)
         print("INFO: LEPHARE output summary (full output in self.lephare_out)")
-        print("\n".join(["   " + zo for zo in self.lephare_out.split("\n")[-6:]]))
+        print(
+            "\n".join(["   " + zo for zo in self.lephare_out.split("\n")[-6:]]))
 
         self.data_out = ZPHOTO(self.files['output'], self.files['pdz_output'], zcode_name='lephare',
                                all_input=self.files['all_input'], **self.kwargs)
@@ -288,20 +297,19 @@ class BPZ(object):
 
         Hardcoded for test purpose.
         """
-        if filters is None: # set the default values as the CFHT ones
+        if filters is None:  # set the default values as the CFHT ones
             filters = ['u', 'g', 'r', 'i', 'z']
         f = open(self.files['columns'], 'w')
         f.write("# Filter  columns  AB/Vega  zp_error  zp_offset\n")
         for i, filt in enumerate(filters):
-            f.write("%s%s%s     %i, %i   AB        0.01      0.00\n" % \
+            f.write("%s%s%s     %i, %i   AB        0.01      0.00\n" %
                     (prefix, filt, sufix, i + 2, i + len(filters) + 2))
-            f.write("M_0                 %i\n" \
-                    % [j+2 for j, filt in enumerate(filters) if filt == ref][0])
+            f.write("M_0                 %i\n"
+                    % [j + 2 for j, filt in enumerate(filters) if filt == ref][0])
         if Z_S:
-            f.write("Z_S                  %i\n" % (len(filters)*2+2))
+            f.write("Z_S                  %i\n" % (len(filters) * 2 + 2))
         f.write("ID                    1\n")
         f.close()
-
 
     def run(self):
         """
@@ -322,7 +330,8 @@ class BPZ(object):
         # build command line options from param file
         if self.config is not None:
             opt_arr = N.genfromtxt(self.config, dtype=None)
-            option = ['-' + opt_arr[i, 0] + ' ' + opt_arr[i, 1] for i in N.arange(len(opt_arr))]
+            option = ['-' + opt_arr[i, 0] + ' ' + opt_arr[i, 1]
+                      for i in N.arange(len(opt_arr))]
             options = ' '.join(e for e in option)
         else:
             options = ''
@@ -331,7 +340,8 @@ class BPZ(object):
         cmd = "python $BPZPATH/bpz.py %s " % self.files['input'] + options
         print("INFO: Will run '%s'" % cmd)
 
-        self.bpz_out = subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True)
+        self.bpz_out = subprocess.check_output(
+            cmd, stderr=subprocess.STDOUT, shell=True)
         print("INFO: BPZ output summary (full output in self.bpz_out)")
         print("\n".join(["   " + zo for zo in self.bpz_out.split("\n")[:20]]))
 
@@ -366,26 +376,33 @@ class ZPHOTO(object):
             f.close()
             self.variables = N.loadtxt(os.getenv('LEPHAREDIR') +
                                        "/config/zphot_output.para", dtype='string')
-            self.data_dict = {v: a for v, a in zip(self.variables, self.data_array)}
+            self.data_dict = {v: a for v, a in zip(
+                self.variables, self.data_array)}
             self.nsources = len(self.data_dict['Z_BEST'])
-            self.pdz_zbins = N.loadtxt(self.files['pdz_output'] + '.zph', unpack=True)
-            self.pdz_val = N.loadtxt(self.files['pdz_output'] + '.pdz', unpack=True)
+            self.pdz_zbins = N.loadtxt(
+                self.files['pdz_output'] + '.zph', unpack=True)
+            self.pdz_val = N.loadtxt(
+                self.files['pdz_output'] + '.pdz', unpack=True)
 
         elif self.code == 'bpz':
             self.header = [l for l in f if l.startswith('##')]
             f.seek(0)
-            self.variables = [l[4:].replace(' ', '').split('\n')[0] for l in f if l.startswith('# ')]
+            self.variables = [l[4:].replace(' ', '').split(
+                '\n')[0] for l in f if l.startswith('# ')]
             f.seek(0)
             # BPZ does not provide a zbins file.
             # Needs to create it from zmin, zmax and dz specified in output file
-            zmin = float([line.split('=')[1] for line in f if 'ZMIN' in line][0])
+            zmin = float([line.split('=')[1]
+                          for line in f if 'ZMIN' in line][0])
             f.seek(0)
-            zmax = float([line.split('=')[1] for line in f if 'ZMAX' in line][0])
+            zmax = float([line.split('=')[1]
+                          for line in f if 'ZMAX' in line][0])
             f.seek(0)
             dz = float([line.split('=')[1] for line in f if 'DZ' in line][0])
             f.close()
 
-            self.data_dict = {v: a for v, a in zip(self.variables, self.data_array)}
+            self.data_dict = {v: a for v, a in zip(
+                self.variables, self.data_array)}
             self.nsources = len(self.data_dict['Z_B'])
             self.pdz_zbins = N.arange(zmin, zmax + dz, dz)
             self.pdz_val = N.loadtxt(self.files['pdz_output'], unpack=True,
@@ -422,7 +439,8 @@ class ZPHOTO(object):
         # the data in path, but the whole file, i.e. (we lose all other
         # paths in the process) --> overwrite_or_append (see above)
 
-        cdata.overwrite_or_append(file_out, path_output, new_tab, overwrite=overwrite)
+        cdata.overwrite_or_append(
+            file_out, path_output, new_tab, overwrite=overwrite)
 
         print("INFO: ", self.code, "data saved in", file_out, "as", path_output)
 
@@ -469,7 +487,8 @@ class ZPHOTO(object):
             ax.legend(loc='best')
 
         # Save the figure
-        fig.savefig(self.files['output'].replace('.out', '') + "_" + xlabel + "_zphot_hist.png")
+        fig.savefig(self.files['output'].replace(
+            '.out', '') + "_" + xlabel + "_zphot_hist.png")
 
     def plot(self, px, py, **kwargs):
         """
@@ -509,7 +528,8 @@ class ZPHOTO(object):
             ax.set_title(kwargs['title'])
 
         if 'figname' in kwargs and kwargs['figname'] is not None:
-            fig.savefig(self.files['output'].replace('.out', '') + "_%s_vs_%s_zphot.png" % (py, px))
+            fig.savefig(self.files['output'].replace(
+                '.out', '') + "_%s_vs_%s_zphot.png" % (py, px))
         else:
             fig.savefig("%s_vs_%s_zphot.png" % (py, px))
 
@@ -525,7 +545,7 @@ class ZPHOTO(object):
         filt = (redshift >= zmin) & (redshift < zmax)
         ra, dec, redshift = ra[filt], dec[filt], redshift[filt]
 
-        fig = P.figure() 
+        fig = P.figure()
         ax = fig.add_subplot(111, xlabel='RA (deg)', ylabel='DEC (deg)')
         scat = ax.scatter(ra, dec, c=redshift, cmap=(P.cm.jet))
         cb = fig.colorbar(scat)
@@ -534,7 +554,8 @@ class ZPHOTO(object):
             ax.set_title(title)
         ax.set_xlim(xmin=min(ra) - 0.001, xmax=max(ra) + 0.001)
         ax.set_ylim(ymin=min(dec) - 0.001, ymax=max(dec) + 0.001)
-        fig.savefig(self.files['output'].replace('.out', '') + "_redshift_map.png")
+        fig.savefig(self.files['output'].replace(
+            '.out', '') + "_redshift_map.png")
 
 
 def dict_to_array(d, filters='ugriz'):
@@ -582,7 +603,7 @@ class ZSPEC(object):
         self.skycoords = SkyCoord(self.data['ra'], self.data['dec'], unit=unit)
         self.zphot = self.skycoords_phot = self.match = None
 
-    def load_zphot(self, ra, dec, zphot, unit='deg'): 
+    def load_zphot(self, ra, dec, zphot, unit='deg'):
         """Load the photometric informations and match them to the spectro ones.
 
         :param list ra: List of RA coordinates
@@ -595,7 +616,8 @@ class ZSPEC(object):
         assert len(ra) == len(dec) == len(zphot)
         self.zphot = Table([ra, dec, zphot], names=['ra', 'dec', 'zphot'])
         self.skycoords_phot = SkyCoord(ra, dec, unit=unit)
-        idx, d2d, d3d = self.skycoords.match_to_catalog_sky(self.skycoords_phot)
+        idx, d2d, d3d = self.skycoords.match_to_catalog_sky(
+            self.skycoords_phot)
         self.match = Table([idx, d2d.marcsec, d3d], names=['idx', 'd2d', 'd3d'],
                            meta={'description': ['Indices into first catalog.',
                                                  'On-sky separation between the '
@@ -607,7 +629,8 @@ class ZSPEC(object):
     def plot(self, cut=300, path_to_png=None):
         """Plot a sky-map of the matches."""
         if self.match is None:
-            raise IOError("ERROR: You must load the photometric data first (load_zphot).")
+            raise IOError(
+                "ERROR: You must load the photometric data first (load_zphot).")
 
         zspec = self.data['zspec']
         zphot = self.zphot['zphot'][self.match['idx']]
@@ -619,16 +642,18 @@ class ZSPEC(object):
 
         # z-phot as a function of z-spec
         ax = fig.add_subplot(121, xlabel='Z-spec', ylabel='Z-phot')
-        ax.set_xlim([0,1.5])
-        ax.set_ylim([0,3.5])
+        ax.set_xlim([0, 1.5])
+        ax.set_ylim([0, 3.5])
         scat = ax.scatter(zspec, zphot, c=sdist, cmap=(P.cm.copper))
-        ax.plot(N.arange(int(max(zspec+1))),N.arange(int(max(zspec+1))), c='red')
+        ax.plot(N.arange(int(max(zspec + 1))),
+                N.arange(int(max(zspec + 1))), c='red')
         cb = fig.colorbar(scat)
         cb.set_label('On-sky distance (marcsec)')
         ax.set_title("%i galaxies" % len(self.match[filt]))
 
         # z-phot - zspec as a function of sources on-sky distances
-        ax = fig.add_subplot(122, xlabel='On-sky distance', ylabel='(Z-phot - Z-spec)')
+        ax = fig.add_subplot(122, xlabel='On-sky distance',
+                             ylabel='(Z-phot - Z-spec)')
         scat = ax.scatter(sdist, zphot - zspec, color='k')
         ax.set_title("%i galaxies" % len(self.match[filt]))
         ax.set_xscale('log')
@@ -644,7 +669,8 @@ class ZSPEC(object):
         ax = fig.add_subplot(121, xlabel='ra', ylabel='dec')
         ax.scatter(self.skycoords_phot.ra, self.skycoords_phot.dec,
                    color='k', label='Photo-z', s=15)
-        ax.scatter(self.skycoords.ra, self.skycoords.dec, color='r', label='Spectro-z', s=12)
+        ax.scatter(self.skycoords.ra, self.skycoords.dec,
+                   color='r', label='Spectro-z', s=12)
 
         # radec scatter plot of matched catalogue and zspec galaxies, within the cut criterion
         ax = fig.add_subplot(122, xlabel='ra', ylabel='dec')
@@ -672,7 +698,8 @@ class ZSPEC(object):
         bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
 
         # Use initial guess for the fitting coefficients (A, mu and sigma above)
-        coeff = curve_fit(gauss, bin_centers, hist, p0=[N.max(hist[0]), zclust, 0.3])[0]
+        coeff = curve_fit(gauss, bin_centers, hist, p0=[
+                          N.max(hist[0]), zclust, 0.3])[0]
 
         # Plot
         fig = P.figure()

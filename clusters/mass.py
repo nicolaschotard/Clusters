@@ -38,9 +38,11 @@ def build_table(config='MACSJ2243.3-0935.yaml', datafile='MACSJ2243.3-0935_filte
                             path='bpz', dic=False)['coord_ra_deg', 'coord_dec_deg', 'Z_B',
                                                    'objectId', 'Z_B_MIN', 'Z_B_MAX']
 
-    params = params[[i for i, oid in enumerate(params['objectId']) if oid in objectid]]
+    params = params[[i for i, oid in enumerate(
+        params['objectId']) if oid in objectid]]
     params.add_columns([Column(data=shear.compute_shear(e1i, e2i, distx, disty)[0], name='Tshear'),
-                        Column(data=shear.compute_shear(e1i, e2i, distx, disty)[1], name='Cshear'),
+                        Column(data=shear.compute_shear(
+                            e1i, e2i, distx, disty)[1], name='Cshear'),
                         Column(data=e1i, name='Ell-1-ir'),
                         Column(data=e2i, name='Ell-2-i'),
                         Column(data=sigmai, name='Sigma-ell')])
@@ -58,9 +60,9 @@ def quality_cuts(table):
     filt &= (abs(table["ext_shapeHSM_HsmShapeRegauss_e1"][ifilter]) < 1) & \
             (abs(table["ext_shapeHSM_HsmShapeRegauss_e2"][ifilter]) < 1)
     # er ~= ei
-    filt &= (abs(table["ext_shapeHSM_HsmShapeRegauss_e1"][rfilter] - \
+    filt &= (abs(table["ext_shapeHSM_HsmShapeRegauss_e1"][rfilter] -
                  table["ext_shapeHSM_HsmShapeRegauss_e1"][ifilter]) < 0.5) & \
-            (abs(table["ext_shapeHSM_HsmShapeRegauss_e2"][rfilter] - \
+            (abs(table["ext_shapeHSM_HsmShapeRegauss_e2"][rfilter] -
                  table["ext_shapeHSM_HsmShapeRegauss_e2"][ifilter]) < 0.5)
     return filt
 

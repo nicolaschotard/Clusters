@@ -44,7 +44,8 @@ class Catalogs(object):
         self.catalogs = {}
         self.keys = {}
         self.missing = {}
-        self.from_butler = {'getmag': None, 'wcs': None, 'schema': None, 'extension': None}
+        self.from_butler = {'getmag': None, 'wcs': None,
+                            'schema': None, 'extension': None}
         self.append = False
 
     def _load_dataids(self, catalog, **kwargs):
@@ -63,16 +64,19 @@ class Catalogs(object):
             keys = self.butler.getKeys(catalog)
             if 'tract' in keys:
                 keys.pop('tract')
-                metadata = self.butler.queryMetadata(catalog, format=sorted(keys.keys()))
+                metadata = self.butler.queryMetadata(
+                    catalog, format=sorted(keys.keys()))
                 dataids = [merge_dicts(dict(zip(sorted(keys.keys()), list(v))), {'tract': 0})
                            for v in metadata]
             else:
-                metadata = self.butler.queryMetadata(catalog, format=sorted(keys.keys()))
+                metadata = self.butler.queryMetadata(
+                    catalog, format=sorted(keys.keys()))
                 dataids = [dict(zip(sorted(keys.keys()), [v] if not isinstance(v, list) else v))
                            for v in metadata]
 
         if len(dataids) == 0:
-            raise IOError("No dataIds. Check the catalog, the config file, and path to the bulter.")
+            raise IOError(
+                "No dataIds. Check the catalog, the config file, and path to the bulter.")
 
         # Specific selection make by the user?
         for kwarg in kwargs:
@@ -82,7 +86,8 @@ class Catalogs(object):
             print("  - input: %i data ids" % len(dataids))
             if not isinstance(kwargs[kwarg], list):
                 kwargs[kwarg] = [kwargs[kwarg]]
-            dataids = [dataid for dataid in dataids if dataid[kwarg] in kwargs[kwarg]]
+            dataids = [dataid for dataid in dataids if dataid[kwarg]
+                       in kwargs[kwarg]]
             print("  - selected: %i data ids" % len(dataids))
 
         # Select the ccd/visit according to the input list of patch if given
@@ -103,11 +108,12 @@ class Catalogs(object):
                                  self.butler.datasetExists(catalog, dataId=dataid)]
         print("  - selected: %i data ids" % len(self.dataids[catalog]))
         if len(self.missing[catalog]):
-            print("  - missing: %i data ids (list available in 'self.missing[catalog]':" % \
+            print("  - missing: %i data ids (list available in 'self.missing[catalog]':" %
                   len(self.missing[catalog]))
         print("INFO: %i data ids finally kept" % len(self.dataids[catalog]))
         if len(self.dataids[catalog]) == 0:
-            raise IOError("No data found for this catalog. Remove this catalog from the list.")
+            raise IOError(
+                "No data found for this catalog. Remove this catalog from the list.")
 
     def _get_ccd_visits(self, **kwargs):
         """Return the available ccd/visit according to the input list of patch."""
@@ -140,7 +146,7 @@ class Catalogs(object):
         try:
             cat = self.butler.get(catalog, dataId=dataid,
                                   flags=afwtable.SOURCE_IO_NO_FOOTPRINTS)
-        except: # OperationalError: no such column: flags
+        except:  # OperationalError: no such column: flags
             cat = self.butler.get(catalog, dataId=dataid)
         if self.from_butler['schema'] is None and hasattr(cat, 'getSchema'):
             self.from_butler['schema'] = cat.getSchema()
@@ -154,7 +160,7 @@ class Catalogs(object):
                      for dataId in self.dataids[dataset])
         try:  # In recent stack version, metadata are in HDU 1
             headers = (afwimage.readMetadata(fn, 1) for fn in filenames)
-        except: # Older stack version
+        except:  # Older stack version
             headers = (afwimage.readMetadata(fn, 2) for fn in filenames)
 
         size = sum(md.get("NAXIS2") for md in headers)
@@ -184,17 +190,18 @@ class Catalogs(object):
     def _load_catalog(self, catalog, **kwargs):
         """Load a given catalog."""
         self._load_dataids(catalog, **kwargs)
-        print("INFO: Getting the data from the butler for %i fits files" % \
+        print("INFO: Getting the data from the butler for %i fits files" %
               len(self.dataids[catalog]))
         self.catalogs[catalog] = Table(self._get_catalog(catalog, **kwargs))
         print("INFO: Getting descriptions and units")
         for k in self.catalogs[catalog].keys():
             if k in self.from_butler['schema']:
                 asfield = self.from_butler['schema'][k].asField()
-                self.catalogs[catalog][k].description = shorten(asfield.getDoc())
+                self.catalogs[catalog][k].description = shorten(
+                    asfield.getDoc())
                 self.catalogs[catalog][k].unit = asfield.getUnits()
         self.from_butler['schema'] = None
-        print("INFO: %s catalog loaded (%i sources)" % \
+        print("INFO: %s catalog loaded (%i sources)" %
               (catalog, len(self.catalogs[catalog])))
         self._add_new_columns(catalog)
         if 'matchid' in kwargs and catalog == 'forced_src':
@@ -212,11 +219,13 @@ class Catalogs(object):
                           'green'))
             for dataid in self.missing['deepCoadd_meas']:
                 filt = (self.catalogs['deepCoadd_forced_src']['filter'] == dataid['filter']) & \
-                       (self.catalogs['deepCoadd_forced_src']['patch'] == dataid['patch'])
+                       (self.catalogs['deepCoadd_forced_src']
+                        ['patch'] == dataid['patch'])
                 self.catalogs['deepCoadd_forced_src'] = self.catalogs['deepCoadd_forced_src'][~filt]
             for dataid in self.missing['deepCoadd_forced_src']:
                 filt = (self.catalogs['deepCoadd_meas']['filter'] == dataid['filter']) & \
-                       (self.catalogs['deepCoadd_meas']['patch'] == dataid['patch'])
+                       (self.catalogs['deepCoadd_meas']
+                        ['patch'] == dataid['patch'])
                 self.catalogs['deepCoadd_meas'] = self.catalogs['deepCoadd_meas'][~filt]
 
     def _match_ids(self):
@@ -224,14 +233,16 @@ class Catalogs(object):
         deepcoadd = [cat for cat in self.catalogs if 'deepCoadd' in cat]
         if len(deepcoadd):
             if 'forced_src' in self.catalogs:
-                print(colored("\nINFO: Matching 'forced_src' and 'deepCoadd' catalogs", "green"))
-                print("  - %i sources in the forced-src catalog before selection" % \
+                print(
+                    colored("\nINFO: Matching 'forced_src' and 'deepCoadd' catalogs", "green"))
+                print("  - %i sources in the forced-src catalog before selection" %
                       len(self.catalogs['forced_src']))
-                coaddid = 'id' if 'id' in self.catalogs[deepcoadd[0]].keys() else 'objectId'
+                coaddid = 'id' if 'id' in self.catalogs[deepcoadd[0]].keys(
+                ) else 'objectId'
                 filt = np.where(np.in1d(self.catalogs['forced_src']['objectId'],
                                         self.catalogs[deepcoadd[0]][coaddid]))[0]
                 self.catalogs['forced_src'] = self.catalogs['forced_src'][filt]
-                print("  - %i sources in the forced-src catalog after selection" % \
+                print("  - %i sources in the forced-src catalog after selection" %
                       len(self.catalogs['forced_src']))
             else:
                 print(colored("\nWARNING: forced_src catalogs not loaded. No match possible.",
@@ -255,7 +266,8 @@ class Catalogs(object):
             columns = []
             # Add magnitudes
             if self.from_butler['getmag'] is not None:
-                kfluxes = [k for k in self.catalogs[catalog].columns if k.endswith('_flux')]
+                kfluxes = [
+                    k for k in self.catalogs[catalog].columns if k.endswith('_flux')]
                 ksigmas = [k + 'Sigma' for k in kfluxes]
                 print("    -> getting magnitudes")
                 for kflux, ksigma in zip(kfluxes, ksigmas):
@@ -277,7 +289,8 @@ class Catalogs(object):
             # Get the x / y position in pixel
             if self.from_butler['wcs'] is not None:
                 print("    -> getting pixel coordinates")
-                xsrc, ysrc = SkyCoord(ra, dec).to_pixel(self.from_butler['wcs'])
+                xsrc, ysrc = SkyCoord(ra, dec).to_pixel(
+                    self.from_butler['wcs'])
                 columns.append(Column(name='x_Src', data=xsrc,
                                       description='x coordinate', unit='pixel'))
                 columns.append(Column(name='y_Src', data=ysrc,
@@ -303,7 +316,8 @@ class Catalogs(object):
         print(colored("\nINFO: Loading the %s info" % calcat, 'green'))
         self._load_dataids(calcat, **kwargs)
         print("INFO: Getting the %s catalog for one dataId" % calcat)
-        calexp = self._load_catalog_dataid(calcat, self.dataids[calcat][0], table=False)
+        calexp = self._load_catalog_dataid(
+            calcat, self.dataids[calcat][0], table=False)
         print("INFO: Getting the magnitude function")
         calib = calexp.getCalib()
         calib.setThrowOnNegativeFlux(False)
@@ -358,7 +372,8 @@ class Catalogs(object):
             self._load_catalog(catalog, **kwargs)
         self._match_deepcoadd_catalogs()
         if 'output_name' in kwargs and self.from_butler['wcs'] is not None:
-            self.save_catalogs(kwargs['output_name'], 'wcs', kwargs.get('overwrite', False))
+            self.save_catalogs(kwargs['output_name'],
+                               'wcs', kwargs.get('overwrite', False))
         print(colored("\nINFO: Done loading the data.", "green"))
 
     def show_keys(self, catalogs=None):
@@ -373,7 +388,8 @@ class Catalogs(object):
             if cat not in self.dataids:
                 print(colored("\nINFO: Get the available data IDs", "green"))
                 self._load_dataids(cat)
-            print(colored("\nINFO: Available list of keys for the %s catalog" % cat, "green"))
+            print(
+                colored("\nINFO: Available list of keys for the %s catalog" % cat, "green"))
             table = get_astropy_table(self.butler.get(cat, dataId=self.dataids[cat][0],
                                                       flags=afwtable.SOURCE_IO_NO_FOOTPRINTS),
                                       keys="*", get_info=True)
@@ -387,7 +403,7 @@ class Catalogs(object):
     def save_catalogs(self, output_name, catalog=None, overwrite=False, delete_catalog=False):
         """Save the catalogs into an hdf5 file."""
         # Clean memory before saving
-        #gc.collect()
+        # gc.collect()
         if not output_name.endswith('.hdf5'):
             output_name += '.hdf5'
         print(colored("\nINFO: Saving the catalogs in %s" % output_name, "green"))
@@ -396,7 +412,8 @@ class Catalogs(object):
             print("  - saving", cat)
             for k in self.catalogs[cat].keys():
                 if isinstance(self.catalogs[cat][k][0], str):
-                    self.catalogs[cat].replace_column(k, Column(self.catalogs[cat][k].astype('bytes')))
+                    self.catalogs[cat].replace_column(
+                        k, Column(self.catalogs[cat][k].astype('bytes')))
             if not self.append:
                 self.catalogs[cat].write(output_name, path=cat, compression=True,
                                          serialize_meta=True, overwrite=overwrite)
@@ -419,6 +436,7 @@ def progressbar(maxnumber, prefix='loading'):
     return ProgressBar(widgets=['  - %s ' % prefix, Percentage(), Bar(marker='>'), ETA()],
                        term_width=60, maxval=maxnumber).start()
 
+
 def load_config(config):
     """Load the configuration file, and return the corresponding dictionnary.
 
@@ -435,6 +453,7 @@ def load_config(config):
 
     return c
 
+
 def shorten(doc):
     """Hack to go around an astropy/hdf5 bug. Cut in half words longer than 18 chars."""
     return " ".join([w if len(w) < 18 else (w[:int(len(w) / 2)] + ' - ' + w[int(len(w) / 2):])
@@ -447,7 +466,8 @@ def get_astropy_table(cat, **kwargs):
     :param cat: an afw data table
     :return: the corresponding astropy.table.Table
     """
-    tab = Table(cat.getColumnView().extract(*kwargs['keys'] if 'keys' in kwargs else "*"))
+    tab = Table(cat.getColumnView().extract(
+        *kwargs['keys'] if 'keys' in kwargs else "*"))
     if "get_info" in kwargs:
         schema = kwargs['schema'] if "schema" in kwargs else cat.getSchema()
         for k in tab.keys():
@@ -553,9 +573,11 @@ def filter_table(cats):
     # == Filter the deepCoadd catalogs
 
     # Select galaxies (and reject stars)
-    filt = cats['deepCoadd_meas']['base_ClassificationExtendedness_flag'] == 0  # keep galaxy
+    # keep galaxy
+    filt = cats['deepCoadd_meas']['base_ClassificationExtendedness_flag'] == 0
 
-    filt &= cats['deepCoadd_meas']['base_ClassificationExtendedness_value'] >= 0.5  # keep galaxy
+    # keep galaxy
+    filt &= cats['deepCoadd_meas']['base_ClassificationExtendedness_value'] >= 0.5
     print(len(cats['deepCoadd_meas'][filt]))
 
     # Gauss regulerarization flag
@@ -576,7 +598,8 @@ def filter_table(cats):
 
     # == Only keeps sources with the 'nfilt' filters
     dmg = cats['deepCoadd_meas'][filt].group_by('id')
-    dfg = cats['deepCoadd_forced_src'][filt].group_by('id' if 'id' in cats['deepCoadd_forced_src'].keys() else 'objectId')
+    dfg = cats['deepCoadd_forced_src'][filt].group_by(
+        'id' if 'id' in cats['deepCoadd_forced_src'].keys() else 'objectId')
 
     # Indices difference is a quick way to get the lenght of each group
     filt = (dmg.groups.indices[1:] - dmg.groups.indices[:-1]) == nfilt
@@ -619,15 +642,18 @@ def correct_for_extinction(data, extinction, mag='modelfit_CModel_mag', ext='sfd
     magext = mag + '_extcorr'
 
     # available dust maps
-    dustmaps = set([k.split('_')[-1] for k in extinction.keys() if k.startswith('albd_')])
+    dustmaps = set([k.split('_')[-1]
+                    for k in extinction.keys() if k.startswith('albd_')])
     if ext not in dustmaps:
-        raise IOError("ERROR: The selected dustmap (%s) must be in" % ext, dustmaps)
+        raise IOError("ERROR: The selected dustmap (%s) must be in" %
+                      ext, dustmaps)
 
     # Compute the corrected magnitude for each filter
     mcorr = np.zeros(len(data[mag]))
     for f in filters:
         filt = data['filter'] == (f if 'i' not in f else 'i')
-        mcorr[filt] = data[mag][filt] - extinction['albd_%s_%s' % (f, ext)][filt]
+        mcorr[filt] = data[mag][filt] - \
+            extinction['albd_%s_%s' % (f, ext)][filt]
 
     # Add the new corrected-magnitudes column to the input data table
     data.add_columns([Column(name=magext, data=mcorr, unit='mag',
@@ -670,7 +696,8 @@ def filter_around(data, config, **kwargs):
                                                        if not a.startswith('_')]))))
     filt = (sep >= kwargs.get('exclude_inner', 0)) & \
            (sep < kwargs.get('exclude_outer', np.inf))
-    data_around = vstack([group[filt] for group in datag.groups]) if same_length else data[filt]
+    data_around = vstack(
+        [group[filt] for group in datag.groups]) if same_length else data[filt]
     if plot:
         title = "%s, %.2f < d < %.2f %s cut" % \
                 (config['cluster'], kwargs.get('exclude_inner', 0),
@@ -696,7 +723,8 @@ def plot_coordinates(all_data, filtered_data, cluster_coord=None, title=None):
                    marker='x', s=60)
     if title is not None:
         ax.set_title(title)
-    ax.legend(loc='lower left', scatterpoints=1, frameon=False, fontsize='small')
+    ax.legend(loc='lower left', scatterpoints=1,
+              frameon=False, fontsize='small')
     pylab.show()
 
 
@@ -717,7 +745,8 @@ def plot_patches(catalog, clust_coords=None):
         ax.hlines(max(dec), min(ra), max(ra), color='k')
         ax.legend(loc='best', numpoints=1, frameon=False)
     if clust_coords is not None:
-        ax.scatter(clust_coords['ra'], clust_coords['dec'], s=100, marker='s', color='k')
+        ax.scatter(clust_coords['ra'], clust_coords['dec'],
+                   s=100, marker='s', color='k')
     pylab.show()
 
 
@@ -744,7 +773,8 @@ def overwrite_or_append(filename, path, table, overwrite=False):
                     data[p].write(filename, path=p, compression=True, serialize_meta=True,
                                   append=True)
             else:
-                raise IOError("Path already exists in hdf5 file. Use --overwrite to overwrite.")
+                raise IOError(
+                    "Path already exists in hdf5 file. Use --overwrite to overwrite.")
         else:
             print("Adding", path, " to", filename)
             table.write(filename, path=path, compression=True, serialize_meta=True,

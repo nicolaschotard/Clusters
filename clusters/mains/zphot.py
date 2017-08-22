@@ -38,7 +38,8 @@ def photometric_redshift(argv=None):
     if args.output is None:  # if no output name specified, append table to input file
         args.output = args.input
 
-    print("INFO: Working on cluster %s (z=%.4f)" % (config['cluster'], config['redshift']))
+    print("INFO: Working on cluster %s (z=%.4f)" %
+          (config['cluster'], config['redshift']))
 
     if 'sim' not in config:
         config['sim'] = {'flag': False}
@@ -52,7 +53,8 @@ def photometric_redshift(argv=None):
         if args.extinction and 'extinction' in tables.keys():
             print("INFO: Computing extinction-corrected magnitude for", args.mag,
                   "using the '%s' dust map" % args.dustmap)
-            cdata.correct_for_extinction(data, tables['extinction'], mag=args.mag, ext=args.dustmap)
+            cdata.correct_for_extinction(
+                data, tables['extinction'], mag=args.mag, ext=args.dustmap)
             args.mag += "_extcorr"
 
         # Make sure the selected magnitude does exist in the data table
@@ -62,7 +64,8 @@ def photometric_redshift(argv=None):
         # Apply zeropoints?
         if args.zeropoints is not None:
             print("INFO: Applying zeropoints for the follwoing filter:")
-            fzpoint, zpoint, dzpoint = N.loadtxt(open(args.zeropoints), unpack=True, dtype='string')
+            fzpoint, zpoint, dzpoint = N.loadtxt(
+                open(args.zeropoints), unpack=True, dtype='string')
             for fz, zp, dzp in zip(fzpoint, zpoint, dzpoint):
                 if fz not in data['filter']:
                     print(" - WARNING: %s not in the filter list" % fz)
@@ -70,9 +73,11 @@ def photometric_redshift(argv=None):
                     print(" - correcting %s mags with zp = %.5f +/- %.5f" %
                           (fz, float(zp), float(dzp)))
                     data[args.mag][data['filter'] == fz] += float(zp)
-                    merr = data[args.mag.replace("_extcorr", "") + "Sigma"][data['filter'] == fz]
+                    merr = data[args.mag.replace(
+                        "_extcorr", "") + "Sigma"][data['filter'] == fz]
                     new_err = N.sqrt(merr ** 2 + float(dzp) ** 2)
-                    data[args.mag.replace("_extcorr", "") + "Sigma"][data['filter'] == fz] = new_err
+                    data[args.mag.replace("_extcorr", "") +
+                         "Sigma"][data['filter'] == fz] = new_err
 
     # If the user did not define a configuration to run the photoz,
     # add default one to the config dictionary
@@ -84,15 +89,15 @@ def photometric_redshift(argv=None):
         # Loop over all zphot configurations present in the config.yaml file
         for zconfig in config['zphot'].keys():
             zcode = config['zphot'][zconfig]['code'] \
-                    if 'code' in config['zphot'][zconfig].keys() else 'lephare'
+                if 'code' in config['zphot'][zconfig].keys() else 'lephare'
 
             # If a spectroscopic sample is provided, LEPHARE/BPZ will run using the adaptative
             # method (zero points determination); still to be implemented for BPZ...
 
             zpara = config['zphot'][zconfig]['zpara'] \
-                    if 'zpara' in config['zphot'][zconfig] else None
+                if 'zpara' in config['zphot'][zconfig] else None
             spectro_file = config['zphot'][zconfig]['zspectro_file'] if 'zspectro_file' \
-                           in config['zphot'][zconfig] else None
+                in config['zphot'][zconfig] else None
             kwargs = {'basename': config['cluster'],
                       'filters': [f for f in config['filter'] if f in set(data['filter'].tolist())],
                       'ra': data['coord_ra_deg'][data['filter'] == config['filter'][0]],
@@ -100,7 +105,8 @@ def photometric_redshift(argv=None):
                       'id': data['id' if 'id' in data.keys() else 'objectId'][data['filter'] ==
                                                                               config['filter'][0]]}
             path = zconfig
-            print("INFO: Running", zcode, "using configuration from", zpara, spectro_file)
+            print("INFO: Running", zcode,
+                  "using configuration from", zpara, spectro_file)
 
             if zcode == 'bpz':  # Run BPZ
                 zphot = czphot.BPZ([data[args.mag][data['filter'] == f] for f in kwargs['filters']],
@@ -127,7 +133,8 @@ def photometric_redshift(argv=None):
         # where id corresponds to DM stack ObjectId
         path = 'zphot_ref'
         data_z_sim = N.loadtxt(config['sim']['zfile'],
-                               dtype={'names': ('id', 'z'), 'formats': ('i8', 'f8')},
+                               dtype={'names': ('id', 'z'),
+                                      'formats': ('i8', 'f8')},
                                unpack=True, comments="#")
         min_pdz = 0
         max_pdz = 4
@@ -135,13 +142,15 @@ def photometric_redshift(argv=None):
         zrange = N.arange(min_pdz, max_pdz, pdz_step)
         id_sim = data_z_sim[0]
         z_sim = data_z_sim[1]
-        zbinsgrid = N.vstack(len(id_sim)*[zrange])
+        zbinsgrid = N.vstack(len(id_sim) * [zrange])
         pdz = [N.zeros(len(zrange))]
         for i, z in enumerate(z_sim):
             pdz_tmp = N.zeros(len(zrange))
-            pdz_tmp[N.digitize(z, zrange)] = 1 / pdz_step  # normalised so that int_zmin^zmax pdz = 1
+            # normalised so that int_zmin^zmax pdz = 1
+            pdz_tmp[N.digitize(z, zrange)] = 1 / pdz_step
             pdz = pdz_tmp if i == 0 else N.vstack((pdz, pdz_tmp))
 
         pdz_values = Table([id_sim, z_sim, pdz, zbinsgrid],
                            names=('objectId', 'Z_BEST', 'pdz', 'zbins'))
-        cdata.overwrite_or_append(args.output, path, pdz_values, overwrite=True)
+        cdata.overwrite_or_append(
+            args.output, path, pdz_values, overwrite=True)

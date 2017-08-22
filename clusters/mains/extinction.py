@@ -19,7 +19,8 @@ def extinction(argv=None):
     parser = ArgumentParser(prog=prog, usage=usage, description=description,
                             formatter_class=ArgumentDefaultsHelpFormatter)
     parser.add_argument('config', help='Configuration (yaml) file')
-    parser.add_argument('input', help='Input data file: output of clusters_data.py, i.e, hdf5 file')
+    parser.add_argument(
+        'input', help='Input data file: output of clusters_data.py, i.e, hdf5 file')
     parser.add_argument("--output", help="Name of the output file (hdf5 file)")
     parser.add_argument("--overwrite", action="store_true", default=False,
                         help="Overwrite the paths in the output file if they exist already")
@@ -35,7 +36,8 @@ def extinction(argv=None):
     if args.output is None:
         args.output = args.input
 
-    print("INFO: Working on cluster %s (z=%.4f)" % (config['cluster'], config['redshift']))
+    print("INFO: Working on cluster %s (z=%.4f)" %
+          (config['cluster'], config['redshift']))
     print("INFO: Working on filters", config['filter'])
 
     # Load the data
@@ -44,11 +46,13 @@ def extinction(argv=None):
 
     # Query for E(b-v) and compute the extinction
     print("INFO: Loading the coordinates")
-    red = reddening.Reddening(data['coord_ra_deg'].tolist(), data['coord_dec_deg'].tolist())
+    red = reddening.Reddening(
+        data['coord_ra_deg'].tolist(), data['coord_dec_deg'].tolist())
     if args.dustmap is not None:
         dustmap = args.dustmap.split(',')
     elif "dustmap" in config:
-        dustmap = config['dustmap'] if isinstance(config['dustmap'], list) else [config['dustmap']]
+        dustmap = config['dustmap'] if isinstance(
+            config['dustmap'], list) else [config['dustmap']]
     else:
         dustmap = ['sfd']
     ebmv = {}
@@ -60,14 +64,16 @@ def extinction(argv=None):
     albds = {}
     for k in ebmv:
         albd = cextinction.from_ebv_sfd_to_megacam_albd(ebmv[k])
-        albds.update({k.replace('ebv_', 'albd_%s_' % f): albd[f] for f in albd})
+        albds.update({k.replace('ebv_', 'albd_%s_' %
+                                f): albd[f] for f in albd})
 
     # Create a new table and save it
     print("INFO: Stacking the data into a single table")
     new_tab = hstack([data['id', 'coord_ra', 'coord_dec', 'filter'],
                       Table(ebmv), Table(albds)], join_type='inner')
 
-    cdata.overwrite_or_append(args.output, 'extinction', new_tab, overwrite=args.overwrite)
+    cdata.overwrite_or_append(
+        args.output, 'extinction', new_tab, overwrite=args.overwrite)
 
     print("INFO: Milky Way dust extinction correction applied")
     print("INFO: Data saved in", args.output)

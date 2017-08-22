@@ -25,7 +25,7 @@ def load_data(argv=None):
                         help="List of catalogs to load (coma separated)")
     parser.add_argument("--filter",
                         default=None,
-                        help='Apply basic filters to an already loaded hdf5 file' \
+                        help='Apply basic filters to an already loaded hdf5 file'
                         ', given as an input to this option.')
     parser.add_argument("--nofilter", action="store_true", default=False,
                         help="Do not apply filters on the data. Useful for simulated data.")
@@ -39,17 +39,21 @@ def load_data(argv=None):
 
     if args.output is None:
         output = os.path.basename(args.config).replace('.yaml', '_data.hdf5')
-        output_filtered = os.path.basename(args.config).replace('.yaml', '_filtered_data.hdf5')
+        output_filtered = os.path.basename(
+            args.config).replace('.yaml', '_filtered_data.hdf5')
     else:
-        output = args.output if args.output.endswith('.hdf5') else args.output + ".hdf5"
+        output = args.output if args.output.endswith(
+            '.hdf5') else args.output + ".hdf5"
         output_filtered = output.replace('.hdf5', '_filtered_data.hdf5')
 
     if not args.overwrite and (os.path.exists(output) or os.path.exists(output_filtered)):
-        raise IOError("Output(s) already exist(s). Remove them or use overwrite=True.")
+        raise IOError(
+            "Output(s) already exist(s). Remove them or use overwrite=True.")
 
     print("\nINFO from config file:")
     if 'cluster' in config:
-        print("  - cluster %s (z=%.4f)" % (config['cluster'], config['redshift']))
+        print("  - cluster %s (z=%.4f)" %
+              (config['cluster'], config['redshift']))
     if 'filter' in config:
         print("  - filters", config['filter'])
     if 'patch' in config:

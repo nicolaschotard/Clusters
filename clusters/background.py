@@ -78,7 +78,8 @@ def fit_red_sequence(color, mag, **kwargs):
     verb = kwargs.get('verbose', False)
 
     magref = minm  # Arbitrary reference magnitude for projection
-    diffref = 0.5 * (minc + maxc)  # Arbitrary reference ordinate for projection
+    # Arbitrary reference ordinate for projection
+    diffref = 0.5 * (minc + maxc)
 
     # Project color on an axis perpendicular to the RS band and at an
     # arbitrary magnitude (magref)
@@ -88,11 +89,13 @@ def fit_red_sequence(color, mag, **kwargs):
     alpha = math.atan(islope)
     dy = N.cos(alpha) * ((N.asarray(magref) - mag) * islope + color - diffref)
 
-    idx = N.where((color > minc) & (color < maxc) & (mag < maxm) & (mag > minm))
+    idx = N.where((color > minc) & (color < maxc)
+                  & (mag < maxm) & (mag > minm))
     fig, (ax0) = P.subplots(ncols=1)
     n, bins, patches = ax0.hist(dy[idx], bins=nbins, color='b')
 
-    x = N.asarray([0.5 * (bins[i + 1] - bins[i]) + bins[i] for i in range(len(n))])
+    x = N.asarray([0.5 * (bins[i + 1] - bins[i]) + bins[i]
+                   for i in range(len(n))])
 
     # Fit a gaussian for the RS projection plus an Exponentially Modified
     # Gaussian distribution for the background
@@ -106,7 +109,8 @@ def fit_red_sequence(color, mag, **kwargs):
         return (func(p, z) - y) / (N.sqrt(y) + 1.)
 
     p0 = [n.max(), 0.2, 0.1, -3.0, 1., 1., 40.]  # Initial parameter values
-    p2, cov, infodict, mesg, ier = optimize.leastsq(dist, p0[:], args=(x, n), full_output=True)
+    p2, cov, infodict, mesg, ier = optimize.leastsq(
+        dist, p0[:], args=(x, n), full_output=True)
     ss_err = (infodict['fvec']**2).sum()
 
     if verb:
@@ -144,12 +148,15 @@ def fit_red_sequence(color, mag, **kwargs):
             break
         alpha = math.atan(slope)
         dy = N.cos(alpha) * ((magref - mag) * slope + color - diffref)
-        idx = N.where((color > minc) & (color < maxc) & (mag < maxm) & (mag > minm))
+        idx = N.where((color > minc) & (color < maxc)
+                      & (mag < maxm) & (mag > minm))
         n, bins, = N.histogram(dy[idx], bins=nbins)
 
-        x = N.asarray([0.5 * (bins[i + 1] - bins[i]) + bins[i] for i in range(len(n))])
+        x = N.asarray([0.5 * (bins[i + 1] - bins[i]) + bins[i]
+                       for i in range(len(n))])
         p0 = p2  # Start fit with parameters fitted at the previous step
-        p1, cov, infodict, mesg, ier = optimize.leastsq(ldist, p0[:], args=(x, n), full_output=True)
+        p1, cov, infodict, mesg, ier = optimize.leastsq(
+            ldist, p0[:], args=(x, n), full_output=True)
         val.append(slope)
         sigma.append(p1[2])
         if p1[2] < sigmamin:
@@ -195,10 +202,12 @@ def fit_red_sequence(color, mag, **kwargs):
     # Plot RS projection corresponding to the optimal slope
     alpha = math.atan(slope)
     dy = N.cos(alpha) * ((magref - mag) * fitslope + color - diffref)
-    idx = N.where((color > minc) & (color < maxc) & (mag < maxm) & (mag > minm))
+    idx = N.where((color > minc) & (color < maxc)
+                  & (mag < maxm) & (mag > minm))
     fig, (ax2) = P.subplots(ncols=1)
     n, bins, patches = ax2.hist(dy[idx], bins=nbins, color='b')
-    x = N.asarray([0.5 * (bins[i + 1] - bins[i]) + bins[i] for i in range(len(n))])
+    x = N.asarray([0.5 * (bins[i + 1] - bins[i]) + bins[i]
+                   for i in range(len(n))])
 
     def hfunc(p, z):
         """Function to fit."""
@@ -210,13 +219,15 @@ def fit_red_sequence(color, mag, **kwargs):
         return (hfunc(p, z) - y) / (N.sqrt(y) + 1.)
 
     p0 = param
-    p1, cov, infodict, mesg, ier = optimize.leastsq(hdist, p0[:], args=(x, n), full_output=True)
+    p1, cov, infodict, mesg, ier = optimize.leastsq(
+        hdist, p0[:], args=(x, n), full_output=True)
     ss_err = (infodict['fvec']**2).sum()
     ss_tot = ((n - n.mean()) ** 2).sum()
     rsquared = 1 - (ss_err / ss_tot)
     if verb:
         print("mean %f - sigma %f" % (p1[1], p1[2]))
-        print("Reduced chi2 = %f - R^2 = %f" % (ss_err / (nbins + 6 - 1), rsquared))
+        print("Reduced chi2 = %f - R^2 = %f" %
+              (ss_err / (nbins + 6 - 1), rsquared))
     ax2.plot(bins, hfunc(p1, bins), color='r')
     ax2.tick_params(labelsize=20)
 
@@ -274,9 +285,10 @@ def zphot_cut(zclust, zdata, **kwargs):
 
     # pdz_based cut
     cut = (zbins < zclust + 0.1)
-    
+
     # probability for the cluster to be located below zclust + 0.1
-    filt2 = N.array([N.trapz(pdzi[cut], zbins[cut]) * 100. < thresh for pdzi in pdz])
+    filt2 = N.array([N.trapz(pdzi[cut], zbins[cut])
+                     * 100. < thresh for pdzi in pdz])
 
     if plot:
         fig = P.figure()
@@ -310,23 +322,26 @@ def red_sequence_cut(config, data, **kwargs):
     mcut = kwargs.get('mag_cut', 25.)
     plot = kwargs.get('plot', False)
 
-    da = cosmo.angular_diameter_distance(config['redshift'])  # Mpc - using Planck15 cosmo
+    da = cosmo.angular_diameter_distance(
+        config['redshift'])  # Mpc - using Planck15 cosmo
     rcut_rs = 1 * u.Mpc
     sub_sample = cdata.filter_around(data, config, exclude_outer=N.arctan(rcut_rs / da).value,
                                      unit='rad', plot=plot)
 
     color_gr = sub_sample['modelfit_CModel_mag'][sub_sample['filter'] == 'g'] \
-               - sub_sample['modelfit_CModel_mag'][sub_sample['filter'] == 'r']
+        - sub_sample['modelfit_CModel_mag'][sub_sample['filter'] == 'r']
     mag = sub_sample['modelfit_CModel_mag'][sub_sample['filter'] == 'r']
-    params = fit_red_sequence(color_gr, mag, plot=plot)  # slopes and intercepts of the RS band
+    # slopes and intercepts of the RS band
+    params = fit_red_sequence(color_gr, mag, plot=plot)
 
     # apply cut to entire dataset
     color_gr = data['modelfit_CModel_mag'][data['filter'] == 'g'] \
-               - data['modelfit_CModel_mag'][data['filter'] == 'r']
+        - data['modelfit_CModel_mag'][data['filter'] == 'r']
     mag = data['modelfit_CModel_mag'][data['filter'] == 'r']
     lower_bound = params[0][0] * mag + params[0][1]
     upper_bound = params[1][0] * mag + params[1][1]
-    filt = ((color_gr < lower_bound) & (mag < mcut)) | ((color_gr > upper_bound) & (mag < mcut))
+    filt = ((color_gr < lower_bound) & (mag < mcut)) | (
+        (color_gr > upper_bound) & (mag < mcut))
 
     return filt
 
@@ -342,16 +357,19 @@ def get_zphot_background(config, zdata, zspec=None, z_config=None, thresh=None, 
     print("INFO: Flagging foreground/uncertain objects using redshift information from ", z_config)
     z_flag1, z_flag2 = zphot_cut(config['redshift'], zdata, thresh=thresh,
                                  zmin=zmin, zmax=zmax, plot=plot)
-    print("INFO: %i galaxies have been kept after the hard redshift cut" %(sum(z_flag1)))
-    print("INFO: %i galaxies have been kept after the pdz redshift cut" %(sum(z_flag2)))
+    print("INFO: %i galaxies have been kept after the hard redshift cut" %
+          (sum(z_flag1)))
+    print("INFO: %i galaxies have been kept after the pdz redshift cut" %
+          (sum(z_flag2)))
 
     return (z_flag1, z_flag2)
+
 
 def get_rs_background(config, data):
     """Return flag based on RS criterion for galaxy selection."""
 
     print("INFO: Flagging red sequence galaxies")
     rs_flag = red_sequence_cut(config, data)
-    print("INFO: %i galaxies have been flagged as RS" %(sum(~rs_flag)))
+    print("INFO: %i galaxies have been flagged as RS" % (sum(~rs_flag)))
 
     return rs_flag
