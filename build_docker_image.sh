@@ -46,6 +46,7 @@ git clone https://github.com/nicolaschotard/Clusters.git
 cd Clusters
 
 # Install Clusters and dependencies
+pip install coverage
 pip install -r requirements.txt
 python setup.py install
 
@@ -90,6 +91,7 @@ get_maps.py --select sfd
 coverage run --source="clusters,pzmassfitter" setup.py test
 
 # Cleaning
+cd "$WORKDIR"
 rm -rf Clusters
 '''
 
