@@ -85,13 +85,11 @@ class LensingModel(object):
                           help='Turn on log10 mass prior',
                           default=False, action='store_true')
 
-
     #######################################################
-
 
     def createOptions(self, deltaz95low=-1, deltaz95high=2.5, zbhigh=5,  # zbhigh=1.25 default
                       zcut=0.1, masslow=1e13, masshigh=1e16,
-                      ztypecut=False, radlow=0.75, radhigh=3.0, #radlow=0.75 default
+                      ztypecut=False, radlow=0.75, radhigh=3.0,  # radlow=0.75 default
                       concentration=None, delta=200.,
                       options=None, args=None, logprior=False):
 
@@ -110,11 +108,10 @@ class LensingModel(object):
         options.concentration = concentration
         options.delta = delta
         options.logprior = logprior
-        
+
         return options, None
 
     #######################################################
-
 
     def modelCut(self, manager, minMPC=0.5, maxMPC=3.):
 
@@ -123,8 +120,8 @@ class LensingModel(object):
 
 #        if 'r500' in manager:
  #           manager.comment('Using r500')
-        minMPC = options.radlow   #*manager.r500
-        maxMPC = options.radhigh  #*manager.r500
+        minMPC = options.radlow  # *manager.r500
+        maxMPC = options.radhigh  # *manager.r500
 
         goodObjs = np.logical_and(
             np.logical_and(np.logical_and(manager.inputcat['r_mpc'] > minMPC,
@@ -169,10 +166,11 @@ class LensingModel(object):
 
             type3 = np.logical_and(zt >= 3, zt < 4)
             ztypecut[type3] = np.logical_and(type3, np.logical_or(zb <= 1,
-                                                                  np.logical_and( 1.15 < zb, zb < 1.3)))
-            
+                                                                  np.logical_and(1.15 < zb, zb < 1.3)))
+
             type4 = np.logical_and(zt >= 4, zt < 5)
-            ztypecut[type4] = np.logical_and(type4, np.logical_or(zb < 0.95, np.logical_and(1.15 < zb, zb < 1.3)))
+            ztypecut[type4] = np.logical_and(type4, np.logical_or(
+                zb < 0.95, np.logical_and(1.15 < zb, zb < 1.3)))
 
             type5 = np.logical_and(zt >= 5, zt < 6)
             ztypecut[type5] = False
@@ -180,19 +178,18 @@ class LensingModel(object):
 #        basic_cuts = reduce(np.logical_and, [goodObjs, deltaZcut, zcut, ztypecut])
         basic_cuts = reduce(np.logical_and, [goodObjs, zcut, ztypecut])
 
-
         return basic_cuts
 
     ########################################################################################
-
 
     def makeModelPrior(self, manager, parts):
 
         options = manager.options
 
         if options.concentration is None:
-            parts.log10concentration = pymc.TruncatedNormal('log10concentration', 0.6, 1. / 0.116**2, 
-                                                            np.log10(1.), np.log10(10.))   #tau!
+            parts.log10concentration = pymc.TruncatedNormal('log10concentration', 0.6, 1. / 0.116**2,
+                                                            np.log10(1.), np.log10(10.))  # tau!
+
             @pymc.deterministic
             def cdelta(log10concentration=parts.log10concentration):
                 return 10**log10concentration
@@ -200,32 +197,33 @@ class LensingModel(object):
         else:
             parts.cdelta = options.concentration
 
-
         manager.massdelta = options.delta
         parts.massdelta = options.delta
 
-
         if options.logprior:
-        # Uniform sampling of log(m)
-            parts.log10mdelta = pymc.Uniform('log10mdelta', np.log10(options.masslow), np.log10(options.masshigh))
+            # Uniform sampling of log(m)
+            parts.log10mdelta = pymc.Uniform('log10mdelta', np.log10(
+                options.masslow), np.log10(options.masshigh))
+
             @pymc.deterministic
-            def mdelta(log10mdelta = parts.log10mdelta):
+            def mdelta(log10mdelta=parts.log10mdelta):
                 return 10**log10mdelta
             parts.mdelta = mdelta
 
         else:
-         # Uniform sampling of m        
-            parts.scaledmdelta = pymc.Uniform('scaledmdelta', options.masslow/massscale, options.masshigh/massscale)
-            @pymc.deterministic
-            def mdelta(scaledmdelta = parts.scaledmdelta):
-                return massscale*scaledmdelta
-            parts.mdelta = mdelta
+         # Uniform sampling of m
+            parts.scaledmdelta = pymc.Uniform(
+                'scaledmdelta', options.masslow / massscale, options.masshigh / massscale)
 
+            @pymc.deterministic
+            def mdelta(scaledmdelta=parts.scaledmdelta):
+                return massscale * scaledmdelta
+            parts.mdelta = mdelta
 
         #############################
 
     def makeShapePrior(self, datamanager, parts):
-        #### This is just a stand-in. Subclass for specific examples.
+        # This is just a stand-in. Subclass for specific examples.
 
         inputcat = datamanager.inputcat
 
@@ -234,11 +232,9 @@ class LensingModel(object):
 
         parts.sigma = 0.005
 
-
     ##############################################################
-    ### Likelihood
+    # Likelihood
     ###########
-
 
     def makeLikelihood(self, datamanager, parts):
 
@@ -246,20 +242,24 @@ class LensingModel(object):
 
         pz = datamanager.pz
 
-        parts.r_mpc = np.ascontiguousarray(inputcat['r_mpc'].astype(np.float64))
-        parts.ghats = np.ascontiguousarray(inputcat['ghats'].astype(np.float64))
+        parts.r_mpc = np.ascontiguousarray(
+            inputcat['r_mpc'].astype(np.float64))
+        parts.ghats = np.ascontiguousarray(
+            inputcat['ghats'].astype(np.float64))
         parts.pz = np.ascontiguousarray(pz.astype(np.float64))
 
-        parts.zs = np.ascontiguousarray(np.array(datamanager.pdzrange).astype(np.float64))
+        parts.zs = np.ascontiguousarray(
+            np.array(datamanager.pdzrange).astype(np.float64))
 
-        parts.betas = np.ascontiguousarray(nfwutils.global_cosmology.beta_s(parts.zs, parts.zcluster).astype(np.float64))
+        parts.betas = np.ascontiguousarray(nfwutils.global_cosmology.beta_s(
+            parts.zs, parts.zcluster).astype(np.float64))
         parts.nzbins = len(parts.betas)
 
         parts.rho_c = nfwutils.global_cosmology.rho_crit(parts.zcluster)
         parts.rho_c_over_sigma_c = 1.5 * nfwutils.global_cosmology.angulardist(parts.zcluster) * \
-                                   nfwutils.global_cosmology.beta([1e6], parts.zcluster)[0] * \
-                                   nfwutils.global_cosmology.hubble2(parts.zcluster) / \
-                                   nfwutils.global_cosmology.v_c**2
+            nfwutils.global_cosmology.beta([1e6], parts.zcluster)[0] * \
+            nfwutils.global_cosmology.hubble2(parts.zcluster) / \
+            nfwutils.global_cosmology.v_c**2
 
         parts.data = None
         for i in range(20):
@@ -295,7 +295,6 @@ class LensingModel(object):
                                             rho_c_over_sigma_c,
                                             massdelta)
 
-
                 parts.data = data
 
                 break
@@ -325,7 +324,6 @@ class LensingModel(object):
 
         raise ModelInitException
 
-
     #############
 
     def createModel(self, datamanager):
@@ -335,14 +333,13 @@ class LensingModel(object):
 
 
 #########################################################################
-#########################################################################    
+#########################################################################
 
 
 class ScanModelToFile(object):
 
     def addCLOps(self, parser):
         pass
-
 
     ################
 
@@ -356,12 +353,11 @@ class ScanModelToFile(object):
         options.outputFile = outputFile
         return options, args
 
-
     ##########
 
     def run(self, manager):
 
-        #SCANNING MASS(<1.5MPC)
+        # SCANNING MASS(<1.5MPC)
 
         mass = np.arange(5e13, 1e16, 5e12)
         model = manager.model
@@ -369,14 +365,15 @@ class ScanModelToFile(object):
         scan = np.zeros_like(mass)
         for i, m in enumerate(mass):
             try:
-                model.scaledmdelta.value = m/massscale
+                model.scaledmdelta.value = m / massscale
                 scan[i] = model.logp
             except pymc.ZeroProbability:
                 scan[i] = pymc.PyMCObjects.d_neg_inf
 
         cols = [pyfits.Column(name='Mass', format='E', array=mass),
                 pyfits.Column(name='prob', format='E', array=scan)]
-        manager.cat = ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols)))
+        manager.cat = ldac.LDACCat(
+            pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols)))
         manager.cat.hdu.header.set('EXTNAME', 'OBJECTS')
 
         manager.cat.saveas('{}.m{}.scan.fits'.format(manager.options.outputFile,
@@ -388,7 +385,7 @@ class ScanModelToFile(object):
 
     def calcMasses(self, manager):
 
-        masses = manager.cat['Mass'] 
+        masses = manager.cat['Mass']
         scan = manager.cat['prob']
 
         pdf = np.exp(scan - max(scan))
@@ -404,7 +401,8 @@ class ScanModelToFile(object):
         for i in range(nsamples):
 
             cdf_pick = np.random.uniform()
-            inbin = np.logical_and(np.roll(buffered_cdf, 1) <= cdf_pick, buffered_cdf > cdf_pick)
+            inbin = np.logical_and(
+                np.roll(buffered_cdf, 1) <= cdf_pick, buffered_cdf > cdf_pick)
             manager.masses[i] = masses[inbin[1:-1]][0]
 
     ##########
@@ -415,13 +413,12 @@ class ScanModelToFile(object):
 #        manager.cat.saveas(manager.options.outputFile, clobber=True)
 #
 #
-#        
+#
 #        outputFile = manager.options.outputFile
 #        pma.dumpMasses(manager.masses,'%s.mass15mpc' % outputFile)
 #
 
     ##########
-
 
     def finalize(self, manager):
         pass
@@ -476,10 +473,8 @@ class SampleModelToFile(object):
         with open('%s.chain.pkl' % outputFile, 'wb') as output:
             pickle.dump(manager.chain, output)
 
-
         pma.dumpMasses(np.array(manager.chain['mdelta'][manager.options.burn:]),
                        '%s.m%d' % (outputFile, manager.massdelta))
 
     def finalize(self, manager):
         pass
-

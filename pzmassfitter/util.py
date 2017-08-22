@@ -8,6 +8,7 @@ import numpy as np
 
 class VarContainer(dict):
     """Basic Python Object that is a dual between an object and a dictionary."""
+
     def __getattr__(self, name):
         return self[name]
 
@@ -46,9 +47,11 @@ def loadchains(chainfilenames, trim=False):
 
     takelength = len(chainfiles[0])
     if trim is True:
-        takelength = np.min(np.array([len(chainfile) for chainfile in chainfiles]))
+        takelength = np.min(np.array([len(chainfile)
+                                      for chainfile in chainfiles]))
 
-    rawdata = [np.row_stack([[float(yy) for yy in y] for y in x[1:takelength]]) for x in chainfiles]
+    rawdata = [np.row_stack([[float(yy) for yy in y]
+                             for y in x[1:takelength]]) for x in chainfiles]
 
     columns = chainfiles[0][0]
 

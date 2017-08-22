@@ -86,7 +86,8 @@ class PDZManager(object):
         cols = [pyfits.Column(name='SeqNr', format='J', array=np.array(ids)),
                 pyfits.Column(name='pdz', format='%dE' % npdzs, array=np.array(pdzs))]
 
-        pdzs = ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols)))
+        pdzs = ldac.LDACCat(
+            pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols)))
 
         pdzs.hdu.header.update('MINPDZ', minPDZ)
         pdzs.hdu.header.update('MAXPDZ', maxPDZ)

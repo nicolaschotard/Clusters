@@ -22,7 +22,8 @@ class BentVoigtShapedistro(mm.LensingModel):
 
     def createOptions(self, steppsf='interp', *args, **keywords):
 
-        options, args = super(BentVoigtShapedistro, self).createOptions(*args, **keywords)
+        options, args = super(BentVoigtShapedistro,
+                              self).createOptions(*args, **keywords)
         options.steppsf = steppsf
         return options, args
 
@@ -37,9 +38,9 @@ class BentVoigtShapedistro(mm.LensingModel):
             m_b = -0.011
             c = 0.00042
         elif steppsf == 'interp' or steppsf == 'linear':
-            m_slope = 0.12*(psfSize - 1.53) + 0.212
-            m_b = 0.18*(psfSize - 1.53) - 0.011
-            c = 0.0014*(psfSize - 1.53) + 0.00042
+            m_slope = 0.12 * (psfSize - 1.53) + 0.212
+            m_b = 0.18 * (psfSize - 1.53) - 0.011
+            c = 0.0014 * (psfSize - 1.53) + 0.00042
         elif steppsf == 'd':
             m_slope = 0.255
             m_b = 0.0051
@@ -58,13 +59,15 @@ class BentVoigtShapedistro(mm.LensingModel):
 
         inputcat = data.inputcat
 
-        if data.wtg_shearcal: # use WTG STEP2 shear calibration
-            psfSize = data.psfsize # rh, in pixels
+        if data.wtg_shearcal:  # use WTG STEP2 shear calibration
+            psfSize = data.psfsize  # rh, in pixels
 
-            #disabled since we don't have a STEP calibration for the regauss pipeline in DMSTACK
-            m_slope, m_b, m_cov, c = self.psfDependence(data.options.steppsf, psfSize)
+            # disabled since we don't have a STEP calibration for the regauss pipeline in DMSTACK
+            m_slope, m_b, m_cov, c = self.psfDependence(
+                data.options.steppsf, psfSize)
 
-            parts.step_m_prior = pymc.MvNormalCov('step_m_prior', [m_b, m_slope], m_cov)
+            parts.step_m_prior = pymc.MvNormalCov(
+                'step_m_prior', [m_b, m_slope], m_cov)
 
             @pymc.deterministic(trace=False)
             def shearcal_m(size=inputcat['size'], mprior=parts.step_m_prior):
@@ -74,16 +77,17 @@ class BentVoigtShapedistro(mm.LensingModel):
 
                 m = np.zeros_like(size)
                 m[size >= 2.0] = m_b
-                m[size < 2.0] = m_slope*(size[size < 2.0] - 2.0) +m_b
+                m[size < 2.0] = m_slope * (size[size < 2.0] - 2.0) + m_b
                 return np.ascontiguousarray(m.astype(np.float64))
 
             parts.shearcal_m = shearcal_m
 
-            parts.step_c_prior = pymc.Normal('step_c_prior', c, 1./(0.0004**2))
+            parts.step_c_prior = pymc.Normal(
+                'step_c_prior', c, 1. / (0.0004**2))
 
             @pymc.deterministic(trace=False)
             def shearcal_c(size=inputcat['size'], cprior=parts.step_c_prior):
-                c = cprior*np.ones_like(size)
+                c = cprior * np.ones_like(size)
                 return np.ascontiguousarray(c.astype(np.float64))
 
             parts.shearcal_c = shearcal_c
@@ -92,8 +96,8 @@ class BentVoigtShapedistro(mm.LensingModel):
             parts.shearcal_m = np.zeros(len(inputcat))
             parts.shearcal_c = np.zeros(len(inputcat))
 
-        parts.sigma = pymc.Uniform('sigma', 0.15, 0.5) #sigma
-        parts.gamma = pymc.Uniform('gamma', 0.003, 0.1) #gamma
+        parts.sigma = pymc.Uniform('sigma', 0.15, 0.5)  # sigma
+        parts.gamma = pymc.Uniform('gamma', 0.003, 0.1)  # gamma
 
     def sampler_callback(self, mcmc):
 
@@ -107,14 +111,19 @@ class BentVoigtShapedistro(mm.LensingModel):
 
         pz = datamanager.pz
 
-        parts.r_mpc = np.ascontiguousarray(inputcat['r_mpc'].astype(np.float64))
-        parts.ghats = np.ascontiguousarray(inputcat['ghats'].astype(np.float64))
+        parts.r_mpc = np.ascontiguousarray(
+            inputcat['r_mpc'].astype(np.float64))
+        parts.ghats = np.ascontiguousarray(
+            inputcat['ghats'].astype(np.float64))
         parts.pz = np.ascontiguousarray(pz.astype(np.float64))
-        parts.zs = np.ascontiguousarray(np.array(datamanager.pdzrange).astype(np.float64))
-        parts.betas = np.ascontiguousarray(gc.beta_s(parts.zs, parts.zcluster).astype(np.float64))
+        parts.zs = np.ascontiguousarray(
+            np.array(datamanager.pdzrange).astype(np.float64))
+        parts.betas = np.ascontiguousarray(
+            gc.beta_s(parts.zs, parts.zcluster).astype(np.float64))
         parts.nzbins = len(parts.betas)
         parts.rho_c = gc.rho_crit(parts.zcluster)
-        parts.rho_c_over_sigma_c = 1.5 * gc.angulardist(parts.zcluster) * gc.beta([1e6], parts.zcluster)[0] * gc.hubble2(parts.zcluster) / gc.v_c**2
+        parts.rho_c_over_sigma_c = 1.5 * gc.angulardist(parts.zcluster) * gc.beta(
+            [1e6], parts.zcluster)[0] * gc.hubble2(parts.zcluster) / gc.v_c**2
         parts.data = None
         for i in range(10):
             try:
@@ -173,11 +182,11 @@ def bentvoigt3PsfDependence(steppsf, psfSize):
         c = 0.00107
 
     elif steppsf == 'interp' or steppsf == 'linear':
-        delta = psfSize - 1.53  #reference to psfA
-        pivot = delta*(-0.118) + 1.97
-        m_b = delta*(0.118) - 0.028
-        m_slope = 0.059*delta + 0.2
-        c = 0.0018*delta - 9.6e-06
+        delta = psfSize - 1.53  # reference to psfA
+        pivot = delta * (-0.118) + 1.97
+        m_b = delta * (0.118) - 0.028
+        m_slope = 0.059 * delta + 0.2
+        c = 0.0018 * delta - 9.6e-06
 
     # pivot, m_b, m_slope for dec 7 from PSF Afg
     m_cov = bentvoigt3cov
@@ -191,8 +200,10 @@ class BentVoigt3Shapedistro(BentVoigtShapedistro):
 
         inputcat = data.inputcat
         psfSize = data.psfsize
-        pivot, m_slope, m_b, m_cov, c = bentvoigt3PsfDependence(data.options.steppsf, psfSize)
-        parts.step_m_prior = pymc.MvNormalCov('step_m_prior', [pivot, m_b, m_slope], m_cov)
+        pivot, m_slope, m_b, m_cov, c = bentvoigt3PsfDependence(
+            data.options.steppsf, psfSize)
+        parts.step_m_prior = pymc.MvNormalCov(
+            'step_m_prior', [pivot, m_b, m_slope], m_cov)
 
         @pymc.deterministic(trace=False)
         def shearcal_m(size=inputcat['size'], mprior=parts.step_m_prior):
@@ -203,19 +214,19 @@ class BentVoigt3Shapedistro(BentVoigtShapedistro):
 
             m = np.zeros_like(size)
             m[size >= pivot] = m_b
-            m[size < pivot] = m_slope*(size[size < pivot] - pivot) + m_b
+            m[size < pivot] = m_slope * (size[size < pivot] - pivot) + m_b
 
             return np.ascontiguousarray(m.astype(np.float64))
 
         parts.shearcal_m = shearcal_m
 
-        parts.step_c_prior = pymc.Normal('step_c_prior', c, 1./(0.0004**2))
+        parts.step_c_prior = pymc.Normal('step_c_prior', c, 1. / (0.0004**2))
 
         @pymc.deterministic(trace=False)
         def shearcal_c(size=inputcat['size'], cprior=parts.step_c_prior):
-            c = cprior*np.ones_like(size)
+            c = cprior * np.ones_like(size)
             return np.ascontiguousarray(c.astype(np.float64))
 
         parts.shearcal_c = shearcal_c
-        parts.sigma = pymc.Uniform('sigma', 0.15, 0.5) #sigma
-        parts.gamma = pymc.Uniform('gamma', 0.003, 0.1) #gamma
+        parts.sigma = pymc.Uniform('sigma', 0.15, 0.5)  # sigma
+        parts.gamma = pymc.Uniform('gamma', 0.003, 0.1)  # gamma

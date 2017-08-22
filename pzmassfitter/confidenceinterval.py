@@ -9,7 +9,7 @@ import scipy.optimize as optimize
 import scipy.ndimage
 
 
-def measureConfidenceInterval(dist, bins=50, interval = 0.68):
+def measureConfidenceInterval(dist, bins=50, interval=0.68):
     """For single peaked quantities only. You need to figure that out first."""
 
     counts, edges = np.histogram(dist, bins=bins)
@@ -22,9 +22,10 @@ def measureConfidenceInterval(dist, bins=50, interval = 0.68):
     leftEdge = np.min(centers[densityorder][inInterval])
     rightEdge = np.max(centers[densityorder][inInterval])
     binsize = edges[1:] - edges[:-1]
-    density = counts / np.sum(binsize*counts)
+    density = counts / np.sum(binsize * counts)
 
-    pdf = interpolate.interp1d(centers, density, bounds_error=False, fill_value=0., kind='cubic')
+    pdf = interpolate.interp1d(
+        centers, density, bounds_error=False, fill_value=0., kind='cubic')
 
     def findBound(x, threshold):
         return pdf(x) - threshold
@@ -52,7 +53,7 @@ def maxDensityConfidenceRegion(dist, interval=.68, bins=None, range=None):
         print('Using %d bins' % bins)
 
     counts, edges = np.histogram(dist, bins=bins, range=range)
-    center = (edges[0:-1] + edges[1:])/2.
+    center = (edges[0:-1] + edges[1:]) / 2.
     maxl = center[counts == np.max(counts)]
     try:
         if len(maxl) > 1:
@@ -71,7 +72,7 @@ def maxDensityConfidenceRegion(dist, interval=.68, bins=None, range=None):
         n = len(x)
 
         # Start at far left
-        start, end = 0, int(n*interval)
+        start, end = 0, int(n * interval)
         hi, lo = x[end], x[start]
 
         # Initialize minimum width to large value
@@ -110,8 +111,8 @@ def optimalHistogram(samples, bins=np.array([25, 50, 100, 200, 400, 800, 1600]),
         counts, edges = np.histogram(samples, nbin)
         widths = edges[1:] - edges[:-1]
         nonzero = counts > 0
-        loglikes = counts[nonzero]*(np.log(counts[nonzero] + alpha - 1) -
-                                    np.log(widths[nonzero]*(np.sum(counts + alpha) - 1)))
+        loglikes = counts[nonzero] * (np.log(counts[nonzero] + alpha - 1) -
+                                      np.log(widths[nonzero] * (np.sum(counts + alpha) - 1)))
         loglike = np.sum(loglikes)
         return loglike
 
@@ -135,7 +136,7 @@ def Confidence2D(histogram, xedges, yedges, problevel, smooth=None):
     # first, sort the histogram from high to low
     sortOrder = np.argsort(histogram.flatten())[::-1]
     sumprob = np.cumsum(histogram.flatten()[sortOrder])
-    selected = (sumprob/float(np.sum(histogram))) < problevel
+    selected = (sumprob / float(np.sum(histogram))) < problevel
 
     CLregion = np.zeros(len(sumprob))
     CLregion[sortOrder[selected]] = 1.
@@ -156,8 +157,10 @@ def Confidence2D(histogram, xedges, yedges, problevel, smooth=None):
 def calcStdContours(xsamples, ysamples, bins, smooth=0.75):
 
     histogram, xedges, yedges = np.histogram2d(xsamples, ysamples, bins=bins)
-    CLregion68, Xgrid, Ygrid = Confidence2D(histogram, xedges, yedges, 0.68, smooth=smooth)
-    CLregion95, Xgrid, Ygrid = Confidence2D(histogram, xedges, yedges, 0.95, smooth=smooth)
-    CLregions = CLregion95 + 2*CLregion68
+    CLregion68, Xgrid, Ygrid = Confidence2D(
+        histogram, xedges, yedges, 0.68, smooth=smooth)
+    CLregion95, Xgrid, Ygrid = Confidence2D(
+        histogram, xedges, yedges, 0.95, smooth=smooth)
+    CLregions = CLregion95 + 2 * CLregion68
 
     return Xgrid, Ygrid, CLregions

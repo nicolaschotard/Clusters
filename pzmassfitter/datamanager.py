@@ -16,15 +16,20 @@ from . import util
 
 #######################
 
+
 class ManagedDataException(Exception):
     pass
 
 #######################
 
-pretty_localtime = lambda t: time.asctime(time.localtime(t))
-pretty_datetime = lambda t: time.asctime(t.timetuple())
+
+def pretty_localtime(t): return time.asctime(time.localtime(t))
+
+
+def pretty_datetime(t): return time.asctime(t.timetuple())
 
 #########
+
 
 class HistoryCollection(list):
 
@@ -54,6 +59,7 @@ class HistoryCollection(list):
 
 #########
 
+
 class HistoryItem(object):
 
     def __init__(self, action):
@@ -72,13 +78,14 @@ class HistoryItem(object):
     def log(self):
 
         header = '%(action)s  at  %(time)s\n' \
-            % {'action' : self.action, 'time' : pretty_datetime(self.time)}
+            % {'action': self.action, 'time': pretty_datetime(self.time)}
 
         body = self._log()
 
         return header + body
 
 #####
+
 
 class InitHistoryItem(HistoryItem):
 
@@ -92,11 +99,12 @@ class InitHistoryItem(HistoryItem):
 
         str = '''
 DataManager Initialized by %(user)s
-''' % {'user' : getpass.getuser()}
+''' % {'user': getpass.getuser()}
 
         return str
 
 ######
+
 
 class StoreHistoryItem(HistoryItem):
 
@@ -119,6 +127,7 @@ class StoreHistoryItem(HistoryItem):
 
 #######
 
+
 class StoreFunctionHistoryItem(HistoryItem):
 
     def __init__(self, name, method, methodargs, methodkeywords, replace=False):
@@ -137,11 +146,9 @@ class StoreFunctionHistoryItem(HistoryItem):
         self.methodsrcstat = os.stat(self.methodsrcfile)
         self.methodsrcode = inspect.getsource(method)
 
-
     ####
 
     def _log(self):
-
 
         if isinstance(self.name, str):
             printedName = self.name
@@ -156,15 +163,16 @@ class StoreFunctionHistoryItem(HistoryItem):
      Defined in %(srcfile)s   Modifed on %(srcmoddate)s
      Looks like:
 %(srccode)s
-''' % {'name' : printedName,
-       'method' : self.method.__name__,
-       'args' : str(self.methodargs),
-       'keywords' : str(self.methodkeywords),
-       'srcfile' : self.methodsrcfile,
-       'srcmoddate' : pretty_localtime(self.methodsrcstat.st_mtime),
-       'srccode' : self.methodsrcode}
+''' % {'name': printedName,
+            'method': self.method.__name__,
+            'args': str(self.methodargs),
+            'keywords': str(self.methodkeywords),
+            'srcfile': self.methodsrcfile,
+            'srcmoddate': pretty_localtime(self.methodsrcstat.st_mtime),
+            'srccode': self.methodsrcode}
 
 ######
+
 
 class OpenHistoryItem(HistoryItem):
 
@@ -191,19 +199,20 @@ class OpenHistoryItem(HistoryItem):
      Called with args = %(args)s
       and keywords = %(keywords)s
      Defined in %(srcfile)s   Modifed on %(srcmoddate)s
-''' % {'name' : self.name,
-       'file' : os.path.abspath(self.file),
-       'owner' : pwd.getpwuid(self.filestat.st_uid)[0],
-       'moddate' : pretty_localtime(self.filestat.st_mtime),
-       'method' : self.method.__name__,
-       'args' : self.methodargs,
-       'keywords' : self.methodkeywords,
-       'srcfile' : self.methodsrcfile,
-       'srcmoddate' : pretty_localtime(self.methodsrcstat.st_mtime)}
+''' % {'name': self.name,
+            'file': os.path.abspath(self.file),
+            'owner': pwd.getpwuid(self.filestat.st_uid)[0],
+            'moddate': pretty_localtime(self.filestat.st_mtime),
+            'method': self.method.__name__,
+            'args': self.methodargs,
+            'keywords': self.methodkeywords,
+            'srcfile': self.methodsrcfile,
+            'srcmoddate': pretty_localtime(self.methodsrcstat.st_mtime)}
 
         return str
 
 #######
+
 
 class UpdateHistoryItem(HistoryItem):
 
@@ -235,15 +244,16 @@ class UpdateHistoryItem(HistoryItem):
      Defined in %(srcfile)s   Modifed on %(srcmoddate)s
      Looks like:
 %(srccode)s
-''' % {'name' : printedName,
-       'method' : self.method.__name__,
-       'args' : self.methodargs,
-       'keywords' : self.methodkeywords,
-       'srcfile' : self.methodsrcfile,
-       'srcmoddate' : pretty_localtime(self.methodsrcstat.st_mtime),
-       'srccode' : self.methodsrcode}
+''' % {'name': printedName,
+            'method': self.method.__name__,
+            'args': self.methodargs,
+            'keywords': self.methodkeywords,
+            'srcfile': self.methodsrcfile,
+            'srcmoddate': pretty_localtime(self.methodsrcstat.st_mtime),
+            'srccode': self.methodsrcode}
 
 #####################
+
 
 class CommentHistoryItem(HistoryItem):
 
@@ -300,7 +310,6 @@ class DataManager(util.VarContainer):
 
     #############################
 
-
     def open(self, name, file, open, *args, **keywords):
 
         self.history.append(OpenHistoryItem(name=name,
@@ -310,7 +319,6 @@ class DataManager(util.VarContainer):
                                             methodkeywords=keywords))
 
         self._addItem(name, open(file, *args, **keywords))
-
 
     ##############################
 
@@ -339,7 +347,6 @@ class DataManager(util.VarContainer):
             tostore = src
             self.history.append(StoreHistoryItem(name, replace=replace))
 
-
         if isinstance(name, str):
             self._addItem(name, tostore, replace=replace)
 
@@ -357,7 +364,6 @@ class DataManager(util.VarContainer):
 
     def update(self, filterFunction, toUpdate, *args, **keywords):
 
-
         if len(args) == 0 and len(keywords) == 0:
             try:
                 theFilter = filterFunction(self)
@@ -373,9 +379,8 @@ class DataManager(util.VarContainer):
 
         for item, updateFunc in toUpdate.iteritems():
 
-            self._addItem(item, getattr(self[item], updateFunc)(theFilter), replace=True)
-
-
+            self._addItem(item, getattr(self[item], updateFunc)(
+                theFilter), replace=True)
 
     ######################################
 

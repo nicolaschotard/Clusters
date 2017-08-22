@@ -22,6 +22,7 @@ class DoesNotParseException(Exception):
 
 ######################################################
 
+
 class BashConfig(dict):
     '''Reads a simple bash file and returns a dictionary-interface
          object containing the bash variables set in the script.
@@ -111,7 +112,7 @@ class BashConfig(dict):
             hours = int(match.group(1))
             min = int(match.group(2))
             sec = int(match.group(3))
-        
+
             return datetime.time(hours, min, sec)
 
         raise DoesNotParseException
@@ -136,7 +137,7 @@ class BashConfig(dict):
         if len(entries) == 0:
             raise DoesNotParseException
 
-        return dict([(int(x), self._parseAtomic(y) ) for x, y in entries])
+        return dict([(int(x), self._parseAtomic(y)) for x, y in entries])
 
     ##################
 
@@ -276,12 +277,14 @@ class BashConfig(dict):
 # USER METHODS
 ##############
 
+
 def parse(bashstr):
 
     result = BashConfig(bashstr)
     return result
 
 #######################################################
+
 
 def parseFile(filename):
 
@@ -295,6 +298,7 @@ def parseFile(filename):
 ############################
 # TESTING CLASSES
 ##################
+
 
 class TestParseBash(unittest.TestCase):
 
@@ -329,8 +333,10 @@ class TestParseBash(unittest.TestCase):
 
     def testReadIntIntMap(self):
 
-        config = parse('OVSCANX1=([6]=1  [7]=1  [3]=1  [4]=1  [9]=1  [8]=2055)')
-        self.assertEquals(config.ovscanx1, {6:1, 7:1, 3:1, 4:1, 9:1, 8:2055})
+        config = parse(
+            'OVSCANX1=([6]=1  [7]=1  [3]=1  [4]=1  [9]=1  [8]=2055)')
+        self.assertEquals(config.ovscanx1, {
+                          6: 1, 7: 1, 3: 1, 4: 1, 9: 1, 8: 2055})
 
     ##############
 
@@ -394,7 +400,8 @@ TEST=$STATSALLIM[1]
 TEST2=${STATSALLIM[1]}'''
 
         config = parse(bash)
-        self.assertEquals(config.statsallim, {1:1000, 2:2000, 3:1000, 4:1000})
+        self.assertEquals(config.statsallim, {
+                          1: 1000, 2: 2000, 3: 1000, 4: 1000})
         self.assertEquals(config.test, 1000)
         self.assertEquals(config.test2, 1000)
 
@@ -405,7 +412,7 @@ TEST2=${STATSALLIM[1]}'''
         bash = 'TEST=([1]="a" [2]="b")'
 
         config = parse(bash)
-        self.assertEquals(config.test, {1:'a', 2:'b'})
+        self.assertEquals(config.test, {1: 'a', 2: 'b'})
 
     ##############
 
@@ -434,7 +441,8 @@ STATSYMAX=$(( ${STATSALLIM[2]} + ${STATSALLIM[4]} / 2 ))
 
 '''
         config = parse(bash)
-        self.assertEquals(config.statsallim, {1:1000, 2:2000, 3:1000, 4:1000})
+        self.assertEquals(config.statsallim, {
+                          1: 1000, 2: 2000, 3: 1000, 4: 1000})
         self.assertEquals(config.statsxmin, 500)
         self.assertEquals(config.statsxmax, 1500)
         self.assertEquals(config.statsymin, 1500)
@@ -471,8 +479,6 @@ export TEST'''
         self.assertTrue('TEMPDIR' in os.environ)
         self.assertEquals(os.environ['TEMPDIR'], '.')
 
-
-
     #################
 
     def testReadFile(self):
@@ -506,14 +512,14 @@ export TEST'''
         bash = '''TEST=([1]=5 [2]=10)
                   TEST[1]=8'''
         config = parse(bash)
-        self.assertEquals(config.test, {1:8, 2:10})
+        self.assertEquals(config.test, {1: 8, 2: 10})
 
     ####################
 
     def testSetUndefinedMapElement(self):
 
         config = parse('TEST[1]=3')
-        self.assertEquals(config.test, {1:3})
+        self.assertEquals(config.test, {1: 3})
 
     ####################
 
@@ -545,7 +551,7 @@ def test():
 
 ##############################################################
 
+
 if __name__ == '__main__':
 
     test()
-

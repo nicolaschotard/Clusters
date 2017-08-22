@@ -166,7 +166,8 @@ class TestComponents(unittest.TestCase):
     def testExtractColumn(self):
 
         keys = 'FLUX_APER1 FLUXERR_APER1 BLANK1 BLANK2 MAG_APER1 MAGERR_APER1'.split()
-        cols = [pyfits.Column(name=k, format='E', array=numpy.ones(30)) for k in keys]
+        cols = [pyfits.Column(name=k, format='E', array=numpy.ones(30))
+                for k in keys]
         cat = LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols)))
 
         extracted_col = cat.extractColumn('BLANK1')
@@ -179,11 +180,13 @@ class TestComponents(unittest.TestCase):
     def testAppend_Mismatch(self):
 
         keys = 'a b c'.split()
-        cols = [pyfits.Column(name=k, format='E', array=numpy.ones(30)) for k in keys]
+        cols = [pyfits.Column(name=k, format='E', array=numpy.ones(30))
+                for k in keys]
         cat = LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols)))
 
         keys = 'b e'.split()
-        cols = [pyfits.Column(name=k, format='E', array=numpy.ones(30)) for k in keys]
+        cols = [pyfits.Column(name=k, format='E', array=numpy.ones(30))
+                for k in keys]
         cat2 = LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols)))
 
         self.assertRaises(MismatchedKeysException, lambda: cat.append(cat2))
@@ -193,14 +196,16 @@ class TestComponents(unittest.TestCase):
     def testAppend(self):
 
         keys = 'a b c'.split()
-        cols = [pyfits.Column(name=k, format='E', array=numpy.ones(30)) for k in keys]
+        cols = [pyfits.Column(name=k, format='E', array=numpy.ones(30))
+                for k in keys]
         cat = LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols)))
         cat.hdu.header['A'] = 25
         cat.hdu.header['B'] = 'sss'
         cat.hdu.header['EXTNAME'] = 'STUFF'
 
         keys = 'a b c'.split()
-        cols = [pyfits.Column(name=k, format='E', array=numpy.zeros(30)) for k in keys]
+        cols = [pyfits.Column(name=k, format='E',
+                              array=numpy.zeros(30)) for k in keys]
         cat2 = LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols)))
         cat2.hdu.header['EXTNAME'] = 'OBJECTS'
         cat2.hdu.header['A'] = 27
@@ -230,16 +235,18 @@ class TestComponents(unittest.TestCase):
             array=numpy.arange(30))])))
         cat2 = LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs([pyfits.Column(
             name='SeqNr',
-            format='K', \
+            format='K',
             array=numpy.random.permutation(numpy.arange(20, 40)))])))
 
         matchedCat = cat1.matchById(cat2)
 
-        self.assertTrue((cat2['SeqNr'][cat2['SeqNr'] < 30] == matchedCat['SeqNr']).all())
+        self.assertTrue((cat2['SeqNr'][cat2['SeqNr'] < 30]
+                         == matchedCat['SeqNr']).all())
 
         matchedCat = cat2.matchById(cat1)
 
-        self.assertTrue((cat1['SeqNr'][cat1['SeqNr'] >= 20] == matchedCat['SeqNr']).all())
+        self.assertTrue((cat1['SeqNr'][cat1['SeqNr'] >= 20]
+                         == matchedCat['SeqNr']).all())
 
     ############
 

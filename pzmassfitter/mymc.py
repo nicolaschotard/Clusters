@@ -154,6 +154,7 @@ class Parameter(object):
      2. (): return the current parameter value.
      3. set( ): set the parameter to a new value.
     """
+
     def __init__(self, value=0.0, width=1.0, name=''):
         self.value = value
         self.width = width
@@ -237,15 +238,16 @@ class ParameterSpace(list):
         try:
             m = scipy.optimize.fmin_powell(g, origin, full_output=True,
                                            xtol=xtol, ftol=ftol, maxiter=maxiter)
-            ret = -0.5 * m[1] # log-likelihood for best point
+            ret = -0.5 * m[1]  # log-likelihood for best point
         except:
-            print("ParameterSpace.optimize: warning -- some kind of error in scipy.optimize.fmin_powell.")
+            print(
+                "ParameterSpace.optimize: warning -- some kind of error in scipy.optimize.fmin_powell.")
             for i, p in enumerate(self):
                 p.set(origin[i])
             ret = None
         for i, p in enumerate(self):
             p.set(m[0][i])
-        #print(m[2])
+        # print(m[2])
         return ret
 
 
@@ -265,6 +267,7 @@ class Updater(object):
         For MPI parallelization, set to an mpi4py.MPI.Comm object (e.g. MPI.COMM_WORLD)
         See module docstring for more details.
     """
+
     def __init__(self, space, step, every, start, on_adapt, parallel):
         self.space = space
         self.set_step(step)
@@ -297,14 +300,17 @@ class Updater(object):
         self.step = step
         self.step.updater = self
 
+
 class CartesianUpdater(Updater):
     """
     Abstract base class for updaters that proposal one parameter at a time.
 
     Do not instantiate directly.
     """
+
     def __init__(self, space, step, adapt_every, adapt_starting, on_adapt, parallel):
-        Updater.__init__(self, space, step, adapt_every, adapt_starting, on_adapt, parallel)
+        Updater.__init__(self, space, step, adapt_every,
+                         adapt_starting, on_adapt, parallel)
         if self.adapt:
             self.means = np.zeros(len(self.space))
             self.variances = np.zeros(len(self.space))
@@ -339,10 +345,13 @@ class CartesianUpdater(Updater):
     def accumulate(self):
         if self.adapt:
             # Golub, Chan and Levesque one-pass mean and variance algorithm
-            d = self.space[self.current_direction]() - self.means[self.current_direction]
+            d = self.space[self.current_direction](
+            ) - self.means[self.current_direction]
             self.means[self.current_direction] += d / self.count
             # this is actually (n-1) times the variance (below)
-            self.variances[self.current_direction] += (self.count-1.0) / self.count * d**2
+            self.variances[self.current_direction] += (
+                self.count - 1.0) / self.count * d**2
+
     def do_adapt(self, struct):
         stdevs = self.gatherAdapt()
         for i, p in enumerate(self.space):
@@ -366,14 +375,14 @@ class CartesianUpdater(Updater):
                 f = open(filename, 'rb')
                 s = pickle.load(f)
                 f.close()
-                total += s['count'] # becomes Ntot
-                moment1 += s['count'] * s['means'] # becomes Ntot*<x>
-                moment2 += s['count'] * (s['variances'] / \
-                                         (s['count']-1.0) + s['means']**2) # becomes Ntot*<x^2>
+                total += s['count']  # becomes Ntot
+                moment1 += s['count'] * s['means']  # becomes Ntot*<x>
+                moment2 += s['count'] * (s['variances'] /
+                                         (s['count'] - 1.0) + s['means']**2)  # becomes Ntot*<x^2>
                 d = s['means'] - grandMeans
                 grandMeans += d / (j + 1.0)
                 grandMeanVar += j / (j + 1.0) * d**2
-                d = s['variances'] / (s['count']-1.0) - grandVarMean
+                d = s['variances'] / (s['count'] - 1.0) - grandVarMean
                 grandVarMean += d / (j + 1.0)
                 j += 1
             except IOError:
@@ -395,23 +404,24 @@ class CartesianUpdater(Updater):
         grandMeanVar = np.zeros(len(self.space))
         grandVarMean = np.zeros(len(self.space))
         for j, s in enumerate(alls):
-            total += s['count'] # becomes Ntot
-            moment1 += s['count'] * s['means'] # becomes Ntot*<x>
-            moment2 += s['count'] * (s['variances'] / \
-                                     (s['count']-1.0) + s['means']**2) # becomes Ntot*<x^2>
+            total += s['count']  # becomes Ntot
+            moment1 += s['count'] * s['means']  # becomes Ntot*<x>
+            moment2 += s['count'] * (s['variances'] /
+                                     (s['count'] - 1.0) + s['means']**2)  # becomes Ntot*<x^2>
             d = s['means'] - grandMeans
             grandMeans += d / (j + 1.0)
             grandMeanVar += j / (j + 1.0) * d**2
-            d = s['variances'] / (s['count']-1.0) - grandVarMean
+            d = s['variances'] / (s['count'] - 1.0) - grandVarMean
             grandVarMean += d / (j + 1.0)
         if len(alls) > 1:
             B = self.count / (len(alls) - 1.0) * grandMeanVar
             W = grandVarMean / len(alls)
-            self.R = np.sqrt((self.count-1.0) / self.count + B / (self.count*W))
+            self.R = np.sqrt((self.count - 1.0) /
+                             self.count + B / (self.count * W))
         return np.sqrt((moment2 - moment1**2 / total) / (total - 1.0))
 
     def gatherSerial(self):
-        return np.sqrt(self.variances / (self.count-1.0))
+        return np.sqrt(self.variances / (self.count - 1.0))
 
     def move(self, x):
         p = self.space[self.current_direction]
@@ -424,13 +434,14 @@ class CartesianUpdater(Updater):
                 p.width = s['widths'][i]
             self.means = s['means']
             self.variances = s['variances']
-        elif  s['type'] == 'MultiDim':
+        elif s['type'] == 'MultiDim':
             for i, p in enumerate(self.space):
                 p.width = np.sqrt(s['covariances'][i, i])
             self.means = s['means']
             self.variances = s['covariances'].diagonal()
         else:
-            raise Exception('CartesianUpdater.restoreBits: error restoring updater state -- unknown updater type')
+            raise Exception(
+                'CartesianUpdater.restoreBits: error restoring updater state -- unknown updater type')
 
     def saveBits(self):
         if self.adapt:
@@ -477,11 +488,11 @@ class CartesianUpdater(Updater):
         origin = [p() for p in self.space]
         for i, p in enumerate(self.space):
             trial = origin
-            trial[i] = (1.0-h) * origin[i]
+            trial[i] = (1.0 - h) * origin[i]
             chisq0 = g(trial)
             trial[i] = (1.0 + h) * origin[i]
             chisq2 = g(trial)
-            d2 = (chisq2 - 2.0*chisq1 + chisq0) / (h * origin[i])**2
+            d2 = (chisq2 - 2.0 * chisq1 + chisq0) / (h * origin[i])**2
             if d2 > 0.0:
                 p.width = 1.0 / np.sqrt(d2)
             else:
@@ -519,35 +530,43 @@ class SequentialUpdater(Updater):
     """
     Abstract class for updaters that propose each parameter in order.
     """
+
     def choose_direction(self, j):
         self.current_direction = j
+
 
 class PermutationUpdater(Updater):
     """
     Abstract class for updaters that propose parameters in random order.
     """
+
     def __init__(self):
         self.permutation = np.arange(len(self.space))
         if self.count % len(self.space) != 0:
             np.random.shuffle(self.permutation)
+
     def choose_direction(self, j):
         if j == 0:
             np.random.shuffle(self.permutation)
         self.current_direction = self.permutation[j]
 
+
 class CartesianSequentialUpdater(CartesianUpdater, SequentialUpdater):
     """
     Updater class to propose parameters individually, in sequence. See Updater.__init__.
     """
+
     def __init__(self, parameter_space, step, adapt_every=0,
                  adapt_starting=0, on_adapt=None, parallel=None):
         CartesianUpdater.__init__(self, parameter_space, step, adapt_every,
                                   adapt_starting, on_adapt, parallel)
 
+
 class CartesianPermutationUpdater(CartesianUpdater, PermutationUpdater):
     """
     Updater class to propose parameters individually, in random order. See Updater.__init__.
     """
+
     def __init__(self, parameter_space, step, adapt_every=0,
                  adapt_starting=0, on_adapt=None, parallel=None):
         CartesianUpdater.__init__(self, parameter_space, step, adapt_every,
@@ -555,13 +574,14 @@ class CartesianPermutationUpdater(CartesianUpdater, PermutationUpdater):
         PermutationUpdater.__init__(self)
 
 
-
 class MultiDimUpdater(Updater):
     """
     Abstract base class for block updates. Do not instantiate directly.
     """
+
     def __init__(self, space, step, adapt_every, adapt_starting, on_adapt, parallel):
-        Updater.__init__(self, space, step, adapt_every, adapt_starting, on_adapt, parallel)
+        Updater.__init__(self, space, step, adapt_every,
+                         adapt_starting, on_adapt, parallel)
         if self.adapt:
             self.rescale = 1.0
             self.means = np.zeros(len(self.space))
@@ -587,6 +607,7 @@ class MultiDimUpdater(Updater):
         self.widths = [p.width for p in self.space]
         self.width = 0.0
         self.basis = np.eye(len(self.space), len(self.space))
+
     def __call__(self, struct):
         if self.adapt and self.count >= self.adapt_start and self.count % self.adapt_every == 0:
             self.do_adapt(struct)
@@ -594,19 +615,23 @@ class MultiDimUpdater(Updater):
         self.origin = [p() for p in self.space]
         self.step(struct)
         self.accumulate()
+
     def accumulate(self):
         self.count += 1
         if self.adapt:
             for i, p in enumerate(self.space):
-                self.d[i] = p() - self.means[i];
-                self.means[i] += self.d[i] / self.count;
+                self.d[i] = p() - self.means[i]
+                self.means[i] += self.d[i] / self.count
                 for j in range(i + 1):
-                    self.covariances[i,j] += (self.count-1.0) / self.count * self.d[i] * self.d[j]
+                    self.covariances[i, j] += (self.count - 1.0) / \
+                        self.count * self.d[i] * self.d[j]
                     # don't need anything in the upper triangle
+
     def do_adapt(self, struct):
         cov = self.gatherAdapt()
         if self.set_covariance(cov) and not self.onAdapt is None:
             self.onAdapt(struct)
+
     def gatherFilesys(self):
         filename = parallel_filename_base + self.pid + self.uind + parallel_filename_ext
         self.save(filename)
@@ -622,14 +647,15 @@ class MultiDimUpdater(Updater):
                 f = open(filename, 'rb')
                 s = pickle.load(f)
                 f.close()
-                total += s['count'] # becomes Ntot
-                moment1 += s['count'] * s['means'] # becomes Ntot*<x>
-                moment2 += s['count'] * (s['covariances'] / (s['count']-1.0) + \
-                                         np.outer(s['means'], s['means'])) # becomes Ntot*<xy>
+                total += s['count']  # becomes Ntot
+                moment1 += s['count'] * s['means']  # becomes Ntot*<x>
+                moment2 += s['count'] * (s['covariances'] / (s['count'] - 1.0) +
+                                         np.outer(s['means'], s['means']))  # becomes Ntot*<xy>
                 d = s['means'] - grandMeans
                 grandMeans += d / (j + 1.0)
                 grandMeanVar += j / (j + 1.0) * d**2
-                d = s['covariances'].diagonal() / (s['count']-1.0) - grandVarMean
+                d = s['covariances'].diagonal() / (s['count'] - 1.0) - \
+                    grandVarMean
                 grandVarMean += d / (j + 1.0)
                 j += 1
             except:
@@ -639,7 +665,8 @@ class MultiDimUpdater(Updater):
         if j > 1:
             B = self.count / (j - 1.0) * grandMeanVar
             W = grandVarMean / j
-            self.R = np.sqrt((self.count-1.0) / self.count + B / (self.count*W))
+            self.R = np.sqrt((self.count - 1.0) /
+                             self.count + B / (self.count * W))
         return (moment2 - np.outer(moment1 / total, moment1)) / (total - 1.0)
 
     def gatherMPI(self):
@@ -652,23 +679,24 @@ class MultiDimUpdater(Updater):
         grandMeanVar = np.zeros(len(self.space))
         grandVarMean = np.zeros(len(self.space))
         for j, s in enumerate(alls):
-            total += s['count'] # becomes Ntot
-            moment1 += s['count'] * s['means'] # becomes Ntot*<x>
-            moment2 += s['count'] * (s['covariances'] / (s['count']-1.0) + \
-                                     np.outer(s['means'], s['means'])) # becomes Ntot*<xy>
+            total += s['count']  # becomes Ntot
+            moment1 += s['count'] * s['means']  # becomes Ntot*<x>
+            moment2 += s['count'] * (s['covariances'] / (s['count'] - 1.0) +
+                                     np.outer(s['means'], s['means']))  # becomes Ntot*<xy>
             d = s['means'] - grandMeans
             grandMeans += d / (j + 1.0)
             grandMeanVar += j / (j + 1.0) * d**2
-            d = s['covariances'].diagonal() / (s['count']-1.0) - grandVarMean
+            d = s['covariances'].diagonal() / (s['count'] - 1.0) - grandVarMean
             grandVarMean += d / (j + 1.0)
         if len(alls) > 1:
             B = self.count / (len(alls) - 1.0) * grandMeanVar
             W = grandVarMean / len(alls)
-            self.R = np.sqrt((self.count-1.0) / self.count + B / (self.count*W))
+            self.R = np.sqrt((self.count - 1.0) /
+                             self.count + B / (self.count * W))
         return (moment2 - np.outer(moment1 / total, moment1)) / (total - 1.0)
 
     def gatherSerial(self):
-        return self.covariances / (self.count-1.0)
+        return self.covariances / (self.count - 1.0)
 
     def move(self, x):
         for i, p in enumerate(self.space):
@@ -678,16 +706,18 @@ class MultiDimUpdater(Updater):
         self.count = s['count']
         if s['type'] == 'Cartesian':
             self.means = s['means']
-            self.covariances = np.eye(len(self.space), len(self.space)) * s['variances']
+            self.covariances = np.eye(
+                len(self.space), len(self.space)) * s['variances']
             self.widths = s['widths']
             self.basis = np.eye(len(self.space), len(self.space))
-        elif  s['type'] == 'MultiDim':
+        elif s['type'] == 'MultiDim':
             self.means = s['means']
             self.covariances = s['covariances']
             self.widths = s['widths']
             self.basis = s['basis']
         else:
-            raise Exception('MultiDimUpdater.restoreBits: error restoring updater state -- unknown updater type')
+            raise Exception(
+                'MultiDimUpdater.restoreBits: error restoring updater state -- unknown updater type')
 
     def saveBits(self):
         if self.adapt:
@@ -700,14 +730,14 @@ class MultiDimUpdater(Updater):
         for i in range(ntries):
             self.origin = [p() for p in self.space]
             for j in range(len(self.space)):
-                self.current_direction = self.basis[:,j]
+                self.current_direction = self.basis[:, j]
                 self.width = self.widths[j]
                 self.move(np.random.randn())
             self.engine.current_logP = self.space.log_posterior(struct)
             if self.engine.current_logP != -np.inf:
                 return True
         for j in range(len(self.space)):
-            self.current_direction = self.basis[:,j]
+            self.current_direction = self.basis[:, j]
             self.move(0.0)
             self.engine.current_logP = self.space.log_posterior(struct)
         return False
@@ -715,10 +745,10 @@ class MultiDimUpdater(Updater):
     def set_covariance(self, cov):
         try:
             evals, self.basis = np.linalg.eigh(cov)
-            self.widths = [self.rescale*np.sqrt(abs(v)) for v in evals]
+            self.widths = [self.rescale * np.sqrt(abs(v)) for v in evals]
 
             if not (np.array(self.widths) != 0.).all():
-            
+
                 print("ERROR: (np.array(self.widths) != 0.).all() != 0. Aborting")
 
                 return False
@@ -734,17 +764,17 @@ class MultiDimUpdater(Updater):
         g.space = self.space
         g.struct = struct
         if self.engine.current_logP is None:
-            self.engine.current_logP =  self.space.log_posterior(struct)
+            self.engine.current_logP = self.space.log_posterior(struct)
         chisq1 = -2.0 * self.engine.current_logP
         self.origin = [p() for p in self.space]
         self.basis = np.eye(len(self.space), len(self.space))
         for i, p in enumerate(self.space):
             trial = self.origin
-            trial[i] = (1.0-h) * self.origin[i]
+            trial[i] = (1.0 - h) * self.origin[i]
             chisq0 = g(trial)
             trial[i] = (1.0 + h) * self.origin[i]
             chisq2 = g(trial)
-            d2 = (chisq2 - 2.0*chisq1 + chisq0) / (h * self.origin[i])**2
+            d2 = (chisq2 - 2.0 * chisq1 + chisq0) / (h * self.origin[i])**2
             if d2 > 0.0:
                 self.widths[i] = 1.0 / np.sqrt(d2)
             else:
@@ -761,7 +791,7 @@ class MultiDimUpdater(Updater):
         # g.space = self.space
         # g.struct = struct
         # try:
-        #     Hfun = numdifftools.Hessian(g, numTerms=0, stepRatio=1.01) #stepNom=self.widths, 
+        #     Hfun = numdifftools.Hessian(g, numTerms=0, stepRatio=1.01) #stepNom=self.widths,
         #     m = Hfun(self.origin)
         #     good = True
         # except:
@@ -783,9 +813,10 @@ class MDSequentialUpdater(Updater):
     """
     Abstract class for sequential block updates.
     """
+
     def choose_direction(self):
         j = self.count % len(self.space)
-        self.current_direction = self.basis[:,j]
+        self.current_direction = self.basis[:, j]
         self.width = self.widths[j]
 
 
@@ -793,6 +824,7 @@ class MDPermutationUpdater(Updater):
     """
     Abstract class for block updates in random order.
     """
+
     def __init__(self):
         self.permutation = np.arange(len(self.space))
         if self.count % len(self.space) != 0:
@@ -810,6 +842,7 @@ class MDRotationUpdater(Updater):
     """
     Abstract class for block updates in random directions.
     """
+
     def __init__(self):
         self.j = 0
         self.q0 = 0
@@ -822,17 +855,17 @@ class MDRotationUpdater(Updater):
         # On the next call, try the orthogonal direction.
         if self.j == 0:
             self.q0 = np.random.randint(0, len(self.space))
-            self.q1 = np.random.randint(0, len(self.space)-1)
+            self.q1 = np.random.randint(0, len(self.space) - 1)
             if self.q0 == self.q1:
                 self.q1 = len(self.space) - 1
             r = np.random.random() * 2.0 * np.pi
             self.cosr = np.cos(r)
             self.sinr = np.sin(r)
             self.current_direction = self.cosr * self.widths[self.q0] * self.basis[:, self.q0] - \
-                                     self.sinr * self.widths[self.q1] * self.basis[:, self.q1]
+                self.sinr * self.widths[self.q1] * self.basis[:, self.q1]
         else:
             self.current_direction = self.sinr * self.widths[self.q0] * self.basis[:, self.q0] + \
-                                     self.cosr * self.widths[self.q1] * self.basis[:, self.q1]
+                self.cosr * self.widths[self.q1] * self.basis[:, self.q1]
         try:
             self.width = np.sqrt(sum(self.current_direction**2))
             self.current_direction /= self.width
@@ -843,7 +876,7 @@ class MDRotationUpdater(Updater):
             print(self.widths[self.q0], self.widths[self.q1])
             print(self.sinr, self.cosr)
             self.basis
-            self.basis[:,self.q0], self.basis[:,self.q1]
+            self.basis[:, self.q0], self.basis[:, self.q1]
             print(self.current_direction)
             raise fpe
 
@@ -860,6 +893,7 @@ class MultiDimSequentialUpdater(MultiDimUpdater, MDSequentialUpdater):
     """
     Updater class to propose block-update parameters in sequence. See Updater.__init__.
     """
+
     def __init__(self, parameter_space, step, adapt_every=0,
                  adapt_starting=0, on_adapt=None, parallel=None):
         MultiDimUpdater.__init__(self, parameter_space, step, adapt_every,
@@ -870,6 +904,7 @@ class MultiDimPermutationUpdater(MultiDimUpdater, MDPermutationUpdater):
     """
     Updater class to block-update parameters in random order. See Updater.__init__.
     """
+
     def __init__(self, parameter_space, step, adapt_every=0,
                  adapt_starting=0, on_adapt=None, parallel=None):
         MultiDimUpdater.__init__(self, parameter_space, step, adapt_every,
@@ -881,6 +916,7 @@ class MultiDimRotationUpdater(MultiDimUpdater, MDRotationUpdater):
     """
     Updater class to block-update parameters in random directions. See Updater.__init__.
     """
+
     def __init__(self, parameter_space, step, adapt_every=0,
                  adapt_starting=0, on_adapt=None, parallel=None):
         MultiDimUpdater.__init__(self, parameter_space, step, adapt_every,
@@ -890,11 +926,12 @@ class MultiDimRotationUpdater(MultiDimUpdater, MDRotationUpdater):
 
 try:
     import emcee
+
     def emcee_lnprobfn(x, up):
         for j, p in enumerate(up.space):
             p.set(x[j])
         return up.space.log_posterior(up.structptr)
-            
+
     class emceeUpdater(Updater):
         """
     Updater that uses the EMCEE Hammer (http://danfm.ca/emcee/ and arxiv:1202.3665).
@@ -911,6 +948,7 @@ try:
         The onStep argument to the Engine could be used for this, or a specialized 
         ParameterSpace/backend combination could be defined.
         """
+
         def __init__(self, space, nwalkers=None, threads=1, pool=None):
             Updater.__init__(self, space, None, 0, 0, None, None)
             if nwalkers is None:
@@ -938,9 +976,11 @@ try:
                 self.pos = s['pos']
                 self.prob = s['prob']
             else:
-                raise Exception('emceeUpdater.restoreBits: incompatible updater type')
+                raise Exception(
+                    'emceeUpdater.restoreBits: incompatible updater type')
+
         def saveBits(self):
-            return {'sampler':self.sampler, 'pos':self.pos, 'prob':self.prob}
+            return {'sampler': self.sampler, 'pos': self.pos, 'prob': self.prob}
 except ImportError:
     pass
 
@@ -949,6 +989,7 @@ class Step(object):
     """
     Abstract base class for proposal methods. Do not instantiate directly.
     """
+
     def __init__(self):
         self.updater = None
 
@@ -962,6 +1003,7 @@ class Slice(Step):
      3. whether to suppress warnings if said loops reach the maximum number of iterations.
      4. whether to print a ridiculous amount of information (possibly useful for debugging posterior functions).
     """
+
     def __init__(self, width_factor=2.4, maxiter=100, quiet=True, obnoxious=False):
         self.width_fac = width_factor
         self.maxiter = maxiter
@@ -971,24 +1013,30 @@ class Slice(Step):
 
     def __call__(self, struct):
         if self.updater.engine.current_logP is None:
-            self.updater.engine.current_logP = self.updater.space.log_posterior(struct)
-        z = self.updater.engine.current_logP - np.random.exponential() # log level of slice
-        L = -self.width_fac * np.random.random_sample()                # left edge of the slice
+            self.updater.engine.current_logP = self.updater.space.log_posterior(
+                struct)
+        z = self.updater.engine.current_logP - \
+            np.random.exponential()  # log level of slice
+        # left edge of the slice
+        L = -self.width_fac * np.random.random_sample()
         R = L + self.width_fac                                         # right edge
         if self.obnoxious:
-            print('Slice: starting params:', [(p.name, p()) for p in self.updater.space])
-            print('Slice: current level', self.updater.engine.current_logP, '; seeking', z)
+            print('Slice: starting params:', [
+                  (p.name, p()) for p in self.updater.space])
+            print('Slice: current level',
+                  self.updater.engine.current_logP, '; seeking', z)
             print('L & R: ', L, ' ', R)
             print('Slice: stepping out left')
         for i in range(self.maxiter):
             self.updater.move(L)
             lnew = self.updater.space.log_posterior(struct)
             if self.obnoxious:
-                print('Slice: params:', [(p.name, p()) for p in self.updater.space])
+                print('Slice: params:', [(p.name, p())
+                                         for p in self.updater.space])
                 print('Slice:', L, lnew)
             if lnew <= z:
                 break
-            L -= self.width_fac;
+            L -= self.width_fac
         else:
             if not self.quiet:
                 print("Slice(): warning -- exhausted stepping out (left) loop")
@@ -999,22 +1047,25 @@ class Slice(Step):
             self.updater.move(R)
             lnew = self.updater.space.log_posterior(struct)
             if self.obnoxious:
-                print('Slice: params:', [(p.name, p()) for p in self.updater.space])
+                print('Slice: params:', [(p.name, p())
+                                         for p in self.updater.space])
                 print('Slice:', R, lnew)
             if lnew <= z:
                 break
-            R += self.width_fac;
+            R += self.width_fac
         else:
             if not self.quiet:
                 print("Slice(): warning -- exhausted stepping out (right) loop")
         if self.obnoxious:
             print('Slice: stepping in')
         for i in range(self.maxiter):
-            x1 = L + (R - L) *  np.random.random_sample()
+            x1 = L + (R - L) * np.random.random_sample()
             self.updater.move(x1)
-            self.updater.engine.current_logP = self.updater.space.log_posterior(struct)
+            self.updater.engine.current_logP = self.updater.space.log_posterior(
+                struct)
             if self.obnoxious:
-                print('Slice: params:', [(p.name, p()) for p in self.updater.space])
+                print('Slice: params:', [(p.name, p())
+                                         for p in self.updater.space])
                 print('Slice:', x1, self.updater.engine.current_logP)
             if self.updater.engine.current_logP < z:
                 if x1 < 0:
@@ -1038,6 +1089,7 @@ class Metropolis(Step):
     of the current estimated posterior width. Positive and negative numbers must be returned with
     equal probability. The default is simply a unit Gaussian random number.
     """
+
     def __init__(self, proposal_length=np.random.randn, width_factor=2.4):
         self.length = proposal_length
         self.width_fac = width_factor
@@ -1046,7 +1098,8 @@ class Metropolis(Step):
 
     def __call__(self, struct):
         if self.updater.engine.current_logP is None:
-            self.updater.engine.current_logP = self.updater.space.log_posterior(struct)
+            self.updater.engine.current_logP = self.updater.space.log_posterior(
+                struct)
         self.updater.move(self.width_fac * self.length())
         trial_logP = self.updater.space.log_posterior(struct)
         delta_logP = trial_logP - self.updater.engine.current_logP
@@ -1065,12 +1118,14 @@ class randNormalExp(object):
     and Gaussian with probability 1-<ratio>.
     Constructor arguments: ratio.
     """
+
     def __init__(self, ratio=0.333333333):
         self.ratio = ratio
+
     def __call__(self):
         r = np.random.randn()
         if r <= self.ratio:
-            if r < 0.5*self.ratio:
+            if r < 0.5 * self.ratio:
                 return np.random.exponential()
             else:
                 return -np.random.exponential()
@@ -1086,18 +1141,20 @@ class randChiExp:
      1. ratio
      2. degrees of freedom
     """
+
     def __init__(self, ratio=0.3333333333, dof=2):
         self.ratio = ratio
         self.dof = 2
+
     def __call__(self):
         r = np.random.randn()
         if r <= self.ratio:
-            if r < 0.5*self.ratio:
+            if r < 0.5 * self.ratio:
                 return np.random.exponential()
             else:
                 return -np.random.exponential()
         else:
-            if r < 0.5*(1.0 + self.ratio):
+            if r < 0.5 * (1.0 + self.ratio):
                 return np.sqrt(np.random.chisquare(self.dof) / self.dof)
             else:
                 return -np.sqrt(np.random.chisquare(self.dof) / self.dof)
@@ -1108,6 +1165,7 @@ class Backend(object):
     """
     Abstract base class for chain storage. Do not instantaite directly.
     """
+
     def __call__(self, space):
         pass
 
@@ -1118,16 +1176,20 @@ class textBackend(Backend):
     Constructor argument: an open Python file object.
     Static function readtoDict( ) loads a chain from such a file into a dictionary.
     """
+
     def __init__(self, file):
         self.file = file
+
     def __call__(self, space):
         st = ''
         for p in space:
             st = st + ' ' + str(p())
         st = st + '\n'
         self.file.write(st)
+
     def close(self):
         self.file.close()
+
     @classmethod
     def readToDict(cls, filename, quiet=True):
         d = None
@@ -1163,6 +1225,7 @@ class headerTextBackend(Backend):
     """
     Like textBackend, but automatically reads/writes a header line with the parameter names.
     """
+
     def __init__(self, file, space, writeHeader=True):
         self.fields = [p.name for p in space]
         self.writer = csv.DictWriter(file, self.fields, restval='!', delimiter=' ',
@@ -1182,7 +1245,8 @@ class headerTextBackend(Backend):
     @classmethod
     def readToDict(cls, filename, quiet=True):
         db = {}
-        reader = csv.DictReader(open(filename), delimiter=' ', quoting=csv.QUOTE_MINIMAL)
+        reader = csv.DictReader(
+            open(filename), delimiter=' ', quoting=csv.QUOTE_MINIMAL)
         for i, row in enumerate(reader):
 
             for key in row.keys():
@@ -1201,6 +1265,7 @@ class stdoutBackend(textBackend):
     """
     Class to simply print a chain to the terminal without storing it.
     """
+
     def __init__(self):
         textBackend.__init__(self, sys.stdout)
 
@@ -1212,6 +1277,7 @@ class dictBackend(dict, Backend):
     If a Parameter has a non-empty string-type name attribute, the corresponding key
     is that name, otherise it is a reference to the Parameter object itself.
     """
+
     def __call__(self, space):
         for p in space:
             key = p
@@ -1243,6 +1309,7 @@ class Engine(list):
      3. a sequence of Backend objects where the chain is to be stored.
     """
     # todo: make sure directly assigned Updaters get registered
+
     def __init__(self, updaterList=(), parameterspace_to_track=None, on_step=None):
         list.__init__(self, updaterList)
         for i, updater in enumerate(self):
@@ -1373,6 +1440,7 @@ class ChiSquareLikelihood(object):
 
     Assign a function to the 'priors' attribute to include non-(improper uniform) priors.
     """
+
     def __init__(self, model, y, err=None, x=None):
         self.model = model
         self.y = y
@@ -1398,4 +1466,3 @@ class ChiSquareLikelihood(object):
 
 # Todo:
 # 1. An Updater class that simply goes through an existing sequence, for importance sampling.
-

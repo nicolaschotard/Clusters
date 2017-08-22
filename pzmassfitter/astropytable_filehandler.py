@@ -21,7 +21,7 @@ class AstropyTableFilehandler(object):
         self.cuts = []
 
     def addCLOps(self, parser):
-        #not designed to be run from the command line
+        # not designed to be run from the command line
 
         raise NotImplementedError
 
@@ -78,33 +78,35 @@ class AstropyTableFilehandler(object):
         manager.logprior = options.logprior
         manager.wtg_shearcal = options.wtg_shearcal
 
-        r_arcmin, E, B = compute_shear(cat=manager.lensingcat,
-                                       center=(options.cluster_ra, options.cluster_dec),
-                                       raCol=options.raCol,
-                                       decCol=options.decCol,
-                                       g1Col=options.g1Col,
-                                       g2Col=options.g2Col)
+        r_arcmin, E, B, phi = compute_shear(cat=manager.lensingcat,
+                                            center=(options.cluster_ra,
+                                                    options.cluster_dec),
+                                            raCol=options.raCol,
+                                            decCol=options.decCol,
+                                            g1Col=options.g1Col,
+                                            g2Col=options.g2Col)
 
-        
         r_mpc = r_arcmin * (1. / 60.) * (np.pi / 180.) * \
-                nfwutils.global_cosmology.angulardist(options.zcluster)
+            nfwutils.global_cosmology.angulardist(options.zcluster)
 
         if options.wtg_shearcal:
             manager.psfsize = options.psfsize
             size = manager.lensingcat[options.sizeCol] / options.psfsize
             snratio = manager.lensingcat[options.snratioCol]
 
-##       old version                
+# old version
 #        manager.open('pdzcat', options.pdzfile, table.Table.read, path=options.prefix + 'pdz_values')
 #        manager.open('pdzrange', options.pdzfile, table.Table.read, path=options.prefix + 'pdz_bins')
 #        manager.replace('pdzrange', lambda: manager.pdzrange['zbins'])
 
-        manager.pdzrange = manager.zcat['zbins'][0]  # all objects have same zbins, take the first one
-        manager.replace('pdzrange', lambda: manager.pdzrange) 
-        
+        # all objects have same zbins, take the first one
+        manager.pdzrange = manager.zcat['zbins'][0]
+        manager.replace('pdzrange', lambda: manager.pdzrange)
+
         # only keep 'i' filter
         if 'filter' in manager.lensingcat.keys():
-            manager.replace('lensingcat', manager.lensingcat[manager.lensingcat["filter"] == 'i'])
+            manager.replace(
+                'lensingcat', manager.lensingcat[manager.lensingcat["filter"] == 'i'])
 
         # redshift cut
 #       if 'z_flag_pdz_' + options.prefix[:-1] in manager.lensingcat.keys():
@@ -115,12 +117,15 @@ class AstropyTableFilehandler(object):
                 manager.replace('lensingcat',
                                 manager.lensingcat[options.cat["flag_" + options.mconfig['zconfig']]['flag_z_pdz'] == True])
             elif 'zflagconfig' in options.mconfig and options.mconfig['zflagconfig'] == 'hard':
-                print("Using hard flag",len(manager.lensingcat[options.cat["flag_" + options.mconfig['zconfig']]['flag_z_hard'] == True]))
+                print("Using hard flag", len(
+                    manager.lensingcat[options.cat["flag_" + options.mconfig['zconfig']]['flag_z_hard'] == True]))
                 manager.replace('lensingcat',
-                                 manager.lensingcat[options.cat["flag_" + options.mconfig['zconfig']]['flag_z_hard'] == True])
+                                manager.lensingcat[options.cat["flag_" + options.mconfig['zconfig']]['flag_z_hard'] == True])
 
-        manager.matched_zcat = util.matchById(manager.zcat, manager.lensingcat, 'id', 'objectId')
-        manager.pz = manager.matched_zcat['pdz']  # area normalized, ie density function
+        manager.matched_zcat = util.matchById(
+            manager.zcat, manager.lensingcat, 'id', 'objectId')
+        # area normalized, ie density function
+        manager.pz = manager.matched_zcat['pdz']
 
         z_b = manager.matched_zcat['Z_BEST']
 
@@ -139,7 +144,7 @@ class AstropyTableFilehandler(object):
                     pyfits.Column(name='z_b', format='E', array=z_b),
                     pyfits.Column(name='ghats', format='E', array=E),
                     pyfits.Column(name='B', format='E', array=B)]
- 
+
         manager.store('inputcat',
                       ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols))))
 
@@ -151,13 +156,15 @@ def compute_shear(cat, center, raCol, decCol, g1Col, g2Col):
     dec = cat[decCol]
     e1 = cat[g1Col]
     e2 = cat[g2Col]
-    
+
 #    posangle = (np.pi / 2.) - sphereGeometry.positionAngle(ra, dec, cluster_ra, cluster_dec)
 
 # Given this implementation, we need a minus sign to get the right position angle from ra, dec.
-    posangle = -((np.pi / 2.) - sphereGeometry.positionAngle(ra, dec, cluster_ra, cluster_dec))
+    posangle = -((np.pi / 2.) - sphereGeometry.positionAngle(ra,
+                                                             dec, cluster_ra, cluster_dec))
 
-    r_arcmin = sphereGeometry.greatCircleDistance(ra, dec, cluster_ra, cluster_dec) * 60
+    r_arcmin = sphereGeometry.greatCircleDistance(
+        ra, dec, cluster_ra, cluster_dec) * 60
 
     cos2phi = np.cos(2 * posangle)
     sin2phi = np.sin(2 * posangle)

@@ -16,8 +16,8 @@ def positionAngle(ra1, dec1, ra2, dec2):
     dec1rad = dec1 * np.pi / 180.
     dec2rad = dec2 * np.pi / 180.
     radelta = ra2rad - ra1rad
-    theta = np.arctan2(np.sin(radelta), np.cos(dec1rad) * np.tan(dec2rad) \
-                           - np.sin(dec1rad) * np.cos(radelta))
+    theta = np.arctan2(np.sin(radelta), np.cos(dec1rad) * np.tan(dec2rad)
+                       - np.sin(dec1rad) * np.cos(radelta))
     return theta
 
 

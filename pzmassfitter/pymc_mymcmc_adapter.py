@@ -27,7 +27,7 @@ class CompositeParameter(mymc.Parameter):
         self.index = index
         self.name = '%s_%d' % (self.masterobj.__name__, self.index)
 
-        self.width = width*np.abs(self())
+        self.width = width * np.abs(self())
 
         print(self.name, self.width)
 
@@ -35,7 +35,8 @@ class CompositeParameter(mymc.Parameter):
         return self.masterobj.value[self.index]
 
     def set(self, value):
-        curval = np.copy(self.masterobj.value)   #to not disturb pymc caching mechanism
+        # to not disturb pymc caching mechanism
+        curval = np.copy(self.masterobj.value)
         curval[self.index] = value
         self.masterobj.value = curval
 
@@ -47,7 +48,7 @@ class WrapperParameter(mymc.Parameter):
         self.masterobj = masterobj
         self.name = self.masterobj.__name__
 
-        self.width = width*np.abs(self())
+        self.width = width * np.abs(self())
 
         print(self.name, self.width)
 
@@ -67,6 +68,7 @@ class DerivedWrappedParameter(mymc.DerivedParameter):
     def __init__(self, masterobj):
         self.masterobj = masterobj
         self.name = self.masterobj.__name__
+
     def get_value(self):
         return self.masterobj.value
     value = property(get_value)
@@ -140,7 +142,6 @@ def wrapModel(model):
         if o.__name__ not in current_names:
             observed.append(o)
 
-
     parameters = sorted(parameters, key=operator.attrgetter('name'))
     deterministics = sorted(deterministics, key=operator.attrgetter('name'))
 
@@ -198,7 +199,6 @@ class MyMCRunner(object):
             parallel = None
             manager.mpi_rank = 0
 
-
         space, trace = wrapModel(manager.model)
         step = mymc.Slice()
         updater = mymc.MultiDimRotationUpdater(space, step, options.adapt_every,
@@ -215,7 +215,7 @@ class MyMCRunner(object):
                 with open(bitsfile, 'rb') as input:
                     updater.restoreBits(pickle.load(input))
 
-            ## initialize chain to last sampled value
+            # initialize chain to last sampled value
             if os.path.exists(chainfile):
 
                 writeHeader = False
@@ -229,7 +229,8 @@ class MyMCRunner(object):
             os.remove(chainfile)
 
         manager.chainfile = open(chainfile, 'a')
-        manager.textout = mymc.headerTextBackend(manager.chainfile, trace, writeHeader=writeHeader)
+        manager.textout = mymc.headerTextBackend(
+            manager.chainfile, trace, writeHeader=writeHeader)
 
         backends = [manager.textout]
 
@@ -336,7 +337,8 @@ def dumpMasses(masses, outputFile):
 
     mean = np.mean(masses)
     stddev = np.std(masses)
-    quantiles = pymc.utils.quantiles(masses, qlist=[2.5, 15.8, 25, 50, 75, 84.1, 97.5])
+    quantiles = pymc.utils.quantiles(
+        masses, qlist=[2.5, 15.8, 25, 50, 75, 84.1, 97.5])
     hpd68 = pymc.utils.hpd(masses, 0.32)
     hpd95 = pymc.utils.hpd(masses, 0.05)
     ml, (m, p) = ci.maxDensityConfidenceRegion(masses)
@@ -357,13 +359,13 @@ def dumpMasses(masses, outputFile):
         output.close()
 
     with open('%s.mass.summary.pkl' % outputFile, 'wb') as output:
-        stats = {'mean' : mean,
-                 'stddev' : stddev,
-                 'quantiles' : quantiles,
-                 'hpd68' : hpd68,
-                 'hpd95' : hpd95,
-                 'maxlike' : (ml, (m, p)),
-                 'log10maxlike' : (lml, (lm, lp))}
+        stats = {'mean': mean,
+                 'stddev': stddev,
+                 'quantiles': quantiles,
+                 'hpd68': hpd68,
+                 'hpd95': hpd95,
+                 'maxlike': (ml, (m, p)),
+                 'log10maxlike': (lml, (lm, lp))}
         pickle.dump(stats, output)
         output.close()
 
