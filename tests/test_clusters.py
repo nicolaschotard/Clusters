@@ -53,7 +53,6 @@ def test_data_functions(datafile=DATAFILE):
 
 def test_main(config=CONFIG, datafile=DATAFILE):
     """Test the pipeline."""
-
     data.load_data([config, "--output", datafile, "--overwrite"])
     data.load_data([config, "--show", "--overwrite"])
     filtered_data = datafile.replace('.hdf5', '_filtered_data.hdf5')

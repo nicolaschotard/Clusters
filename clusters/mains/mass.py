@@ -10,7 +10,7 @@ from pzmassfitter import dmstackdriver
 
 
 def mass(argv=None):
-    """Compute cluster mass"""
+    """Compute cluster mass."""
     description = """Compute the mass."""
     prog = "clusters_mass.py"
     usage = """%s [options] config input""" % prog

@@ -80,6 +80,7 @@ def load_data(argv=None):
 
 
 def apply_filter(hdf5file, config, output, overwrite):
+    """Apply quality cuts and only keep the galaxies."""
     print("\nINFO: Applying filters on the data to keep a clean sample of galaxies")
     catalogs = cdata.read_hdf5(hdf5file)
     data = cdata.Catalogs(config['butler'], load_butler=False)

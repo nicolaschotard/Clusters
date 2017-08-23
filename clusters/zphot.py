@@ -292,7 +292,7 @@ class BPZ(object):
             print("INFO: All data saved in", self.files['all_input'])
 
     def build_columns_file(self, prefix='CFHT_megacam_', sufix='p',
-                           filters=None, ref='i', Z_S=False):
+                           filters=None, ref='i', z_s=False):
         """Build and write the 'columns' file.
 
         Hardcoded for test purpose.
@@ -306,7 +306,7 @@ class BPZ(object):
                     (prefix, filt, sufix, i + 2, i + len(filters) + 2))
             f.write("M_0                 %i\n"
                     % [j + 2 for j, filt in enumerate(filters) if filt == ref][0])
-        if Z_S:
+        if z_s:
             f.write("Z_S                  %i\n" % (len(filters) * 2 + 2))
         f.write("ID                    1\n")
         f.close()
@@ -352,7 +352,7 @@ class BPZ(object):
 
 class ZPHOTO(object):
 
-    """Read photoz code (LePhare, BPZ) output file and creates/saves astropy tables"""
+    """Read photoz code (LePhare, BPZ) output file and creates/saves astropy tables."""
 
     def __init__(self, zphot_output, zphot_pdz_output, zcode_name=None, all_input=None, **kwargs):
         """Read the photoz progam (LePhare, BPZ, ...) output."""
@@ -409,10 +409,7 @@ class ZPHOTO(object):
                                      usecols=N.arange(1, len(self.pdz_zbins) + 1))
 
     def save_zphot(self, file_out, path_output, overwrite=False):
-        """
-        Save the output of photoz code (z_best, chi^2, pdz) into astropy table.
-        """
-
+        """Save the output of photoz code (z_best, chi^2, pdz) into astropy table."""
         # Duplicates the zbins vector for each object.
         # It is redundant information but astropy tables need each field to have the
         # same size. Or maybe I'm missing something.

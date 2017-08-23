@@ -3,12 +3,11 @@
 from __future__ import with_statement
 try:
     import cPickle as pickle  # python 2
-except:
+except ImportError:
     import pickle  # python 3
 import pymc
 import numpy as np
 import astropy.io.fits as pyfits
-import shelve
 from . import ldac
 from . import nfwutils
 from . import util
@@ -165,8 +164,9 @@ class LensingModel(object):
             ztypecut[type2] = np.logical_and(type2, zb < 1.3)
 
             type3 = np.logical_and(zt >= 3, zt < 4)
-            ztypecut[type3] = np.logical_and(type3, np.logical_or(zb <= 1,
-                                                                  np.logical_and(1.15 < zb, zb < 1.3)))
+            ztypecut[type3] = np.logical_and(type3,
+                                             np.logical_or(zb <= 1,
+                                                           np.logical_and(1.15 < zb, zb < 1.3)))
 
             type4 = np.logical_and(zt >= 4, zt < 5)
             ztypecut[type4] = np.logical_and(type4, np.logical_or(
@@ -175,7 +175,7 @@ class LensingModel(object):
             type5 = np.logical_and(zt >= 5, zt < 6)
             ztypecut[type5] = False
 
-#        basic_cuts = reduce(np.logical_and, [goodObjs, deltaZcut, zcut, ztypecut])
+        # basic_cuts = reduce(np.logical_and, [goodObjs, deltaZcut, zcut, ztypecut])
         basic_cuts = reduce(np.logical_and, [goodObjs, zcut, ztypecut])
 
         return basic_cuts
@@ -263,9 +263,7 @@ class LensingModel(object):
 
         parts.data = None
         for i in range(20):
-
             try:
-
                 @pymc.stochastic(observed=True, name='data_%d' % i)
                 def data(value=parts.ghats,
                          mdelta=parts.mdelta,
@@ -296,7 +294,6 @@ class LensingModel(object):
                                             massdelta)
 
                 parts.data = data
-
                 break
             except pymc.ZeroProbability:
                 pass
