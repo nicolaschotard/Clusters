@@ -160,10 +160,10 @@ class Catalogs(object):
                      for dataId in self.dataids[dataset])
         try:  # In recent stack version, metadata are in HDU 1
             headers = (afwimage.readMetadata(fn, 1) for fn in filenames)
+            size = sum(md.get("NAXIS2") for md in headers)
         except:  # Older stack version
             headers = (afwimage.readMetadata(fn, 2) for fn in filenames)
-
-        size = sum(md.get("NAXIS2") for md in headers)
+            size = sum(md.get("NAXIS2") for md in headers)
         cat = self.butler.get(dataset, self.dataids[dataset][0],
                               flags=afwtable.SOURCE_IO_NO_FOOTPRINTS, immediate=True)
         self.from_butler['schema'] = cat.schema
