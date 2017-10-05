@@ -14,7 +14,7 @@ from scipy.optimize import curve_fit
 from astropy.io import ascii
 from astropy.table import Table, hstack
 from astropy.coordinates import SkyCoord
-from . import data as cdata
+from . import utils as cutils
 
 
 class LEPHARE(object):
@@ -436,8 +436,7 @@ class ZPHOTO(object):
         # the data in path, but the whole file, i.e. (we lose all other
         # paths in the process) --> overwrite_or_append (see above)
 
-        cdata.overwrite_or_append(
-            file_out, path_output, new_tab, overwrite=overwrite)
+        cutils.overwrite_or_append(file_out, path_output, new_tab, overwrite=overwrite)
 
         print("INFO: ", self.code, "data saved in", file_out, "as", path_output)
 

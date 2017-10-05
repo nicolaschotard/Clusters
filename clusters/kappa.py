@@ -11,7 +11,7 @@ try:
 except ImportError:
     print("WARNING: optional module numba cannot be imported.")
 import astropy.io.fits as pyfits
-from . import data as cdata
+from . import utils as cutils
 
 
 seaborn.set(style='ticks')
@@ -186,7 +186,7 @@ class Kappa(object):
         dxs = [dx[xarange[jj]:xarange[jj + 1]]
                for jj in range(len(xarange[:-1]))]
         # Now loop over the y axis (explode memory otherwise)
-        pbar = cdata.progressbar(len(dy) * (len(xarange) - 1))
+        pbar = cutils.progressbar(len(dy) * (len(xarange) - 1))
         for ii, dyy in enumerate(dy):
             etan, ecross, int_radius = [], [], []
             for jj, dxx in enumerate(dxs):
@@ -257,7 +257,7 @@ class Kappa(object):
                     print(
                         "         Use wcs = kappa.load_wcs('data.hdf5') to get the wcs.")
                 else:
-                    xsrc, ysrc = cdata.skycoord_to_pixel(clust_coord, wcs)
+                    xsrc, ysrc = cutils.skycoord_to_pixel(clust_coord, wcs)
                     ax.plot(xsrc, ysrc, color='g', ms=25, mew=4, marker='+')
             ax.set_xlim(xmin=min(self.data['xsrc']),
                         xmax=max(self.data['xsrc']) + 1)
@@ -265,13 +265,13 @@ class Kappa(object):
                         ymax=max(self.data['ysrc']) + 1)
             ax.tick_params(axis='both', labelsize=14)
             if wcs is not None:
-                ra = cdata.pixel_to_skycoord(ax.get_xticks(),
-                                             [np.mean(self.data['ysrc'])] *
-                                             len(ax.get_xticks()),
-                                             wcs).ra.value
-                dec = cdata.pixel_to_skycoord([np.mean(self.data['xsrc'])] * len(ax.get_yticks()),
-                                              ax.get_yticks(),
-                                              wcs).dec.value
+                ra = cutils.pixel_to_skycoord(ax.get_xticks(),
+                                              [np.mean(self.data['ysrc'])] *
+                                              len(ax.get_xticks()),
+                                              wcs).ra.value
+                dec = cutils.pixel_to_skycoord([np.mean(self.data['xsrc'])] * len(ax.get_yticks()),
+                                               ax.get_yticks(),
+                                               wcs).dec.value
                 ax2 = ax.twiny()
                 ax2.set_xlim(ax.get_xlim())
                 ax2.set_xticks(ax.get_xticks())
@@ -332,16 +332,16 @@ class Kappa(object):
             #              " or coordinates in pixel units.")
             #        print("         Use wcs = kappa.load_wcs('data.hdf5') to get the wcs.")
             #    else:
-            #        xsrc, ysrc = cdata.skycoord_to_pixel(clust_coord, wcs)
+            #        xsrc, ysrc = cutils.skycoord_to_pixel(clust_coord, wcs)
             #        ax.plot(xsrc, ysrc, color='g', ms=25, mew=4, marker='+')
             #ax.set_xlim(xmin=min(self.data['xsrc']), xmax=max(self.data['xsrc']) + 1)
             #ax.set_ylim(ymin=min(self.data['ysrc']), ymax=max(self.data['ysrc']) + 1)
             #ax.tick_params(axis='both', labelsize=14)
             # if wcs is not None:
-            #    ra = cdata.pixel_to_skycoord(ax.get_xticks(),
+            #    ra = cutils.pixel_to_skycoord(ax.get_xticks(),
             #                                 [np.mean(self.data['ysrc'])] * len(ax.get_xticks()),
             #                                 wcs).ra.value
-            #    dec = cdata.pixel_to_skycoord([np.mean(self.data['xsrc'])] * len(ax.get_yticks()),
+            #    dec = cutils.pixel_to_skycoord([np.mean(self.data['xsrc'])] * len(ax.get_yticks()),
             #                                  ax.get_yticks(),
             #                                  wcs).dec.value
             #    ax2 = ax.twiny()
@@ -447,12 +447,12 @@ def compute_ecross(sch1, sch2, cos2phi, sin2phi):
 
 def load_data(datafile):
     """Load the needed deepCoadd_meas catalog."""
-    return cdata.read_hdf5(datafile, path='deepCoadd_meas', dic=False)
+    return cutils.read_hdf5(datafile, path='deepCoadd_meas', dic=False)
 
 
 def load_wcs(datafile):
     """Load the WCS."""
-    return cdata.load_wcs(cdata.read_hdf5(datafile, 'wcs', dic=False))
+    return cutils.load_wcs(cutils.read_hdf5(datafile, 'wcs', dic=False))
 
 
 def get_cat(datafile, **kwargs):

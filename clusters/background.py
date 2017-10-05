@@ -8,7 +8,7 @@ from astropy.cosmology import Planck15 as cosmo
 from astropy import units as u
 import numpy as N
 import pylab as P
-from . import data as cdata
+from . import utils as cutils
 
 
 def color_histo(mags):
@@ -325,8 +325,8 @@ def red_sequence_cut(config, data, **kwargs):
     da = cosmo.angular_diameter_distance(
         config['redshift'])  # Mpc - using Planck15 cosmo
     rcut_rs = 1 * u.Mpc
-    sub_sample = cdata.filter_around(data, config, exclude_outer=N.arctan(rcut_rs / da).value,
-                                     unit='rad', plot=plot)
+    sub_sample = cutils.filter_around(data, config, exclude_outer=N.arctan(rcut_rs / da).value,
+                                      unit='rad', plot=plot)
 
     color_gr = sub_sample['modelfit_CModel_mag'][sub_sample['filter'] == 'g'] \
         - sub_sample['modelfit_CModel_mag'][sub_sample['filter'] == 'r']

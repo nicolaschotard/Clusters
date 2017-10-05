@@ -5,7 +5,7 @@ from __future__ import print_function
 import os
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 
-from .. import data as cdata
+from .. import utils as cutils
 from .. import shear as cshear
 
 
@@ -28,7 +28,7 @@ def shear(argv=None):
                         help="Make some plots")
     args = parser.parse_args(argv)
 
-    config = cdata.load_config(args.config)
+    config = cutils.load_config(args.config)
     if args.output is None:
         args.output = os.path.basename(
             args.input).replace('.hdf5', '_shear.hdf5')
@@ -41,11 +41,11 @@ def shear(argv=None):
     print("INFO: Working on filters", config['filter'])
 
     # Load the data
-    data = cdata.read_hdf5(args.input)
+    data = cutils.read_hdf5(args.input)
     meas = data['deepCoadd_meas']
     # converts astropy Table to the right wcs format
-    wcs = cdata.load_wcs(data['wcs'])
-    xclust, yclust = cdata.skycoord_to_pixel(
+    wcs = cutils.load_wcs(data['wcs'])
+    xclust, yclust = cutils.skycoord_to_pixel(
         [config['ra'], config['dec']], wcs)
     cshear.analysis(meas, float(xclust), float(yclust),
                     config=config, datafile=args.input)

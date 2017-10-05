@@ -5,7 +5,7 @@ from __future__ import print_function
 import os
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 
-from .. import data as cdata
+from .. import utils as cutils
 from pzmassfitter import dmstackdriver
 
 
@@ -32,7 +32,7 @@ def mass(argv=None):
                         help="Simplify model for testing purposes")
     args = parser.parse_args(argv)
 
-    config = cdata.load_config(args.config)
+    config = cutils.load_config(args.config)
 
     # Select the zphot configuration to use for mass estimation
     # If not specified in yaml file, order the zphot configuration names alphabetically
@@ -49,7 +49,7 @@ def mass(argv=None):
     print("INFO: Working on filters", config['filter'])
 
     # Load the data
-    data = cdata.read_hdf5(args.input)
+    data = cutils.read_hdf5(args.input)
 
     cluster = config['cluster']
     zcluster = config['redshift']

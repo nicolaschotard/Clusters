@@ -7,6 +7,7 @@ import sys
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 
 from .. import data as cdata
+from .. import utils as cutils
 
 
 def load_data(argv=None):
@@ -35,7 +36,7 @@ def load_data(argv=None):
                         help="Show and save the list of available keys in the catalogs, and exit.")
     args = parser.parse_args(argv)
 
-    config = cdata.load_config(args.config)
+    config = cutils.load_config(args.config)
 
     if args.output is None:
         output = os.path.basename(args.config).replace('.yaml', '_data.hdf5')
@@ -82,7 +83,7 @@ def load_data(argv=None):
 def apply_filter(hdf5file, config, output, overwrite):
     """Apply quality cuts and only keep the galaxies."""
     print("\nINFO: Applying filters on the data to keep a clean sample of galaxies")
-    catalogs = cdata.read_hdf5(hdf5file)
+    catalogs = cutils.read_hdf5(hdf5file)
     data = cdata.Catalogs(config['butler'], load_butler=False)
-    data.catalogs = cdata.filter_table(catalogs)
+    data.catalogs = cutils.filter_table(catalogs)
     data.save_catalogs(output, overwrite=overwrite, delete_catalog=True)

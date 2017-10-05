@@ -6,7 +6,7 @@ from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 from astropy.table import Table, hstack
 from extinctions import reddening
 
-from .. import data as cdata
+from .. import utils as cutils
 from .. import extinction as cextinction
 
 
@@ -32,7 +32,7 @@ def extinction(argv=None):
                         "Default map will be SFD")
     args = parser.parse_args(argv)
 
-    config = cdata.load_config(args.config)
+    config = cutils.load_config(args.config)
     if args.output is None:
         args.output = args.input
 
@@ -42,7 +42,7 @@ def extinction(argv=None):
 
     # Load the data
     print("INFO: Loading data from ", args.input)
-    data = cdata.read_hdf5(args.input, path='deepCoadd_meas', dic=False)
+    data = cutils.read_hdf5(args.input, path='deepCoadd_meas', dic=False)
 
     # Query for E(b-v) and compute the extinction
     print("INFO: Loading the coordinates")
@@ -72,8 +72,7 @@ def extinction(argv=None):
     new_tab = hstack([data['id', 'coord_ra', 'coord_dec', 'filter'],
                       Table(ebmv), Table(albds)], join_type='inner')
 
-    cdata.overwrite_or_append(
-        args.output, 'extinction', new_tab, overwrite=args.overwrite)
+    cutils.overwrite_or_append(args.output, 'extinction', new_tab, overwrite=args.overwrite)
 
     print("INFO: Milky Way dust extinction correction applied")
     print("INFO: Data saved in", args.output)

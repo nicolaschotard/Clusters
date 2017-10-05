@@ -6,7 +6,7 @@ import numpy
 import pylab
 import seaborn
 from astropy.table import Table, Column
-from . import data as cdata
+from . import utils as cutils
 from . import kappa as ckappa
 
 
@@ -70,7 +70,7 @@ def analysis(table, xclust, yclust, e1='ext_shapeHSM_HsmShapeRegauss_e1',
 
 def xy_clust(config, wcs):
     """Return xy coordinate (pixel)."""
-    return cdata.skycoord_to_pixel([config['ra'], config['dec']], wcs)
+    return cutils.skycoord_to_pixel([config['ra'], config['dec']], wcs)
 
 
 def compare_shear(catalogs, xclust, yclust, qcut=None, param='Tshear'):
