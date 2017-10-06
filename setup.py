@@ -47,6 +47,6 @@ setup(name=name,
       ext_modules=cythonize(extensions),
       scripts=scripts,
       package_data=package_data,
-      long_description=open(README).read(),
+      long_description=open(README, 'rb').read(),
       setup_requires=['pytest-runner'],
       tests_require=['pytest'])
