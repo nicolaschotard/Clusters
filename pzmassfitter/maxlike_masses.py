@@ -83,7 +83,7 @@ class LensingModel(object):
         parser.add_option('--logprior', dest='logprior',
                           help='Turn on log10 mass prior',
                           default=False, action='store_true')
-
+        
     #######################################################
 
     def createOptions(self, deltaz95low=-1, deltaz95high=2.5, zbhigh=5,  # zbhigh=1.25 default

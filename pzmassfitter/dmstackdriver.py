@@ -4,6 +4,7 @@
 from . import maxlike_controller as mcont
 from . import maxlike_bentstep_voigt
 from . import maxlike_masses
+from . import maxlike_masses_compare_doug
 from . import astropytable_filehandler as atf
 
 
@@ -21,10 +22,11 @@ def makeController():
 
 
 # Use definition below [BentVoigt3Shapedistro()] to enable STEP2 shear calibration
-def makeController_sc():
-    return mcont.Controller(modelbuilder=maxlike_bentstep_voigt.BentVoigt3Shapedistro(),
-                            filehandler=atf.AstropyTableFilehandler(),
-                            runmethod=maxlike_masses.SampleModelToFile())
+# Obsolete: now flag in BentVoigtShapedistro() to use or not STEP2 shear calibration
+#def makeController_sc():
+#    return mcont.Controller(modelbuilder=maxlike_bentstep_voigt.BentVoigt3Shapedistro(),
+#                            filehandler=atf.AstropyTableFilehandler(),
+#                            runmethod=maxlike_masses.SampleModelToFile())
 
 
 controller = makeController()

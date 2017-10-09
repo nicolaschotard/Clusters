@@ -8,9 +8,11 @@ from __future__ import print_function
 import numpy as np
 # import astropy.table as table
 import astropy.io.fits as pyfits
+from astropy import coordinates as coord
+from astropy import units as u
 from . import util
 from . import nfwutils
-from . import sphereGeometry
+# from . import sphereGeometry
 from . import ldac
 
 
@@ -78,7 +80,7 @@ class AstropyTableFilehandler(object):
         manager.logprior = options.logprior
         manager.wtg_shearcal = options.wtg_shearcal
 
-        r_arcmin, E, B, phi = compute_shear(cat=manager.lensingcat,
+        r_arcmin, E, B = compute_shear(cat=manager.lensingcat,
                                             center=(options.cluster_ra,
                                                     options.cluster_dec),
                                             raCol=options.raCol,
@@ -136,8 +138,7 @@ class AstropyTableFilehandler(object):
                     pyfits.Column(name='snratio', format='E', array=snratio),
                     pyfits.Column(name='z_b', format='E', array=z_b),
                     pyfits.Column(name='ghats', format='E', array=E),
-                    pyfits.Column(name='B', format='E', array=B),
-                    pyfits.Column(name='phi', format='E', array=phi)]
+                    pyfits.Column(name='B', format='E', array=B)]
         else:
             cols = [pyfits.Column(name='SeqNr', format='J', array=manager.lensingcat['id']),
                     pyfits.Column(name='r_mpc', format='E', array=r_mpc),
@@ -156,20 +157,33 @@ def compute_shear(cat, center, raCol, decCol, g1Col, g2Col):
     dec = cat[decCol]
     e1 = cat[g1Col]
     e2 = cat[g2Col]
-
+    
 #    posangle = (np.pi / 2.) - sphereGeometry.positionAngle(ra, dec, cluster_ra, cluster_dec)
 
-# Given this implementation, we need a minus sign to get the right position angle from ra, dec.
-    posangle = -((np.pi / 2.) - sphereGeometry.positionAngle(ra,
-                                                             dec, cluster_ra, cluster_dec))
+#    Given this implementation, we need a minus sign to get the right position angle from ra, dec.
+#    posangle = -((np.pi / 2.) - sphereGeometry.positionAngle(ra,
+#                                                             dec, cluster_ra, cluster_dec))
+#    r_arcmin = sphereGeometry.greatCircleDistance(
+#        ra, dec, cluster_ra, cluster_dec) * 60
 
-    r_arcmin = sphereGeometry.greatCircleDistance(
-        ra, dec, cluster_ra, cluster_dec) * 60
+#   Using standard astropy coordinates rather than sphereGeometry.
+#   sphereGeometry.posangle --> returns angle on [-pi, pi]
+#   astropy.coordinates.position_angle [0, 2pi]
+#   sphereGeometry.posangle = astropy.coordinates.position_angleif astropy.coordinates.position_angle < pi
+#   sphereGeometry.posangle = astropy.coordinates.position_angle - 2pi otherwise
+#   These angles are only unsed in cos(2phi) and sin(2phi), so that the difference above does not matter
+
+    coord_cl = coord.SkyCoord(cluster_ra*u.deg, cluster_dec*u.deg)
+    coord_gal = coord.SkyCoord(ra*u.deg, dec*u.deg)
+    
+    posangle = -((np.pi / 2.) - coord_gal.position_angle(coord_cl).rad)
+
+    r_arcmin=coord_gal.separation(coord_cl).arcmin
 
     cos2phi = np.cos(2 * posangle)
     sin2phi = np.sin(2 * posangle)
 
     E = -(e1 * cos2phi + e2 * sin2phi)
     B = e1 * sin2phi - e2 * cos2phi
-
+    
     return r_arcmin, E, B
