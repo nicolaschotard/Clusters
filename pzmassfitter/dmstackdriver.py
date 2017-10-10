@@ -4,7 +4,6 @@
 from . import maxlike_controller as mcont
 from . import maxlike_bentstep_voigt
 from . import maxlike_masses
-from . import maxlike_masses_compare_doug
 from . import astropytable_filehandler as atf
 
 
