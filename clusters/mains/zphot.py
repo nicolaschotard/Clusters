@@ -6,9 +6,8 @@ import numpy as N
 from astropy.table import Table
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 
-from .. import data as cdata
 from .. import zphot as czphot
-
+from .. import utils as cutils
 
 def photometric_redshift(argv=None):
     """Compute photometric redshift using LEPHARE."""
@@ -34,7 +33,7 @@ def photometric_redshift(argv=None):
                         ". A three columns file: # filt zp zp_err")
     args = parser.parse_args(argv)
 
-    config = cdata.load_config(args.config)
+    config = cutils.load_config(args.config)
     if args.output is None:  # if no output name specified, append table to input file
         args.output = args.input
 
@@ -46,14 +45,14 @@ def photometric_redshift(argv=None):
 
         # Load the data
         print("INFO: Loading the data from", args.input)
-        tables = cdata.read_hdf5(args.input)
+        tables = cutils.read_hdf5(args.input)
         data = tables['deepCoadd_forced_src']
 
         # Compute extinction-corrected magitudes
         if args.extinction and 'extinction' in tables.keys():
             print("INFO: Computing extinction-corrected magnitude for", args.mag,
                   "using the '%s' dust map" % args.dustmap)
-            cdata.correct_for_extinction(
+            cutils.correct_for_extinction(
                 data, tables['extinction'], mag=args.mag, ext=args.dustmap)
             args.mag += "_extcorr"
 
@@ -152,5 +151,5 @@ def photometric_redshift(argv=None):
 
         pdz_values = Table([id_sim, z_sim, pdz, zbinsgrid],
                            names=('objectId', 'Z_BEST', 'pdz', 'zbins'))
-        cdata.overwrite_or_append(
+        cutils.overwrite_or_append(
             args.output, path, pdz_values, overwrite=True)
