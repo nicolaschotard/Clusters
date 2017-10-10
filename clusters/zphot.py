@@ -304,10 +304,10 @@ class BPZ(object):
         for i, filt in enumerate(filters):
             f.write("%s%s%s     %i, %i   AB        0.01      0.00\n" %
                     (prefix, filt, sufix, i + 2, i + len(filters) + 2))
-            f.write("M_0                 %i\n"
-                    % [j + 2 for j, filt in enumerate(filters) if filt == ref][0])
         if z_s:
             f.write("Z_S                  %i\n" % (len(filters) * 2 + 2))
+        f.write("M_0                 %i\n"
+                    % [j + 2 for j, filt in enumerate(filters) if filt == ref][0])
         f.write("ID                    1\n")
         f.close()
 
