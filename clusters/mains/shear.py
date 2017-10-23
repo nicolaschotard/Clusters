@@ -26,6 +26,9 @@ def shear(argv=None):
                         help="Overwrite the output files if they exist already")
     parser.add_argument("--plot", action='store_true', default=False,
                         help="Make some plots")
+    parser.add_argument("--step", type=int,
+                        help="Step to use while making the kappa maps",
+                        default=200)
     args = parser.parse_args(argv)
 
     config = cutils.load_config(args.config)
@@ -48,4 +51,4 @@ def shear(argv=None):
     xclust, yclust = cutils.skycoord_to_pixel(
         [config['ra'], config['dec']], wcs)
     cshear.analysis(meas, float(xclust), float(yclust),
-                    config=config, datafile=args.input)
+                    config=config, datafile=args.input, step=args.step)

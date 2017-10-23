@@ -38,7 +38,9 @@ def load_config(config):
 
 def load_wcs(wcs):
     """Get back the right wcs format from the hdf5 table."""
-    return WCS({k: wcs[k].item() for k in wcs.keys()})
+    return WCS({k: wcs[k].item() if not isinstance(wcs[k].item(), bytes)
+                else wcs[k].item().decode()
+                for k in wcs.keys()})
 
 
 def skycoord_to_pixel(coords, wcs, unit='deg'):

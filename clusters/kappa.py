@@ -11,11 +11,14 @@ try:
 except ImportError:
     print("WARNING: optional module numba cannot be imported.")
 import astropy.io.fits as pyfits
+try:
+    import numexpr
+except ImportError:
+    print("WARNING: optional module numexpr cannot be imported.")
 from . import utils as cutils
 
 
 seaborn.set(style='ticks')
-
 
 class Kappa(object):
 
@@ -42,11 +45,15 @@ class Kappa(object):
 
         # numba?
         self.use_numba = kwargs.get("numba", False) and 'numba' in sys.modules
+        # numexpr?
+        self.use_numexpr = kwargs.get("numexpr", False) and 'numexpr' in sys.modules
         if self.use_numba:
             for func in to_jit:
                 apply_decorator(func, numba.jit)
             for func in to_vectorize:
                 apply_decorator(func, numba.vectorize)
+        elif self.use_numexpr:
+            numexpr.set_num_threads(numexpr.detect_number_of_threads())
 
         # Make sure all list are actually numpy arrays
         xsrc, ysrc, sch1, sch2 = [np.array(x.tolist()) for x in [
@@ -154,7 +161,7 @@ class Kappa(object):
         cgrid = (cmin + carange * self.parameters['step']).reshape(reshapep)
         return cgrid
 
-    def _get_kappa(self, xsampling=100):
+    def _get_kappa(self, xsampling=100000):
         """Now let's actually calculate the shear.
 
         The algorithm for all of these images is pretty simple.
@@ -180,7 +187,8 @@ class Kappa(object):
 
         if self.use_numba:
             print("Using numba to slightly speed up the process!")
-            self.maps = {}
+        if self.use_numexpr:
+            print("Using numexpr to slightly speed up the process!")
         # also loop over the x axis to pack them into arrays of 'xsampling' items
         xarange = [i for i in range(len(dx)) if not i % xsampling] + [len(dx)]
         dxs = [dx[xarange[jj]:xarange[jj + 1]]
@@ -197,6 +205,20 @@ class Kappa(object):
                     etan.extend(cetan)
                     ecross.extend(cecross)
                     int_radius.extend(cint_radius)
+                elif self.use_numexpr:
+                    dxxs = numexpr.evaluate("dxx**2")
+                    dyys = numexpr.evaluate("dyy**2")
+                    square_radius = numexpr.evaluate("dxxs + dyys")
+                    cos2phi = numexpr.evaluate("(dxxs - dyys) / square_radius")
+                    sin2phi = numexpr.evaluate("2.0 * dxx * dyy / square_radius")
+                    # Compute rotated ellipticities
+                    sch1 = self.data['sch1']
+                    sch2 = self.data['sch2']
+                    etan.extend(numexpr.evaluate("- (sch1 * cos2phi + sch2 * sin2phi)"))
+                    ecross.extend(numexpr.evaluate("- (sch2 * cos2phi - sch1 * sin2phi)"))
+                    # Transform cube of distances into a cube of integers
+                    # (will serve as indexes for weight)
+                    int_radius.extend(np.array(numexpr.evaluate("sqrt(square_radius)"), dtype=int))
                 else:
                     dxxs, dyys = dxx**2, dyy**2
                     square_radius = dxxs + dyys
@@ -363,7 +385,7 @@ class Kappa(object):
         # To modify header, use this syntax: hdu.header["cd1_1"]=XXXX
         for cmap in self.maps:
             hdu = pyfits.PrimaryHDU(self.maps[cmap])
-            hdu.writeto("%s.fits" % cmap, clobber=True)
+            hdu.writeto("%s.fits" % cmap, overwrite=True) # clobber=True is deprecated
 
 
 to_jit = []
