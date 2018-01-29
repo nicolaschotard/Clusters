@@ -80,13 +80,18 @@ class AstropyTableFilehandler(object):
         manager.logprior = options.logprior
         manager.wtg_shearcal = options.wtg_shearcal
 
+        # only keep 'i' filter
+        if 'filter' in manager.lensingcat.keys():
+            manager.replace(
+                'lensingcat', manager.lensingcat[manager.lensingcat["filter"] == 'i'])
+
         r_arcmin, E, B = compute_shear(cat=manager.lensingcat,
-                                            center=(options.cluster_ra,
-                                                    options.cluster_dec),
-                                            raCol=options.raCol,
-                                            decCol=options.decCol,
-                                            g1Col=options.g1Col,
-                                            g2Col=options.g2Col)
+                                       center=(options.cluster_ra,
+                                               options.cluster_dec),
+                                       raCol=options.raCol,
+                                       decCol=options.decCol,
+                                       g1Col=options.g1Col,
+                                       g2Col=options.g2Col)
 
         r_mpc = r_arcmin * (1. / 60.) * (np.pi / 180.) * \
             nfwutils.global_cosmology.angulardist(options.zcluster)
@@ -104,11 +109,6 @@ class AstropyTableFilehandler(object):
         # all objects have same zbins, take the first one
         manager.pdzrange = manager.zcat['zbins'][0]
         manager.replace('pdzrange', lambda: manager.pdzrange)
-
-        # only keep 'i' filter
-        if 'filter' in manager.lensingcat.keys():
-            manager.replace(
-                'lensingcat', manager.lensingcat[manager.lensingcat["filter"] == 'i'])
 
         # redshift cut
 #        if 'z_flag_pdz_' + options.prefix[:-1] in manager.lensingcat.keys():
