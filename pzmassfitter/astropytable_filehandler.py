@@ -80,6 +80,12 @@ class AstropyTableFilehandler(object):
         manager.logprior = options.logprior
         manager.wtg_shearcal = options.wtg_shearcal
 
+        # only keep 'i' filter
+        if 'filter' in manager.lensingcat.keys():
+            manager.replace(
+                'lensingcat', manager.lensingcat[manager.lensingcat["filter"] == 'i'])
+
+        
         r_arcmin, E, B = compute_shear(cat=manager.lensingcat,
                                             center=(options.cluster_ra,
                                                     options.cluster_dec),
@@ -105,10 +111,6 @@ class AstropyTableFilehandler(object):
         manager.pdzrange = manager.zcat['zbins'][0]
         manager.replace('pdzrange', lambda: manager.pdzrange)
 
-        # only keep 'i' filter
-        if 'filter' in manager.lensingcat.keys():
-            manager.replace(
-                'lensingcat', manager.lensingcat[manager.lensingcat["filter"] == 'i'])
 
         # redshift cut
 #        if 'z_flag_pdz_' + options.prefix[:-1] in manager.lensingcat.keys():
@@ -148,10 +150,13 @@ class AstropyTableFilehandler(object):
                     pyfits.Column(name='ghats', format='E', array=E),
                     pyfits.Column(name='B', format='E', array=B)]
 
+        print(len(manager.lensingcat['id']))
+ 
         manager.store('inputcat',
                       ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols))))
 
-
+        print(len(manager.inputcat))
+ 
 def compute_shear(cat, center, raCol, decCol, g1Col, g2Col):
     """Compute the radial and tangential shear."""
     cluster_ra, cluster_dec = center

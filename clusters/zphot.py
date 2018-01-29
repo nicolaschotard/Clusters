@@ -291,6 +291,8 @@ class BPZ(object):
             f.close()
             print("INFO: All data saved in", self.files['all_input'])
 
+#    def build_columns_file(self, prefix='HSC-', sufix='',
+#                           filters=None, ref='i', z_s=False):
     def build_columns_file(self, prefix='CFHT_megacam_', sufix='p',
                            filters=None, ref='i', z_s=False):
         """Build and write the 'columns' file.
@@ -299,6 +301,7 @@ class BPZ(object):
         """
         if filters is None:  # set the default values as the CFHT ones
             filters = ['u', 'g', 'r', 'i', 'z']
+#            filters = ['g', 'r', 'i', 'z', 'Y']
         f = open(self.files['columns'], 'w')
         f.write("# Filter  columns  AB/Vega  zp_error  zp_offset\n")
         for i, filt in enumerate(filters):
@@ -330,20 +333,21 @@ class BPZ(object):
         # build command line options from param file
         if self.config is not None:
             opt_arr = N.genfromtxt(self.config, dtype=None)
-            option = ['-' + opt_arr[i, 0] + ' ' + opt_arr[i, 1]
+            option = ['-' + opt_arr[i, 0].decode() + ' ' + opt_arr[i, 1].decode()
                       for i in N.arange(len(opt_arr))]
             options = ' '.join(e for e in option)
         else:
             options = ''
 
         # build command line
-        cmd = "python $BPZPATH/bpz.py %s " % self.files['input'] + options
+#        cmd = "python $BPZPATH/bpz.py %s " % self.files['input'] + options
+        cmd = "bpz_run.py %s " % self.files['input'] + options
         print("INFO: Will run '%s'" % cmd)
 
         self.bpz_out = subprocess.check_output(
             cmd, stderr=subprocess.STDOUT, shell=True)
         print("INFO: BPZ output summary (full output in self.bpz_out)")
-        print("\n".join(["   " + zo for zo in self.bpz_out.split("\n")[:20]]))
+#        print("\n".join(["   " + zo for zo in self.bpz_out.split("\n")[:20]]))
 
         self.data_out = ZPHOTO(self.files['output'], self.files['pdz_output'],
                                zcode_name='bpz', all_input=self.files['all_input'],
