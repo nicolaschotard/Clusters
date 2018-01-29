@@ -258,7 +258,7 @@ class Catalogs(object):
         Compute the x/y position in pixel for all sources. Add new columns to the table.
         """
         print(colored("\nINFO: Adding magnitude and coordinates columns", "green"))
-        catalogs = [catalog] if catalog is not None else self.catalogs
+        catalogs = [catalog] if catalog is not None else list(self.catalogs)
         for catalog in catalogs:
             # skip wcs key
             if catalog == 'wcs':

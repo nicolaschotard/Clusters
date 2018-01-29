@@ -124,8 +124,10 @@ class AstropyTableFilehandler(object):
                 manager.replace('lensingcat',
                                 manager.lensingcat[options.cat["flag_" + options.mconfig['zconfig']]['flag_z_hard'] == True])
 
-        manager.matched_zcat = util.matchById(
-            manager.zcat, manager.lensingcat, 'id', 'objectId')
+        if 'objectId' in manager.lensingcat:
+            manager.matched_zcat = util.matchById(manager.zcat, manager.lensingcat, 'id', 'objectId')
+        else:
+            manager.matched_zcat = util.matchById(manager.zcat, manager.lensingcat, 'id', 'id')
         # area normalized, ie density function
         manager.pz = manager.matched_zcat['pdz']
 
@@ -174,7 +176,7 @@ def compute_shear(cat, center, raCol, decCol, g1Col, g2Col):
 #   These angles are only unsed in cos(2phi) and sin(2phi), so that the difference above does not matter
 
     coord_cl = coord.SkyCoord(cluster_ra*u.deg, cluster_dec*u.deg)
-    coord_gal = coord.SkyCoord(ra*u.deg, dec*u.deg)
+    coord_gal = coord.SkyCoord(ra, dec)
     
     posangle = -((np.pi / 2.) - coord_gal.position_angle(coord_cl).rad)
 

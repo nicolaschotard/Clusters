@@ -377,7 +377,7 @@ class DataManager(util.VarContainer):
                                               args=args,
                                               keywords=keywords))
 
-        for item, updateFunc in toUpdate.iteritems():
+        for item, updateFunc in toUpdate.items():
 
             self._addItem(item, getattr(self[item], updateFunc)(
                 theFilter), replace=True)

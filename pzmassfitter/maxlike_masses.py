@@ -5,6 +5,7 @@ try:
     import cPickle as pickle  # python 2
 except ImportError:
     import pickle  # python 3
+from functools import reduce
 import pymc
 import numpy as np
 import astropy.io.fits as pyfits

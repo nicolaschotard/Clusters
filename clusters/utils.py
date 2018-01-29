@@ -151,7 +151,6 @@ def filter_table(cats):
 
     # keep galaxy
     filt &= cats['deepCoadd_meas']['base_ClassificationExtendedness_value'] >= 0.5
-    print(len(cats['deepCoadd_meas'][filt]))
 
     # Gauss regulerarization flag
     filt &= cats['deepCoadd_meas']['ext_shapeHSM_HsmShapeRegauss_flag'] == 0
