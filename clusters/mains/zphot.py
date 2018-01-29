@@ -96,9 +96,10 @@ def photometric_redshift(argv=None):
             zpara = config['zphot'][zconfig]['zpara'] \
                 if 'zpara' in config['zphot'][zconfig] else None
             spectro_file = config['zphot'][zconfig]['zspectro_file'] if 'zspectro_file' \
-                in config['zphot'][zconfig] else None
+                           in config['zphot'][zconfig] else None
             kwargs = {'basename': config['cluster'],
-                      'filters': [f for f in config['filter'] if f in set(data['filter'].tolist())],
+                      'filters': [f for f in config['filter'] if f in
+                                  [filt.decode() for filt in set(data['filter'].tolist())]],
                       'ra': data['coord_ra_deg'][data['filter'] == config['filter'][0]],
                       'dec': data['coord_dec_deg'][data['filter'] == config['filter'][0]],
                       'id': data['id' if 'id' in data.keys() else 'objectId'][data['filter'] ==
