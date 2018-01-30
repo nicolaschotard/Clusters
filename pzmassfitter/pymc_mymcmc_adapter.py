@@ -5,6 +5,7 @@ from __future__ import print_function
 import csv
 import sys
 import os
+from functools import reduce
 try:
     import cPickle as pickle  # python 2
 except:
