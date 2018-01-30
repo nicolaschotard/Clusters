@@ -271,18 +271,21 @@ class Catalogs(object):
                     k for k in self.catalogs[catalog].columns if k.endswith('_flux')]
                 ksigmas = [k + 'Sigma' for k in kfluxes]
                 print("    -> getting magnitudes")
+
                 for kflux, ksigma in zip(kfluxes, ksigmas):
                     if kflux.replace('_flux', '_mag') in self.catalogs[catalog].keys():
                         continue
-                    mag, dmag = self.from_butler['getmag'](np.array(self.catalogs[catalog][kflux],
-                                                                    dtype='float'),
-                                                           np.array(self.catalogs[catalog][ksigma],
-                                                                    dtype='float'))
-                    columns.append(Column(name=kflux.replace('_flux', '_mag'),
-                                          data=mag, description='Magnitude', unit='mag'))
-                    columns.append(Column(name=ksigma.replace('_fluxSigma', '_magSigma'),
-                                          data=dmag, description='Magnitude error', unit='mag'))
 
+                    if ksigma in self.catalogs[catalog].keys():
+                        mag, dmag = self.from_butler['getmag'](np.array(self.catalogs[catalog][kflux],
+                                                                        dtype='float'),
+                                                               np.array(self.catalogs[catalog][ksigma],
+                                                                        dtype='float'))
+                        columns.append(Column(name=kflux.replace('_flux', '_mag'),
+                                          data=mag, description='Magnitude', unit='mag'))
+                   
+                        columns.append(Column(name=ksigma.replace('_fluxSigma', '_magSigma'),
+                                          data=dmag, description='Magnitude error', unit='mag'))
             if 'x_Src' in self.catalogs[catalog].keys():
                 return
             ra = Quantity(self.catalogs[catalog]["coord_ra"].tolist(), 'rad')
