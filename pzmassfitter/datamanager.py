@@ -298,6 +298,7 @@ class DataManager(util.VarContainer):
     def _addItem(self, name, value, replace=False):
 
         if name not in self or replace is True:
+            super(DataManager, self).__setattr__(name, value)
             super(DataManager, self).__setitem__(name, value)
         else:
             raise ManagedDataException

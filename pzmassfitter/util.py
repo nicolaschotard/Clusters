@@ -10,10 +10,20 @@ class VarContainer(dict):
     """Basic Python Object that is a dual between an object and a dictionary."""
 
     def __getattr__(self, name):
-        return self[name]
+        try:
+            return self[name]
+        except KeyError:
+            raise AttributeError(name)
 
     def __setattr__(self, name, value):
-        self[name] = value
+        super().__setattr__(name, value)
+        super().__setitem__(name, value)
+
+
+class VarContainer2(dict):
+    """Basic Python Object that is a dual between an object and a dictionary."""
+
+    pass
 
 
 def readtxtfile(filename):
