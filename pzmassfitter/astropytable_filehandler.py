@@ -70,7 +70,6 @@ class AstropyTableFilehandler(object):
 
         manager.lensingcat = options.cat['deepCoadd_meas']
         manager.zcat = options.cat[options.mconfig['zconfig']]
-        manager.flagcat = options.cat['flag_'+options.mconfig['zconfig']]
 
         manager.clustername = options.cluster
         manager.zcluster = options.zcluster
@@ -90,10 +89,6 @@ class AstropyTableFilehandler(object):
         else:
             manager.matched_zcat = util.matchById(manager.zcat, manager.lensingcat, 'id', 'id')
 
-        if 'objectId' in manager.flagcat.keys():
-            manager.matched_flagcat = util.matchById(manager.flagcat, manager.lensingcat, 'id', 'objectId' )
-        else:
-            manager.matched_flagcat = util.matchById(manager.flagcat, manager.lensingcat, 'id', 'id')
 
         # area normalized, ie density function
         manager.pz = manager.matched_zcat['pdz']
@@ -105,6 +100,13 @@ class AstropyTableFilehandler(object):
 
         # 4. only keep background galaxies in lensing cat and redshift cat
         if 'flag_' + options.mconfig['zconfig'] in options.cat.keys():
+
+            manager.flagcat = options.cat['flag_'+options.mconfig['zconfig']]
+            if 'objectId' in manager.flagcat.keys():
+                manager.matched_flagcat = util.matchById(manager.flagcat, manager.lensingcat, 'id', 'objectId' )
+            else:
+                manager.matched_flagcat = util.matchById(manager.flagcat, manager.lensingcat, 'id', 'id')
+
             if 'zflagconfig' in options.mconfig:
                 
                 bck_gal = manager.matched_flagcat['flag_z_'+options.mconfig['zflagconfig']]
