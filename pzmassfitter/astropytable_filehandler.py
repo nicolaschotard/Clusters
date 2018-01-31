@@ -12,7 +12,6 @@ from astropy import units as u
 from . import util
 from . import nfwutils
 from . import ldac
-import pdb
 
 class AstropyTableFilehandler(object):
 
@@ -109,7 +108,7 @@ class AstropyTableFilehandler(object):
             if 'zflagconfig' in options.mconfig:
                 
                 bck_gal = manager.matched_flagcat['flag_z_'+options.mconfig['zflagconfig']]
-                print("Using "+ options.mconfig['zflagconfig']+" flag", len(sum(bck_gal)))
+                print("Using "+ options.mconfig['zflagconfig']+" flag:", sum(bck_gal), ' remaining galaxies')
 
                 
  #               manager.replace('lensingcat',
@@ -120,7 +119,6 @@ class AstropyTableFilehandler(object):
                 manager.replace('lensingcat', manager.lensingcat[bck_gal])
                 manager.replace('pz',  manager.pz[bck_gal])
                 z_b = z_b[bck_gal]
-                print(len(z_b), len(manager.lensingcat), len(manager.pz))
 
         r_arcmin, E, B = compute_shear(cat=manager.lensingcat,
                                        center=(options.cluster_ra,
@@ -138,6 +136,7 @@ class AstropyTableFilehandler(object):
             size = manager.lensingcat[options.sizeCol] / options.psfsize
             snratio = manager.lensingcat[options.snratioCol]
 
+ 
         if manager.wtg_shearcal:
             cols = [pyfits.Column(name='SeqNr', format='J', array=manager.lensingcat['id']),
                     pyfits.Column(name='r_mpc', format='E', array=r_mpc),
