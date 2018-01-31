@@ -14,7 +14,7 @@ from . import util
 from . import nfwutils
 # from . import sphereGeometry
 from . import ldac
-
+import pdb
 
 class AstropyTableFilehandler(object):
 
@@ -73,6 +73,7 @@ class AstropyTableFilehandler(object):
 
         manager.lensingcat = options.cat['deepCoadd_meas']
         manager.zcat = options.cat[options.mconfig['zconfig']]
+        manager.flagcat = options.cat['flag_'+options.mconfig['zconfig']]
 
         manager.clustername = options.cluster
         manager.zcluster = options.zcluster
@@ -80,10 +81,48 @@ class AstropyTableFilehandler(object):
         manager.logprior = options.logprior
         manager.wtg_shearcal = options.wtg_shearcal
 
-        # only keep 'i' filter
+        # Filter arrays
+        # 1. only keep 'i' filter
         if 'filter' in manager.lensingcat.keys():
             manager.replace(
                 'lensingcat', manager.lensingcat[manager.lensingcat["filter"] == 'i'])
+
+        # 2. match galaxies in lensing cat, redshift cat and flag cat
+        if 'objectId' in manager.zcat.keys():
+            manager.matched_zcat = util.matchById(manager.zcat, manager.lensingcat, 'id', 'objectId' )
+        else:
+            manager.matched_zcat = util.matchById(manager.zcat, manager.lensingcat, 'id', 'id')
+
+        if 'objectId' in manager.flagcat.keys():
+            manager.matched_flagcat = util.matchById(manager.flagcat, manager.lensingcat, 'id', 'objectId' )
+        else:
+            manager.matched_flagcat = util.matchById(manager.flagcat, manager.lensingcat, 'id', 'id')
+
+        # area normalized, ie density function
+        manager.pz = manager.matched_zcat['pdz']
+        z_b = manager.matched_zcat['Z_BEST']
+            
+        # 3. all objects have same zbins, take the first one
+        manager.pdzrange = manager.zcat['zbins'][0]
+        manager.replace('pdzrange', lambda: manager.pdzrange)
+
+        # 4. only keep background galaxies in lensing cat and redshift cat
+        if 'flag_' + options.mconfig['zconfig'] in options.cat.keys():
+            if 'zflagconfig' in options.mconfig:
+                
+                bck_gal = manager.matched_flagcat['flag_z_'+options.mconfig['zflagconfig']]
+                print("Using "+ options.mconfig['zflagconfig']+" flag", len(sum(bck_gal))
+
+                
+ #               manager.replace('lensingcat',
+ #                               manager.lensingcat[options.cat["flag_" + options.mconfig['zconfig']]['flag_z_'+options.mconfig['zflagconfig']] == True])
+ #               manager.replace('zcat',
+ #                               manager.zcat[options.cat["flag_" + options.mconfig['zconfig']]['flag_z_'+options.mconfig['zflagconfig']] == True])
+
+                manager.replace('lensingcat', manager.lensingcat[bck_gal])
+                manager.replace('pz',  manager.pz[bck_gal])
+                z_b = z_b[bck_gal]
+                print(len(z_b), len(manager.lensingcat), len(manager.pz))
 
         r_arcmin, E, B = compute_shear(cat=manager.lensingcat,
                                        center=(options.cluster_ra,
@@ -101,38 +140,6 @@ class AstropyTableFilehandler(object):
             size = manager.lensingcat[options.sizeCol] / options.psfsize
             snratio = manager.lensingcat[options.snratioCol]
 
-# old version
-#        manager.open('pdzcat', options.pdzfile, table.Table.read, path=options.prefix + 'pdz_values')
-#        manager.open('pdzrange', options.pdzfile, table.Table.read, path=options.prefix + 'pdz_bins')
-#        manager.replace('pdzrange', lambda: manager.pdzrange['zbins'])
-
-        # all objects have same zbins, take the first one
-        manager.pdzrange = manager.zcat['zbins'][0]
-        manager.replace('pdzrange', lambda: manager.pdzrange)
-
-        # redshift cut
-#        if 'z_flag_pdz_' + options.prefix[:-1] in manager.lensingcat.keys():
-        if 'flag_' + options.mconfig['zconfig'] in options.cat.keys():
-            if 'zflagconfig' in options.mconfig and options.mconfig['zflagconfig'] == 'pdz':
-                print("Using pdz flag",
-                      len(manager.lensingcat[options.cat["flag_" + options.mconfig['zconfig']]['flag_z_pdz'] == True]))
-                manager.replace('lensingcat',
-                                manager.lensingcat[options.cat["flag_" + options.mconfig['zconfig']]['flag_z_pdz'] == True])
-            elif 'zflagconfig' in options.mconfig and options.mconfig['zflagconfig'] == 'hard':
-                print("Using hard flag", len(
-                    manager.lensingcat[options.cat["flag_" + options.mconfig['zconfig']]['flag_z_hard'] == True]))
-                manager.replace('lensingcat',
-                                manager.lensingcat[options.cat["flag_" + options.mconfig['zconfig']]['flag_z_hard'] == True])
-
-        if 'objectId' in manager.zcat.keys():
-            manager.matched_zcat = util.matchById(manager.zcat, manager.lensingcat, 'id', 'objectId' )
-        else:
-            manager.matched_zcat = util.matchById(manager.zcat, manager.lensingcat, 'id', 'id')
-        # area normalized, ie density function
-        manager.pz = manager.matched_zcat['pdz']
-
-        z_b = manager.matched_zcat['Z_BEST']
-
         if manager.wtg_shearcal:
             cols = [pyfits.Column(name='SeqNr', format='J', array=manager.lensingcat['id']),
                     pyfits.Column(name='r_mpc', format='E', array=r_mpc),
@@ -148,13 +155,9 @@ class AstropyTableFilehandler(object):
                     pyfits.Column(name='ghats', format='E', array=E),
                     pyfits.Column(name='B', format='E', array=B)]
 
-        print(len(manager.lensingcat['id']))
- 
         manager.store('inputcat',
                       ldac.LDACCat(pyfits.BinTableHDU.from_columns(pyfits.ColDefs(cols))))
-
-        print(len(manager.inputcat))
- 
+        
 def compute_shear(cat, center, raCol, decCol, g1Col, g2Col):
     """Compute the radial and tangential shear."""
     cluster_ra, cluster_dec = center
@@ -174,7 +177,7 @@ def compute_shear(cat, center, raCol, decCol, g1Col, g2Col):
 #   Using standard astropy coordinates rather than sphereGeometry.
 #   sphereGeometry.posangle --> returns angle on [-pi, pi]
 #   astropy.coordinates.position_angle [0, 2pi]
-#   sphereGeometry.posangle = astropy.coordinates.position_angleif astropy.coordinates.position_angle < pi
+#   sphereGeometry.posangle = astropy.coordinates.position_angle if astropy.coordinates.position_angle < pi
 #   sphereGeometry.posangle = astropy.coordinates.position_angle - 2pi otherwise
 #   These angles are only unsed in cos(2phi) and sin(2phi), so that the difference above does not matter
 
