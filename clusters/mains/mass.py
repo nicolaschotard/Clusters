@@ -8,7 +8,6 @@ from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 from .. import utils as cutils
 from pzmassfitter import dmstackdriver
 
-
 def mass(argv=None):
     """Compute cluster mass."""
     description = """Compute the mass."""
@@ -60,12 +59,22 @@ def mass(argv=None):
     wtg_shearcal = False if 'wtg_shearcal' not in mconfig else config['mass']['wtg_shearcal']
     psfsize = None if 'psfsize' not in mconfig else config['mass']['psfsize']
 
-    # Choose lin or log sampling for the mass
+    # Options for the mass modeling 
     mprior = 'lin' if 'mprior' not in mconfig else config['mass']['mprior']
     if mprior == 'lin':
         logprior = False
     else:
         logprior = True
+
+    radlow = 0.75 if 'rmin'  not in mconfig else config['mass']['rmin']    
+    radhigh = 3 if 'rmax'  not in mconfig else config['mass']['rmax']
+    zcut = 0.1 if 'zcut'  not in mconfig else config['mass']['zcut']
+    zbhigh = 5 if 'zmax'  not in mconfig else config['mass']['zmax']
+    masslow = 1.e13 if 'mmin'  not in mconfig else float(config['mass']['mmin'])
+    masshigh = 1.e16 if 'mmax'  not in mconfig else float(config['mass']['mmax'])
+    concentration = None if 'concentration'  not in mconfig else config['mass']['concentration']
+    delta = 200 if 'delta'  not in mconfig else config['mass']['delta']
+    #    
 
     if args.output is None:
         args.output = args.input.replace('.hdf5', '_mass' + mprior + '_cal' + str(
@@ -87,7 +96,16 @@ def mass(argv=None):
 
     else:
         masscontroller = dmstackdriver.controller
-        options, cmdargs = masscontroller.modelbuilder.createOptions()
+#        options, cmdargs = masscontroller.modelbuilder.createOptions()
+        options, cmdargs = masscontroller.modelbuilder.createOptions(logprior=logprior,
+                                                                     masslow=masslow,
+                                                                     masshigh=masshigh,
+                                                                     radlow=radlow,
+                                                                     radhigh=radhigh,
+                                                                     zcut=zcut,
+                                                                     zbhigh=zbhigh,
+                                                                     concentration=concentration)
+        
         options, cmdargs = masscontroller.runmethod.createOptions(outputFile=args.output,
                                                                   nsamples=args.nsamples,
                                                                   burn=2000,
@@ -102,9 +120,9 @@ def mass(argv=None):
                                                                 cluster_dec=cluster_dec,
                                                                 wtg_shearcal=wtg_shearcal,
                                                                 psfsize=psfsize,
-                                                                logprior=logprior,
                                                                 options=options,
-                                                                args=cmdargs)
+                                                                args=cmdargs)#,
+#                                                                logprior=logprior)
 
     masscontroller.load(options, args)
     masscontroller.run()

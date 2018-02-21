@@ -36,7 +36,7 @@ class AstropyTableFilehandler(object):
                       snratioCol='snratio_scaled1',
                       wtg_shearcal=False,
                       psfsize=None,
-                      logprior=False,
+#                      logprior=False,
                       options=None, args=None):
 
         if options is None:
@@ -47,7 +47,7 @@ class AstropyTableFilehandler(object):
         options.cluster_ra = cluster_ra
         options.cluster_dec = cluster_dec
         options.wtg_shearcal = wtg_shearcal
-        options.logprior = logprior
+#        options.logprior = logprior
 
         if wtg_shearcal:
             options.psfsize = psfsize

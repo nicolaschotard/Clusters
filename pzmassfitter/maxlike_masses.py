@@ -15,7 +15,6 @@ from . import util
 from . import nfwmodeltools as tools
 from . import pymc_mymcmc_adapter as pma
 
-
 usage = '''
    maxlike_masses.py  filehandler_module shapedistro_module <options>
 
@@ -108,7 +107,7 @@ class LensingModel(object):
         options.concentration = concentration
         options.delta = delta
         options.logprior = logprior
-
+        
         return options, None
 
     #######################################################
@@ -118,6 +117,7 @@ class LensingModel(object):
         options = manager.options
         inputcat = manager.inputcat
 
+        
 #        if 'r500' in manager:
  #           manager.comment('Using r500')
         minMPC = options.radlow  # *manager.r500
